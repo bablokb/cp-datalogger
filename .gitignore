@@ -25,6 +25,7 @@ boot_out.txt
 config.py
 log_config.py
 __pycache__
+*.stl
 
 src/.vscode
 .vscode
