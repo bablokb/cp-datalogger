@@ -71,9 +71,11 @@ class ENS160:
         self.ens160.temperature_compensation = data["aht20"]["temp"]
         self.ens160.humidity_compensation    = data["aht20"]["hum"]
 
-      # take 3 readings
+      # take 3 readings (10s,60s,180s)
       csv_results = f"{status}"
-      for _ in range(3):
+      sleep_time = [10,50,120]
+      for i in range(3):
+        time.sleep(sleep_time[i])
         #status == 0 might still not provide valid data
         while True:
           while not self.ens160.new_data_available:
@@ -83,7 +85,6 @@ class ENS160:
           if not ens_data['eCO2'] is None:
             break
         csv_results += f",{ens_data['AQI']},{ens_data['TVOC']},{ens_data['eCO2']}"
-        time.sleep(5)
 
       # only show last reading on display
       data["ens160"] = ens_data
