@@ -27,7 +27,7 @@ class ENS160:
              "TVOC:", "{0}",
              "eCO2:", "{0}"
              ]
-  headers = 'status,AQI,TVOC ppb,eCO2 ppm eq.'
+  headers = 'status,AQI (1),TVOC ppb (1),eCO2 ppm eq. (1),AQI (2),TVOC ppb (2),eCO2 ppm eq. (2),AQI (3),TVOC ppb (3),eCO2 ppm eq. (3)'
 
   def __init__(self,config,i2c0=None,i2c1=None,spi0=None,spi1=None):
     """ constructor """
@@ -71,17 +71,23 @@ class ENS160:
         self.ens160.temperature_compensation = data["aht20"]["temp"]
         self.ens160.humidity_compensation    = data["aht20"]["hum"]
 
-      #status == 0 might still not provide valid data
-      while True:
-        while not self.ens160.new_data_available:
-          g_logger.print("ens160: waiting for data...")
-          time.sleep(0.2)
-        ens_data = self.ens160.read_all_sensors()
-        if not ens_data['eCO2'] is None:
-          break
+      # take 3 readings
+      csv_results = f"{status}"
+      for _ in range(3):
+        #status == 0 might still not provide valid data
+        while True:
+          while not self.ens160.new_data_available:
+            g_logger.print("ens160: waiting for data...")
+            time.sleep(0.2)
+          ens_data = self.ens160.read_all_sensors()
+          if not ens_data['eCO2'] is None:
+            break
+        csv_results += f",{ens_data['AQI']},{ens_data['TVOC']},{ens_data['eCO2']}"
+        time.sleep(5)
 
+      # only show last reading on display
       data["ens160"] = ens_data
       values.extend([None,ens_data['AQI']])
       values.extend([None,ens_data['TVOC']])
       values.extend([None,ens_data['eCO2']])
-      return f"{status},{ens_data['AQI']},{ens_data['TVOC']},{ens_data['eCO2']}"
+      return csv_results
