@@ -47,6 +47,7 @@ HAVE_LORA    = False               # Adafruit RFM96W LoRa Radio Transceiver Brea
 SENSORS = "id battery"             # list of sensors. Each needs a <sensor>.py file
 
 SHOW_UNITS = False # Show units in the csv output
+SIMPLE_UI  = False # use simple UI
 
 # Logger identification constants
 LOGGER_NAME  = 'Darasa Kamili'  # Perfect Classroom
