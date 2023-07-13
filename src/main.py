@@ -267,7 +267,7 @@ class DataCollector():
     self._max_chars = 10*self.display.width/m.width      # round later
     self._panel = label.Label(font=font,color=Color.BLACK,
                               tab_replacement=(2," "),
-                              line_spacing=0.8,
+                              line_spacing=1,
                               text=60*'M',anchor_point=(0.5,0.5))
     self._panel.anchored_position = (self.display.width/2,
                                      self.display.height/2)
