@@ -33,8 +33,9 @@ from rtc_ext.pcf8523 import ExtPCF8523 as ExtRTC
 
 # imports for the display
 import displayio
-import adafruit_display_text, adafruit_display_shapes, adafruit_bitmap_font
-import InkyPack
+from adafruit_bitmap_font import bitmap_font
+from adafruit_display_text import label as label
+from vectorio import Rectangle
 
 from dataviews.DisplayFactory import DisplayFactory
 from dataviews.Base import Color, Justify
@@ -189,6 +190,8 @@ class DataCollector():
   def _create_view(self):
     """ create data-view """
 
+    g_logger.print("start: _create_view")
+
     # guess best dimension
     if len(self._formats) < 5:
       dim = (2,2)
@@ -242,6 +245,34 @@ class DataCollector():
       color=Color.BLACK,
       bg_color=Color.WHITE
     )
+
+    g_logger.print("end:  _create_view")
+
+  # --- create simple ui   ---------------------------------------------------
+
+  def _create_simple_view(self):
+    """ create simple view of a single DisplayText """
+
+    g_logger.print("start: _create_simple_view")
+    font = bitmap_font.load_font(f"fonts/{g_config.FONT_DISPLAY}.bdf")
+    self._view = displayio.Group()
+    shader = displayio.Palette(2)
+    shader[0] = Color.WHITE
+    shader[1] = Color.BLACK
+    self._view.append(Rectangle(pixel_shader=shader,x=0,y=0,
+                   width=self.display.width,
+                   height=self.display.height,
+                   color_index=0))
+    m = label.Label(text="ABCD: 23.5",font=font)         # 10 chars
+    self._max_chars = 10*self.display.width/m.width      # round later
+    self._panel = label.Label(font=font,color=Color.BLACK,
+                              tab_replacement=(2," "),
+                              line_spacing=0.8,
+                              text=60*'M',anchor_point=(0.5,0.5))
+    self._panel.anchored_position = (self.display.width/2,
+                                     self.display.height/2)
+    self._view.append(self._panel)
+    g_logger.print("end:   _create_simple_view")
 
   # --- blink   --------------------------------------------------------------
 
@@ -311,17 +342,51 @@ class DataCollector():
         f.write(f"{self.record}\n")
         self.save_status = "SD"
 
-  # --- pretty-print data to console   ---------------------------------------
+  # --- pretty-print data to log   -------------------------------------------
 
   def pretty_print(self):
-    """ pretty-print data to console """
+    """ pretty-print data to log """
 
     columns = self.csv_header.split('#')[-1].split(',')
     merged = zip(columns,self.record.split(','))
     for label,value in merged:
       space = '\t\t' if len(label) < 9 else '\t'
       g_logger.print(f"{label}:{space}{value}")
-    
+
+  # --- set ui-text for simple-ui   ------------------------------------------
+
+  def _set_ui_text(self):
+    """ pretty-print data to log """
+
+    # create dynamic format: width of label is widh - 4 - 1 (4:value, 1:colon)
+    # layout is four columns: label:value label:value
+    w = int((self._max_chars-1)/2)
+    w_label = w - 5
+    template = "{label:<"+f"{w_label}.{w_label}"+"}:{value:>4.4}"
+    columns = self.csv_header.split('#')[-1].split(',')
+    merged = zip(columns,self.record.split(','))
+
+    # collect output into string
+    ui_string = f"{g_config.LOGGER_TITLE}"
+    ui_line = ""
+
+    for label,value in merged:
+      if label == "ts":
+        ts_line = f"\nat {value}"
+      elif label == "ID":
+        pass                 # skip ID (should be part of title)
+      elif ui_line:          # second column
+        ui_string += f"\n{ui_line} "+template.format(label=label,value=value)
+        ui_line = ""
+      else:
+        ui_line = template.format(label=label,value=value)
+
+    if ui_line:
+      ui_string += f"\n{ui_line}"
+    ui_string += ts_line
+    g_logger.print(ui_string)
+    self._panel.text = ui_string
+
   # --- send data   ----------------------------------------------------------
 
   def send_data(self):
@@ -335,15 +400,23 @@ class DataCollector():
 
     gc.collect()
     if not self._view:
-      self._create_view()
+      if g_config.SIMPLE_UI:
+        self._create_simple_view()
+      else:
+        self._create_view()
 
-    # fill in unused cells
-    self.values.extend([None for _ in range(len(self._formats)-len(self.values))])
+    if g_config.SIMPLE_UI:
+      self._set_ui_text()
+      self.display.root_group = self._view
+    else:
+      # fill in unused cells
+      self.values.extend([None for _ in range(len(self._formats)-len(self.values))])
 
-    self._view.set_values(self.values)
-    dt, ts = self.data['ts'].split("T")
-    self._footer.text = f"at {dt} {ts} {self.save_status}"
-    self.display.root_group = self._panel
+      self._view.set_values(self.values)
+      dt, ts = self.data['ts'].split("T")
+      self._footer.text = f"at {dt} {ts} {self.save_status}"
+      self.display.root_group = self._panel
+
     self.display.refresh()
     g_logger.print("finished refreshing display")
 
