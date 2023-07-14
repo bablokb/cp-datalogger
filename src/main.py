@@ -193,17 +193,20 @@ class DataCollector():
     g_logger.print("start: _create_view")
 
     # guess best dimension
-    if len(self._formats) < 5:
+    n_formats = len(self._formats)
+    if n_formats < 5:
       dim = (2,2)
-    elif len(self._formats) < 7:
+    elif n_formats < 7:
       dim = (3,2)
-    elif len(self._formats) < 13:
-      dim = (3,4)
     else:
-      raise Exception("too many sensors")
+      dim = (3,4)
 
-    self._formats.extend(
-      ["" for _ in range(dim[0]*dim[1] - len(self._formats))])
+    if n_formats < dim[0]*dim[1]:
+      self._formats.extend(
+        ["" for _ in range(dim[0]*dim[1] - n_formats)])
+    elif n_formats > dim[0]*dim[1]:
+      g_logger.print(f"only displaying first {dim[0]*dim[1]/2:.0f} sensor-values")
+      del self._formats[dim[0]*dim[1]:]
 
     border  = 1
     divider = 1
@@ -409,8 +412,13 @@ class DataCollector():
       self._set_ui_text()
       self.display.root_group = self._view
     else:
-      # fill in unused cells
-      self.values.extend([None for _ in range(len(self._formats)-len(self.values))])
+      if len(self.values) < len(self._formats):
+        # fill in unused cells
+        self.values.extend(
+          [None for _ in range(len(self._formats)-len(self.values))])
+      elif len(self.values) > len(self._formats):
+        # remove extra values
+        del self.values[len(self._formats):]
 
       self._view.set_values(self.values)
       dt, ts = self.data['ts'].split("T")
