@@ -11,7 +11,6 @@
 # ----------------------------------------------------------------------------
 
 import board
-import time
 import busio
 import displayio
 
@@ -148,7 +147,6 @@ class DisplayFactory:
       spi, command=pin_dc, chip_select=pin_cs,
       reset=pin_rst, baudrate=1000000
     )
-    time.sleep(1)
     return adafruit_ssd1608.SSD1608(display_bus, width=200, height=200,
                                     busy_pin=pin_busy, rotation=rotation)
 
