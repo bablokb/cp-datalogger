@@ -14,8 +14,11 @@
 # Website: https://github.com/pcb-pico-datalogger
 #-----------------------------------------------------------------------------
 
-import gc
 import time
+_ts = []
+_ts.append(time.monotonic())
+
+import gc
 import board
 import alarm
 import os
@@ -42,6 +45,8 @@ from dataviews.Base import Color, Justify
 from dataviews.DataView  import DataView
 from dataviews.DataPanel import DataPanel, PanelText
 
+_ts.append(time.monotonic())
+
 # --- early configuration of the log-destination   ---------------------------
 
 try:
@@ -49,6 +54,8 @@ try:
 except:
   from log_writer import Logger
   g_logger = Logger('console')
+
+_ts.append(time.monotonic())
 
 # --- default configuration is in config.py on the pico.
 #     You can override it also with a config.py on the sd-card   -------------
@@ -66,6 +73,8 @@ class Settings:
 
 g_config = Settings()
 g_config.import_config()
+
+_ts.append(time.monotonic())
 
 # --- pin-constants (don't change unless you know what you are doing)   ------
 
@@ -104,6 +113,7 @@ class DataCollector():
       sdcard     = adafruit_sdcard.SDCard(self._spi,self.sd_cs)
       self.vfs   = storage.VfsFat(sdcard)
       storage.mount(self.vfs, "/sd")
+      _ts.append(time.monotonic())
       try:
         import sys
         sys.path.insert(0,"/sd")
@@ -111,6 +121,8 @@ class DataCollector():
         sys.path.pop(0)
       except:
         g_logger.print("no configuration found in /sd/config.py")
+
+    _ts.append(time.monotonic())
 
     # Initialse i2c bus for use by sensors and RTC
     i2c1 = busio.I2C(PIN_SCL1,PIN_SDA1)
@@ -132,6 +144,8 @@ class DataCollector():
 
     self.vbus_sense           = DigitalInOut(board.VBUS_SENSE)
     self.vbus_sense.direction = Direction.INPUT
+
+    _ts.append(time.monotonic())
 
     # display
     if g_config.HAVE_DISPLAY:
@@ -160,6 +174,7 @@ class DataCollector():
         g_config.HAVE_DISPLAY = None
       self._view = None
 
+    _ts.append(time.monotonic())
 
     # just for testing
     if g_config.TEST_MODE:
@@ -170,6 +185,8 @@ class DataCollector():
 
     #configure sensors
     self._configure_sensors(i2c0,i2c1)
+
+    _ts.append(time.monotonic())
 
   # --- configure sensors   ---------------------------------------------------
 
@@ -471,6 +488,18 @@ g_logger.print("setup of hardware")
 
 app = DataCollector()
 app.setup()
+
+print(60*"-")
+print(f"{_ts[1]-_ts[0]:0.3f} (import)")
+print(f"{_ts[2]-_ts[1]:0.3f} (log-config)")
+print(f"{_ts[3]-_ts[2]:0.3f} (flash-config)")
+print(f"{_ts[4]-_ts[3]:0.3f} (sd-mount)")
+print(f"{_ts[5]-_ts[4]:0.3f} (sd-config)")
+print(f"{_ts[6]-_ts[5]:0.3f} (rtc-update)")
+print(f"{_ts[7]-_ts[6]:0.3f} (display-config)")
+print(f"{_ts[8]-_ts[7]:0.3f} (sensor-config)")
+print(f"{_ts[8]-_ts[0]:0.3f} (total)")
+print(60*"-")
 
 while True:
   if g_config.TEST_MODE:
