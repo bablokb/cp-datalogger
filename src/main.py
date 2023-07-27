@@ -127,7 +127,10 @@ class DataCollector():
     # Initialse i2c bus for use by sensors and RTC
     i2c1 = busio.I2C(PIN_SCL1,PIN_SDA1)
     if g_config.HAVE_I2C0:
-      i2c0 = busio.I2C(PIN_SCL0,PIN_SDA0)
+      try:
+        i2c0 = busio.I2C(PIN_SCL0,PIN_SDA0)
+      except:
+        i2c0 = None
     else:
       i2c0 = None
 
