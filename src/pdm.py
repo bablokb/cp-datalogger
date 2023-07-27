@@ -20,9 +20,7 @@ import audiobusio
 import array
 import math
 
-# PDM-mic
-PIN_PDM_CLK = board.GP5
-PIN_PDM_DAT = board.GP28
+import pins
 
 class PDM:
   formats = ["Noise:", "{0:0.0f}"]
@@ -31,7 +29,7 @@ class PDM:
   def __init__(self,config,i2c0=None,i2c1=None,spi0=None,spi1=None):
     """ constructor """
 
-    self.mic = audiobusio.PDMIn(PIN_PDM_CLK,PIN_PDM_DAT,
+    self.mic = audiobusio.PDMIn(pins.PIN_PDM_CLK,pins.PIN_PDM_DAT,
                                 sample_rate=16000, bit_depth=16)
 
   def read(self,data,values):
