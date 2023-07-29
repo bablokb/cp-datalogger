@@ -37,9 +37,9 @@ class SHT45:
     for bus in busses:
       try:
         if bus:
-          g_logger.print(f"testing sht45 on {str(bus)}")
+          g_logger.print(f"testing sht45")
           self.sht45 = adafruit_sht4x.SHT4x(bus)
-          g_logger.print(f"detected sht45 on {str(bus)}")
+          g_logger.print(f"detected sht45")
           break
       except Exception as ex:
         g_logger.print(f"exception: {ex}")

@@ -69,9 +69,9 @@ class ENS160:
     for bus in busses:
       try:
         if bus:
-          g_logger.print(f"testing ens160 on {str(bus)}")
+          g_logger.print(f"testing ens160")
           self.ens160 = adafruit_ens160.ENS160(bus)
-          g_logger.print(f"detected ens160 on {str(bus)}")
+          g_logger.print(f"detected ens160")
           break
       except Exception as ex:
         g_logger.print(f"exception: {ex}")

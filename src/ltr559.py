@@ -37,9 +37,9 @@ class LTR559:
     for bus in busses:
       try:
         if bus:
-          g_logger.print(f"testing ltr559 on {str(bus)}")
+          g_logger.print(f"testing ltr559")
           self.ltr559 = Pimoroni_LTR559(bus)
-          g_logger.print(f"detected ltr559 on {str(bus)}")
+          g_logger.print(f"detected ltr559")
           break
       except Exception as ex:
         g_logger.print(f"exception: {ex}")

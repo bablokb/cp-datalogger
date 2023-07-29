@@ -37,9 +37,9 @@ class MCP9808:
     for bus in busses:
       try:
         if bus:
-          g_logger.print(f"testing mcp9808 on {str(bus)}")
+          g_logger.print(f"testing mcp9808")
           self.mcp9808 = adafruit_mcp9808.MCP9808(bus)
-          g_logger.print(f"detected mcp9808 on {str(bus)}")
+          g_logger.print(f"detected mcp9808")
           break
       except Exception as ex:
         g_logger.print(f"exception: {ex}")

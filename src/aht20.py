@@ -36,9 +36,9 @@ class AHT20:
     for bus in busses:
       try:
         if bus:
-          g_logger.print(f"testing aht20 on {str(bus)}")
+          g_logger.print(f"testing aht20")
           self.aht20 = adafruit_ahtx0.AHTx0(bus)
-          g_logger.print(f"detected aht20 on {str(bus)}")
+          g_logger.print(f"detected aht20")
           break
       except Exception as ex:
         g_logger.print(f"exception: {ex}")
