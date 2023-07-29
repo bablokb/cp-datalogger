@@ -152,10 +152,30 @@ class DataCollector():
     self.csv_header += "#ts"
 
     self._sensors = []
-    for sensor in g_config.SENSORS.split(' '):
+    for spec in g_config.SENSORS.split(' '):   # spec is sensor(addr,bus)
+      # defaults for normal case without addr/bus
+      spec   = spec.split('(')
+      sensor = spec[0]
+      addr   = None
+      bus    = None
+
+      # check for parameters
+      if len(spec) > 1:
+        spec = spec[1][:-1].split(',')   # remove trailing ) and split
+        # parse parameters
+        addr = int(spec[0],16)
+        spec.pop(0)
+        if addr < 2:                                # addr is actually a bus
+          bus  = i2c0 if addr == 0 else i2c1
+          addr = None
+        elif len(spec):
+          bus = i2c0 if spec[2] == "0" else i2c1
+
       sensor_module = builtins.__import__(sensor,None,None,[sensor.upper()],0)
       sensor_class = getattr(sensor_module,sensor.upper())
-      _sensor = sensor_class(g_config,i2c0,i2c1,None,None)
+      _sensor = sensor_class(g_config,i2c0,i2c1,
+                             addr,bus,
+                             None,None)
       self._sensors.append(_sensor.read)
       self._formats.extend(_sensor.formats)
       self.csv_header += f",{_sensor.headers}"

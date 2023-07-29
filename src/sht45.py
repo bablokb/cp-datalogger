@@ -24,19 +24,27 @@ class SHT45:
   formats = ["T/SHT:", "{0:.1f}°C","H/SHT:", "{0:.0f}%rH"]
   headers = 'T/SHT °C,H/SHT %rH'
 
-  def __init__(self,config,i2c0=None,i2c1=None,spi0=None,spi1=None):
+  def __init__(self,config,i2c0=None,i2c1=None,
+               addr=None,bus=None,
+               spi0=None,spi1=None):
     """ constructor """
-    try:
-      if i2c1:
-        g_logger.print("testing sht45 on i2c1")
-        self.sht45 = adafruit_sht4x.SHT4x(i2c1)
-        g_logger.print("detected sht45 on i2c1")
-    except Exception as ex:
-      g_logger.print(f"exception: {ex}")
-      if i2c0:
-        g_logger.print("testing sht45 on i2c0")
-        self.sht45 = adafruit_sht4x.SHT4x(i2c0)
-        g_logger.print("detected sht45 on i2c0")
+
+    self.sht45 = None
+    if bus:
+      busses = [bus]
+    else:
+      busses = [i2c1,i2c0]
+    for bus in busses:
+      try:
+        if bus:
+          g_logger.print(f"testing sht45 on {str(bus)}")
+          self.sht45 = adafruit_sht4x.SHT4x(bus)
+          g_logger.print(f"detected sht45 on {str(bus)}")
+          break
+      except Exception as ex:
+        g_logger.print(f"exception: {ex}")
+    if not self.sht45:
+      raise Exception("no sht45 detected. Check config/cabling!")
 
   def read(self,data,values):
     """ read sensor """

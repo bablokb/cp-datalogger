@@ -56,19 +56,27 @@ class ENS160:
     for i in range(len(MEASUREMENT_INTERVALS)):
       headers += f",AQI ({i+1}),TVOC ppb ({i+1}),eCO2 ppm eq. ({i+1})"
 
-  def __init__(self,config,i2c0=None,i2c1=None,spi0=None,spi1=None):
+  def __init__(self,config,i2c0=None,i2c1=None,
+               addr=None,bus=None,
+               spi0=None,spi1=None):
     """ constructor """
-    try:
-      if i2c1:
-        g_logger.print("testing ens160 on i2c1")
-        self.ens160 = adafruit_ens160.ENS160(i2c1)
-        g_logger.print("detected ens160 on i2c1")
-    except Exception as ex:
-      g_logger.print(f"exception: {ex}")
-      if i2c0:
-        g_logger.print("testing ens160 on i2c0")
-        self.ens160 = adafruit_ens160.ENS160(i2c0)
-        g_logger.print("detected ens160 on i2c0")
+
+    self.ens160 = None
+    if bus:
+      busses = [bus]
+    else:
+      busses = [i2c1,i2c0]
+    for bus in busses:
+      try:
+        if bus:
+          g_logger.print(f"testing ens160 on {str(bus)}")
+          self.ens160 = adafruit_ens160.ENS160(bus)
+          g_logger.print(f"detected ens160 on {str(bus)}")
+          break
+      except Exception as ex:
+        g_logger.print(f"exception: {ex}")
+    if not self.ens160:
+      raise Exception("no ens160 detected. Check config/cabling!")
 
   def read(self,data,values):
     status = self.ens160.data_validity

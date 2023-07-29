@@ -43,8 +43,17 @@ CSV_FILENAME = "/sd/log_{ID}_{YMD}.csv"
 HAVE_DISPLAY = 'Inky-Pack'         # 'Inky-Pack', 'Display-Pack' or None
 HAVE_LORA    = False               # Adafruit RFM96W LoRa Radio Transceiver Breakout is avaialble
 
-# hardware configuration settings for sensors
-SENSORS = "id battery"             # list of sensors. Each needs a <sensor>.py file
+# List of sensors. Each needs a <sensor>.py file.
+# An entry must be any off (no spaces allowed!):
+#   sensor
+#   sensor(bus)          bus = 0|1
+#   sensor(addr)         addr = 0xZZ
+#   sensor(addr,bus)
+#
+# When no bus is provided, busses are probed in the order i2c1,i2c0.
+# When no address is provided, the default address as configured in
+# the driver is used.
+SENSORS = "id battery"
 
 SHOW_UNITS = False # Show units in the csv output
 SIMPLE_UI  = False # use simple UI
