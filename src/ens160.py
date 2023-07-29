@@ -62,16 +62,18 @@ class ENS160:
     """ constructor """
 
     self.ens160 = None
-    if bus:
-      busses = [bus]
+    _busses = [i2c0,i2c1]
+    if not bus is None:
+      bus_nr = [bus]
     else:
-      busses = [i2c1,i2c0]
-    for bus in busses:
+      bus_nr = [1,0]
+    for nr in bus_nr:
       try:
+        bus = _busses[nr]
         if bus:
-          g_logger.print(f"testing ens160")
+          g_logger.print(f"testing ens160 on i2c{nr}")
           self.ens160 = adafruit_ens160.ENS160(bus)
-          g_logger.print(f"detected ens160")
+          g_logger.print(f"detected ens160 on i2c{nr}")
           break
       except Exception as ex:
         g_logger.print(f"exception: {ex}")

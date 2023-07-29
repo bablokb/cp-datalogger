@@ -166,10 +166,10 @@ class DataCollector():
         addr = int(spec[0],16)
         spec.pop(0)
         if addr < 2:                                # addr is actually a bus
-          bus  = i2c0 if addr == 0 else i2c1
+          bus  = addr
           addr = None
         elif len(spec):
-          bus = i2c0 if spec[2] == "0" else i2c1
+          bus = int(spec[2])
 
       sensor_module = builtins.__import__(sensor,None,None,[sensor.upper()],0)
       sensor_class = getattr(sensor_module,sensor.upper())

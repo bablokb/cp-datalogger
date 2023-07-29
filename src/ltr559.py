@@ -30,16 +30,18 @@ class LTR559:
     """ constructor """
 
     self.ltr559 = None
-    if bus:
-      busses = [bus]
+    _busses = [i2c0,i2c1]
+    if not bus is None:
+      bus_nr = [bus]
     else:
-      busses = [i2c1,i2c0]
-    for bus in busses:
+      bus_nr = [1,0]
+    for nr in bus_nr:
       try:
+        bus = _busses[nr]
         if bus:
-          g_logger.print(f"testing ltr559")
+          g_logger.print(f"testing ltr559 on i2c{nr}")
           self.ltr559 = Pimoroni_LTR559(bus)
-          g_logger.print(f"detected ltr559")
+          g_logger.print(f"detected ltr559 on i2c{nr}")
           break
       except Exception as ex:
         g_logger.print(f"exception: {ex}")

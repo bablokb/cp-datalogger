@@ -30,16 +30,18 @@ class BH1750:
     """ constructor """
 
     self.bh1750 = None
-    if bus:
-      busses = [bus]
+    _busses = [i2c0,i2c1]
+    if not bus is None:
+      bus_nr = [bus]
     else:
-      busses = [i2c1,i2c0]
-    for bus in busses:
+      bus_nr = [1,0]
+    for nr in bus_nr:
       try:
+        bus = _busses[nr]
         if bus:
-          g_logger.print(f"testing bh1750")
+          g_logger.print(f"testing bh1750 on i2c{nr}")
           self.bh1750 = adafruit_bh1750.BH1750(bus)
-          g_logger.print(f"detected bh1750")
+          g_logger.print(f"detected bh1750 on i2c{nr}")
           break
       except Exception as ex:
         g_logger.print(f"exception: {ex}")
