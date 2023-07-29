@@ -30,16 +30,18 @@ class SHT45:
     """ constructor """
 
     self.sht45 = None
-    if bus:
-      busses = [bus]
+    _busses = [i2c0,i2c1]
+    if not bus is None:
+      bus_nr = [bus]
     else:
-      busses = [i2c1,i2c0]
-    for bus in busses:
+      bus_nr = [1,0]
+    for nr in bus_nr:
       try:
+        bus = _busses[nr]
         if bus:
-          g_logger.print(f"testing sht45")
+          g_logger.print(f"testing sht45 on i2c{nr}")
           self.sht45 = adafruit_sht4x.SHT4x(bus)
-          g_logger.print(f"detected sht45")
+          g_logger.print(f"detected sht45 on i2c{nr}")
           break
       except Exception as ex:
         g_logger.print(f"exception: {ex}")
