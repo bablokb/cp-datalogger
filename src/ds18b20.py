@@ -30,7 +30,7 @@ import time
 from adafruit_onewire.bus import OneWireBus, OneWireAddress
 import adafruit_ds18x20
 
-PIN_ONE_WIRE = board.GP5
+PIN_ONE_WIRE = board.GP27
  
 class DS18B20:
   formats = ["T/18B:", "{0:.1f}°C"]
