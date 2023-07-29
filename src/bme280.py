@@ -26,21 +26,28 @@ class BME280:
              "P/BME:", "{0:.0f}hPa"]
   headers = 'T/BME °C,H/BME %rH,P/BME'
 
-  def __init__(self,config,i2c0=None,i2c1=None,spi0=None,spi1=None):
+  def __init__(self,config,i2c0=None,i2c1=None,
+               addr=None,bus=None,
+               spi0=None,spi1=None):
     """ constructor """
-    try:
-      if i2c1:
-        g_logger.print("testing bme280 on i2c1")
-        self.bme280 = adafruit_bme280.Adafruit_BME280_I2C(
-          i2c1,address=0x76)
-        g_logger.print("detected bme280 on i2c1")
-    except Exception as ex:
-      g_logger.print(f"exception: {ex}")
-      if i2c0:
-        g_logger.print("testing bme280 on i2c0")
-        self.bme280 = adafruit_bme280.Adafruit_BME280_I2C(
-          i2c0,address=0x76)
-        g_logger.print("detected bme280 on i2c0")
+
+    self.bme280 = None
+    if bus:
+      busses = [bus]
+    else:
+      busses = [i2c1,i2c0]
+    for bus in busses:
+      try:
+        if bus:
+          g_logger.print(f"testing bme280")
+          self.bme280 = adafruit_bme280.Adafruit_BME280_I2C(
+            bus,address=0x76)
+          g_logger.print(f"detected bme280")
+          break
+      except Exception as ex:
+        g_logger.print(f"exception: {ex}")
+    if not self.bme280:
+      raise Exception("no bme280 detected. Check config/cabling!")
 
     self.bme280.mode                 = adafruit_bme280.MODE_SLEEP
     self.bme280.iir_filter           = adafruit_bme280.IIR_FILTER_DISABLE

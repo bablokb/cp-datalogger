@@ -18,24 +18,33 @@
 from log_writer import Logger
 g_logger = Logger()
 
+import adafruit_am2320
+
 class AM2320:
   formats = ["T/AM:", "{0:.1f}°C","H/AM:", "{0:.0f}%rH"]
   headers = 'T/AM °C,H/AM %rH'
 
-  def __init__(self,config,i2c0=None,i2c1=None,spi0=None,spi1=None):
+  def __init__(self,config,i2c0=None,i2c1=None,
+               addr=None,bus=None,
+               spi0=None,spi1=None):
     """ constructor """
-    import adafruit_am2320
-    try:
-      if i2c1:
-        g_logger.print("testing am2320 on i2c1")
-        self.am2320 = adafruit_am2320.AM2320(i2c1)
-        g_logger.print("detected am2320 on i2c1")
-    except Exception as ex:
-      g_logger.print(f"exception: {ex}")
-      if i2c0:
-        g_logger.print("testing am2320 on i2c0")
-        self.am2320 = adafruit_am2320.AM2320(i2c0)
-        g_logger.print("detected am2320 on i2c0")
+
+    self.am2320 = None
+    if bus:
+      busses = [bus]
+    else:
+      busses = [i2c1,i2c0]
+    for bus in busses:
+      try:
+        if bus:
+          g_logger.print(f"testing am2320")
+          self.am2320 = adafruit_am2320.AM2320(bus)
+          g_logger.print(f"detected am2320")
+          break
+      except Exception as ex:
+        g_logger.print(f"exception: {ex}")
+    if not self.am2320:
+      raise Exception("no am2320 detected. Check config/cabling!")
 
   def read(self,data,values):
     """ read sensor """

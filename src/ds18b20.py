@@ -36,7 +36,9 @@ class DS18B20:
   formats = ["T/18B:", "{0:.1f}°C"]
   headers = 'T/18B °C,'
 
-  def __init__(self,config,i2c0=None,i2c1=None,spi0=None,spi1=None):
+  def __init__(self,config,i2c0=None,i2c1=None,
+               addr=None,bus=None,
+               spi0=None,spi1=None):
     """ constructor """
 
     ow_bus = OneWireBus(PIN_ONE_WIRE)

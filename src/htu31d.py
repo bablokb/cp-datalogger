@@ -24,19 +24,27 @@ class HTU31D:
   formats = ["T/HTU:", "{0:.1f}°C","H/HTU:", "{0:.0f}%rH"]
   headers = 'T/HTU °C,H/HTU %rH'
 
-  def __init__(self,config,i2c0=None,i2c1=None,spi0=None,spi1=None):
+  def __init__(self,config,i2c0=None,i2c1=None,
+               addr=None,bus=None,
+               spi0=None,spi1=None):
     """ constructor """
-    try:
-      if i2c1:
-        g_logger.print("testing htu31d on i2c1")
-        self.htu31d = adafruit_htu31d.HTU31D(i2c1)
-        g_logger.print("detected htu31d on i2c1")
-    except Exception as ex:
-      g_logger.print(f"exception: {ex}")
-      if i2c0:
-        g_logger.print("testing htu31d on i2c0")
-        self.htu31d = adafruit_htu31d.HTU31D(i2c0)
-        g_logger.print("detected htu31d on i2c0")
+
+    self.htu31d = None
+    if bus:
+      busses = [bus]
+    else:
+      busses = [i2c1,i2c0]
+    for bus in busses:
+      try:
+        if bus:
+          g_logger.print(f"testing htu31d")
+          self.htu31d = adafruit_htu31d.HTU31D(bus)
+          g_logger.print(f"detected htu31d")
+          break
+      except Exception as ex:
+        g_logger.print(f"exception: {ex}")
+    if not self.htu31d:
+      raise Exception("no htu31d detected. Check config/cabling!")
 
   def read(self,data,values):
     """ read sensor """
