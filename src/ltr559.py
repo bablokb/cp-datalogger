@@ -24,20 +24,27 @@ class LTR559:
   formats = ["L/LTR:", "{0:.0f}lx"]
   headers = 'L/LTR lx'
 
-  def __init__(self,config,i2c0=None,i2c1=None,spi0=None,spi1=None):
+  def __init__(self,config,i2c0=None,i2c1=None,
+               addr=None,bus=None,
+               spi0=None,spi1=None):
     """ constructor """
 
-    try:
-      if i2c1:
-        g_logger.print("testing ltr599 on i2c1")
-        self.ltr559 = Pimoroni_LTR559(i2c1)
-        g_logger.print("detected ltr599 on i2c1")
-    except Exception as ex:
-      g_logger.print(f"exception: {ex}")
-      if i2c0:
-        g_logger.print("testing ltr599 on i2c0")
-        self.ltr559 = Pimoroni_LTR559(i2c0)
-        g_logger.print("detected ltr599 on i2c0")
+    self.ltr559 = None
+    if bus:
+      busses = [bus]
+    else:
+      busses = [i2c1,i2c0]
+    for bus in busses:
+      try:
+        if bus:
+          g_logger.print(f"testing ltr559")
+          self.ltr559 = Pimoroni_LTR559(bus)
+          g_logger.print(f"detected ltr559")
+          break
+      except Exception as ex:
+        g_logger.print(f"exception: {ex}")
+    if not self.ltr559:
+      raise Exception("no ltr559 detected. Check config/cabling!")
 
   def read(self,data,values):
     lux = self.ltr559.lux

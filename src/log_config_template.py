@@ -20,8 +20,6 @@ g_logger = Logger('console')            # normal print-statements
 
 # log to UART-serial
 #import busio
-#import board
-#PIN_RX = board.GP1
-#PIN_TX = board.GP0
-#uart = busio.UART(PIN_TX, PIN_RX, baudrate=115200)
+#import pins
+#uart = busio.UART(pins.PIN_TX, pins.PIN_RX, baudrate=115200)
 #g_logger = Logger(uart)

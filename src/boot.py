@@ -12,13 +12,11 @@ import board
 import supervisor
 from digitalio import DigitalInOut, Pull, Direction
 
-# --- pin-constants (don't change unless you know what you are doing)   ------
-
-PIN_SWA = board.GP12  # for both Inky-Pack and Display-Pack
+import pins
 
 # --- configure hardware   ---------------------------------------------------
 
-switch_a = DigitalInOut(PIN_SWA)
+switch_a = DigitalInOut(pins.PIN_SWA)
 switch_a.direction = Direction.INPUT
 switch_a.pull = Pull.UP
 

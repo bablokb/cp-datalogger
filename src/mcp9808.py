@@ -18,25 +18,33 @@
 from log_writer import Logger
 g_logger = Logger()
 
+import adafruit_mcp9808
+
 class MCP9808:
   formats = ["T/MCP:", "{0:.1f}°C"]
   headers = 'T/MCP °C'
 
-  def __init__(self,config,i2c0=None,i2c1=None,spi0=None,spi1=None):
+  def __init__(self,config,i2c0=None,i2c1=None,
+               addr=None,bus=None,
+               spi0=None,spi1=None):
     """ constructor """
 
-    import adafruit_mcp9808
-    try:
-      if i2c1:
-        g_logger.print("testing mcp9808 on i2c1")
-        self.mcp9808 = adafruit_mcp9808.MCP9808(i2c1)
-        g_logger.print("detected mcp9808 on i2c1")
-    except Exception as ex:
-      g_logger.print(f"exception: {ex}")
-      if i2c0:
-        g_logger.print("testing mcp9808 on i2c0")
-        self.mcp9808 = adafruit_mcp9808.MCP9808(i2c0)
-        g_logger.print("detected mcp9808 on i2c0")
+    self.mcp9808 = None
+    if bus:
+      busses = [bus]
+    else:
+      busses = [i2c1,i2c0]
+    for bus in busses:
+      try:
+        if bus:
+          g_logger.print(f"testing mcp9808")
+          self.mcp9808 = adafruit_mcp9808.MCP9808(bus)
+          g_logger.print(f"detected mcp9808")
+          break
+      except Exception as ex:
+        g_logger.print(f"exception: {ex}")
+    if not self.mcp9808:
+      raise Exception("no mcp9808 detected. Check config/cabling!")
 
   def read(self,data,values):
     t = self.mcp9808.temperature

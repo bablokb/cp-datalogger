@@ -18,24 +18,32 @@
 from log_writer import Logger
 g_logger = Logger()
 
+import adafruit_ahtx0
+
 class AHT20:
   formats = ["T/AHT:", "{0:.1f}°C","H/AHT:", "{0:.0f}%rH"]
   headers = 'T/AHT °C,H/AHT %rH'
 
-  def __init__(self,config,i2c0=None,i2c1=None,spi0=None,spi1=None):
+  def __init__(self,config,i2c0=None,i2c1=None,
+               addr=None,bus=None,
+               spi0=None,spi1=None):
     """ constructor """
-    import adafruit_ahtx0
-    try:
-      if i2c1:
-        g_logger.print("testing aht20 on i2c1")
-        self.aht20 = adafruit_ahtx0.AHTx0(i2c1)
-        g_logger.print("detected aht20 on i2c1")
-    except Exception as ex:
-      g_logger.print(f"exception: {ex}")
-      if i2c0:
-        g_logger.print("testing aht20 on i2c0")
-        self.aht20 = adafruit_ahtx0.AHTx0(i2c0)
-        g_logger.print("detected aht20 on i2c0")
+    self.aht20 = None
+    if bus:
+      busses = [bus]
+    else:
+      busses = [i2c1,i2c0]
+    for bus in busses:
+      try:
+        if bus:
+          g_logger.print(f"testing aht20")
+          self.aht20 = adafruit_ahtx0.AHTx0(bus)
+          g_logger.print(f"detected aht20")
+          break
+      except Exception as ex:
+        g_logger.print(f"exception: {ex}")
+    if not self.aht20:
+      raise Exception("no aht20 detected. Check config/cabling!")
 
   def read(self,data,values):
     """ read sensor """

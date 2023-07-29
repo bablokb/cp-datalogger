@@ -24,20 +24,27 @@ class BH1750:
   formats = ["L/bhx0:", "{0:.0f}lx"]
   headers = 'L/bhx0 lx'
 
-  def __init__(self,config,i2c0=None,i2c1=None,spi0=None,spi1=None):
+  def __init__(self,config,i2c0=None,i2c1=None,
+               addr=None,bus=None,
+               spi0=None,spi1=None):
     """ constructor """
 
-    try:
-      if i2c1:
-        g_logger.print("testing bh1750 on i2c1")
-        self.bh1750 = adafruit_bh1750.BH1750(i2c1)
-        g_logger.print("detected bh1750 on i2c1")
-    except Exception as ex:
-      g_logger.print(f"exception: {ex}")
-      if i2c0:
-        g_logger.print("testing bh1750 on i2c0")
-        self.bh1750 = adafruit_bh1750.BH1750(i2c0)
-        g_logger.print("detected bh1750 on i2c0")
+    self.bh1750 = None
+    if bus:
+      busses = [bus]
+    else:
+      busses = [i2c1,i2c0]
+    for bus in busses:
+      try:
+        if bus:
+          g_logger.print(f"testing bh1750")
+          self.bh1750 = adafruit_bh1750.BH1750(bus)
+          g_logger.print(f"detected bh1750")
+          break
+      except Exception as ex:
+        g_logger.print(f"exception: {ex}")
+    if not self.bh1750:
+      raise Exception("no bh1750 detected. Check config/cabling!")
 
   def read(self,data,values):
     lux = self.bh1750.lux
