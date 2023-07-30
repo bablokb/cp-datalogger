@@ -26,9 +26,7 @@ class PDM:
   formats = ["Noise:", "{0:0.0f}"]
   headers = 'Noise'
 
-  def __init__(self,config,i2c0=None,i2c1=None,
-               addr=None,bus=None,
-               spi0=None,spi1=None):
+  def __init__(self,config,i2c,addr=None,spi=None):
     """ constructor """
 
     self.mic = audiobusio.PDMIn(pins.PIN_PDM_CLK,pins.PIN_PDM_DAT,

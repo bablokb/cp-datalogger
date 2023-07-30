@@ -24,25 +24,16 @@ class SHT45:
   formats = ["T/SHT:", "{0:.1f}°C","H/SHT:", "{0:.0f}%rH"]
   headers = 'T/SHT °C,H/SHT %rH'
 
-  def __init__(self,config,i2c0=None,i2c1=None,
-               addr=None,bus=None,
-               spi0=None,spi1=None):
+  def __init__(self,config,i2c,addr=None,spi=None):
     """ constructor """
 
     self.sht45 = None
-    _busses = [i2c0,i2c1]
-    if not bus is None:
-      bus_nr = [bus]
-    else:
-      bus_nr = [1,0]
-    for nr in bus_nr:
+    for bus,nr in i2c:
       try:
-        bus = _busses[nr]
-        if bus:
-          g_logger.print(f"testing sht45 on i2c{nr}")
-          self.sht45 = adafruit_sht4x.SHT4x(bus)
-          g_logger.print(f"detected sht45 on i2c{nr}")
-          break
+        g_logger.print(f"testing sht45 on i2c{nr}")
+        self.sht45 = adafruit_sht4x.SHT4x(bus)
+        g_logger.print(f"detected sht45 on i2c{nr}")
+        break
       except Exception as ex:
         g_logger.print(f"exception: {ex}")
     if not self.sht45:
