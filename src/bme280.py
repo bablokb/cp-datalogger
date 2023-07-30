@@ -26,24 +26,17 @@ class BME280:
              "P/BME:", "{0:.0f}hPa"]
   headers = 'T/BME °C,H/BME %rH,P/BME'
 
-  def __init__(self,config,i2c0=None,i2c1=None,
-               addr=None,bus=None,
-               spi0=None,spi1=None):
+  def __init__(self,config,i2c,addr=None,spi=None):
     """ constructor """
 
     self.bme280 = None
-    if bus:
-      busses = [bus]
-    else:
-      busses = [i2c1,i2c0]
-    for bus in busses:
+    for bus,nr in i2c:
       try:
-        if bus:
-          g_logger.print(f"testing bme280")
-          self.bme280 = adafruit_bme280.Adafruit_BME280_I2C(
-            bus,address=0x76)
-          g_logger.print(f"detected bme280")
-          break
+        g_logger.print(f"testing bme280 on i2c{nr}")
+        self.bme280 = adafruit_bme280.Adafruit_BME280_I2C(
+          bus,address=0x76)
+        g_logger.print(f"detected bme280 on i2c{nr}")
+        break
       except Exception as ex:
         g_logger.print(f"exception: {ex}")
     if not self.bme280:

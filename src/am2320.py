@@ -24,23 +24,16 @@ class AM2320:
   formats = ["T/AM:", "{0:.1f}°C","H/AM:", "{0:.0f}%rH"]
   headers = 'T/AM °C,H/AM %rH'
 
-  def __init__(self,config,i2c0=None,i2c1=None,
-               addr=None,bus=None,
-               spi0=None,spi1=None):
+  def __init__(self,config,i2c,addr=None,spi=None):
     """ constructor """
 
     self.am2320 = None
-    if bus:
-      busses = [bus]
-    else:
-      busses = [i2c1,i2c0]
-    for bus in busses:
+    for bus,nr in i2c:
       try:
-        if bus:
-          g_logger.print(f"testing am2320")
-          self.am2320 = adafruit_am2320.AM2320(bus)
-          g_logger.print(f"detected am2320")
-          break
+        g_logger.print(f"testing am2320 on i2c{nr}")
+        self.am2320 = adafruit_am2320.AM2320(bus)
+        g_logger.print(f"detected am2320 on i2c{nr}")
+        break
       except Exception as ex:
         g_logger.print(f"exception: {ex}")
     if not self.am2320:

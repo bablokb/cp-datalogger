@@ -24,23 +24,15 @@ class HTU31D:
   formats = ["T/HTU:", "{0:.1f}°C","H/HTU:", "{0:.0f}%rH"]
   headers = 'T/HTU °C,H/HTU %rH'
 
-  def __init__(self,config,i2c0=None,i2c1=None,
-               addr=None,bus=None,
-               spi0=None,spi1=None):
+  def __init__(self,config,i2c,addr=None,spi=None):
     """ constructor """
-
     self.htu31d = None
-    if bus:
-      busses = [bus]
-    else:
-      busses = [i2c1,i2c0]
-    for bus in busses:
+    for bus,nr in i2c:
       try:
-        if bus:
-          g_logger.print(f"testing htu31d")
-          self.htu31d = adafruit_htu31d.HTU31D(bus)
-          g_logger.print(f"detected htu31d")
-          break
+        g_logger.print(f"testing htu31d on i2c{nr}")
+        self.htu31d = adafruit_htu31d.HTU31D(bus)
+        g_logger.print(f"detected htu31d on i2c{nr}")
+        break
       except Exception as ex:
         g_logger.print(f"exception: {ex}")
     if not self.htu31d:
