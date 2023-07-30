@@ -24,25 +24,16 @@ class MCP9808:
   formats = ["T/MCP:", "{0:.1f}°C"]
   headers = 'T/MCP °C'
 
-  def __init__(self,config,i2c0=None,i2c1=None,
-               addr=None,bus=None,
-               spi0=None,spi1=None):
+  def __init__(self,config,i2c,addr=None,spi=None):
     """ constructor """
 
     self.mcp9808 = None
-    _busses = [i2c0,i2c1]
-    if not bus is None:
-      bus_nr = [bus]
-    else:
-      bus_nr = [1,0]
-    for nr in bus_nr:
+    for bus,nr in i2c:
       try:
-        bus = _busses[nr]
-        if bus:
-          g_logger.print(f"testing mcp9808 on i2c{nr}")
-          self.mcp9808 = adafruit_mcp9808.MCP9808(bus)
-          g_logger.print(f"detected mcp9808 on i2c{nr}")
-          break
+        g_logger.print(f"testing mcp9808 on i2c{nr}")
+        self.mcp9808 = adafruit_mcp9808.MCP9808(bus)
+        g_logger.print(f"detected mcp9808 on i2c{nr}")
+        break
       except Exception as ex:
         g_logger.print(f"exception: {ex}")
     if not self.mcp9808:

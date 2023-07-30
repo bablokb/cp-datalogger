@@ -150,15 +150,21 @@ class DataCollector():
     self._formats = []
     self.csv_header = f"#ID: {g_config.LOGGER_ID}\n#Location: {g_config.LOGGER_LOCATION}\n"
     self.csv_header += "#ts"
-
     self._sensors = []
+
+    # setup defaults
+    i2c_default = [(i2c1,1)]
+    if i2c0:
+      i2c_default.append((i2c0,0))
+
+    # parse sensor specification. Will fail if i2c0 is requested, but not
+    # configured
     for spec in g_config.SENSORS.split(' '):   # spec is sensor(addr,bus)
       # defaults for normal case without addr/bus
       spec   = spec.split('(')
       sensor = spec[0]
       addr   = None
-      bus    = None
-
+      i2c    = list(i2c_default)
       # check for parameters
       if len(spec) > 1:
         spec = spec[1][:-1].split(',')   # remove trailing ) and split
@@ -166,16 +172,14 @@ class DataCollector():
         addr = int(spec[0],16)
         spec.pop(0)
         if addr < 2:                                # addr is actually a bus
-          bus  = addr
+          i2c = [i2c_default[1-addr]]
           addr = None
         elif len(spec):
-          bus = int(spec[2])
+          i2c = [i2c_default[1-int(spec[2])]]
 
       sensor_module = builtins.__import__(sensor,None,None,[sensor.upper()],0)
       sensor_class = getattr(sensor_module,sensor.upper())
-      _sensor = sensor_class(g_config,i2c0,i2c1,
-                             addr,bus,
-                             None,None)
+      _sensor = sensor_class(g_config,i2c,addr,None)
       self._sensors.append(_sensor.read)
       self._formats.extend(_sensor.formats)
       self.csv_header += f",{_sensor.headers}"

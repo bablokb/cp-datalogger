@@ -19,9 +19,7 @@ class ID:
   formats = []             # empty: don't show on display
   headers = 'ID'
 
-  def __init__(self,config,i2c0=None,i2c1=None,
-               addr=None,bus=None,
-               spi0=None,spi1=None):
+  def __init__(self,config,i2c,addr=None,spi=None):
     """ constructor """
     self._config = config
 

@@ -22,9 +22,7 @@ class BATTERY:
   formats = ["Bat:","{0:0.2f}V"]
   headers = 'Bat V'
 
-  def __init__(self,config,i2c0=None,i2c1=None,
-               addr=None,bus=None,
-               spi0=None,spi1=None):
+  def __init__(self,config,i2c,addr=None,spi=None):
     """ constructor """
     pass
 

@@ -56,25 +56,16 @@ class ENS160:
     for i in range(len(MEASUREMENT_INTERVALS)):
       headers += f",AQI ({i+1}),TVOC ppb ({i+1}),eCO2 ppm eq. ({i+1})"
 
-  def __init__(self,config,i2c0=None,i2c1=None,
-               addr=None,bus=None,
-               spi0=None,spi1=None):
+  def __init__(self,config,i2c,addr=None,spi=None):
     """ constructor """
 
     self.ens160 = None
-    _busses = [i2c0,i2c1]
-    if not bus is None:
-      bus_nr = [bus]
-    else:
-      bus_nr = [1,0]
-    for nr in bus_nr:
+    for bus,nr in i2c:
       try:
-        bus = _busses[nr]
-        if bus:
-          g_logger.print(f"testing ens160 on i2c{nr}")
-          self.ens160 = adafruit_ens160.ENS160(bus)
-          g_logger.print(f"detected ens160 on i2c{nr}")
-          break
+        g_logger.print(f"testing ens160 on i2c{nr}")
+        self.ens160 = adafruit_ens160.ENS160(bus)
+        g_logger.print(f"detected ens160 on i2c{nr}")
+        break
       except Exception as ex:
         g_logger.print(f"exception: {ex}")
     if not self.ens160:
