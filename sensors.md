@@ -31,12 +31,12 @@ SHT45
 -----
 
   - Measures temperature and humidity
-  - Status: planned
-  - I2C-Breakout: (Adafruit  ????)[https://adafru.it/????]
-  - Address: 
-  - Guide: https://sensirion.com/products/catalog/SHT45/
-  - CircuitPython-driver:
-  - [datasheet]()
+  - Status: implemented
+  - I2C-Breakout: (Adafruit  5665)[https://adafru.it/5665]
+  - Address: 0x44
+  - Guide: <https://learn.adafruit.com/adafruit-sht40-temperature-humidity-sensor>
+  - CircuitPython-driver: <https://github.com/adafruit/Adafruit_CircuitPython_SHT4x>
+  - [datasheet](https://cdn-learn.adafruit.com/assets/assets/000/117/503/original/Datasheet_SHT4x.pdf?1673387912)
 
 
 MCP9808
@@ -44,11 +44,24 @@ MCP9808
 
   - Measures temperature
   - Status: implemented
-  - I2C-Breakout: (Adafruit  ????)[https://adafru.it/????]
-  - Address: 
-  - Guide: 
-  - CircuitPython-driver:
+  - I2C-Breakout: (Adafruit  5027)[https://adafru.it/5027]
+  - Address: 0x18-0x20
+  - Guide: <https://learn.adafruit.com/adafruit-mcp9808-precision-i2c-temperature-sensor-guide>
+  - CircuitPython-driver: <https://github.com/adafruit/Adafruit_CircuitPython_MCP9808>
   - [datasheet](https://ww1.microchip.com/downloads/en/DeviceDoc/25095A.pdf)
+
+
+ENS160
+------
+
+  - Measures TVOC and calculates eCO2 and AQI ("air quality index")
+  - Status: implemented
+  - I2C-Breakout: (Adafruit  ????)[https://adafru.it/????] and  
+    (DFRobot SEN0515)[]
+  - Address: 0x53 (default) and 0x52
+  - Guide: <https://learn.adafruit.com/adafruit-ens160-mox-gas-sensor>
+  - CircuitPython-driver: <https://github.com/adafruit/Adafruit_CircuitPython_ENS160>
+  - [datasheet](https://cdn-learn.adafruit.com/assets/assets/000/115/331/original/SC_001224_DS_1_ENS160_Datasheet_Rev_0_95-2258311.pdf?1663951433)
 
 
 BH1750
@@ -80,8 +93,8 @@ PDM-Micro
 
   - Measures 
   - Status: implemented
-  - I2C-Breakout: (Adafruit  ????)[https://adafru.it/????]
-  - Address: 
+  - Breakout: (Adafruit  ????)[https://adafru.it/????]
+  - Address: n.a.
   - Guide: 
   - CircuitPython-driver:
   - [datasheet]()
