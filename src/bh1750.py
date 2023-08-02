@@ -31,7 +31,7 @@ class BH1750:
     for bus,nr in i2c:
       try:
         g_logger.print(f"testing bh1750 on i2c{nr}")
-        self.bh1750 = adafruit_bh1750.BH1750(bus)
+        self.bh1750 = adafruit_bh1750.BH1750(bus,0x23 if not addr else addr)
         g_logger.print(f"detected bh1750 on i2c{nr}")
         break
       except Exception as ex:
