@@ -31,7 +31,7 @@ class MCP9808:
     for bus,nr in i2c:
       try:
         g_logger.print(f"testing mcp9808 on i2c{nr}")
-        self.mcp9808 = adafruit_mcp9808.MCP9808(bus)
+        self.mcp9808 = adafruit_mcp9808.MCP9808(bus,0x18 if not addr else addr)
         g_logger.print(f"detected mcp9808 on i2c{nr}")
         break
       except Exception as ex:
