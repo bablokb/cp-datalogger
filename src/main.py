@@ -159,7 +159,8 @@ class DataCollector():
 
     # parse sensor specification. Will fail if i2c0 is requested, but not
     # configured
-    for spec in g_config.SENSORS.split(' '):   # spec is sensor(addr,bus)
+    for spec in g_config.SENSORS.split(' '):
+      # spec is sensor(addr,bus) or sensor(bus,addr) with bus and/or addr optional
       # defaults for normal case without addr/bus
       spec   = spec.split('(')
       sensor = spec[0]
@@ -174,8 +175,11 @@ class DataCollector():
         if addr < 2:                                # addr is actually a bus
           i2c = [i2c_default[1-addr]]
           addr = None
-        elif len(spec):
-          i2c = [i2c_default[1-int(spec[2])]]
+        if len(spec):
+          if addr:
+            i2c = [i2c_default[1-int(spec[0])]]
+          else:
+            addr = int(spec[0],16)
 
       sensor_module = builtins.__import__(sensor,None,None,[sensor.upper()],0)
       sensor_class = getattr(sensor_module,sensor.upper())
