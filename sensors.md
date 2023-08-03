@@ -27,6 +27,71 @@ AM2301B
     Red: 3V3, Black: GND, White: SCL, Yellow: SDA
 
 
+AM2320
+-------
+
+  - Measures temperature and humidity
+  - Status: implemented
+  - I2C-Breakout: (Adafruit  3721)[https://adafru.it/3721]
+  - Address: 0x5C
+  - Guide: <https://learn.adafruit.com/adafruit-am2320-temperature-humidity-i2c-sensor>
+  - CircuitPython-driver: <https://github.com/adafruit/Adafruit_CircuitPython_AM2320>
+  - [datasheet](https://cdn-shop.adafruit.com/product-files/3721/AM2320.pdf)
+  - Notes: no-pullups! Pinout left to right (from fron): : 3V3, SDA, GND, SCL
+
+
+BME280
+------
+
+  - Measures temperature, humidity and pressure
+  - Status: implemented
+  - Breakouts: China or (Adafruit 2652)[https://adafru.it/2652]
+  - Address: 0x76 or 0x77
+  - Guide: <https://learn.adafruit.com/adafruit-bme280-humidity-barometric-pressure-temperature-sensor-breakout>
+  - CircuitPython-driver: <https://github.com/adafruit/Adafruit_CircuitPython_BME280>
+  - [datasheet](https://cdn-learn.adafruit.com/assets/assets/000/115/588/original/bst-bme280-ds002.pdf?1664822559)
+  - Note: supports I2C and SPI. Chinese breakouts often claim to be a  
+    BME280 but are in fact only a BMP280 
+
+
+BMP280
+------
+
+  - Measures temperature and pressure
+  - Status: implemented
+  - Breakouts: China or (Adafruit 2651)[https://adafru.it/2651]
+  - Address: 0x76 or 0x77
+  - Guide: <https://learn.adafruit.com/adafruit-bmp280-barometric-pressure-plus-temperature-sensor-breakout/overview>
+  - CircuitPython-driver: <https://github.com/adafruit/Adafruit_CircuitPython_BMP280>
+  - [datasheet](http://www.adafruit.com/datasheets/BST-BMP280-DS001-11.pdf)
+  - Note: supports I2C and SPI.
+
+
+DS18B20
+-------
+
+  - Measures temperature
+  - Status: implemented
+  - Breakouts: IC (Adafruit 374)[https://adafru.it/374] or shielded versions available
+  - Address: n.a.
+  - Guide: <https://learn.adafruit.com/using-ds18b20-temperature-sensor-with-circuitpython>>
+  - CircuitPython-driver: <https://github.com/adafruit/Adafruit_CircuitPython_DS18X20>
+  - [datasheet](https://cdn-shop.adafruit.com/datasheets/DS18B20.pdf)
+  - Note: uses the 1-wire protocol
+
+
+HTU31D
+------
+
+  - Measures temperature and humidity
+  - Status: implemented
+  - I2C-Breakout: (Adafruit  4832)[https://adafru.it/4832]
+  - Address: 0x40 or 0x41
+  - Guide: n.a.
+  - CircuitPython-driver: <https://github.com/adafruit/Adafruit_CircuitPython_HTU31D>
+  - [datasheet](https://www.te.com/usa-en/product-CAT-HSC0007.datasheet.pdf)
+
+
 SHT45
 -----
 
