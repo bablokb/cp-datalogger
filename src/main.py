@@ -321,7 +321,7 @@ class DataCollector():
     """ tell the power-controller to cut power """
 
     self.done.value = 1
-    time.sleep(0.2)
+    time.sleep(0.001)
     self.done.value = 0
     time.sleep(2)
 
