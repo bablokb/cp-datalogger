@@ -340,18 +340,21 @@ if g_config.TEST_MODE:
 g_logger.print("setup of hardware")
 
 app = DataCollector()
+_ts.append(time.monotonic())
 app.setup()
 
 print(60*"-")
-print(f"{_ts[1]-_ts[0]:0.3f} (import)")
-print(f"{_ts[2]-_ts[1]:0.3f} (log-config)")
-print(f"{_ts[3]-_ts[2]:0.3f} (flash-config)")
-print(f"{_ts[4]-_ts[3]:0.3f} (sd-mount)")
-print(f"{_ts[5]-_ts[4]:0.3f} (sd-config)")
-print(f"{_ts[6]-_ts[5]:0.3f} (rtc-update)")
-print(f"{_ts[7]-_ts[6]:0.3f} (display-config)")
-print(f"{_ts[8]-_ts[7]:0.3f} (sensor-config)")
-print(f"{_ts[8]-_ts[0]:0.3f} (total)")
+i=0
+print(f"{_ts[i+1]-_ts[i]:0.3f} (import)"); i+= 1
+print(f"{_ts[i+1]-_ts[i]:0.3f} (log-config)"); i+= 1
+print(f"{_ts[i+1]-_ts[i]:0.3f} (flash-config)"); i+= 1
+print(f"{_ts[i+1]-_ts[i]:0.3f} (DataCollector())"); i+= 1
+print(f"{_ts[i+1]-_ts[i]:0.3f} (sd-mount)"); i+= 1
+print(f"{_ts[i+1]-_ts[i]:0.3f} (sd-config)"); i+= 1
+print(f"{_ts[i+1]-_ts[i]:0.3f} (rtc-update)"); i+= 1
+print(f"{_ts[i+1]-_ts[i]:0.3f} (display-config)"); i+= 1
+print(f"{_ts[i+1]-_ts[i]:0.3f} (sensor-config)"); i+= 1
+print(f"{_ts[-1]-_ts[0]:0.3f} (total)")
 print(60*"-")
 
 while True:
