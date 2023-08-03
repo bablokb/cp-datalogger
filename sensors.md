@@ -40,6 +40,18 @@ AM2320
   - Notes: no-pullups! Pinout left to right (from fron): : 3V3, SDA, GND, SCL
 
 
+BH1750
+------
+
+  - Measures Light
+  - Status: implemented
+  - I2C-Breakout: (Adafruit  4681)[https://adafru.it/4681]
+  - Address: 0x23 (default) or 0x5C (addr-pin high)
+  - Guide: <https://learn.adafruit.com/adafruit-bh1750-ambient-light-sensor>
+  - CircuitPython-driver: <https://github.com/adafruit/Adafruit_CircuitPython_BH1750>
+  - [datasheet](https://www.mouser.com/datasheet/2/348/bh1750fvi-e-186247.pdf)
+
+
 BME280
 ------
 
@@ -80,42 +92,6 @@ DS18B20
   - Note: uses the 1-wire protocol
 
 
-HTU31D
-------
-
-  - Measures temperature and humidity
-  - Status: implemented
-  - I2C-Breakout: (Adafruit  4832)[https://adafru.it/4832]
-  - Address: 0x40 or 0x41
-  - Guide: n.a.
-  - CircuitPython-driver: <https://github.com/adafruit/Adafruit_CircuitPython_HTU31D>
-  - [datasheet](https://www.te.com/usa-en/product-CAT-HSC0007.datasheet.pdf)
-
-
-SHT45
------
-
-  - Measures temperature and humidity
-  - Status: implemented
-  - I2C-Breakout: (Adafruit  5665)[https://adafru.it/5665]
-  - Address: 0x44
-  - Guide: <https://learn.adafruit.com/adafruit-sht40-temperature-humidity-sensor>
-  - CircuitPython-driver: <https://github.com/adafruit/Adafruit_CircuitPython_SHT4x>
-  - [datasheet](https://cdn-learn.adafruit.com/assets/assets/000/117/503/original/Datasheet_SHT4x.pdf?1673387912)
-
-
-MCP9808
--------
-
-  - Measures temperature
-  - Status: implemented
-  - I2C-Breakout: (Adafruit  5027)[https://adafru.it/5027]
-  - Address: 0x18-0x20
-  - Guide: <https://learn.adafruit.com/adafruit-mcp9808-precision-i2c-temperature-sensor-guide>
-  - CircuitPython-driver: <https://github.com/adafruit/Adafruit_CircuitPython_MCP9808>
-  - [datasheet](https://ww1.microchip.com/downloads/en/DeviceDoc/25095A.pdf)
-
-
 ENS160
 ------
 
@@ -129,16 +105,16 @@ ENS160
   - [datasheet](https://cdn-learn.adafruit.com/assets/assets/000/115/331/original/SC_001224_DS_1_ENS160_Datasheet_Rev_0_95-2258311.pdf?1663951433)
 
 
-BH1750
+HTU31D
 ------
 
-  - Measures Light
+  - Measures temperature and humidity
   - Status: implemented
-  - I2C-Breakout: (Adafruit  4681)[https://adafru.it/4681]
-  - Address: 0x23 (default) or 0x5C (addr-pin high)
-  - Guide: <https://learn.adafruit.com/adafruit-bh1750-ambient-light-sensor>
-  - CircuitPython-driver: <https://github.com/adafruit/Adafruit_CircuitPython_BH1750>
-  - [datasheet](https://www.mouser.com/datasheet/2/348/bh1750fvi-e-186247.pdf)
+  - I2C-Breakout: (Adafruit  4832)[https://adafru.it/4832]
+  - Address: 0x40 or 0x41
+  - Guide: n.a.
+  - CircuitPython-driver: <https://github.com/adafruit/Adafruit_CircuitPython_HTU31D>
+  - [datasheet](https://www.te.com/usa-en/product-CAT-HSC0007.datasheet.pdf)
 
 
 LTR-559
@@ -153,6 +129,18 @@ LTR-559
   - [datasheet](https://optoelectronics.liteon.com/upload/download/DS86-2013-0003/LTR-559ALS-01_DS_V1.pdf)
 
 
+MCP9808
+-------
+
+  - Measures temperature
+  - Status: implemented
+  - I2C-Breakout: (Adafruit  5027)[https://adafru.it/5027]
+  - Address: 0x18-0x20
+  - Guide: <https://learn.adafruit.com/adafruit-mcp9808-precision-i2c-temperature-sensor-guide>
+  - CircuitPython-driver: <https://github.com/adafruit/Adafruit_CircuitPython_MCP9808>
+  - [datasheet](https://ww1.microchip.com/downloads/en/DeviceDoc/25095A.pdf)
+
+
 PDM-Micro
 ---------
 
@@ -163,6 +151,18 @@ PDM-Micro
   - Guide: 
   - CircuitPython-driver:
   - [datasheet]()
+
+
+SHT45
+-----
+
+  - Measures temperature and humidity
+  - Status: implemented
+  - I2C-Breakout: (Adafruit  5665)[https://adafru.it/5665]
+  - Address: 0x44
+  - Guide: <https://learn.adafruit.com/adafruit-sht40-temperature-humidity-sensor>
+  - CircuitPython-driver: <https://github.com/adafruit/Adafruit_CircuitPython_SHT4x>
+  - [datasheet](https://cdn-learn.adafruit.com/assets/assets/000/117/503/original/Datasheet_SHT4x.pdf?1673387912)
 
 
 Please note that many of the Adafruit versions of the above sensors are
