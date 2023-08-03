@@ -29,12 +29,13 @@ class BMP280:
     """ constructor """
 
     self.bmp280 = None
+    address = addr if addr else 0x77
     for bus,nr in i2c:
       try:
-        g_logger.print(f"testing bmp280 on i2c{nr}")
+        g_logger.print(f"testing bmp280 on (i2c{nr},{address})")
         self.bmp280 = adafruit_bmp280.Adafruit_BMP280_I2C(
-          bus,address=0x77)
-        g_logger.print(f"detected bmp280 on i2c{nr}")
+          bus,address=address)
+        g_logger.print(f"detected bmp280 on (i2c{nr},{address})")
         break
       except Exception as ex:
         g_logger.print(f"exception: {ex}")
