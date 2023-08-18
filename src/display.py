@@ -179,8 +179,8 @@ class Display:
     # create dynamic format: width of label is widh - 4 - 1 (4:value, 1:colon)
     # layout is four columns: label:value label:value
     w = int((self._max_chars-1)/2)
-    w_label = w - 5
-    template = "{label:<"+f"{w_label}.{w_label}"+"}:{value:>4.4}"
+    template1 = "{label:<"+f"{w-5}.{w-5}"+"}:{value:>4.4}"
+    template2 = "{label:<"+f"{w-4}.{w-4}"+"}:{value:>4.4}"
     columns = csv_header.split('#')[-1].split(',')
     merged = zip(columns,record.split(','))
 
@@ -189,6 +189,11 @@ class Display:
     ui_line = ""
 
     for label,value in merged:
+      if "°" in label:
+        # workaround for CP bug (issue #8171)
+        template = template2
+      else:
+        template = template1
       if label == "ts":
         ts_line = f"\nat {value}"
       elif label == "ID":
