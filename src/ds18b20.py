@@ -4,9 +4,8 @@
 # Naming convention:
 #   - filenames in lowercase (ds18b20.py)
 #   - class name the same as filename in uppercase (DS18B20)
-#   - the constructor must take five arguments (config,i2c0,ic1,spi0,spi1)
+#   - the constructor must take four arguments (config,i2c,addr,spi)
 #     and probe for the device
-#   - i2c1 is the default i2c-device and should be probed first
 #   - the read-method must update the data and return a string with the
 #     values for the csv-record
 #
