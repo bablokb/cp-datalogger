@@ -315,6 +315,29 @@ class DataCollector():
       else:
         self.rtc.set_alarm(self.rtc.get_alarm_time(m=g_config.OFF_MINUTES))
 
+  # --- configure battery-switchover for RTC   -------------------------------
+
+  def configure_switchover(self):
+    """ configure rtc battery switchover """
+
+    if "battery" not in self.data:
+      from battery import Battery
+      bat = Battery(g_config,None)
+      bat.read(self.data,self.values)
+
+    if self.data["battery"] < 2.0:
+      # enable switchover (end of life)
+      self.rtc.rtc_ext.power_managment = 0b000
+      g_logger.print("enabling rtc battery switchover")
+    elif self.data["battery"] < 2.7:
+      # disable switchover (within working range)
+      self.rtc.rtc_ext.power_managment = 0b111
+      g_logger.print("disabling rtc battery switchover")
+    else:  # >= 2.7
+      # enable switchover (initial dispatching)
+      self.rtc.rtc_ext.power_managment = 0b000
+      g_logger.print("enabling rtc battery switchover")
+
   # --- shutdown   -----------------------------------------------------------
 
   def shutdown(self):
@@ -391,4 +414,5 @@ while True:
     break
 
 app.configure_wakeup()
+app.configure_switchover()
 app.shutdown()
