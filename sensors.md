@@ -144,13 +144,13 @@ MCP9808
 PDM-Micro
 ---------
 
-  - Measures 
+  - Measures noise
   - Status: implemented
-  - Breakout: (Adafruit  ????)[https://adafru.it/????]
+  - Breakout: (Adafruit  3492)[https://adafru.it/3492]
   - Address: n.a.
-  - Guide: 
-  - CircuitPython-driver:
-  - [datasheet]()
+  - Guide: <http://learn.adafruit.com/adafruit-pdm-microphone-breakout/>
+  - CircuitPython-driver: uses builtin module `audiobusio` and class `PDMin`.
+  - [datasheet](https://cdn-learn.adafruit.com/assets/assets/000/049/977/original/MP34DT01-M.pdf)
 
 
 SCD40
