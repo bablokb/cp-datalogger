@@ -153,6 +153,22 @@ PDM-Micro
   - [datasheet]()
 
 
+SCD40
+-----
+
+  - Measures CO2, temperature, humidity
+  - Status: implemented
+  - Breakouts:
+      - (SCD40: Adafruit  5187)[https://adafru.it/5187]
+      - (SCD41: Adafruit  5190)[https://adafru.it/5190]
+      - (SCD40: M5Stack U103)[https://shop.m5stack.com/products/co2-unit-with-temperature-and-humidity-sensor-scd40]
+      - (SCD41: M5Stack U104)[https://shop.m5stack.com/products/co2l-unit-with-temperature-and-humidity-sensor-scd41]
+  - Address: 0x62
+  - Guide: <https://learn.adafruit.com/adafruit-scd-40-and-scd-41>
+  - CircuitPython-driver: <https://github.com/adafruit/Adafruit_CircuitPython_SCD4x>
+  - [datasheet](https://www.sensirion.com/media/documents/48C4B7FB/64C134E7/Sensirion_SCD4x_Datasheet.pdf)
+
+
 SHT45
 -----
 
