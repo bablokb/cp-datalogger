@@ -49,8 +49,7 @@ except:
 
 _ts.append(time.monotonic())
 
-# --- default configuration is in config.py on the pico.
-#     You can override it also with a config.py on the sd-card   -------------
+# --- default configuration is in config.py on the pico.   -------------------
 
 class Settings:
   def import_config(self):
@@ -87,13 +86,6 @@ class DataCollector():
       self.vfs   = storage.VfsFat(sdcard)
       storage.mount(self.vfs, "/sd")
       _ts.append(time.monotonic())
-      try:
-        import sys
-        sys.path.insert(0,"/sd")
-        g_config.import_config()
-        sys.path.pop(0)
-      except:
-        g_logger.print("no configuration found in /sd/config.py")
 
     _ts.append(time.monotonic())
 
