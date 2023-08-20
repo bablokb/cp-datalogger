@@ -123,7 +123,7 @@ LTR-559
 
   - Measures Light
   - Status: implemented
-  - I2C-Breakout: (Pimoroni PIM413](https://shop.pimoroni.com/products/ltr-559-light-proximity-sensor-breakout)
+  - I2C-Breakout: [Pimoroni PIM413](https://shop.pimoroni.com/products/ltr-559-light-proximity-sensor-breakout)
   - Address: 0x23
   - Guide: n.a.
   - CircuitPython-driver: <https://github.com/pimoroni/Pimoroni_CircuitPython_LTR559>
