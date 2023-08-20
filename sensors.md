@@ -153,6 +153,21 @@ PDM-Micro
   - [datasheet](https://cdn-learn.adafruit.com/assets/assets/000/049/977/original/MP34DT01-M.pdf)
 
 
+PMS5003
+-------
+
+  - Measures particles
+  - Status: in progress
+  - Breakouts:
+      - (Adafruit UART 3686)[https://adafru.it/3686]
+      - (Adafruit I2C 4632)[https://adafru.it/4632]
+      - (Pimoroni UART COM1707)[https://shop.pimoroni.com/products/pms5003-particulate-matter-sensor-with-cable]
+  - Address: 0x12 (I2C-version)
+  - Guide: <https://learn.adafruit.com/pm25-air-quality-sensor>
+  - CircuitPython-driver: <https://github.com/adafruit/Adafruit_CircuitPython_PM25>
+  - [datasheet](https://cdn-shop.adafruit.com/product-files/3686/plantower-pms5003-manual_v2-3.pdf)
+
+
 SCD40
 -----
 
