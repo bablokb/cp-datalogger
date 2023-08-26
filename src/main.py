@@ -16,7 +16,7 @@
 
 import time
 _ts = []
-_ts.append(time.monotonic())
+_ts.append((time.monotonic(),None))
 
 import gc
 import board
@@ -37,7 +37,7 @@ from rtc_ext.pcf8523 import ExtPCF8523 as ExtRTC
 # pin definitions
 import pins
 
-_ts.append(time.monotonic())
+_ts.append((time.monotonic(),"import"))
 
 # --- early configuration of the log-destination   ---------------------------
 
@@ -47,7 +47,7 @@ except:
   from log_writer import Logger
   g_logger = Logger('console')
 
-_ts.append(time.monotonic())
+_ts.append((time.monotonic(),"log-config"))
 
 # --- default configuration is in config.py on the pico.   -------------------
 
@@ -65,7 +65,7 @@ class Settings:
 g_config = Settings()
 g_config.import_config()
 
-_ts.append(time.monotonic())
+_ts.append((time.monotonic(),"settings"))
 
 # --- main application class   -----------------------------------------------
 
@@ -85,9 +85,7 @@ class DataCollector():
       sdcard     = adafruit_sdcard.SDCard(self._spi,self.sd_cs)
       self.vfs   = storage.VfsFat(sdcard)
       storage.mount(self.vfs, "/sd")
-      _ts.append(time.monotonic())
-
-    _ts.append(time.monotonic())
+      _ts.append((time.monotonic(),"sd-mount"))
 
     # Initialse i2c bus for use by sensors and RTC
     i2c1 = busio.I2C(pins.PIN_SCL1,pins.PIN_SDA1)
@@ -113,14 +111,14 @@ class DataCollector():
     self.vbus_sense           = DigitalInOut(board.VBUS_SENSE)
     self.vbus_sense.direction = Direction.INPUT
 
-    _ts.append(time.monotonic())
+    _ts.append((time.monotonic(),"rtc-update"))
 
     # display
     if g_config.HAVE_DISPLAY:
       from display import Display
       self._display = Display(g_config,self._spi)
 
-    _ts.append(time.monotonic())
+    _ts.append((time.monotonic(),"display-config"))
 
     # just for testing
     if g_config.TEST_MODE:
@@ -132,7 +130,7 @@ class DataCollector():
     #configure sensors
     self._configure_sensors(i2c0,i2c1)
 
-    _ts.append(time.monotonic())
+    _ts.append((time.monotonic(),"sensor-config"))
 
   # --- configure sensors   ---------------------------------------------------
 
@@ -313,8 +311,8 @@ class DataCollector():
     """ configure rtc battery switchover """
 
     if "battery" not in self.data:
-      from battery import Battery
-      bat = Battery(g_config,None)
+      from battery import BATTERY
+      bat = BATTERY(g_config,None)
       bat.read(self.data,self.values)
 
     if self.data["battery"] < 2.0:
@@ -352,44 +350,40 @@ class DataCollector():
 g_logger.print("main program start")
 if g_config.TEST_MODE:
   time.sleep(5)                        # give console some time to initialize
+  _ts.append((time.monotonic(),"delay test-mode"))
 g_logger.print("setup of hardware")
 
 app = DataCollector()
-_ts.append(time.monotonic())
+_ts.append((time.monotonic(),"DataCollector()"))
 app.setup()
 
-print(60*"-")
-i=0
-print(f"{_ts[i+1]-_ts[i]:0.3f} (import)"); i+= 1
-print(f"{_ts[i+1]-_ts[i]:0.3f} (log-config)"); i+= 1
-print(f"{_ts[i+1]-_ts[i]:0.3f} (flash-config)"); i+= 1
-print(f"{_ts[i+1]-_ts[i]:0.3f} (DataCollector())"); i+= 1
-print(f"{_ts[i+1]-_ts[i]:0.3f} (sd-mount)"); i+= 1
-print(f"{_ts[i+1]-_ts[i]:0.3f} (sd-config)"); i+= 1
-print(f"{_ts[i+1]-_ts[i]:0.3f} (rtc-update)"); i+= 1
-print(f"{_ts[i+1]-_ts[i]:0.3f} (display-config)"); i+= 1
-print(f"{_ts[i+1]-_ts[i]:0.3f} (sensor-config)"); i+= 1
-print(f"{_ts[-1]-_ts[0]:0.3f} (total)")
-print(60*"-")
+if g_config.TEST_MODE:
+  print(60*"-")
+  for i in range(1,len(_ts)):
+    print(f"{_ts[i][0]-_ts[i-1][0]:0.3f} ({_ts[i][1]})")
+  print(f"{_ts[-1][0]-_ts[0][0]:0.3f} (total)")
+  print(60*"-")
 
 while True:
   if g_config.TEST_MODE:
     app.blink(count=g_config.BLINK_START, blink_time=g_config.BLINK_TIME_START)
+    _ts = []
+    _ts.append((time.monotonic(),None))
 
   app.collect_data()
+  _ts.append((time.monotonic(),"collect data"))
   try:
     app.save_data()
+    _ts.append((time.monotonic(),"save data"))
   except:
     g_logger.print("exception during save_data()")
     app.cleanup()
     raise
-    
-  if g_config.TEST_MODE:
-    app.blink(count=g_config.BLINK_END, blink_time=g_config.BLINK_TIME_END)
 
   if g_config.HAVE_DISPLAY:
     try:
       app.update_display()
+      _ts.append((time.monotonic(),"update display"))
     except:
       g_logger.print("exception during update_display()")
       app.cleanup()
@@ -397,6 +391,15 @@ while True:
 
   if g_config.HAVE_LORA:
     app.send_data()
+    _ts.append((time.monotonic(),"send data"))
+
+  if g_config.TEST_MODE:
+    app.blink(count=g_config.BLINK_END, blink_time=g_config.BLINK_TIME_END)
+    print(60*"-")
+    for i in range(1,len(_ts)):
+      print(f"{_ts[i][0]-_ts[i-1][0]:0.3f} ({_ts[i][1]})")
+    print(f"{_ts[-1][0]-_ts[0][0]:0.3f} (total)")
+    print(60*"-")
 
   # check if running on USB and sleep instead of shutdown
   if app.continuous_mode():
