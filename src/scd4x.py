@@ -1,5 +1,6 @@
 #-----------------------------------------------------------------------------
-# Sensor definition for SCD4X.
+# Base class for Sensor definitions for SCD40/SCD41. Don't use this class
+# directly!
 #
 # Naming convention:
 #   - filenames in lowercase (scd4x.py)
@@ -41,37 +42,41 @@ class SCD4X:
       self.DISCARD = DISCARD
 
     if not self.DISCARD:
-      headers = 't (1),CO2 ppm (1)'
-      for i in range(self.SAMPLES):
-        headers += f",t ({i+1}),CO2 ppm ({i+1})"
-      headers += ',T/SCD °C,H/SCD %rH'
+      self.headers = 't (1),CO2 ppm (1)'
+      for i in range(1,self.SAMPLES):
+        self.headers += f",t ({i+1}),CO2 ppm ({i+1})"
+      self.headers += ',T/SCD °C,H/SCD %rH'
 
     self.scd4x = None
     for bus,nr in i2c:
       try:
-        g_logger.print(f"testing scd4x on i2c{nr}")
+        g_logger.print(f"testing {self.product} on i2c{nr}")
         self.scd4x = adafruit_scd4x.SCD4X(bus)
-        g_logger.print(f"detected scd4x on i2c{nr}")
-        self.scd4x.start_periodic_measurement()
+        g_logger.print(f"detected {self.product} on i2c{nr}")
         break
       except Exception as ex:
         g_logger.print(f"exception: {ex}")
     if not self.scd4x:
-      raise Exception("no scd4x detected. Check config/cabling!")
+      raise Exception(f"no {self.product} detected. Check config/cabling!")
+
+  def read_sensor(self):
+    """ dummy method, must be implemented by subclass if necessary """
+    pass
 
   def read(self,data,values):
     # take multiple readings
     csv_results = ""
     t0 = time.monotonic()
     for i in range(self.SAMPLES):
-      g_logger.print("scd4x: waiting for data...")
+      g_logger.print(f"{self.product}: waiting for data...")
       while True:
+        self.read_sensor()
         if self.scd4x.data_ready:
           t_rel = time.monotonic() - t0
           co2   = self.scd4x.CO2
           temp  = self.scd4x.temperature
           hum   = self.scd4x.relative_humidity
-          g_logger.print(f"scd4x: CO2 at {t_rel:.2f}: {co2}")
+          g_logger.print(f"{self.product}: CO2 at {t_rel:.2f}: {co2}")
           if not self.DISCARD:
             csv_results += f",{t_rel:.2f},{co2}"
           break
@@ -84,7 +89,7 @@ class SCD4X:
     csv_results += f",{temp:.1f},{hum:.0f}"
     
     # only show last reading on display
-    data["scd4x"] = {
+    data[self.product] = {
       "temp": temp,
       "hum":  hum,
       "co2":  co2
