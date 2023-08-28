@@ -69,3 +69,9 @@ LOGGER_TITLE = LOGGER_NAME + " " + LOGGER_LOCATION
 
 # font for the display
 FONT_DISPLAY     = 'DejaVuSansMono-Bold-18-subset'
+
+# LoRa configuration
+LORA_ENABLE_TIME =
+LORA_FREQ        =
+LORA_NODE_ADDR   =
+LORA_BASE_ADDR   =
