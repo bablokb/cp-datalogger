@@ -18,6 +18,9 @@ NET_UPDATE  = True        # update RTC from time-server if time is invalid
 
 OFF_MINUTES = 1           # turn off for x minutes
 
+# tasks to execute after data-collection
+TASKS = "dump_data save_data update_display"
+
 # time table: one entry per day (starting with Monday)
 #             ((h_start,h_end,h_inc),(m_start,m_end,m_inc))
 # The example has Mo-Fr from 07:00-17:45 every 15 minutes

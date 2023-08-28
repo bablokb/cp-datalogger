@@ -15,8 +15,10 @@
 #-----------------------------------------------------------------------------
 
 import time
-_ts = []
-_ts.append((time.monotonic(),None))
+
+# init timings
+g_ts = []
+g_ts.append((time.monotonic(),None))
 
 import gc
 import board
@@ -37,7 +39,7 @@ from rtc_ext.pcf8523 import ExtPCF8523 as ExtRTC
 # pin definitions
 import pins
 
-_ts.append((time.monotonic(),"import"))
+g_ts.append((time.monotonic(),"import"))
 
 # --- early configuration of the log-destination   ---------------------------
 
@@ -47,7 +49,7 @@ except:
   from log_writer import Logger
   g_logger = Logger('console')
 
-_ts.append((time.monotonic(),"log-config"))
+g_ts.append((time.monotonic(),"log-config"))
 
 # --- default configuration is in config.py on the pico.   -------------------
 
@@ -65,7 +67,7 @@ class Settings:
 g_config = Settings()
 g_config.import_config()
 
-_ts.append((time.monotonic(),"settings"))
+g_ts.append((time.monotonic(),"settings"))
 
 # --- main application class   -----------------------------------------------
 
@@ -85,7 +87,7 @@ class DataCollector():
       sdcard     = adafruit_sdcard.SDCard(self._spi,self.sd_cs)
       self.vfs   = storage.VfsFat(sdcard)
       storage.mount(self.vfs, "/sd")
-      _ts.append((time.monotonic(),"sd-mount"))
+      g_ts.append((time.monotonic(),"sd-mount"))
 
     # Initialse i2c bus for use by sensors and RTC
     i2c1 = busio.I2C(pins.PIN_SCL1,pins.PIN_SDA1)
@@ -111,14 +113,14 @@ class DataCollector():
     self.vbus_sense           = DigitalInOut(board.VBUS_SENSE)
     self.vbus_sense.direction = Direction.INPUT
 
-    _ts.append((time.monotonic(),"rtc-update"))
+    g_ts.append((time.monotonic(),"rtc-update"))
 
     # display
     if g_config.HAVE_DISPLAY:
       from display import Display
-      self._display = Display(g_config,self._spi)
+      self.display = Display(g_config,self._spi)
 
-    _ts.append((time.monotonic(),"display-config"))
+    g_ts.append((time.monotonic(),"display-config"))
 
     # just for testing
     if g_config.TEST_MODE:
@@ -130,14 +132,14 @@ class DataCollector():
     #configure sensors
     self._configure_sensors(i2c0,i2c1)
 
-    _ts.append((time.monotonic(),"sensor-config"))
+    g_ts.append((time.monotonic(),"sensor-config"))
 
   # --- configure sensors   ---------------------------------------------------
 
   def _configure_sensors(self,i2c0,i2c1):
     """ configure sensors """
 
-    self._formats = []
+    self.formats = []
     self.csv_header = f"#ID: {g_config.LOGGER_ID}\n#Location: {g_config.LOGGER_LOCATION}\n"
     self.csv_header += "#ts"
     self._sensors = []
@@ -175,7 +177,7 @@ class DataCollector():
       sensor_class = getattr(sensor_module,sensor.upper())
       _sensor = sensor_class(g_config,i2c,addr,None)
       self._sensors.append(_sensor.read)
-      self._formats.extend(_sensor.formats)
+      self.formats.extend(_sensor.formats)
       self.csv_header += f",{_sensor.headers}"
 
   # --- blink   --------------------------------------------------------------
@@ -203,7 +205,8 @@ class DataCollector():
     ts = time.localtime()
     ts_str = f"{ts.tm_year}-{ts.tm_mon:02d}-{ts.tm_mday:02d}T{ts.tm_hour:02d}:{ts.tm_min:02d}:{ts.tm_sec:02d}"
     self.data = {
-      "ts":   ts_str
+      "ts":     ts
+      "ts_str": ts_str
       }
     self.record = ts_str
 
@@ -222,78 +225,38 @@ class DataCollector():
     except OSError:
       return False
 
-  # --- save data   ----------------------------------------------------------
+  # --- run configured tasks   -----------------------------------------------
 
-  def save_data(self):
-    """ save data """
+  def run_tasks(self):
+    """ parse task-config and run tasks """
 
-    if g_config.SHOW_UNITS:
-      self.pretty_print()
-    else:
-      g_logger.print(self.record)
+    if not hasattr(g_config,"TASKS"):
+      return
 
-    if g_config.HAVE_SD:
-      ymd = self.data["ts"].split("T")[0]
-      y,m,d = ymd.split("-")
-      outfile = g_config.CSV_FILENAME.format(
-        ID=g_config.LOGGER_ID,
-        YMD=ymd,Y=y,M=m,D=d)
-      new_csv = not self.file_exists(outfile)
-      self.save_status = ":("
-      with open(outfile, "a") as f:
-        if new_csv:
-          f.write(f"{self.csv_header}\n")
-        f.write(f"{self.record}\n")
-        self.save_status = "SD"
+    for task in g_config.TASKS.split(" "):
+      try:
+        g_logger.print(f"{task}: loading")
+        task_module = builtins.__import__(task,None,None,["run"],0)
+        g_logger.print(f"{task} starting")
+        task_module.run(g_config,self)
+        g_ts.append((time.monotonic(),f"{task}"))
+        g_logger.print(f"{task} ended")
+      except Exception as ex:
+        g_logger.print(f"{task} failed: exception: {ex}")
 
-  # --- pretty-print data to log   -------------------------------------------
+  # --- print timings   ------------------------------------------------------
 
-  def pretty_print(self):
-    """ pretty-print data to log """
+  def print_timings(self):
+    """ print timings """
 
-    columns = self.csv_header.split('#')[-1].split(',')
-    merged = zip(columns,self.record.split(','))
-    for label,value in merged:
-      space = '\t\t' if len(label) < 9 else '\t'
-      g_logger.print(f"{label}:{space}{value}")
+    if not g_config.TEST_MODE:
+      return
 
-  # --- send data   ----------------------------------------------------------
-
-  def send_data(self):
-    """ send data using LORA """
-    g_logger.print(f"not yet implemented!")
-
-  # --- update display   -----------------------------------------------------
-
-  def update_display(self):
-    """ update display """
-
-    gc.collect()
-    if g_config.SIMPLE_UI:
-      self._display.create_simple_view()
-    else:
-      self._display.create_view(self._formats)
-
-    if g_config.SIMPLE_UI:
-      self._display.set_ui_text(self.csv_header,self.record)
-    else:
-      if len(self.values) < len(self._formats):
-        # fill in unused cells
-        self.values.extend(
-          [None for _ in range(len(self._formats)-len(self.values))])
-      elif len(self.values) > len(self._formats):
-        # remove extra values
-        del self.values[len(self._formats):]
-
-      dt, ts = self.data['ts'].split("T")
-      footer = f"at {dt} {ts} {self.save_status}"
-      self._display.set_values(self.values,footer)
-
-    self._display.refresh()
-    g_logger.print("finished refreshing display")
-
-    if not self.continuous_mode():
-      time.sleep(3)              # refresh returns before it is finished
+    g_logger.print(60*"-")
+    for i in range(1,len(g_ts)):
+      g_logger.print(f"{g_ts[i][0]-g_ts[i-1][0]:0.3f} ({g_ts[i][1]})")
+    g_logger.print(f"{g_ts[-1][0]-g_ts[0][0]:0.3f} (total)")
+    g_logger.print(60*"-")
 
   # --- set next wakeup   ----------------------------------------------------
 
@@ -350,56 +313,27 @@ class DataCollector():
 g_logger.print("main program start")
 if g_config.TEST_MODE:
   time.sleep(5)                        # give console some time to initialize
-  _ts.append((time.monotonic(),"delay test-mode"))
+  g_ts.append((time.monotonic(),"delay test-mode"))
+
 g_logger.print("setup of hardware")
-
 app = DataCollector()
-_ts.append((time.monotonic(),"DataCollector()"))
+g_ts.append((time.monotonic(),"DataCollector()"))
 app.setup()
-
-if g_config.TEST_MODE:
-  print(60*"-")
-  for i in range(1,len(_ts)):
-    print(f"{_ts[i][0]-_ts[i-1][0]:0.3f} ({_ts[i][1]})")
-  print(f"{_ts[-1][0]-_ts[0][0]:0.3f} (total)")
-  print(60*"-")
+app.print_timings()
 
 while True:
   if g_config.TEST_MODE:
     app.blink(count=g_config.BLINK_START, blink_time=g_config.BLINK_TIME_START)
-    _ts = []
-    _ts.append((time.monotonic(),None))
+    # reset timings
+    g_ts = []
+    g_ts.append((time.monotonic(),None))
 
   app.collect_data()
-  _ts.append((time.monotonic(),"collect data"))
-  try:
-    app.save_data()
-    _ts.append((time.monotonic(),"save data"))
-  except:
-    g_logger.print("exception during save_data()")
-    app.cleanup()
-    raise
+  g_ts.append((time.monotonic(),"collect data"))
 
-  if g_config.HAVE_DISPLAY:
-    try:
-      app.update_display()
-      _ts.append((time.monotonic(),"update display"))
-    except:
-      g_logger.print("exception during update_display()")
-      app.cleanup()
-      raise
-
-  if g_config.HAVE_LORA:
-    app.send_data()
-    _ts.append((time.monotonic(),"send data"))
-
-  if g_config.TEST_MODE:
-    app.blink(count=g_config.BLINK_END, blink_time=g_config.BLINK_TIME_END)
-    print(60*"-")
-    for i in range(1,len(_ts)):
-      print(f"{_ts[i][0]-_ts[i-1][0]:0.3f} ({_ts[i][1]})")
-    print(f"{_ts[-1][0]-_ts[0][0]:0.3f} (total)")
-    print(60*"-")
+  # run tasks after data-collection
+  app.run_tasks()
+  app.print_timings()
 
   # check if running on USB and sleep instead of shutdown
   if app.continuous_mode():

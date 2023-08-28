@@ -4,6 +4,14 @@ Data-Collector Program
 The data-collector program is in subdirectory `src`. It is implemented
 in CircuitPython.
 
+The program is a framework with these main blocks:
+
+  - setup of base-hardware (including RTC, display, sd-card)
+  - configuration of sensors
+  - data-collection
+  - execution of post-collection tasks (e.g. save to sd, update display)
+  - configuration of next wake-up alarm
+
 
 Installation
 ------------
@@ -45,17 +53,14 @@ Configuration
 Configuration needs various extra files. These files are not tracked
 by github and are therefore not part of the repository:
 
-  - `config.py`: copy `config_template.py` to `config.py` and adapt to your needs
-  - `config.py` on sd-card: overrides for (a subset of) values
+  - `config.py`: copy `src/config_template.py` to `src/config.py` and adapt to your needs
   - `secrets.py`: see below
-  - `log_config.py`: copy `log_config_template.py` to `log_config.py`
+  - `log_config.py`: copy `src/log_config_template.py` to `src/log_config.py`
 
-Most importantly, change the value of `LOGGER_xxx`. The csv-file written
-by the datacollector will be named `log_<LOGGER_ID>.csv`. This way, every
-datalogger will create a file with a distinct name.
+The configuration-variables should be self explainatory.
 
-You also have to provide a file `secrets.py` with your WLAN-credentials.
-Rename `sec_template.py` and adapt it to your environment:
+You also have to provide a file `src/secrets.py` with your WLAN-credentials.
+Rename `src/sec_template.py` and adapt it to your environment:
 
     class Settings:
       pass
