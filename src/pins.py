@@ -31,6 +31,13 @@ PIN_INKY_RST  = board.GP21
 PIN_INKY_DC   = board.GP20
 PIN_INKY_BUSY = board.GP26
 
+PIN_LORA_CS   = board.GP9
+PIN_LORA_RST  = board.GP7
+PIN_LORA_EN   = board.GP15
+PIN_LORA_SCK  = board.GP10
+PIN_LORA_MOSI = board.GP11
+PIN_LORA_MISO = board.GP8
+
 # PDM-mic
 PIN_PDM_CLK = board.GP5
 PIN_PDM_DAT = board.GP28
