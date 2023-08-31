@@ -205,7 +205,7 @@ class DataCollector():
     ts = time.localtime()
     ts_str = f"{ts.tm_year}-{ts.tm_mon:02d}-{ts.tm_mday:02d}T{ts.tm_hour:02d}:{ts.tm_min:02d}:{ts.tm_sec:02d}"
     self.data = {
-      "ts":     ts
+      "ts":     ts,
       "ts_str": ts_str
       }
     self.record = ts_str
@@ -236,7 +236,7 @@ class DataCollector():
     for task in g_config.TASKS.split(" "):
       try:
         g_logger.print(f"{task}: loading")
-        task_module = builtins.__import__(task,None,None,["run"],0)
+        task_module = builtins.__import__("tasks."+task,None,None,["run"],0)
         g_logger.print(f"{task} starting")
         task_module.run(g_config,self)
         g_ts.append((time.monotonic(),f"{task}"))
