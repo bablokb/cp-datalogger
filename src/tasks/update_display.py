@@ -6,11 +6,16 @@
 # Website: https://github.com/pcb-pico-datalogger
 #-----------------------------------------------------------------------------
 
+import gc
+
 from log_writer import Logger
 g_logger = Logger()
 
 def run(config,app):
   """ update display """
+
+  if not config.HAVE_DISPLAY:
+    return
 
   gc.collect()
   if config.SIMPLE_UI:
