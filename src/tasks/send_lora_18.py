@@ -1,5 +1,5 @@
 #-----------------------------------------------------------------------------
-# Task: template
+# Task: send data using LoRa but only once after 18:00
 #
 # Author: Bernhard Bablok
 #
@@ -9,17 +9,19 @@
 from log_writer import Logger
 g_logger = Logger()
 
-def run(config,app):
-  """ do the needful """
+from . import send_lora
 
-  # run only once a day after 18:00
-  h = data["ts"].tm_hour
-  m = data["ts"].tm_min
+def run(config,app):
+  """ send data using LoRa """
+
+  # run only once a day after 18:00 (assuming intervals of at least 5 minutes)
+  h = app.data["ts"].tm_hour
+  m = app.data["ts"].tm_min
 
   if h < 18 or h > 18:
     return
   elif m > 5:
     return
 
-  # execute the task...
-
+  # delegate to unconditional send-method
+  send_lora.run(config,app)
