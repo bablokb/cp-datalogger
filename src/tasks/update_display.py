@@ -6,6 +6,7 @@
 # Website: https://github.com/pcb-pico-datalogger
 #-----------------------------------------------------------------------------
 
+import time
 import gc
 
 from log_writer import Logger
