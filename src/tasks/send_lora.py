@@ -46,6 +46,7 @@ class LORA:
     self.rfm9x.destination = config.LORA_BASE_ADDR  # base station or destination
     self.rfm9x.ack_wait = config.LORA_ACK_WAIT
     self.rfm9x.ack_retries = config.LORA_ACK_RETRIES
+    self.rfm9x.sleep()
 
   # --- transmit command   ----------------------------------------------
 
