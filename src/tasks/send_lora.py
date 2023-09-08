@@ -44,8 +44,8 @@ class LORA:
     self.rfm9x.ack_delay = 0.1
     self.rfm9x.node = config.LORA_NODE_ADDR                 # node or this device
     self.rfm9x.destination = config.LORA_BASE_ADDR  # base station or destination
-    self.rfm9x.ack_wait = 0.5
-    self.rfm9x.ack_retries = 3
+    self.rfm9x.ack_wait = config.LORA_ACK_WAIT
+    self.rfm9x.ack_retries = config.LORA_ACK_RETRIES
 
   # --- transmit command   ----------------------------------------------
 

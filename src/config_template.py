@@ -71,6 +71,8 @@ FONT_DISPLAY     = 'DejaVuSansMono-Bold-18-subset'
 
 # LoRa configuration
 LORA_ENABLE_TIME = 0
+LORA_ACK_WAIT    = 0.5
+LORA_ACK_RETRIES = 3
 LORA_FREQ        = 433.0
 LORA_NODE_ADDR   =
 LORA_BASE_ADDR   =
