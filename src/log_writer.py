@@ -12,22 +12,13 @@
 #       very first time the constructor is called. This should be done
 #       early in the (main) program.
 #
-# Credits: https://stackoverflow.com/questions/6760685/creating-a-singleton-in-python
-#
 # Author: Bernhard Bablok
 #
 # Website: https://github.com/pcb-pico-datalogger
 #-----------------------------------------------------------------------------
 
 import time
-
-def singleton(class_):
-  instances = {}
-  def getinstance(*args, **kwargs):
-    if class_ not in instances:
-      instances[class_] = class_(*args, **kwargs)
-    return instances[class_]
-  return getinstance
+from singleton import singleton
 
 @singleton
 class Logger():
