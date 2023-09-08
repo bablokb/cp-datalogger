@@ -10,6 +10,8 @@
 from log_writer import Logger
 g_logger = Logger()
 
+from singleton import singleton
+
 from digitalio import DigitalInOut, Direction, Pull
 import busio
 import time
@@ -18,6 +20,7 @@ import pins
 
 # --- helper class for LoRa   ------------------------------------------------
 
+@singleton
 class LORA:
   def __init__(self,config):
     """ constructor """
