@@ -89,8 +89,9 @@ while True:
   packet = None
 
   # check for packet rx
-  packet = rfm9x.receive(with_ack=True)
+  packet = rfm9x.receive(with_ack=True,timeout=0.5)
   if packet is None:
+    time.sleep(0.5)
     continue
 
   # Decode packet: assume it is csv with a timestamp as first field
