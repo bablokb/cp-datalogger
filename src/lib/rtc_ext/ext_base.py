@@ -109,7 +109,7 @@ class ExtBase:
       from secrets import secrets
       self._wifi.connect()
       response = self._wifi.get(secrets.time_url).json()
-      self._wifi.enabled = False
+      self._wifi.radio.enabled = False
     except Exception as ex:
       import traceback
       traceback.print_exception(ex)

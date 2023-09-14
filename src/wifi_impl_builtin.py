@@ -4,7 +4,7 @@
 # Author: Bernhard Bablok
 # License: GPL3
 #
-# Website: https://github.com/bablokb/pico-e-ink-daily
+# Website: https://github.com/bablokb/pcp-pico-datalogger
 #
 # ----------------------------------------------------------------------------
 
@@ -31,12 +31,15 @@ class WifiImpl:
     if not hasattr(secrets,'timeout'):
       secrets.timeout = None
 
+    self._radio = None
+
   # --- initialze and connect to AP and to remote-port   ---------------------
 
   def connect(self):
     """ initialize connection """
 
     import wifi
+    self._radio = wifi.radio
     self.logger.print("connecting to %s" % secrets.ssid)
     retries = secrets.retry
     while True:
@@ -58,6 +61,13 @@ class WifiImpl:
     pool = socketpool.SocketPool(wifi.radio)
     self._requests = adafruit_requests.Session(pool)
 
+  # --- return implementing radio   -----------------------------------------
+
+  @property
+  def radio(self):
+    """ return radio """
+    return self._radio
+
   # --- execute get-request   -----------------------------------------------
 
   def get(self,url):
@@ -71,6 +81,6 @@ class WifiImpl:
     """ disable radio """
 
     try:                                       # wifi might not be imported
-      wifi.radio.enabled = False
+      self._radio.enabled = False
     except:
       pass
