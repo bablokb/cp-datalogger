@@ -79,6 +79,13 @@ BMP280
   - Note: supports I2C and SPI.
 
 
+DCODE
+-----
+
+  - Pseudo-sensor: returns configured sensors (data-code, see `src/sensors/dcode.py`)
+  - Status: implemented
+
+
 DS18B20
 -------
 
@@ -121,7 +128,7 @@ HTU31D
 ID
 --
 
-  - Returns the ID of the logger (`LOGGER_ID` from the configuration)
+  - Pseudo-sensor: returns the ID of the logger (`LOGGER_ID` from the configuration)
   - Status: implemented
 
 
