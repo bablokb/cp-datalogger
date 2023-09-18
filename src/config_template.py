@@ -76,3 +76,7 @@ LORA_ACK_RETRIES = 3
 LORA_FREQ        = 433.0
 LORA_NODE_ADDR   =
 LORA_BASE_ADDR   =
+
+# UDP (WLAN) configuration
+UDP_IP = '1.2.3.4'
+UDP_PORT = 6600
