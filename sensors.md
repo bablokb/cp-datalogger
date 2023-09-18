@@ -118,6 +118,13 @@ HTU31D
   - [datasheet](https://www.te.com/usa-en/product-CAT-HSC0007.datasheet.pdf)
 
 
+ID
+--
+
+  - Returns the ID of the logger (`LOGGER_ID` from the configuration)
+  - Status: implemented
+
+
 LTR-559
 -------
 
