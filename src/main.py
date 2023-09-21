@@ -173,7 +173,8 @@ class DataCollector():
           else:
             addr = int(spec[0],16)
 
-      sensor_module = builtins.__import__(sensor,None,None,[sensor.upper()],0)
+      sensor_module = builtins.__import__("sensors."+sensor,
+                                          None,None,[sensor.upper()],0)
       sensor_class = getattr(sensor_module,sensor.upper())
       _sensor = sensor_class(g_config,i2c,addr,None)
       self._sensors.append(_sensor.read)
