@@ -156,6 +156,16 @@ MCP9808
   - [datasheet](https://ww1.microchip.com/downloads/en/DeviceDoc/25095A.pdf)
 
 
+METEO
+-----
+
+  - Queries meteological data from Open-Meteo
+  - Status: implemented
+  - Needs internet-access
+  - Configuration: METEO_LATITUDE and METEO_LONGITUDE in `config.py`
+  - [API-Documentation](https://open-meteo.com/en/docs) 
+
+
 PDM-Micro
 ---------
 
