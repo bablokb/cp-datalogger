@@ -11,6 +11,7 @@
 import board
 import time
 import socketpool
+import ssl
 import adafruit_requests
 
 from log_writer import Logger
@@ -46,7 +47,7 @@ class WifiImpl:
     if not self._radio:
       import wifi
       self._radio = wifi.radio
-    if self._radio.ipv4_address:
+    if self._pool:
       return
 
     self.logger.print("connecting to %s" % secrets.ssid)
@@ -75,7 +76,8 @@ class WifiImpl:
   def _get_request(self):
     """ return requests-object """
     if not self._requests:
-      self._requests = adafruit_requests.Session(self._pool)
+      self._requests = adafruit_requests.Session(self._pool,
+                                                 ssl.create_default_context())
     return self._requests
 
   # --- return implementing radio   -----------------------------------------
