@@ -74,6 +74,7 @@ LORA_ENABLE_TIME = 0
 LORA_ACK_WAIT    = 0.5
 LORA_ACK_RETRIES = 3
 LORA_FREQ        = 433.0
+LORA_TX_POWER    = 13     # default: 13, range: 5-23
 LORA_NODE_ADDR   =
 LORA_BASE_ADDR   =
 

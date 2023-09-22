@@ -43,7 +43,7 @@ class LORA:
       
     g_logger.print("LoRa: configuring rfm9x")
     self.rfm9x.enable_crc = True
-    #self.rfm9x.tx_power = 23
+    self.rfm9x.tx_power = config.LORA_TX_POWER
     self.rfm9x.node = config.LORA_NODE_ADDR                 # node or this device
     self.rfm9x.destination = config.LORA_BASE_ADDR  # base station or destination
     self.rfm9x.ack_wait = config.LORA_ACK_WAIT
