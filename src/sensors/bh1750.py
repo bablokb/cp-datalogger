@@ -4,9 +4,8 @@
 # Naming convention:
 #   - filenames in lowercase (bh1750.py)
 #   - class name the same as filename in uppercase (BH1750)
-#   - the constructor must take five arguments (config,i2c0,ic1,spi0,spi1)
+#   - the constructor must take four arguments (config,i2c,addr,spi)
 #     and probe for the device
-#   - i2c1 is the default i2c-device and should be probed first
 #   - the read-method must update the data and return a string with the
 #     values for the csv-record
 #
@@ -15,21 +14,29 @@
 # Website: https://github.com/pcb-pico-datalogger
 #-----------------------------------------------------------------------------
 
+from log_writer import Logger
+g_logger = Logger()
+
 import adafruit_bh1750
 
 class BH1750:
   formats = ["L/bhx0:", "{0:.0f}lx"]
   headers = 'L/bhx0 lx'
 
-  def __init__(self,config,i2c0=None,i2c1=None,spi0=None,spi1=None):
+  def __init__(self,config,i2c,addr=None,spi=None):
     """ constructor """
 
-    try:
-      if i2c1:
-        self.bh1750 = adafruit_bh1750.BH1750(i2c1)
-    except:
-      if i2c0:
-        self.bh1750 = adafruit_bh1750.BH1750(i2c0)
+    self.bh1750 = None
+    for bus,nr in i2c:
+      try:
+        g_logger.print(f"testing bh1750 on (i2c{nr},{addr})")
+        self.bh1750 = adafruit_bh1750.BH1750(bus,0x23 if not addr else addr)
+        g_logger.print(f"detected bh1750 on i2c{nr}")
+        break
+      except Exception as ex:
+        g_logger.print(f"exception: {ex}")
+    if not self.bh1750:
+      raise Exception("no bh1750 detected. Check config/cabling!")
 
   def read(self,data,values):
     lux = self.bh1750.lux

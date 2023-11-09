@@ -4,9 +4,8 @@
 # Naming convention:
 #   - filenames in lowercase (aht20.py)
 #   - class name the same as filename in uppercase (AHT20)
-#   - the constructor must take five arguments (config,i2c0,ic1,spi0,spi1)
+#   - the constructor must take four arguments (config,i2c,addr,spi)
 #     and probe for the device
-#   - i2c1 is the default i2c-device and should be probed first
 #   - the read-method must update the data and return a string with the
 #     values for the csv-record
 #
@@ -19,10 +18,10 @@ import board
 from analogio import AnalogIn
 
 class BATTERY:
-  formats = ["Bat:","{0:0.1f}V"]
+  formats = ["Bat:","{0:0.2f}V"]
   headers = 'Bat V'
 
-  def __init__(self,config,i2c0=None,i2c1=None,spi0=None,spi1=None):
+  def __init__(self,config,i2c,addr=None,spi=None):
     """ constructor """
     pass
 
@@ -34,4 +33,4 @@ class BATTERY:
     adc.deinit()
     data["battery"] = level
     values.extend([None,level])
-    return f"{level:0.1f}"
+    return f"{level:0.2f}"

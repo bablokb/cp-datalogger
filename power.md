@@ -12,32 +12,45 @@ just keeeps the internal state of the RTC when the standard batteries
 are not connected.
 
 The power-management circuit has a leakage current of about 75µA during
-"off-time".
+"off-time" (at 3V).
+
+
+Pico-W Current vs. Voltage
+--------------------------
+
+The Pico (-W) does not follow Ohm's law. It is more of a constant
+energy-device. The consequence is that the current draw is higher for
+lower voltages than for higher voltages. Also, the current ripple is
+higher for low voltages, probably due to the internal DC-DC converters
+that try to maintain the internal 1.8V and 3.3V voltages.
+
+Some measurements (Pico-W):
+
+| Voltage (V)| Idle Current (mA)|
+|------------|------------------|
+|         3.2|                49|
+|         3.0|                53|
+|         2.8|                55|
+|         2.6|                65|
+|         2.4|                69|
+|         2.2|                82|
 
 
 Operation Voltage and Capacity
 ------------------------------
 
-Experiments show that the system won't start up with an voltage below
-2.55V (maybe subject to variation).
-
-Normal AA/AAA batteries show a decline of voltage during life-time. Data
-from <https://en.wikipedia.org/wiki/Alkaline_battery> suggest that the
-threshold of 2.55V is reached at about 80% capacity given a load of
-330mW. Given a nominal capacity of about 3000mAh for an AA-alkaline on
-low drain, this would mean a usable capacity of about 600mAh.
-
-A possible remediation of this problem is the usage of a boost-converter
-that delivers constant voltage over the typical range of battery-voltages.
-Since this is a common problem, these converters are available but no
-ready to use component is known for the target voltage of 3-3.3V.
+The Pico-W works down to 1.8V, even with attached sensors. The exact
+threshold voltage probably depends on the current draw of the attached
+sensors and maybe some other factors (e.g. sample variation). Since
+alkalines are considered "empty" at about 0.9V, this means that the
+datalogger can theoretically use the full capacity of the cells.
 
 
 Current Measurements
 --------------------
 
 The test-setup uses a typical set of sensors for temperature, humidity,
-light and noise:
+light and noise (measured at 3V):
 
   - AHT20 (temperature/humidity)
   - LTR599 (light)
@@ -47,19 +60,22 @@ The results for these sensors (including SD-card and e-ink display):
 
 ![](current-aht20-ltr599-pdm-sd-display.png)
 
-Average current for "on-time" (18secs) is 57.26mA, used energy is
+Average current for "on-time" (18secs) is 57.26mA, used charge capacity is
 18/3600*57.26mA = 0.2863mAh.
 
 Same data without the e-ink display:
 
 ![](current-aht20-ltr599-pdm-sd.png)
 
-Average current for "on-time" (6 secs) is 68,08mA, used energy is
+Average current for "on-time" (6 secs) is 68,08mA, used charge capacity is
 6/3600*68,08mA = 0.1135mAh.
 
 
 Extrapolated Current Usage
 --------------------------
+
+The following calculations don't take the variable current draw into
+account. I.e. the real current draw will be higher.
 
 Four measurements per hour with display: 4 * 24 = 96 measurements a day
 with a total on time of 96 * 18 secs = 1728 secs. Off time is 84672 secs.
@@ -67,7 +83,7 @@ with a total on time of 96 * 18 secs = 1728 secs. Off time is 84672 secs.
   - on: 4 * 24 * 0.2863mAh = 27,4848mAh
   - off: 84672/3600 * 75µA = 1.764mAh
 
-So per day the needed energy is 29.25mAh
+So per day the needed charge capacity is 29.25mAh
 
 Four measurements per hour without display: 4 * 24 = 96 measurements a day
 with a total on time of 96 * 6 secs = 576 secs. Off time is 85824 secs.
@@ -75,5 +91,21 @@ with a total on time of 96 * 6 secs = 576 secs. Off time is 85824 secs.
   - on: 4 * 24 * 0.1135mAh = 10.89mAh
   - off: 85824/3600 * 75µA = 1.788mAh
 
-So per day the needed energy is 12.68mAh.
+So per day the needed charge capacity is 12.68mAh.
 
+
+Longterm Test
+-------------
+
+A longterm test with one measurement, i.e. a duty-cycle of 30% (18s/60s
+on-time) lasted 5.5 days and the battery voltage showed the expected
+curve:
+
+![](battery-voltage.png)
+
+With this data, the expected active time of a datalogger (with display)
+on one set of AA batteries is 2.5 months with one measurement every
+15 minutes or 5 months when the system is only active half of the day.
+
+For a datalogger without display the batteries should last something
+like 7.5-15 month depending on the measurement cycle.

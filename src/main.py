@@ -14,8 +14,13 @@
 # Website: https://github.com/pcb-pico-datalogger
 #-----------------------------------------------------------------------------
 
-import gc
 import time
+
+# init timings
+g_ts = []
+g_ts.append((time.monotonic(),None))
+
+import gc
 import board
 import alarm
 import os
@@ -31,15 +36,10 @@ import adafruit_sdcard
 import busio
 from rtc_ext.pcf8523 import ExtPCF8523 as ExtRTC
 
-# imports for the display
-import displayio
-import adafruit_display_text, adafruit_display_shapes, adafruit_bitmap_font
-import InkyPack
+# pin definitions
+import pins
 
-from dataviews.DisplayFactory import DisplayFactory
-from dataviews.Base import Color, Justify
-from dataviews.DataView  import DataView
-from dataviews.DataPanel import DataPanel, PanelText
+g_ts.append((time.monotonic(),"import"))
 
 # --- early configuration of the log-destination   ---------------------------
 
@@ -49,8 +49,9 @@ except:
   from log_writer import Logger
   g_logger = Logger('console')
 
-# --- default configuration is in config.py on the pico.
-#     You can override it also with a config.py on the sd-card   -------------
+g_ts.append((time.monotonic(),"log-config"))
+
+# --- default configuration is in config.py on the pico.   -------------------
 
 class Settings:
   def import_config(self):
@@ -66,25 +67,7 @@ class Settings:
 g_config = Settings()
 g_config.import_config()
 
-# --- pin-constants (don't change unless you know what you are doing)   ------
-
-PIN_DONE = board.GP4   # connect to 74HC74 CLK
-PIN_SDA0  = board.GP0   # connect to sensors (alternative bus)
-PIN_SCL0  = board.GP1   # connect to sensors (alternative bus)
-PIN_SDA1  = board.GP2   # connect to sensors and RTC via I2C interface
-PIN_SCL1  = board.GP3   # connect to sensors and RTC via I2C interface
-
-# SD-card interface (SPI)
-PIN_SD_CS   = board.GP22
-PIN_SD_SCK  = board.GP18
-PIN_SD_MOSI = board.GP19
-PIN_SD_MISO = board.GP16
-
-# display interface (SPI, Inky-Pack)
-PIN_INKY_CS   = board.GP17
-PIN_INKY_RST  = board.GP21
-PIN_INKY_DC   = board.GP20
-PIN_INKY_BUSY = board.GP26
+g_ts.append((time.monotonic(),"settings"))
 
 # --- main application class   -----------------------------------------------
 
@@ -97,24 +80,22 @@ class DataCollector():
     """ create hardware-objects """
 
     # early setup of SD-card (in case we send debug-logs to sd-card)
+    self._spi = None
     if g_config.HAVE_SD:
-      self._spi = busio.SPI(PIN_SD_SCK,PIN_SD_MOSI,PIN_SD_MISO)
-      self.sd_cs = DigitalInOut(PIN_SD_CS)
+      self._spi = busio.SPI(pins.PIN_SD_SCK,pins.PIN_SD_MOSI,pins.PIN_SD_MISO)
+      self.sd_cs = DigitalInOut(pins.PIN_SD_CS)
       sdcard     = adafruit_sdcard.SDCard(self._spi,self.sd_cs)
       self.vfs   = storage.VfsFat(sdcard)
       storage.mount(self.vfs, "/sd")
-      try:
-        import sys
-        sys.path.insert(0,"/sd")
-        g_config.import_config()
-        sys.path.pop(0)
-      except:
-        g_logger.print("no configuration found in /sd/config.py")
+      g_ts.append((time.monotonic(),"sd-mount"))
 
     # Initialse i2c bus for use by sensors and RTC
-    i2c1 = busio.I2C(PIN_SCL1,PIN_SDA1)
+    i2c1 = busio.I2C(pins.PIN_SCL1,pins.PIN_SDA1)
     if g_config.HAVE_I2C0:
-      i2c0 = busio.I2C(PIN_SCL0,PIN_SDA0)
+      try:
+        i2c0 = busio.I2C(pins.PIN_SCL0,pins.PIN_SDA0)
+      except:
+        i2c0 = None
     else:
       i2c0 = None
 
@@ -125,32 +106,21 @@ class DataCollector():
       self.rtc.rtc_ext.high_capacitance = True  # the pcb uses a 12.5pF capacitor
       self.rtc.update()                         # (time-server->)ext-rtc->int-rtc
 
-    self.done           = DigitalInOut(PIN_DONE)
+    self.done           = DigitalInOut(pins.PIN_DONE)
     self.done.direction = Direction.OUTPUT
     self.done.value     = 0
 
     self.vbus_sense           = DigitalInOut(board.VBUS_SENSE)
     self.vbus_sense.direction = Direction.INPUT
 
+    g_ts.append((time.monotonic(),"rtc-update"))
+
     # display
     if g_config.HAVE_DISPLAY:
+      from display import Display
+      self.display = Display(g_config,self._spi)
 
-      displayio.release_displays()
-
-      # spi - if not already created
-      if not g_config.HAVE_SD:
-        self._spi = busio.SPI(PIN_SD_SCK,PIN_SD_MOSI)
-
-      if g_config.HAVE_DISPLAY == "Inky-Pack":
-        self.display = DisplayFactory.inky_pack(self._spi)
-      elif g_config.HAVE_DISPLAY == "Display-Pack":
-        self.display = DisplayFactory.display_pack(self._spi)
-        self.display.auto_refresh = False
-      else:
-        g_logger.print(f"unsupported display: {g_config.HAVE_DISPLAY}")
-        g_config.HAVE_DISPLAY = None
-      self._view = None
-
+    g_ts.append((time.monotonic(),"display-config"))
 
     # just for testing
     if g_config.TEST_MODE:
@@ -162,82 +132,54 @@ class DataCollector():
     #configure sensors
     self._configure_sensors(i2c0,i2c1)
 
+    g_ts.append((time.monotonic(),"sensor-config"))
+
   # --- configure sensors   ---------------------------------------------------
 
   def _configure_sensors(self,i2c0,i2c1):
     """ configure sensors """
 
-    self._formats = []
+    self.formats = []
     self.csv_header = f"#ID: {g_config.LOGGER_ID}\n#Location: {g_config.LOGGER_LOCATION}\n"
     self.csv_header += "#ts"
-
     self._sensors = []
-    for sensor in g_config.SENSORS.split(' '):
-      sensor_module = builtins.__import__(sensor,None,None,[sensor.upper()],0)
+
+    # setup defaults
+    i2c_default = [(i2c1,1)]
+    if i2c0:
+      i2c_default.append((i2c0,0))
+
+    # parse sensor specification. Will fail if i2c0 is requested, but not
+    # configured
+    for spec in g_config.SENSORS.split(' '):
+      # spec is sensor(addr,bus) or sensor(bus,addr) with bus and/or addr optional
+      # defaults for normal case without addr/bus
+      spec   = spec.split('(')
+      sensor = spec[0]
+      addr   = None
+      i2c    = list(i2c_default)
+      # check for parameters
+      if len(spec) > 1:
+        spec = spec[1][:-1].split(',')   # remove trailing ) and split
+        # parse parameters
+        addr = int(spec[0],16)
+        spec.pop(0)
+        if addr < 2:                                # addr is actually a bus
+          i2c = [i2c_default[1-addr]]
+          addr = None
+        if len(spec):
+          if addr:
+            i2c = [i2c_default[1-int(spec[0])]]
+          else:
+            addr = int(spec[0],16)
+
+      sensor_module = builtins.__import__("sensors."+sensor,
+                                          None,None,[sensor.upper()],0)
       sensor_class = getattr(sensor_module,sensor.upper())
-      _sensor = sensor_class(g_config,i2c0,i2c1,None,None)
+      _sensor = sensor_class(g_config,i2c,addr,None)
       self._sensors.append(_sensor.read)
-      self._formats.extend(_sensor.formats)
+      self.formats.extend(_sensor.formats)
       self.csv_header += f",{_sensor.headers}"
-
-  # --- create view   ---------------------------------------------------------
-
-  def _create_view(self):
-    """ create data-view """
-
-    # guess best dimension
-    if len(self._formats) < 5:
-      dim = (2,2)
-    elif len(self._formats) < 7:
-      dim = (3,2)
-    elif len(self._formats) < 13:
-      dim = (3,4)
-    else:
-      raise Exception("too many sensors")
-
-    self._formats.extend(
-      ["" for _ in range(dim[0]*dim[1] - len(self._formats))])
-
-    border  = 1
-    divider = 1
-    padding = 5
-    self._view = DataView(
-      dim=dim,
-      width=self.display.width-2*border-(dim[1]-1)*divider,
-      height=int(0.6*self.display.height),
-      justify=Justify.LEFT,
-      fontname=f"fonts/{g_config.FONT_DISPLAY}.bdf",
-      formats=self._formats,
-      border=border,
-      divider=divider,
-      color=Color.BLACK,
-      bg_color=Color.WHITE
-    )
-
-    for i in range(0,dim[0]*dim[1],2):
-      self._view.justify(Justify.LEFT,index=i)
-      self._view.justify(Justify.RIGHT,index=i+1)
-
-    # create DataPanel
-    title = PanelText(text=f"{g_config.LOGGER_TITLE}",
-                      fontname=f"fonts/{g_config.FONT_DISPLAY}.bdf",
-                      justify=Justify.CENTER)
-
-    self._footer = PanelText(text=f"Updated: ",
-                             fontname=f"fonts/{g_config.FONT_DISPLAY}.bdf",
-                             justify=Justify.RIGHT)
-    self._panel = DataPanel(
-      width=self.display.width,
-      height=self.display.height,
-      view=self._view,
-      title=title,
-      footer=self._footer,
-      border=border,
-      padding=5,
-      justify=Justify.CENTER,
-      color=Color.BLACK,
-      bg_color=Color.WHITE
-    )
 
   # --- blink   --------------------------------------------------------------
 
@@ -264,7 +206,8 @@ class DataCollector():
     ts = time.localtime()
     ts_str = f"{ts.tm_year}-{ts.tm_mon:02d}-{ts.tm_mday:02d}T{ts.tm_hour:02d}:{ts.tm_min:02d}:{ts.tm_sec:02d}"
     self.data = {
-      "ts":   ts_str
+      "ts":     ts,
+      "ts_str": ts_str
       }
     self.record = ts_str
 
@@ -283,75 +226,71 @@ class DataCollector():
     except OSError:
       return False
 
-  # --- save data   ----------------------------------------------------------
+  # --- run configured tasks   -----------------------------------------------
 
-  def save_data(self):
-    """ save data """
+  def run_tasks(self):
+    """ parse task-config and run tasks """
 
-    if g_config.SHOW_UNITS:
-      self.pretty_print()
-    else:
-      g_logger.print(self.record)
+    if not hasattr(g_config,"TASKS"):
+      return
 
-    if g_config.HAVE_SD:
-      ymd = self.data["ts"].split("T")[0]
-      y,m,d = ymd.split("-")
-      outfile = g_config.CSV_FILENAME.format(
-        ID=g_config.LOGGER_ID,
-        YMD=ymd,Y=y,M=m,D=d)
-      new_csv = not self.file_exists(outfile)
-      self.save_status = ":("
-      with open(outfile, "a") as f:
-        if new_csv:
-          f.write(f"{self.csv_header}\n")
-        f.write(f"{self.record}\n")
-        self.save_status = "SD"
+    for task in g_config.TASKS.split(" "):
+      try:
+        g_logger.print(f"{task}: loading")
+        task_module = builtins.__import__("tasks."+task,None,None,["run"],0)
+        g_logger.print(f"{task} starting")
+        task_module.run(g_config,self)
+        g_ts.append((time.monotonic(),f"{task}"))
+        g_logger.print(f"{task} ended")
+      except Exception as ex:
+        g_logger.print(f"{task} failed: exception: {ex}")
 
-  # --- pretty-print data to console   ---------------------------------------
+  # --- print timings   ------------------------------------------------------
 
-  def pretty_print(self):
-    """ pretty-print data to console """
+  def print_timings(self):
+    """ print timings """
 
-    columns = self.csv_header.split('#')[-1].split(',')
-    merged = zip(columns,self.record.split(','))
-    for label,value in merged:
-      space = '\t\t' if len(label) < 9 else '\t'
-      g_logger.print(f"{label}:{space}{value}")
-    
-  # --- send data   ----------------------------------------------------------
+    if not g_config.TEST_MODE:
+      return
 
-  def send_data(self):
-    """ send data using LORA """
-    g_logger.print(f"not yet implemented!")
-
-  # --- update display   -----------------------------------------------------
-
-  def update_display(self):
-    """ update display """
-
-    gc.collect()
-    if not self._view:
-      self._create_view()
-
-    # fill in unused cells
-    self.values.extend([None for _ in range(len(self._formats)-len(self.values))])
-
-    self._view.set_values(self.values)
-    dt, ts = self.data['ts'].split("T")
-    self._footer.text = f"at {dt} {ts} {self.save_status}"
-    self.display.root_group = self._panel
-    self.display.refresh()
-    g_logger.print("finished refreshing display")
-
-    if not self.continuous_mode():
-      time.sleep(3)              # refresh returns before it is finished
+    g_logger.print(60*"-")
+    for i in range(1,len(g_ts)):
+      g_logger.print(f"{g_ts[i][0]-g_ts[i-1][0]:0.3f} ({g_ts[i][1]})")
+    g_logger.print(f"{g_ts[-1][0]-g_ts[0][0]:0.3f} (total)")
+    g_logger.print(60*"-")
 
   # --- set next wakeup   ----------------------------------------------------
 
   def configure_wakeup(self):
     """ configure rtc for next wakeup """
     if g_config.HAVE_PCB:
-      self.rtc.set_alarm(self.rtc.get_alarm_time(m=g_config.OFF_MINUTES))
+      if hasattr(g_config,"TIME_TABLE"):
+        self.rtc.set_alarm(self.rtc.get_table_alarm(g_config.TIME_TABLE))
+      else:
+        self.rtc.set_alarm(self.rtc.get_alarm_time(m=g_config.OFF_MINUTES))
+
+  # --- configure battery-switchover for RTC   -------------------------------
+
+  def configure_switchover(self):
+    """ configure rtc battery switchover """
+
+    if "battery" not in self.data:
+      from battery import BATTERY
+      bat = BATTERY(g_config,None)
+      bat.read(self.data,self.values)
+
+    if self.data["battery"] < 2.0:
+      # enable switchover (end of life)
+      self.rtc.rtc_ext.power_managment = 0b000
+      g_logger.print("enabling rtc battery switchover")
+    elif self.data["battery"] < 2.7:
+      # disable switchover (within working range)
+      self.rtc.rtc_ext.power_managment = 0b111
+      g_logger.print("disabling rtc battery switchover")
+    else:  # >= 2.7
+      # enable switchover (initial dispatching)
+      self.rtc.rtc_ext.power_managment = 0b000
+      g_logger.print("enabling rtc battery switchover")
 
   # --- shutdown   -----------------------------------------------------------
 
@@ -359,7 +298,7 @@ class DataCollector():
     """ tell the power-controller to cut power """
 
     self.done.value = 1
-    time.sleep(0.2)
+    time.sleep(0.001)
     self.done.value = 0
     time.sleep(2)
 
@@ -375,36 +314,27 @@ class DataCollector():
 g_logger.print("main program start")
 if g_config.TEST_MODE:
   time.sleep(5)                        # give console some time to initialize
-g_logger.print("setup of hardware")
+  g_ts.append((time.monotonic(),"delay test-mode"))
 
+g_logger.print("setup of hardware")
 app = DataCollector()
+g_ts.append((time.monotonic(),"DataCollector()"))
 app.setup()
+app.print_timings()
 
 while True:
   if g_config.TEST_MODE:
     app.blink(count=g_config.BLINK_START, blink_time=g_config.BLINK_TIME_START)
+    # reset timings
+    g_ts = []
+    g_ts.append((time.monotonic(),None))
 
   app.collect_data()
-  try:
-    app.save_data()
-  except:
-    g_logger.print("exception during save_data()")
-    app.cleanup()
-    raise
-    
-  if g_config.TEST_MODE:
-    app.blink(count=g_config.BLINK_END, blink_time=g_config.BLINK_TIME_END)
+  g_ts.append((time.monotonic(),"collect data"))
 
-  if g_config.HAVE_DISPLAY:
-    try:
-      app.update_display()
-    except:
-      g_logger.print("exception during update_display()")
-      app.cleanup()
-      raise
-
-  if g_config.HAVE_LORA:
-    app.send_data()
+  # run tasks after data-collection
+  app.run_tasks()
+  app.print_timings()
 
   # check if running on USB and sleep instead of shutdown
   if app.continuous_mode():
@@ -414,4 +344,5 @@ while True:
     break
 
 app.configure_wakeup()
+app.configure_switchover()
 app.shutdown()
