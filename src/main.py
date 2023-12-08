@@ -190,14 +190,6 @@ class DataCollector():
       self._led.value = 0
       time.sleep(blink_time)
 
-  # --- check for continuous-mode   ------------------------------------------
-
-  def continuous_mode(self):
-    """ returns false if on USB-power """
-
-    return g_config.FORCE_CONT_MODE or (
-            self.vbus_sense.value and not g_config.FORCE_STROBE_MODE)
-
   # --- collect data   -------------------------------------------------------
 
   def collect_data(self):
@@ -267,7 +259,7 @@ class DataCollector():
       if hasattr(g_config,"TIME_TABLE"):
         self.rtc.set_alarm(self.rtc.get_table_alarm(g_config.TIME_TABLE))
       else:
-        self.rtc.set_alarm(self.rtc.get_alarm_time(m=g_config.OFF_MINUTES))
+        self.rtc.set_alarm(self.rtc.get_alarm_time(s=g_config.INTERVAL))
 
   # --- configure battery-switchover for RTC   -------------------------------
 
@@ -336,10 +328,9 @@ while True:
   app.run_tasks()
   app.print_timings()
 
-  # check if running on USB and sleep instead of shutdown
-  if app.continuous_mode():
-    g_logger.print(f"continuous mode: next measurement in {g_config.CONT_INT} seconds")
-    time.sleep(g_config.CONT_INT)
+  if not g_config.STROBE_MODE:
+    g_logger.print(f"continuous mode: next measurement in {g_config.INTERVAL} seconds")
+    time.sleep(g_config.INTERVAL)
   else:
     break
 

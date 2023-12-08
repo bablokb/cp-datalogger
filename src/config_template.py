@@ -16,8 +16,6 @@ BLINK_END   = 5           # blink n times after finish of data-collection
 
 NET_UPDATE  = True        # update RTC from time-server if time is invalid
 
-OFF_MINUTES = 1           # turn off for x minutes
-
 # tasks to execute after data-collection
 TASKS = "dump_data save_data update_display"
 
@@ -34,9 +32,8 @@ TASKS = "dump_data save_data update_display"
 #  (None,None)
 #  ]
 
-FORCE_CONT_MODE       = False      # Use continuous mode (with CONT_INT) even when on battery
-FORCE_STROBE_MODE     = False      # Use strobe mode (with OFF_MINUTES) even when on power
-CONT_INT              = 60         #  interval in continuous mode (in seconds)
+STROBE_MODE = True      # strobe-mode or continuous-mode
+INTERVAL    = 60        # interval (in seconds)
 
 # hardware setup
 HAVE_I2C0    = False               # also use second I2C-bus
