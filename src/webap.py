@@ -125,18 +125,23 @@ class WebAP:
 
     # dump to konfig (needs write access to flash -> boot.py)
     for key in self._model.keys():
+      value = self._model[key]
       if key in ["SENSORS", "TASKS"]:
-        print(f"{key}=\"{' '.join(self._model[key])}\"")
+        print(f"{key}=\"{' '.join(value)}\"")
+      elif type(value) in [int,float,bool,list]:
+        print(f"{key}={value}")
+      elif value in ["True","False"]:
+        print(f"{key}={value}")
+      elif value.isdigit() and (value[0] != "0" or len(value) == 1):
+        print(f"{key}={value}")
       else:
-        print(f"{key}={self._html_decode(self._model[key])}")
+        print(f"{key}=\"{value}\"")
 
   # --- decode html-escape chars   -------------------------------------------
 
   def _html_decode(self,text):
     """ decode html esc-chars (subset only!) """
 
-    if not isinstance(text,str) or not '%' in text:
-      return text
     token = text.split('%')
     result = token.pop(0)
     for t in token:
