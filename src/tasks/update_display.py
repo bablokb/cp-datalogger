@@ -35,12 +35,12 @@ def run(config,app):
       # remove extra values
       del app.values[len(app.formats):]
 
-      dt, ts = app.data['ts_str'].split("T")
-      footer = f"at {dt} {ts} {app.save_status}"
-      app.display.set_values(app.values,footer)
+    dt, ts = app.data['ts_str'].split("T")
+    footer = f"at {dt} {ts} {app.save_status}"
+    app.display.set_values(app.values,footer)
 
   app.display.refresh()
   g_logger.print("finished refreshing display")
 
-  if not app.continuous_mode():
+  if config.STROBE_MODE:
     time.sleep(3)              # refresh returns before it is finished
