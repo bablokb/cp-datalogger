@@ -34,6 +34,7 @@ deploy:
 
 lib:
 	rsync -av --delete src/lib ${DEPLOY_TO}
+	rsync -av --delete src/fonts ${DEPLOY_TO}
 
 clean:
 	rm -fr ${DEPLOY_TO}/*
