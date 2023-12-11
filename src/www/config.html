@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<!--
+#-----------------------------------------------------------------------------
+# Admin web-pages for the datalogger: main configuration file.
+#
+# Author: Bernhard Bablok
+#
+# Website: https://github.com/pcb-pico-datalogger
+#-----------------------------------------------------------------------------
+-->
+
+<html>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <head>
+    <!-- layout and styling thanks to purecss.io -->
+    <link rel="stylesheet" href="dl_styles.css">
+    <link rel="stylesheet" href="pure-min.css">
+
+    <!-- special functions -->
+    <script src="utils.js"></script>
+
+     <script  type="text/javascript">
+       window.addEventListener("load", function(event) {
+         get_model();
+         showTab(currentTab);
+       });
+     </script>
+  </head>
+<body>
+
+<form class=" pure-form pure-form-aligned" id="configForm"
+        action="/save_config" method="post">
+  <h1>Configuration</h1>
+  <!-- One "tab" for each step in the form: -->
+
+  <div class="tab"><h2>Sensor-Box</h2>
+    <fieldset>
+       <legend>Names and IDs:</legend>
+         <div class="pure-control-group">
+           <label for="logger_name">Name:</label>
+           <input  id="logger_name"
+                class="pure-input-1-4 model"
+                placeholder="Name..."
+                oninput="this.classList.remove('invalid')"
+                name="LOGGER_NAME" value="Datalogger"/>
+         </div>
+         <div class="pure-control-group">
+           <label for="logger_id">ID:</label>
+           <input id="logger_id"
+                class="pure-input-1-4 model"
+                placeholder="ID..."
+                oninput="this.classList.remove('invalid')"
+                name="LOGGER_ID" value="001"/>
+         </div>
+         <div class="pure-control-group">
+           <label for="logger_loc">Location:</label>
+           <input id="logger_loc"
+                class="pure-input-1-4 model"
+                placeholder="Location..."
+                oninput="this.classList.remove('invalid')"
+                name="LOGGER_LOCATION" value="@Home" />
+         </div>
+         <div class="pure-control-group">
+           <label for="logger_title">Title:</label>
+           <input id="logger_title" p
+                class="pure-input-1-4 model"
+                laceholder="Title..."
+                oninput="this.classList.remove('invalid')"
+                name="LOGGER_TITLE" value="Datalogger 001 @Home" />
+         </div>
+    </fieldset>
+  </div>
+
+  <div class="tab"><h2>Sampling Mode</h2>
+    <fieldset>
+       <legend>Sampling mode and interval</legend>
+          <div class="pure-control-group">
+            <label for="cont">Continuous:</label>
+            <input type="radio" class="model" id="cont" name="STROBE_MODE"
+                value="False" />
+            <br/>
+            <label for="cont">Strobe:</label>
+            <input type="radio" class="model" id="strobe" name="STROBE_MODE"
+                value="True" />
+          </div>
+          <div class="pure-control-group">
+            <label for="interval">Sampling Interval (secs):</label>
+            <input placeholder="Interval (secs)..." id="interval"
+                class="model" type="number" min="10" value="60"
+                oninput="this.classList.remove('invalid')"
+                name="INTERVAL" />
+          </div>
+    </fieldset>
+  </div>
+
+  <div class="tab"><h2>Hardware</h2>
+    <fieldset>
+       <legend>Display, UI, CSV-Filenames:</legend>
+         <div class="pure-control-group">
+            <label for="display">Display:</label>
+            <select id="display" class="model"name="HAVE_DISPLAY"
+                oninput="this.classList.remove('invalid')">
+              <option selected="selected">Inky-Pack</option>
+              <option>None</option>
+              <option>Display-Pack</option>
+              <option>Ada-2.13-Mono</option>
+              <option>Ada-1.54-Mono</option>
+            </select>
+         </div>
+         <div class="pure-control-group">
+           <label for="tab_ui">Tabular UI:</label>
+           <input class="model" type="radio" id="tab_ui" name="SIMPLE_UI"
+                value="False" />
+         </div>
+         <div class="pure-control-group">
+           <label for="cont">Simple UI:</label>
+           <input class="model" type="radio" id="simple_ui" name="SIMPLE_UI"
+                value="True" />
+         </div>
+         <div class="pure-control-group">
+           <label for="have_sd">SD installed:</label>
+           <input class="model" type="checkbox" id="have_sd" name="have_sd"
+                value="True" />
+         </div>
+         <div class="pure-control-group">
+            <label for="pattern">CSV filename pattern</label>
+            <input class="model"
+                placeholder="/sd/log_{ID}_{YMD}.csv" id="pattern"
+                oninput="this.classList.remove('invalid')"
+                name="CSV_FILENAME" value="/sd/log_{ID}_{YMD}.csv" />
+         </div>
+    </fieldset>
+  </div>
+
+  <div class="tab"><h2>LoRa</h2>
+    <div class="pure-control-group">
+      <label for="have_lora">LoRa installed:</label>
+      <input class="model" type="checkbox" id="have_lora" name="have_lora"
+           value="True" />
+    </div>
+    <fieldset>
+       <legend>LoRa Addresses:</legend>
+         <div class="pure-control-group">
+            <label for="lora_node">This Node:</label>
+            <input class="model" type="number" min="1" max="254"
+                id="lora_node" placeholder="Node Address..."
+                oninput="this.classList.remove('invalid')"
+                name="LORA_NODE_ADDR" value="1" />
+          </div>
+          <div class="pure-control-group">
+            <label for="lora_base">Base Node:</label>
+            <input type="number" min="0" max="254"
+                class="model" id="lora_base" placeholder="Base Address..."
+                oninput="this.classList.remove('invalid')"
+                name="LORA_BASE_ADDR" value="0" />
+         </div>
+    </fieldset>
+
+    <fieldset>
+       <legend>Technical Parameters:</legend>
+         <div class="pure-control-group">
+            <label for="lora_enable_time">Enable Time:</label>
+            <input class="model" type="number" min="0"
+                id="lora_enable_time" placeholder="Enable Time..."
+                oninput="this.classList.remove('invalid')"
+                name="LORA_ENABLE_TIME" value="3" />
+         </div>
+         <div class="pure-control-group">
+            <label for="lora_ack_time">Ack Time:</label>
+            <input class="model"  type="number" min="0"
+                id="lora_ack_time" placeholder="Ack Wait Time..."
+                oninput="this.classList.remove('invalid')"
+                name="LORA_ACK_WAIT" value="3" />
+         </div>
+         <div class="pure-control-group">
+            <label for="lora_ack_retries">Ack Retries:</label>
+            <input class="model" type="number" min="0" max="5" steps="1"
+                id="lora_ack_retries" placeholder="Ack Retries..."
+                oninput="this.classList.remove('invalid')"
+                name="LORA_ACK_RETRIES" value="3" />
+         </div>
+         <div class="pure-control-group">
+            <label for="lora_freq">Frequency:</label>
+            <select class="model" id="lora_freq"
+                oninput="this.classList.remove('invalid')"
+                name="LORA_FREQ">
+                <option>433</option>
+                <option selected="selected">868</option>
+                <option>915</option>
+            </select>
+         </div>
+         <div class="pure-control-group">
+            <label for="lora_tx_power">TX Power</label>
+            <input class="model" type="number" min="5" max="23" step="1"
+                id="lora_tx_power" placeholder="Transmit Power..."
+            oninput="this.classList.remove('invalid')"
+            name="LORA_TX_POWER" value="23" />
+         </div>
+    </fieldset>
+  </div>
+
+  <div class="tab"><h2>Sensors</h2>
+    <fieldset>
+       <legend>List of Sensors:</legend>
+         <div class="pure-control-group">
+            <label for="sensors">Sensors:</label>
+            <select id="sensors" class="model" multiple
+                oninput="this.classList.remove('invalid')"
+                name="SENSORS">
+                <option>AHT20</option>
+                <option>PDM</option>
+                <option>BH1750</option>
+            </select>
+         </div>
+    </fieldset>
+  </div>
+
+  <div class="tab"><h2>Tasks</h2>
+    <fieldset>
+       <legend>List of Tasks:</legend>
+         <div class="pure-control-group">
+            <label for="tasks">Tasks:</label>
+            <select id="tasks" class="model" multiple
+                oninput="this.classList.remove('invalid')"
+                name="TASKS">
+                <option>dump_data</option>
+                <option>save_data</option>
+                <option>update_display</option>
+                <option>send_lora</option>
+            </select>
+         </div>
+    </fieldset>
+  </div>
+
+  <div style="overflow:auto;">
+    <div style="float:right;">
+      <button type="button" id="prevBtn" onclick="nextPrev(-1)">Previous</button>
+      <button type="button" id="nextBtn" onclick="nextPrev(1)">Next</button>
+    </div>
+  </div>
+  <!-- Circles which indicates the steps of the form: -->
+  <div style="text-align:center;margin-top:40px;">
+    <span class="step"></span>
+    <span class="step"></span>
+    <span class="step"></span>
+    <span class="step"></span>
+    <span class="step"></span>
+    <span class="step"></span>
+  </div>
+</form>
+
+</body>
+
+</html>
