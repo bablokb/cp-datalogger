@@ -87,16 +87,16 @@ class WebAP:
 
   def _import_config(self):
     """ import config-module and create json-model """
-    import konfig           # TODO: change to config later after merge
+    import config           # TODO: change to config later after merge
     self._model = {}
-    for var in dir(konfig):
+    for var in dir(config):
       if var[0] != '_':
         if var in ["SENSORS", "TASKS"]:
-          self._model[var] = getattr(konfig,var).split(" ")
+          self._model[var] = getattr(config,var).split(" ")
         else:
-          self._model[var] = getattr(konfig,var)
+          self._model[var] = getattr(config,var)
         self.msg(f"{var}={self._model[var]}")
-    konfig = None
+    config = None
     gc.collect()
 
 
@@ -123,7 +123,7 @@ class WebAP:
       else:
         self._model[key] = value
 
-    # dump to konfig (needs write access to flash -> boot.py)
+    # dump to config (needs write access to flash -> boot.py)
     for key in self._model.keys():
       value = self._model[key]
       if key in ["SENSORS", "TASKS"]:
