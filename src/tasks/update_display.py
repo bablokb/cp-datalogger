@@ -35,9 +35,9 @@ def run(config,app):
       # remove extra values
       del app.values[len(app.formats):]
 
-      dt, ts = app.data['ts_str'].split("T")
-      footer = f"at {dt} {ts} {app.save_status}"
-      app.display.set_values(app.values,footer)
+    dt, ts = app.data['ts_str'].split("T")
+    footer = f"at {dt} {ts} {app.save_status}"
+    app.display.set_values(app.values,footer)
 
   app.display.refresh()
   g_logger.print("finished refreshing display")
