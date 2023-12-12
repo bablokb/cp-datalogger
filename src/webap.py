@@ -101,10 +101,10 @@ class WebAP:
     gc.collect()
 
     # add select-options for sensors and tasks
-    self._model["s_options"] = [f.split(".")[0] for f in os.listdir("sensors")]
-    self._model["t_options"] = [f.split(".")[0] for f in os.listdir("tasks")]
-    self.msg(f"s_options = {self._model['s_options']}")
-    self.msg(f"t_options = {self._model['t_options']}")
+    self._model["_s_options"] = [f.split(".")[0] for f in os.listdir("sensors")]
+    self._model["_t_options"] = [f.split(".")[0] for f in os.listdir("tasks")]
+    self.msg(f"_s_options = {self._model['_s_options']}")
+    self.msg(f"_t_options = {self._model['_t_options']}")
 
   # --- export configuration   -----------------------------------------------
 
@@ -130,7 +130,9 @@ class WebAP:
         self._model[key] = value
 
     # dump to config (needs write access to flash -> boot.py)
-    for key in self._model.keys():
+    for key in sorted(self._model.keys()):
+      if key[0] == "_":
+        continue
       value = self._model[key]
       if key in ["SENSORS", "TASKS"]:
         print(f"{key}=\"{' '.join(value)}\"")
