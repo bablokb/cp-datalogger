@@ -42,13 +42,21 @@ class WebAP:
       self.msg("_handle_favicon...")
       return biplane.Response("",status_code=400)
 
-    # --- request-handler for /utils.js   -------------------------------
+    # --- request-handler for /utils.js   -------------------------------------
 
     @self._server.route("/utils.js","GET")
     def _handle_utils_js(query_params, headers, body):
       """ handle request for utils.js """
       self.msg(f"_handle_utils_js")
       return biplane.FileResponse("/www/utils.js")
+
+    # --- request-handler for /jquery-min.js   -------------------------------
+
+    @self._server.route("/jquery-min.js","GET")
+    def _handle_jquery_js(query_params, headers, body):
+      """ handle request for jquery-min.js """
+      self.msg(f"_handle_jquery_js")
+      return biplane.FileResponse("/www/jquery-min.js")
 
     # --- request-handler for /dl_styles.css   -------------------------------
 
