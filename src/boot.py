@@ -9,6 +9,7 @@
 #-----------------------------------------------------------------------------
 
 import board
+import storage
 import supervisor
 from digitalio import DigitalInOut, Pull, Direction
 
@@ -23,5 +24,7 @@ switch_a.pull = Pull.UP
 # --- check if switch A is pressed and if so, enter admin-mode   -------------
 
 if not switch_a.value:
+  # make flash writable
+  storage.remount("/",False)
   supervisor.set_next_code_file("admin.py",sticky_on_reload=True)
   supervisor.reload()
