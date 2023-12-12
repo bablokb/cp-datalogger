@@ -3,7 +3,7 @@ Pico Datalogger with Integrated Power-Management
 
 This is a breakout supporting low-frequency data-logging with a Raspberry Pi Pico.
 
-![](pcb1.jpg)
+![](docs/pcb1.jpg)
 
 Core functions:
   * log data to a micro-sd card;
@@ -22,7 +22,7 @@ Hardware Components
 
 Time-keeping uses the PCF8523 RTC with integrated support for a backup-battery.
 
-![](pcb2.jpg)
+![](docs/pcb2.jpg)
 
 Power management uses a D-type flip-flop which drives the enable pin of the Pico.
 In "reset"-state, the enable pin is pulled high and the Pico is running. The
@@ -46,15 +46,20 @@ For background on / motivation for this project, please see
 Additional resources
 --------------------
 
-  * [Sensors](sensors.md)
-  * [Components](components.md)
-  * [Power](power.md)
-  * [Hardware setup](hardware_setup.md)
-  * [Pinout](pins.md)
+  * [Sensors](docs/sensors.md)
+  * [Components](docs/components.md)
+  * [Power](docs/power.md)
+  * [Hardware setup](docs/hardware_setup.md)
+  * [Pinout](docs/pins.md)
+  * [Pinout V2](docs/pins.md)
   * Case for this PCB: https://github.com/OpenDevEd/case-for-pico-datalogger-rev1.00
-  * [Software](datacollector.md)
-  * [KiCAD design-files](./pico-datalogger.kicad/Readme.md)
-  * [References](references.md)
+  * [Software](docs/datacollector.md)
+  * [KiCAD design-files V1](./pico-datalogger.kicad/Readme.md)
+  * [KiCAD design-files V2](./pico-datalogger-v2.kicad/Readme.md)
+  * [KiCAD design-files sensor-PCB](./pico-sensor-pcb.kicad/Readme.md)
+  * [KiCAD design-files display-adapter](./display-adapter.kicad/Readme.md)
+  * [KiCAD design-files LoRa-adapter](./lora-adapter.kicad/Readme.md)
+  * [References](docs/references.md)
 
 
 License
