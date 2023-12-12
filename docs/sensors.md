@@ -37,7 +37,7 @@ AM2320
   - Guide: <https://learn.adafruit.com/adafruit-am2320-temperature-humidity-i2c-sensor>
   - CircuitPython-driver: <https://github.com/adafruit/Adafruit_CircuitPython_AM2320>
   - [datasheet](https://cdn-shop.adafruit.com/product-files/3721/AM2320.pdf)
-  - Notes: no-pullups! Pinout left to right (from fron): : 3V3, SDA, GND, SCL
+  - Notes: no-pullups! Pinout left to right (from front): : 3V3, SDA, GND, SCL
 
 
 BH1750
@@ -105,7 +105,7 @@ ENS160
   - Measures TVOC and calculates eCO2 and AQI ("air quality index")
   - Status: implemented
   - I2C-Breakouts:
-      - [Adafruit  ????](https://adafru.it/????)
+      - [Adafruit  5606](https://adafru.it/5606)
       - [DFRobot SEN0515]()
   - Address: 0x53 (default) and 0x52
   - Guide: <https://learn.adafruit.com/adafruit-ens160-mox-gas-sensor>
@@ -182,7 +182,7 @@ PMS5003
 -------
 
   - Measures particles
-  - Status: in progress
+  - Status: implemented
   - Breakouts:
       - [Adafruit UART 3686](https://adafru.it/3686)
       - [Adafruit I2C 4632](https://adafru.it/4632)
@@ -191,6 +191,7 @@ PMS5003
   - Guide: <https://learn.adafruit.com/pm25-air-quality-sensor>
   - CircuitPython-driver: <https://github.com/adafruit/Adafruit_CircuitPython_PM25>
   - [datasheet](https://cdn-shop.adafruit.com/product-files/3686/plantower-pms5003-manual_v2-3.pdf)
+  - Note: UART-versions need 5V. The Adafruit I2C-version has an onboard regulator.
 
 
 SCD40
