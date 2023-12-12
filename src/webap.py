@@ -12,6 +12,7 @@ import board
 import wifi
 import biplane
 import gc
+import os
 
 class WebAP:
   """ Access-point and webserver """
@@ -99,6 +100,11 @@ class WebAP:
     config = None
     gc.collect()
 
+    # add select-options for sensors and tasks
+    self._model["s_options"] = [f.split(".")[0] for f in os.listdir("sensors")]
+    self._model["t_options"] = [f.split(".")[0] for f in os.listdir("tasks")]
+    self.msg(f"s_options = {self._model['s_options']}")
+    self.msg(f"t_options = {self._model['t_options']}")
 
   # --- export configuration   -----------------------------------------------
 
