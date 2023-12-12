@@ -21,6 +21,7 @@ SOURCES=$(wildcard src/*.py)
 SOURCES:=$(subst src/boot.py,,${SOURCES})
 SOURCES:=$(subst src/main.py,,${SOURCES})
 SOURCES:=$(subst src/admin.py,,${SOURCES})
+SOURCES:=$(subst src/secrets.py,,${SOURCES})
 
 # remove template files
 SOURCES:=$(subst src/sec_template.py,,${SOURCES})
@@ -34,7 +35,7 @@ TASKS=$(wildcard src/tasks/*.py)
 # files served by the webserver in admin-mode
 WWW=$(wildcard src/www/*)
 
-.PHONY: check_mpy_cross clean
+.PHONY: deploy check_mpy_cross clean
 
 all: check_mpy_cross deploy lib \
 	$(SOURCES:src/%.py=${DEPLOY_TO}/%.mpy) \
@@ -43,8 +44,9 @@ all: check_mpy_cross deploy lib \
 	$(WWW:src/www/%=${DEPLOY_TO}/www/%.gz)
 	@cp -vu --preserve=all \
 		src/boot.py src/main.py src/admin.py ${DEPLOY_TO}/
-	@cp -vu --preserve=all \
-		${CONFIG} ${LOG_CONFIG} ${SECRETS} ${DEPLOY_TO}/
+	@cp -vu --preserve=all ${CONFIG} ${DEPLOY_TO}/config.py
+	@cp -vu --preserve=all ${LOG_CONFIG} ${DEPLOY_TO}/log_config.py
+	mpy-cross ${SECRETS} -o ${DEPLOY_TO}/secrets.mpy
 
 check_mpy_cross:
 	@type -p mpy-cross > /dev/null || \
