@@ -7,7 +7,9 @@
 #-----------------------------------------------------------------------------
 
 import wifi
+import time
 from digitalio import DigitalInOut, Pull, Direction
+
 import pins
 import webap
 
@@ -32,5 +34,6 @@ switch_d.value = True
 
 # --- start AP and web-server   ----------------------------------------------
 
+time.sleep(5)                        # wait until console is available
 server = webap.WebAP(config=config)
 server.run()
