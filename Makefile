@@ -14,6 +14,9 @@ CONFIG=src/config.py
 LOG_CONFIG=src/log_config.py
 SECRETS=src/secrets.py
 
+# make variables from commandline (last invocation)
+include makevars.tmp
+
 # all sources
 SOURCES=$(wildcard src/*.py)
 
@@ -37,7 +40,7 @@ WWW=$(wildcard src/www/*)
 
 .PHONY: deploy check_mpy_cross clean
 
-all: check_mpy_cross deploy lib \
+default: check_mpy_cross deploy lib \
 	$(SOURCES:src/%.py=${DEPLOY_TO}/%.mpy) \
 	$(SENSORS:src/sensors/%.py=${DEPLOY_TO}/sensors/%.mpy) \
 	$(TASKS:src/tasks/%.py=${DEPLOY_TO}/tasks/%.mpy) \
@@ -47,6 +50,10 @@ all: check_mpy_cross deploy lib \
 	@cp -vu --preserve=all ${CONFIG} ${DEPLOY_TO}/config.py
 	@cp -vu --preserve=all ${LOG_CONFIG} ${DEPLOY_TO}/log_config.py
 	mpy-cross ${SECRETS} -o ${DEPLOY_TO}/secrets.mpy
+	@rm makevars.tmp
+	@make makevars.tmp DEPLOY_TO=${DEPLOY_TO} \
+		CONFIG=${CONFIG} \
+		LOG_CONFIG=${LOG_CONFIG}
 
 check_mpy_cross:
 	@type -p mpy-cross > /dev/null || \
@@ -60,7 +67,11 @@ lib:
 	rsync -av --delete src/fonts ${DEPLOY_TO}
 
 clean:
-	rm -fr ${DEPLOY_TO}/*
+	rm -fr makevars.tmp ${DEPLOY_TO}/*
+
+makevars.tmp:
+	@echo -e \
+	"DEPLOY_TO=${DEPLOY_TO}\nCONFIG=${CONFIG}\nLOG_CONFIG=${LOG_CONFIG}" > $@
 
 $(SOURCES:src/%.py=${DEPLOY_TO}/%.mpy): ${DEPLOY_TO}/%.mpy: src/%.py
 	mpy-cross $< -o $@
