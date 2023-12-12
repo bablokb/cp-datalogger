@@ -50,6 +50,7 @@ Additional resources
   * [Components](docs/components.md)
   * [Power](docs/power.md)
   * [Hardware setup](docs/hardware_setup.md)
+  * [Software deployment](docs/deployment.md)
   * [Pinout](docs/pins.md)
   * [Pinout V2](docs/pins.md)
   * Case for this PCB: https://github.com/OpenDevEd/case-for-pico-datalogger-rev1.00
