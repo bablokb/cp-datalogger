@@ -39,9 +39,10 @@ TASKS=$(wildcard src/tasks/*.py)
 # files served by the webserver in admin-mode
 WWW=$(wildcard src/www/*)
 
-.PHONY: deploy check_mpy_cross clean
+.PHONY: target_dir check_mpy_cross clean copy2pico
 
-default: check_mpy_cross deploy lib \
+# default target: pre-compile and compress files
+default: check_mpy_cross target_dir lib \
 	$(SOURCES:src/%.py=${DEPLOY_TO}/%.mpy) \
 	$(SPECIAL:src/%.py=${DEPLOY_TO}/%.py) \
 	$(SENSORS:src/sensors/%.py=${DEPLOY_TO}/sensors/%.mpy) \
@@ -55,23 +56,41 @@ default: check_mpy_cross deploy lib \
 		CONFIG=${CONFIG} \
 		LOG_CONFIG=${LOG_CONFIG}
 
+# check for mpy-cross pre-compiler
 check_mpy_cross:
 	@type -p mpy-cross > /dev/null || \
 	  (echo "please install mpy-cross from https://adafruit-circuit-python.s3.amazonaws.com/index.html?prefix=bin/mpy-cross/" && false)
 
-deploy:
+# create target-directory
+target_dir:
 	mkdir -p ${DEPLOY_TO}/sensors ${DEPLOY_TO}/tasks ${DEPLOY_TO}/www
 
+# copy libs and fonts
 lib:
 	rsync -av --delete src/lib ${DEPLOY_TO}
 	rsync -av --delete src/fonts ${DEPLOY_TO}
 
+# clean target-directory
 clean:
 	rm -fr makevars.tmp ${DEPLOY_TO}/*
 
+# recreate makevars.tmp
 makevars.tmp:
 	@echo -e \
 	"DEPLOY_TO=${DEPLOY_TO}\nCONFIG=${CONFIG}\nLOG_CONFIG=${LOG_CONFIG}" > $@
+
+# rsync content of target-directory to pico
+# note: this needs a LABEL=CIRCUITPY entry in /etc/fstab and it only works
+#       if the CIRCUITPY-drive is not already mounted (e.g. by an automounter)
+copy2pico: default
+	mount -L CIRCUITPY
+	rsync -av -L --exclude boot_out.txt \
+		--exclude  __pycache__ \
+		--no-owner --no-group --delete \
+		--modify-window=2 "${DEPLOY_TO}/" \
+		$$(findmnt -S LABEL=CIRCUITPY -no TARGET)/
+	sync
+	umount $$(findmnt -S LABEL=CIRCUITPY -no TARGET)
 
 ${DEPLOY_TO}/config.py: ${CONFIG}
 	cp -a $< $@
