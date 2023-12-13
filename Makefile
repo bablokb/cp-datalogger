@@ -19,6 +19,7 @@ include makevars.tmp
 
 # all sources
 SOURCES=$(wildcard src/*.py)
+SPECIAL=src/boot.py src/main.py src/admin.py
 
 # remove files that cannot be precompiled
 SOURCES:=$(subst src/boot.py,,${SOURCES})
@@ -42,14 +43,13 @@ WWW=$(wildcard src/www/*)
 
 default: check_mpy_cross deploy lib \
 	$(SOURCES:src/%.py=${DEPLOY_TO}/%.mpy) \
+	$(SPECIAL:src/%.py=${DEPLOY_TO}/%.py) \
 	$(SENSORS:src/sensors/%.py=${DEPLOY_TO}/sensors/%.mpy) \
 	$(TASKS:src/tasks/%.py=${DEPLOY_TO}/tasks/%.mpy) \
+	${DEPLOY_TO}/config.py \
+	${DEPLOY_TO}/log_config.py \
+	${DEPLOY_TO}/secrets.mpy \
 	$(WWW:src/www/%=${DEPLOY_TO}/www/%.gz)
-	@cp -vu --preserve=all \
-		src/boot.py src/main.py src/admin.py ${DEPLOY_TO}/
-	@cp -vu --preserve=all ${CONFIG} ${DEPLOY_TO}/config.py
-	@cp -vu --preserve=all ${LOG_CONFIG} ${DEPLOY_TO}/log_config.py
-	mpy-cross ${SECRETS} -o ${DEPLOY_TO}/secrets.mpy
 	@rm makevars.tmp
 	@make makevars.tmp DEPLOY_TO=${DEPLOY_TO} \
 		CONFIG=${CONFIG} \
@@ -72,6 +72,18 @@ clean:
 makevars.tmp:
 	@echo -e \
 	"DEPLOY_TO=${DEPLOY_TO}\nCONFIG=${CONFIG}\nLOG_CONFIG=${LOG_CONFIG}" > $@
+
+${DEPLOY_TO}/config.py: ${CONFIG}
+	cp -a $< $@
+
+${DEPLOY_TO}/log_config.py: ${LOG_CONFIG} 
+	cp -a $< $@
+
+${DEPLOY_TO}/secrets.mpy: ${SECRETS}
+	mpy-cross $< -o $@
+
+$(SPECIAL:src/%.py=${DEPLOY_TO}/%.py): ${DEPLOY_TO}/%.py: src/%.py
+	cp -a $< $@
 
 $(SOURCES:src/%.py=${DEPLOY_TO}/%.mpy): ${DEPLOY_TO}/%.mpy: src/%.py
 	mpy-cross $< -o $@
