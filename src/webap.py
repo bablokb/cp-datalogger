@@ -25,6 +25,7 @@ class WebAP(ehttpserver.Server):
     """ constructor """
     self._config = config
     super().__init__(debug=config["debug"])
+    self.debug("Initializing WebAP")
     self._import_config()
     self.add_route(self._handle_main,"/","GET")
     self.add_route(self._handle_favicon,"/favicon.ico","GET")
@@ -68,6 +69,9 @@ class WebAP(ehttpserver.Server):
     """ import config-module and create json-model """
     import config           # TODO: change to config later after merge
     self._model = {}
+    self.debug("-"*60)
+    self.debug("current config.py:")
+    self.debug("-"*60)
     for var in dir(config):
       if var[0] != '_':
         if var in ["SENSORS", "TASKS"]:
@@ -77,6 +81,7 @@ class WebAP(ehttpserver.Server):
         self.debug(f"{var}={self._model[var]}")
     config = None
     gc.collect()
+    self.debug("-"*60)
 
     # add select-options for sensors and tasks
     self._model["_s_options"] = [f.split(".")[0] for f in os.listdir("sensors")]
