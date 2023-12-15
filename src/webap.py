@@ -26,10 +26,13 @@ class WebAP(ehttpserver.Server):
     self._config = config
     super().__init__(debug=config["debug"])
     self._import_config()
+    self.add_route(self._handle_main,"/","GET")
+    self.add_route(self._handle_favicon,"/favicon.ico","GET")
+    self.add_route(self._handle_static,"/[^.]*\.(js|css|html)","GET")
+    self.add_route(self._handle_save_config,"/save_config","POST")
 
-  # --- request-handler for /   -----------------------------------------------
+# --- request-handler for /   -----------------------------------------------
 
-  @self.route("/","GET")
   def _handle_main(self,path,query_params, headers, body):
     """ handle request for main-page """
     self.debug("_handle_main...")
@@ -38,7 +41,6 @@ class WebAP(ehttpserver.Server):
 
   # --- request-handler for /favicon.ico   -----------------------------------
 
-  @self.route("/favicon.ico","GET")
   def _handle_favicon(self,path,query_params, headers, body):
     """ handle request for favicon """
     self.debug("_handle_favicon...")
@@ -46,7 +48,6 @@ class WebAP(ehttpserver.Server):
 
   # --- request-handler for static files   -----------------------------------
 
-  @self.route("^/[^.]*\.(js|css|html)$","GET")
   def _handle_static(self,path,query_params, headers, body):
     """ handle request for static-files """
     self.debug(f"_handle_static for {path}")
@@ -54,7 +55,6 @@ class WebAP(ehttpserver.Server):
 
   # --- request-handler for /save_config   -----------------------------------
 
-  @self.route("/save_config","POST")
   def _handle_save_config(self,path,query_params, headers, body):
     """ handle request for /save_config """
     self.debug(f"_handle_save_config...\n{body}")
@@ -139,13 +139,13 @@ class WebAP(ehttpserver.Server):
   # --- run server   ---------------------------------------------------------
 
   def run_server(self):
-    
-    self.debug(f"starting mDNS at {mdns_hostname}.local (IP address {wifi.radio.ipv4_address_ap})")
+
     server = mdns.Server(wifi.radio)
     server.hostname = self._config["hostname"]
     server.advertise_service(service_type="_http",
-                             protocol="_tcp", port=listen_on[1])
+                             protocol="_tcp", port=80)
     pool = socketpool.SocketPool(wifi.radio)
+    self.debug(f"starting {server.hostname}.local ({wifi.radio.ipv4_address_ap})")
     with pool.socket() as server_socket:
       yield from self.start(server_socket)
 

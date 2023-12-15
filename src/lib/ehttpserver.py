@@ -151,7 +151,7 @@ class Server:
             raise
           # no connectings pending, try again
         else:
-          self.debug("accepted connection from", new_client_address)
+          self.debug(f"accepted connection from {new_client_address}")
           client_processors.append(
             (time.monotonic(), new_client_socket,
              self.process_client_connection(
@@ -188,11 +188,21 @@ class Server:
 
   # --- add route to server   ------------------------------------------------
 
-  def route(self, path, method='GET'):
+  def add_route(self,request_handler,path, method='GET'):
     """ add route to to server. The handler must be a method of this class """
-    def register_route(request_handler):
-      self._routes.append((path, method, request_handler))
-    return register_route
+    self._routes.append((f"^{path}$", method, request_handler))
+
+  # --- decode html-escape chars   -------------------------------------------
+
+  def html_decode(self,text):
+    """ decode html esc-chars (subset only!) """
+
+    token = text.split('%')
+    result = token.pop(0)
+    for t in token:
+      decoded = chr(int(t[:2],16))
+      result = f"{result}{decoded}{t[2:]}"
+    return result
 
   # --- handle requests   ----------------------------------------------------
 
@@ -218,7 +228,7 @@ class Server:
     # map path to routes
     for route_path, route_method, request_handler in self._routes:
       if method == route_method and re.match(route_path,path):
-        response = request_handler(self,path,query_parameters, headers, body)
+        response = request_handler(path,query_parameters, headers, body)
         self.debug(f"response status: {response.status_code}")
         self.debug(f"sending {len(response.body_bytes)} bytes")
         yield from response.serialize()
@@ -236,7 +246,7 @@ class Server:
                                               stop_byte=b'\n'):
         yield
         start_line += data
-      self.debug("received request", start_line)
+      self.debug(f"received request {start_line}")
 
       # parse start line
       if start_line[-1:] != b'\n':
