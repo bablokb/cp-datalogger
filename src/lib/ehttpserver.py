@@ -1,10 +1,10 @@
 import time
+import re
 import errno
 import os
 
 __version__ = "0.0.0+auto.0"
-__repo__ = "https://github.com/Uberi/biplane.git"
-
+__repo__ = "https://github.com/bablokb/ehttpserver.git"
 
 class BufferedNonBlockingSocket:
   def __init__(self, sock, buffer_size=1024):
@@ -114,98 +114,30 @@ class FileResponse(Response):
       super().__init__("",status_code=400,headers=headers)
 
 class Server:
-  def __init__(self, max_request_line_size=4096, max_header_count=50, max_body_bytes=65536, request_timeout_seconds=10):
-    self.routes = []
-    self.max_request_line_size = max_request_line_size
-    self.max_header_count = max_header_count
-    self.max_body_bytes = max_body_bytes
-    self.request_timeout_seconds = request_timeout_seconds
+  """ This implements the webserver class.
+  To use it, create a subclass and implement request handlers
+  for routes as methods 
+  """
 
-  def route(self, path, method='GET'):
-    def register_route(request_handler):
-      self.routes.append((path, method, request_handler))
-    return register_route
+  # --- constructor   --------------------------------------------------------
 
-  def handle_request(self, target, method, headers, content_length, buffered_client_socket):  # subclass Server and override this method for more customized request handling (e.g., large file uploads)
-    if content_length > self.max_body_bytes:
-      yield from Response("Content Too Large", 413).serialize()
-      return
+  def __init__(self, max_request_line_size=4096,
+               max_header_count=50,
+               max_body_bytes=65536,
+               request_timeout_seconds=10,debug=False):
+    """ constructor """
+    self._routes = []
+    self._max_request_line_size = max_request_line_size
+    self._max_header_count = max_header_count
+    self._max_body_bytes = max_body_bytes
+    self._request_timeout_seconds = request_timeout_seconds
+    self._debug = debug
 
-    # read request body
-    body = bytearray()
-    for data in buffered_client_socket.read(size=content_length):
-      yield b""
-      body += data
+  # --- start server   -------------------------------------------------------
 
-    path, query_parameters = target.split("?", 1) if "?" in target else (target, "")
-    for route_path, route_method, request_handler in self.routes:
-      if path == route_path and method == route_method:
-        response = request_handler(query_parameters, headers, body)
-        assert isinstance(response, Response), type(response)
-        print("response status", response.status_code, "sending", len(response.body_bytes), "bytes")
-        yield from response.serialize()
-        return
-    yield from Response("Not Found", 404).serialize()
-    return
-
-  def process_client_connection(self, buffered_client_socket):
-    try:
-      # parse start line
-      start_line = bytearray()
-      for data in buffered_client_socket.read(size=self.max_request_line_size, stop_byte=b'\n'):
-        yield
-        start_line += data
-      print("received request", start_line)
-      if start_line[-1:] != b'\n':
-        print("excessively long or invalid start line, giving up")
-      try:
-        method, target, _ = start_line.decode("ascii").split(" ", 2)
-      except (UnicodeError, ValueError):
-        print("malformed start line, giving up")
-        return
-
-      # parse headers and request body
-      headers = {}
-      for _ in range(self.max_header_count + 1):
-        header_line = bytearray()
-        for data in buffered_client_socket.read(size=self.max_request_line_size, stop_byte=b'\n'):
-          yield
-          header_line += data
-        if header_line[-1:] != b"\n":
-          print("excessively long or invalid header, giving up")
-          return
-        if header_line == b"\r\n":  # end of headers
-          break
-        try:
-          header_line = header_line.decode("ascii")
-        except UnicodeError:
-          print("malformed header, giving up")
-          return
-        if ":" not in header_line:
-          print("malformed header, giving up")
-          return
-        header_name, header_value = header_line.split(":", 1)
-        headers[header_name.strip().lower()] = header_value.strip()
-        yield
-      else:
-        print("too many headers, giving up")
-        return
-
-      # generate and send response
-      try:
-        content_length = max(0, int(headers.get('content-length', '0')))
-      except ValueError:
-        print("malformed content-length header, giving up")
-        return
-      for data in self.handle_request(target, method, headers, content_length, buffered_client_socket):
-        yield
-        for _ in buffered_client_socket.write(data):
-          yield
-    except OSError as e:  # errno.EPIPE=32 not available in CP
-      if e.errno not in (errno.ECONNRESET, errno.ENOTCONN, 32):
-        raise
-
-  def start(self, server_socket, listen_on=('0.0.0.0', 80), max_parallel_connections=5):
+  def start(self, server_socket,
+            listen_on=('0.0.0.0', 80), max_parallel_connections=5):
+    """ start server """
     server_socket.setblocking(False)
     server_socket.bind(listen_on)
     server_socket.listen(max_parallel_connections)
@@ -219,15 +151,21 @@ class Server:
             raise
           # no connectings pending, try again
         else:
-          print("accepted connection from", new_client_address)
-          client_processors.append((time.monotonic(), new_client_socket, self.process_client_connection(BufferedNonBlockingSocket(new_client_socket))))
+          self.debug("accepted connection from", new_client_address)
+          client_processors.append(
+            (time.monotonic(), new_client_socket,
+             self.process_client_connection(
+               BufferedNonBlockingSocket(new_client_socket)
+             )
+            )
+          )
 
       # step through open client connections
       now = time.monotonic()
       new_client_processors = []
       for start_time, client_socket, client_processor in client_processors:
         try:
-          if now - start_time > self.request_timeout_seconds:
+          if now - start_time > self._request_timeout_seconds:
             raise StopIteration()  # timed out
           next(client_processor)
         except Exception as e:
@@ -235,36 +173,126 @@ class Server:
           if not isinstance(e, StopIteration):
             raise
         else:
-          new_client_processors.append((start_time, client_socket, client_processor))
+          new_client_processors.append(
+            (start_time, client_socket, client_processor)
+          )
       client_processors = new_client_processors
       yield
 
-  def circuitpython_start_wifi_ap(self, ssid, password, mdns_hostname, listen_on=('0.0.0.0', 80), max_parallel_connections=5):
-    import wifi
-    import mdns
-    import socketpool
-    try:
-      wifi.radio.start_ap(ssid=ssid, password=password)
-    except NotImplementedError:
-      # workaround for older CircuitPython versions
-      pass
-    print(f"starting mDNS at {mdns_hostname}.local (IP address {wifi.radio.ipv4_address_ap})")
-    server = mdns.Server(wifi.radio)
-    server.hostname = mdns_hostname
-    server.advertise_service(service_type="_http", protocol="_tcp", port=listen_on[1])
-    pool = socketpool.SocketPool(wifi.radio)
-    with pool.socket() as server_socket:
-      yield from self.start(server_socket, listen_on, max_parallel_connections)
+  # --- print a debug-message   ----------------------------------------------
 
-  def circuitpython_start_wifi_station(self, ssid, password, mdns_hostname, listen_on=('0.0.0.0', 80), max_parallel_connections=5):
-    import wifi
-    import mdns
-    import socketpool
-    wifi.radio.connect(ssid, password)
-    print(f"starting mDNS at {mdns_hostname}.local (IP address {wifi.radio.ipv4_address})")
-    server = mdns.Server(wifi.radio)
-    server.hostname = mdns_hostname
-    server.advertise_service(service_type="_http", protocol="_tcp", port=listen_on[1])
-    pool = socketpool.SocketPool(wifi.radio)
-    with pool.socket() as server_socket:
-      yield from self.start(server_socket, listen_on, max_parallel_connections)
+  def debug(self,msg):
+    """ print a debug-message """
+    if self._debug:
+      print(msg)
+
+  # --- add route to server   ------------------------------------------------
+
+  def route(self, path, method='GET'):
+    """ add route to to server. The handler must be a method of this class """
+    def register_route(request_handler):
+      self._routes.append((path, method, request_handler))
+    return register_route
+
+  # --- handle requests   ----------------------------------------------------
+
+  def _handle_request(self, target, method, headers, content_length,
+                      buffered_client_socket):
+    """ dispatch requests to defined request-handlers """
+
+    if content_length > self._max_body_bytes:
+      yield from Response("Content Too Large", 413).serialize()
+      return
+
+    # read request body
+    body = bytearray()
+    for data in buffered_client_socket.read(size=content_length):
+      yield b""
+      body += data
+
+    # extract path and query-parameters
+    path, query_parameters = (
+      target.split("?", 1) if "?" in target else (target, "")
+    )
+
+    # map path to routes
+    for route_path, route_method, request_handler in self._routes:
+      if method == route_method and re.match(route_path,path):
+        response = request_handler(self,path,query_parameters, headers, body)
+        self.debug(f"response status: {response.status_code}")
+        self.debug(f"sending {len(response.body_bytes)} bytes")
+        yield from response.serialize()
+        return
+    yield from Response("Not Found", 404).serialize()
+    return
+
+  # --- process client-connection   ------------------------------------------
+
+  def process_client_connection(self, buffered_client_socket):
+    try:
+      # read start line
+      start_line = bytearray()
+      for data in buffered_client_socket.read(size=self._max_request_line_size,
+                                              stop_byte=b'\n'):
+        yield
+        start_line += data
+      self.debug("received request", start_line)
+
+      # parse start line
+      if start_line[-1:] != b'\n':
+        self.debug("excessively long or invalid start line, giving up")
+      try:
+        method, target, _ = start_line.decode("ascii").split(" ", 2)
+      except (UnicodeError, ValueError):
+        self.debug("malformed start line, giving up")
+        return
+
+      # parse headers and request body
+      headers = {}
+      for _ in range(self._max_header_count + 1):
+        header_line = bytearray()
+        for data in buffered_client_socket.read(size=self._max_request_line_size,
+                                                stop_byte=b'\n'):
+          yield
+          header_line += data
+
+        if header_line[-1:] != b"\n":
+          self.debug("excessively long or invalid header, giving up")
+          return
+
+        if header_line == b"\r\n":  # end of headers
+          break
+
+        try:
+          header_line = header_line.decode("ascii")
+        except UnicodeError:
+          self.debug("malformed header, giving up")
+          return
+
+        if ":" not in header_line:
+          self.debug("malformed header, giving up")
+          return
+
+        header_name, header_value = header_line.split(":", 1)
+        headers[header_name.strip().lower()] = header_value.strip()
+        yield
+      else:
+        self.debug("too many headers, giving up")
+        return
+
+      # generate and send response
+      try:
+        content_length = max(0, int(headers.get('content-length', '0')))
+      except ValueError:
+        self.debug("malformed content-length header, giving up")
+        return
+
+      for data in self._handle_request(target, method, headers,
+                                       content_length, buffered_client_socket):
+        yield
+        for _ in buffered_client_socket.write(data):
+          yield
+
+    except OSError as e:  # errno.EPIPE=32 not available in CP
+      if e.errno not in (errno.ECONNRESET, errno.ENOTCONN, 32):
+        raise

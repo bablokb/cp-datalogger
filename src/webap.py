@@ -8,13 +8,15 @@
 #
 # -------------------------------------------------------------------------
 
-import board
-import wifi
-import biplane
 import gc
 import os
+import board
+import wifi
+import mdns
+import socketpool
+import ehttpserver
 
-class WebAP:
+class WebAP(ehttpserver.Server):
   """ Access-point and webserver """
 
   # --- constructor   --------------------------------------------------------
@@ -22,75 +24,43 @@ class WebAP:
   def __init__(self,config):
     """ constructor """
     self._config = config
-    self._server = biplane.Server()
+    super().__init__(debug=config["debug"])
     self._import_config()
 
-    # --- request-handler for /   --------------------------------------------
+  # --- request-handler for /   -----------------------------------------------
 
-    @self._server.route("/","GET")
-    def _handle_main(query_params, headers, body):
-      """ handle request for main-page """
-      self.msg("_handle_main...")
-      return biplane.Response("<h1>Hello from WebAP!</h1>",
-                              content_type="text/html")
+  @self.route("/","GET")
+  def _handle_main(self,path,query_params, headers, body):
+    """ handle request for main-page """
+    self.debug("_handle_main...")
+    return ehttpserver.Response("<h1>Hello from WebAP!</h1>",
+                            content_type="text/html")
 
-    # --- request-handler for /favicon.ico   ---------------------------------
+  # --- request-handler for /favicon.ico   -----------------------------------
 
-    @self._server.route("/favicon.ico","GET")
-    def _handle_favicon(query_params, headers, body):
-      """ handle request for favicon """
-      self.msg("_handle_favicon...")
-      return biplane.Response("",status_code=400)
+  @self.route("/favicon.ico","GET")
+  def _handle_favicon(self,path,query_params, headers, body):
+    """ handle request for favicon """
+    self.debug("_handle_favicon...")
+    return ehttpserver.Response("",status_code=400)
 
-    # --- request-handler for /utils.js   -------------------------------------
+  # --- request-handler for static files   -----------------------------------
 
-    @self._server.route("/utils.js","GET")
-    def _handle_utils_js(query_params, headers, body):
-      """ handle request for utils.js """
-      self.msg(f"_handle_utils_js")
-      return biplane.FileResponse("/www/utils.js")
+  @self.route("^/[^.]*\.(js|css|html)$","GET")
+  def _handle_static(self,path,query_params, headers, body):
+    """ handle request for static-files """
+    self.debug(f"_handle_static for {path}")
+    return ehttpserver.FileResponse(f"/www/{path}")
 
-    # --- request-handler for /jquery-min.js   -------------------------------
+  # --- request-handler for /save_config   -----------------------------------
 
-    @self._server.route("/jquery-min.js","GET")
-    def _handle_jquery_js(query_params, headers, body):
-      """ handle request for jquery-min.js """
-      self.msg(f"_handle_jquery_js")
-      return biplane.FileResponse("/www/jquery-min.js")
-
-    # --- request-handler for /dl_styles.css   -------------------------------
-
-    @self._server.route("/dl_styles.css","GET")
-    def _handle_dl_styles(query_params, headers, body):
-      """ handle request for dl_styles.css """
-      self.msg(f"_handle_dl_styles")
-      return biplane.FileResponse("/www/dl_styles.css")
-
-    # --- request-handler for /pure-min.css   -------------------------------
-
-    @self._server.route("/pure-min.css","GET")
-    def _handle_pure_min(query_params, headers, body):
-      """ handle request for pure-min.css """
-      self.msg(f"_handle_pure_min")
-      return biplane.FileResponse("/www/pure-min.css")
-
-    # --- request-handler for /config.html   ---------------------------------
-
-    @self._server.route("/config.html","GET")
-    def _handle_get_config(query_params, headers, body):
-      """ handle request for config-page """
-      self.msg(f"_handle_get_config")
-      return biplane.FileResponse("/www/config.html")
-
-    # --- request-handler for /save_config   ---------------------------------
-
-    @self._server.route("/save_config","POST")
-    def _handle_save_config(query_params, headers, body):
-      """ handle request for /save_config """
-      self.msg(f"_handle_save_config...\n{body}")
-      self._export_config(body)
-      return biplane.Response("<h1>configuration saved</h1>",
-                              content_type="text/html")
+  @self.route("/save_config","POST")
+  def _handle_save_config(self,path,query_params, headers, body):
+    """ handle request for /save_config """
+    self.debug(f"_handle_save_config...\n{body}")
+    self._export_config(body)
+    return ehttpserver.Response("<h1>configuration saved</h1>",
+                                content_type="text/html")
 
   # --- import configuration   -----------------------------------------------
 
@@ -104,15 +74,15 @@ class WebAP:
           self._model[var] = getattr(config,var).split(" ")
         else:
           self._model[var] = getattr(config,var)
-        self.msg(f"{var}={self._model[var]}")
+        self.debug(f"{var}={self._model[var]}")
     config = None
     gc.collect()
 
     # add select-options for sensors and tasks
     self._model["_s_options"] = [f.split(".")[0] for f in os.listdir("sensors")]
     self._model["_t_options"] = [f.split(".")[0] for f in os.listdir("tasks")]
-    self.msg(f"_s_options = {self._model['_s_options']}")
-    self.msg(f"_t_options = {self._model['_t_options']}")
+    self.debug(f"_s_options = {self._model['_s_options']}")
+    self.debug(f"_t_options = {self._model['_t_options']}")
 
   # --- export configuration   -----------------------------------------------
 
@@ -121,7 +91,7 @@ class WebAP:
 
     # update model
     fields = body.decode().split("&")
-    self.msg(f"{fields}")
+    self.debug(f"{fields}")
     self._model['SENSORS'] = []
     self._model['TASKS'] = []
     self._model['HAVE_SD'] = False
@@ -129,7 +99,7 @@ class WebAP:
     for field in fields:
       key,value = field.split("=")
       if '%' in value:
-        value = self._html_decode(value)
+        value = self.html_decode(value)
       if key in ["SENSORS", "TASKS"]:
         self._model[key].append(value)
       elif key in ["have_sd", "have_lora"]:
@@ -153,36 +123,40 @@ class WebAP:
       else:
         print(f"{key}=\"{value}\"")
 
-  # --- decode html-escape chars   -------------------------------------------
+  # --- run AP   -------------------------------------------------------------
 
-  def _html_decode(self,text):
-    """ decode html esc-chars (subset only!) """
+  def start_ap(self):
+    """ start AP-mode """
 
-    token = text.split('%')
-    result = token.pop(0)
-    for t in token:
-      decoded = chr(int(t[:2],16))
-      result = f"{result}{decoded}{t[2:]}"
-    return result
-
-  # --- print message in debug-mode   ----------------------------------------
-
-  def msg(self,text):
-    if self._config["debug"]:
-      print(f"{text}")
+    wifi.radio.stop_station()
+    try:
+      wifi.radio.start_ap(ssid=self._config["ssid"],
+                          password=self._config["password"])
+    except NotImplementedError:
+      # workaround for older CircuitPython versions
+      pass
 
   # --- run server   ---------------------------------------------------------
 
-  def run(self):
-    """ run server in ap-mode """
+  def run_server(self):
+    
+    self.debug(f"starting mDNS at {mdns_hostname}.local (IP address {wifi.radio.ipv4_address_ap})")
+    server = mdns.Server(wifi.radio)
+    server.hostname = self._config["hostname"]
+    server.advertise_service(service_type="_http",
+                             protocol="_tcp", port=listen_on[1])
+    pool = socketpool.SocketPool(wifi.radio)
+    with pool.socket() as server_socket:
+      yield from self.start(server_socket)
 
-    wifi.radio.stop_station()
+  # --- run AP and server   --------------------------------------------------
+
+  def run(self):
+    """ start AP and then run server """
+    self.start_ap()
     started = False
-    for _ in self._server.circuitpython_start_wifi_ap(
-      self._config["ssid"],
-      self._config["password"],
-      self._config["hostname"]):
+    for _ in self.run_server():
       if not started:
-        self.msg(f"Listening on http://{wifi.radio.ipv4_address_ap}:80")
+        self.debug(f"Listening on http://{wifi.radio.ipv4_address_ap}:80")
         started = True
       gc.collect()
