@@ -34,6 +34,9 @@ switch_d.value = True
 
 # --- start AP and web-server   ----------------------------------------------
 
-time.sleep(5)                        # wait until console is available
+if config["debug"]:
+  time.sleep(5)
+  print("!!! Starting in ADMIN-Mode !!!")
+
 server = webap.WebAP(config=config)
 server.run()
