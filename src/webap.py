@@ -14,9 +14,9 @@ import board
 import wifi
 import mdns
 import socketpool
-import ehttpserver
+from ehttpserver import Server, Response, FileResponse, route
 
-class WebAP(ehttpserver.Server):
+class WebAP(Server):
   """ Access-point and webserver """
 
   # --- constructor   --------------------------------------------------------
@@ -27,51 +27,53 @@ class WebAP(ehttpserver.Server):
     super().__init__(debug=config["debug"])
     self.debug("Initializing WebAP")
     self._import_config()
-    self.add_route(self._handle_main,"/","GET")
-    self.add_route(self._handle_favicon,"/favicon.ico","GET")
-    self.add_route(self._handle_static,"/[^.]*\.(js|css|html)","GET")
-    self.add_route(self._handle_save_config,"/save_config","POST")
 
-# --- request-handler for /   -----------------------------------------------
+  # --- request-handler for /   -----------------------------------------------
 
+  @route("/","GET")
   def _handle_main(self,path,query_params, headers, body):
     """ handle request for main-page """
     self.debug("_handle_main...")
-    return ehttpserver.Response("<h1>Hello from WebAP!</h1>",
+    return Response("<h1>Hello from WebAP!</h1>",
                             content_type="text/html")
 
   # --- request-handler for /favicon.ico   -----------------------------------
 
+  @route("/favicon.ico","GET")
   def _handle_favicon(self,path,query_params, headers, body):
     """ handle request for favicon """
     self.debug("_handle_favicon...")
-    return ehttpserver.Response("",status_code=400)
+    return Response("",status_code=400)
 
   # --- request-handler for static files   -----------------------------------
 
+  @route("/[^.]*\.(js|css|html)","GET")
   def _handle_static(self,path,query_params, headers, body):
     """ handle request for static-files """
     self.debug(f"_handle_static for {path}")
-    return ehttpserver.FileResponse(f"/www/{path}")
+    return FileResponse(f"/www/{path}")
 
   # --- request-handler for /save_config   -----------------------------------
 
+  @route("/save_config","POST")
   def _handle_save_config(self,path,query_params, headers, body):
     """ handle request for /save_config """
     self.debug(f"_handle_save_config...\n{body}")
     self._export_config(body)
-    return ehttpserver.Response("<h1>configuration saved</h1>",
+    return Response("<h1>configuration saved</h1>",
                                 content_type="text/html")
 
   # --- import configuration   -----------------------------------------------
 
   def _import_config(self):
     """ import config-module and create json-model """
-    import config           # TODO: change to config later after merge
-    self._model = {}
+
+    import config
     self.debug("-"*60)
     self.debug("current config.py:")
     self.debug("-"*60)
+
+    self._model = {}
     for var in dir(config):
       if var[0] != '_':
         if var in ["SENSORS", "TASKS"]:
@@ -86,8 +88,8 @@ class WebAP(ehttpserver.Server):
     # add select-options for sensors and tasks
     self._model["_s_options"] = [f.split(".")[0] for f in os.listdir("sensors")]
     self._model["_t_options"] = [f.split(".")[0] for f in os.listdir("tasks")]
-    self.debug(f"_s_options = {self._model['_s_options']}")
-    self.debug(f"_t_options = {self._model['_t_options']}")
+    self.debug(f"sensor options: {self._model['_s_options']}")
+    self.debug(f"task options:   {self._model['_t_options']}")
 
   # --- export configuration   -----------------------------------------------
 

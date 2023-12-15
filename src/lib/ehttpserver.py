@@ -113,11 +113,19 @@ class FileResponse(Response):
     except:
       super().__init__("",status_code=400,headers=headers)
 
+
+def route(path, method='GET'):
+  def register_route(request_handler):
+    Server.routes.append((f"^{path}$", method, request_handler))
+  return register_route
+
 class Server:
   """ This implements the webserver class.
   To use it, create a subclass and implement request handlers
   for routes as methods 
   """
+
+  routes = []
 
   # --- constructor   --------------------------------------------------------
 
@@ -126,7 +134,6 @@ class Server:
                max_body_bytes=65536,
                request_timeout_seconds=10,debug=False):
     """ constructor """
-    self._routes = []
     self._max_request_line_size = max_request_line_size
     self._max_header_count = max_header_count
     self._max_body_bytes = max_body_bytes
@@ -186,12 +193,6 @@ class Server:
     if self._debug:
       print(msg)
 
-  # --- add route to server   ------------------------------------------------
-
-  def add_route(self,request_handler,path, method='GET'):
-    """ add route to to server. The handler must be a method of this class """
-    self._routes.append((f"^{path}$", method, request_handler))
-
   # --- decode html-escape chars   -------------------------------------------
 
   def html_decode(self,text):
@@ -210,6 +211,7 @@ class Server:
                       buffered_client_socket):
     """ dispatch requests to defined request-handlers """
 
+    self.debug(f"_handle_request for {target}")
     if content_length > self._max_body_bytes:
       yield from Response("Content Too Large", 413).serialize()
       return
@@ -226,9 +228,9 @@ class Server:
     )
 
     # map path to routes
-    for route_path, route_method, request_handler in self._routes:
+    for route_path, route_method, request_handler in self.routes:
       if method == route_method and re.match(route_path,path):
-        response = request_handler(path,query_parameters, headers, body)
+        response = request_handler(self,path,query_parameters, headers, body)
         self.debug(f"response status: {response.status_code}")
         self.debug(f"sending {len(response.body_bytes)} bytes")
         yield from response.serialize()
