@@ -1,3 +1,4 @@
+import gc
 import time
 import re
 import errno
@@ -53,14 +54,16 @@ class BufferedNonBlockingSocket:
 
 class Response:
   def __init__(self, body, status_code=200, content_type="text/plain", headers={}):
-    self.body_bytes = body if isinstance(body, bytes) else body.encode("ascii")
-    self.status_code = status_code
     self.headers = headers
-    self.headers["content-length"] = len(self.body_bytes)
     self.headers["content-type"] = content_type
+    if not body is None:
+      self.body_bytes = body if isinstance(body, bytes) else body.encode("ascii")
+      self.headers["content-length"] = len(self.body_bytes)
+    self.status_code = status_code
 
   def serialize(self):
-    response = bytearray(f"HTTP/1.1 {self.status_code} {self.status_code}\r\n".encode("ascii"))
+    response = bytearray(
+      f"HTTP/1.1 {self.status_code} {self.status_code}\r\n".encode("ascii"))
     for name, value in self.headers.items():
       response += f"{name}: {value}\r\n".encode("ascii")
     yield response + b"\r\n" + self.body_bytes
@@ -90,29 +93,48 @@ class FileResponse(Response):
       try:
         # search for gzipped version first
         file_length = os.stat(filename+".gz")[6]
-        filename = filename+".gz"
+        self._filename = filename+".gz"
         headers["content-encoding"] = "gzip"
+        headers["content-length"] = file_length
       except:
         # no compressed version found, use given filename
         try:
           file_length = os.stat(filename)[6]
+          self._filename = filename
+          headers["content-length"] = file_length
           if "content-encoding" in headers.keys():
             del headers["content-encoding"]
         except:
           # not found at all
           raise
 
-      with open(filename,"rb") as file:
-        buf = file.read(file_length)
       if suffix in self.CONTENT_TYPE_MAP:
         content_type = self.CONTENT_TYPE_MAP[suffix]
       else:
         content_type = "text/plain"
-      super().__init__(buf,status_code=200,content_type=content_type,
+      super().__init__(None,status_code=200,content_type=content_type,
                        headers=headers)
     except:
       super().__init__("",status_code=400,headers=headers)
+      self._filename = None
 
+  def serialize(self):
+    if not self._filename:
+      yield from super().serialize()
+      return
+    response = bytearray(
+      f"HTTP/1.1 {self.status_code} {self.status_code}\r\n".encode("ascii"))
+    for name, value in self.headers.items():
+      response += f"{name}: {value}\r\n".encode("ascii")
+    yield response + b"\r\n"
+
+    with open(self._filename,"rb") as file:
+      while True:
+        buf = file.read(1024)
+        if buf:
+          yield buf
+        else:
+          return
 
 def route(path, method='GET'):
   def register_route(request_handler):
@@ -232,8 +254,9 @@ class Server:
       if method == route_method and re.match(route_path,path):
         response = request_handler(self,path,query_parameters, headers, body)
         self.debug(f"response status: {response.status_code}")
-        self.debug(f"sending {len(response.body_bytes)} bytes")
+        self.debug(f"sending {response.headers['content-length']} bytes")
         yield from response.serialize()
+        gc.collect()
         return
     yield from Response("Not Found", 404).serialize()
     return
