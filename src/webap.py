@@ -10,6 +10,7 @@
 
 import gc
 import os
+import json
 import board
 import wifi
 import mdns
@@ -52,6 +53,18 @@ class WebAP(Server):
     """ handle request for static-files """
     self.debug(f"_handle_static for {path}")
     return FileResponse(f"/www/{path}")
+
+  # --- request-handler for /get_csv_list   ----------------------------------
+
+  @route("/get_csv_list","GET")
+  def _handle_get_csv_list(self,path,query_params, headers, body):
+    """ handle request for /get_csv_list """
+    self.debug(f"_handle_get_csv_list...")
+    response = json.dumps({
+        "files": [csv for csv in os.listdir("/sd") if csv[-4:] == ".csv"]
+        })
+    self.debug(f"{response=}")
+    return Response(response,content_type="application/json")
 
   # --- request-handler for /save_config   -----------------------------------
 
