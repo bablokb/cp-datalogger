@@ -35,6 +35,7 @@ input.invalid {
   display: none;
 }
 
+
 button {
   background-color: #04AA6D;
   color: #ffffff;
@@ -76,3 +77,8 @@ button:hover {
 
 /* marker class for model-elements */
 .model {  }
+
+.menu-button {
+  border-radius: 4px;
+  background: rgb(66, 184, 221);
+}
