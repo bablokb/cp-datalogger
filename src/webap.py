@@ -35,8 +35,7 @@ class WebAP(Server):
   def _handle_main(self,path,query_params, headers, body):
     """ handle request for main-page """
     self.debug("_handle_main...")
-    return Response("<h1>Hello from WebAP!</h1>",
-                            content_type="text/html")
+    return FileResponse("/www/index.html")
 
   # --- request-handler for /favicon.ico   -----------------------------------
 
