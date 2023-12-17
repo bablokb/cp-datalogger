@@ -87,7 +87,7 @@ class FileResponse(Response):
     'png': 'image/png',
     'json': 'application/json'
     }
-  def __init__(self, filename, headers={}):
+  def __init__(self, filename, headers={}, content_type=None):
     try:
       suffix = filename.split('.')[-1]
       try:
@@ -108,10 +108,11 @@ class FileResponse(Response):
           # not found at all
           raise
 
-      if suffix in self.CONTENT_TYPE_MAP:
-        content_type = self.CONTENT_TYPE_MAP[suffix]
-      else:
-        content_type = "text/plain"
+      if not content_type:
+        if suffix in self.CONTENT_TYPE_MAP:
+          content_type = self.CONTENT_TYPE_MAP[suffix]
+        else:
+          content_type = "text/plain"
       super().__init__(None,status_code=200,content_type=content_type,
                        headers=headers)
     except:
