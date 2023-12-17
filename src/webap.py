@@ -76,6 +76,32 @@ class WebAP(Server):
     return Response("<h1>configuration saved</h1>",
                                 content_type="text/html")
 
+  # --- request-handler for config.py download   -----------------------------
+
+  @route("/config.py","GET")
+  def _handle_download_config_py(self,path,query_params, headers, body):
+    """ handle request for config.py download """
+    self.debug(f"_handle_download_config_py")
+    return FileResponse(f"config.py")
+
+  # --- request-handler for config.py upload   -------------------------------
+
+  @route("/upload_config","POST")
+  def _handle_upload_config_py(self,path,query_params, headers, body):
+    """ handle request for config.py upload """
+    self.debug(f"_handle_upload_config_py...\n{body}")
+
+    return Response("<h1>config.py upload not implemented yet</h1>",
+                                content_type="text/html")
+
+  # --- request-handler for csv-files   ---------------------------------------
+
+  @route("/[^.]+\.csv","GET")
+  def _handle_csv_download(self,path,query_params, headers, body):
+    """ handle request for csv-download """
+    self.debug(f"_handle_csv_download for {path}")
+    return FileResponse(f"/sd/{path}")
+
   # --- import configuration   -----------------------------------------------
 
   def _import_config(self):
