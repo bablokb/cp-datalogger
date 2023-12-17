@@ -87,3 +87,16 @@ function get_model() {
 function update_config_form() {
   fields = document.getElementsByClassName("model");
 }
+
+function get_csv_list() {
+  $.getJSON('/get_csv_list',
+    function(csv_list) {
+      $.each(csv_list.files,function(index,file) {
+          var item = $("#file_0").clone(true).attr({"id": "file_"+(index+1),
+                "href": file });
+          item.html(file);
+          item.appendTo("#csv_list");
+        });
+      $("#file_0").remove();   // remove template
+    });
+}
