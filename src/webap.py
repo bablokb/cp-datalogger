@@ -53,6 +53,14 @@ class WebAP(Server):
     self.debug(f"_handle_static for {path}")
     return FileResponse(f"/www/{path}")
 
+  # --- request-handler for /get_model   -------------------------------------
+
+  @route("/get_model","GET")
+  def _handle_get_model(self,path,query_params, headers, body):
+    """ handle request for /get_model """
+    self.debug(f"_handle_get_model...")
+    return Response(json.dumps(self._model),content_type="application/json")
+
   # --- request-handler for /get_csv_list   ----------------------------------
 
   @route("/get_csv_list","GET")
@@ -81,7 +89,7 @@ class WebAP(Server):
   def _handle_download_config_py(self,path,query_params, headers, body):
     """ handle request for config.py download """
     self.debug(f"_handle_download_config_py")
-    return FileResponse(f"config.py")
+    return FileResponse(f"config.py",content_type="application/octet-stream")
 
   # --- request-handler for config.py upload   -------------------------------
 
