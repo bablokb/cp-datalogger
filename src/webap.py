@@ -74,7 +74,9 @@ class WebAP(Server):
     """ handle request for /get_csv_list """
     self.debug(f"_handle_get_csv_list...")
     response = json.dumps({
-        "files": [csv for csv in os.listdir("/sd") if csv[-4:] == ".csv"]
+      "files":
+      sorted([csv for csv in os.listdir("/sd") if csv[-4:] == ".csv"],
+             reverse=True)
         })
     self.debug(f"{response=}")
     return Response(response,content_type="application/json")
