@@ -115,7 +115,7 @@ class WebAP(Server):
   def _handle_csv_download(self,path,query_params, headers, body):
     """ handle request for csv-download """
     self.debug(f"_handle_csv_download for {path}")
-    return FileResponse(f"/sd/{path}")
+    return FileResponse(f"/sd/{path}",content_type="application/octet-stream")
 
   # --- import configuration   -----------------------------------------------
 
