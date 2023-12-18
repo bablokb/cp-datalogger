@@ -81,7 +81,12 @@ function fixStepIndicator(n) {
 }
 
 function get_model() {
-  console.log("get_model");
+  $.getJSON('/get_model',
+    function(model) {
+      $.each(model,function(index,model_var) {
+          $("#"+model_var).value = model.model_var;
+        });
+    });
 }
 
 function update_config_form() {
@@ -92,9 +97,10 @@ function get_csv_list() {
   $.getJSON('/get_csv_list',
     function(csv_list) {
       $.each(csv_list.files,function(index,file) {
-          var item = $("#file_0").clone(true).attr({"id": "file_"+(index+1),
-                "href": file });
-          item.html(file);
+          var item = $("#file_0").clone(true).attr({"id": "file_"+(index+1)});
+          var lnk = item.children().eq(0);
+          lnk.attr({"href": file});
+          lnk.html(file);
           item.appendTo("#csv_list");
         });
       $("#file_0").remove();   // remove template
