@@ -161,7 +161,7 @@ class WebAP(Server):
         self._model[key] = value
 
     # dump to config (needs write access to flash -> boot.py)
-    self.msg("writing config.py...")
+    self.debug("writing config.py...")
     with open("config.py","w") as file:
       file.write("# generated from admin-mode web-interface\n\n")
       for key in sorted(self._model.keys()):
@@ -171,14 +171,14 @@ class WebAP(Server):
         if key in ["SENSORS", "TASKS"]:
           file.write(f"{key}=\"{' '.join(value)}\"\n")
         elif type(value) in [int,float,bool,list]:
-          file.write(f"{key}={value}")
+          file.write(f"{key}={value}\n")
         elif value in ["True","False"]:
           file.write(f"{key}={value}\n")
         elif value.isdigit() and (value[0] != "0" or len(value) == 1):
           file.write(f"{key}={value}\n")
         else:
           file.write(f"{key}=\"{value}\"\n")
-    self.msg("...done")
+    self.debug("...done")
 
   # --- run AP   -------------------------------------------------------------
 
