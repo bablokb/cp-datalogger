@@ -51,7 +51,13 @@ class WebAP(Server):
   def _handle_static(self,path,query_params, headers, body):
     """ handle request for static-files """
     self.debug(f"_handle_static for {path}")
-    return FileResponse(f"/www/{path}")
+    if self._config["cache"]:
+      headers = {
+        "Cache-Control": "max-age=2592000"
+      }
+    else:
+      headers = {}
+    return FileResponse(f"/www/{path}",headers=headers)
 
   # --- request-handler for /get_model   -------------------------------------
 

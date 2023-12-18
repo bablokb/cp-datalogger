@@ -20,6 +20,7 @@ try:
 except:
   ap_config = {
     'debug': True,
+    'cache': False,
     'ssid': 'datalogger',
     'password': '12345678',             # ignored for wifi.AuthMode.OPEN
     'auth_modes': [wifi.AuthMode.OPEN], # or [wifi.AuthMode.WPA2, wifi.AuthMode.PSK]
