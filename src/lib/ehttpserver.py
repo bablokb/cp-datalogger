@@ -8,12 +8,14 @@ __version__ = "0.0.0+auto.0"
 __repo__ = "https://github.com/bablokb/ehttpserver.git"
 
 class BufferedNonBlockingSocket:
-  def __init__(self, sock, buffer_size=1024):
+  def __init__(self, sock, now, buffer_size=1024):
     self.sock = sock
     self.read_buffer = bytearray(buffer_size)
     self.start, self.end = 0, 0
+    self.last_io_time = now
 
   def read(self, size=-1, stop_byte=None):
+    self.last_io_time = time.monotonic()
     while True:
       # fulfill as much of the request as possible from the buffer
       if stop_byte is not None:
@@ -42,6 +44,7 @@ class BufferedNonBlockingSocket:
       yield b""  # client is not done sending yet, try again
 
   def write(self, data):
+    self.last_io_time = time.monotonic()
     bytes_sent = 0
     while bytes_sent < len(data):
       yield
@@ -182,10 +185,13 @@ class Server:
           # no connectings pending, try again
         else:
           self.debug(f"accepted connection from {new_client_address}")
+          bnb_socket = BufferedNonBlockingSocket(new_client_socket,
+                                                 time.monotonic())
           client_processors.append(
-            (time.monotonic(), new_client_socket,
+            (new_client_socket,
+             bnb_socket,
              self.process_client_connection(
-               BufferedNonBlockingSocket(new_client_socket)
+               bnb_socket
              )
             )
           )
@@ -193,9 +199,9 @@ class Server:
       # step through open client connections
       now = time.monotonic()
       new_client_processors = []
-      for start_time, client_socket, client_processor in client_processors:
+      for client_socket, bnb_socket,client_processor in client_processors:
         try:
-          if now - start_time > self._request_timeout_seconds:
+          if now - bnb_socket.last_io_time > self._request_timeout_seconds:
             raise StopIteration()  # timed out
           next(client_processor)
         except Exception as e:
@@ -204,7 +210,7 @@ class Server:
             raise
         else:
           new_client_processors.append(
-            (start_time, client_socket, client_processor)
+            (client_socket,bnb_socket,client_processor)
           )
       client_processors = new_client_processors
       yield
