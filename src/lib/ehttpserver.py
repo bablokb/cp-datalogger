@@ -74,9 +74,9 @@ class FileResponse(Response):
 
   Use it from a handler, e.g.
   ```
-    @server.route("/config.html","GET")
-    def handle_get_config(query_params, headers, body):
-      return biplane.FileResponse("/www/config.html")
+    @route("/config.html","GET")
+    def handle_get_config(self,path,query_params, headers, body):
+      return ehttpserver.FileResponse("/www/config.html")
   ```
   """
 
