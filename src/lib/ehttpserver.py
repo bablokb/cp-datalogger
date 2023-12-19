@@ -90,7 +90,8 @@ class FileResponse(Response):
     'png': 'image/png',
     'json': 'application/json'
     }
-  def __init__(self, filename, headers={}, content_type=None):
+  def __init__(self, filename, headers={}, content_type=None, buffer_size=1024):
+    self._buf_size = buffer_size
     try:
       suffix = filename.split('.')[-1]
       try:
@@ -134,7 +135,7 @@ class FileResponse(Response):
 
     with open(self._filename,"rb") as file:
       while True:
-        buf = file.read(1024)
+        buf = file.read(self._buf_size)
         if buf:
           yield buf
         else:
