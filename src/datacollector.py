@@ -79,6 +79,10 @@ class DataCollector():
   def setup(self):
     """ create hardware-objects """
 
+    # pull CS of display high to prevent it from floating
+    cs_display = DigitalInOut(pins.PIN_INKY_CS)
+    cs_display.switch_to_output(value=True)
+
     # early setup of SD-card (in case we send debug-logs to sd-card)
     self._spi = None
     if g_config.HAVE_SD:
@@ -116,6 +120,7 @@ class DataCollector():
     g_ts.append((time.monotonic(),"rtc-update"))
 
     # display
+    cs_display.deinit()
     if g_config.HAVE_DISPLAY:
       from display import Display
       self.display = Display(g_config,self._spi)
