@@ -28,6 +28,7 @@ class Display:
 
     # spi - if not already created
     if not self._spi:
+      import busio
       self._spi = busio.SPI(pins.PIN_SD_SCK,pins.PIN_SD_MOSI)
 
     displayio.release_displays()
