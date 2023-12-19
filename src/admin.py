@@ -36,6 +36,11 @@ switch_d = DigitalInOut(pins.PIN_SWD)
 switch_d.direction = Direction.OUTPUT
 switch_d.value = True
 
+# --- set CS of display to high   --------------------------------------------
+
+cs_display = DigitalInOut(pins.PIN_INKY_CS)
+cs_display.switch_to_output(value=True)
+
 # --- mount sd-card if available   -------------------------------------------
 
 if g_config.HAVE_SD:
