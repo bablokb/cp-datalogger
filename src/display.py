@@ -85,7 +85,7 @@ class Display:
     padding = 5
     self._view = DataView(
       dim=dim,
-      width=self._display.width-2*border-(dim[1]-1)*divider,
+      width=self._display.width-2*border-2*padding-(dim[1]-1)*divider,
       height=int(0.6*self._display.height),
       justify=Justify.LEFT,
       fontname=f"fonts/{self._config.FONT_DISPLAY}.bdf",
