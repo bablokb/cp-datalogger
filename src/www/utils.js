@@ -35,7 +35,7 @@ function nextPrev(n) {
   // Hide the current tab:
   x[currentTab].style.display = "none";
   // if you have reached the end of the form...
-  if (currentTab == x.length-1) {
+  if (n == 1 && currentTab == x.length-1) {
     // ... the form gets submitted:
     document.getElementById("configForm").submit();
   } else {
