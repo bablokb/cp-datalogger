@@ -83,8 +83,24 @@ function fixStepIndicator(n) {
 function get_model() {
   $.getJSON('/get_model',
     function(model) {
-      $.each(model,function(index,model_var) {
-          $("#"+model_var).value = model.model_var;
+      $("[name=STROBE_MODE]").val(["strobe"]);    // strobe-mode as default
+      $("[name=SIMPLE_UI]").val(["simple_ui"]);   // simple-ui as default
+      $.each(model,function(name,value) {
+          if (name == "STROBE_MODE") {
+            if (value) {
+              $("[name=STROBE_MODE]").val(["strobe"]);
+            } else {
+              $("[name=STROBE_MODE]").val(["cont"]);
+            }
+          } else if (name == "SIMPLE_UI") {
+            if (value) {
+              $("[name=SIMPLE_UI]").val(["simple_ui"]);
+            } else {
+              $("[name=SIMPLE_UI]").val(["tab_ui"]);
+            }
+          } else {
+            $("[name="+name+"]").val(value);
+          }
         });
     });
 }
