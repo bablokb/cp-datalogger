@@ -113,10 +113,10 @@ function get_csv_list() {
   $.getJSON('/get_csv_list',
     function(csv_list) {
       $.each(csv_list.files,function(index,file) {
-          var item = $("#file_0").clone(true).attr({"id": "file_"+(index+1)});
-          var lnk = item.children().eq(0);
-          lnk.attr({"href": file});
-          lnk.html(file);
+          var item = $("#file_0").
+            clone(true).
+            attr({"id": "file_"+(index+1),"href": file}).
+            html(file);
           item.appendTo("#csv_list");
         });
       $("#file_0").remove();   // remove template
