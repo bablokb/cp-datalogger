@@ -83,6 +83,15 @@ function fixStepIndicator(n) {
 function get_model() {
   $.getJSON('/get_model',
     function(model) {
+      // set dynamic select options
+      $("#sensors").
+        append(model._s_options.map(function(value) {
+              return new Option(value,value);
+            }));
+      $("#tasks").
+        append(model._t_options.map(function(value) {
+              return new Option(value,value);
+            }));
       $("[name=STROBE_MODE]").val(["strobe"]);    // strobe-mode as default
       $("[name=SIMPLE_UI]").val(["simple_ui"]);   // simple-ui as default
       $.each(model,function(name,value) {
