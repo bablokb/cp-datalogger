@@ -132,10 +132,13 @@ class WebAP(Server):
     self._model = {}
     for var in dir(config):
       if var[0] != '_':
+        value = getattr(config,var)
         if var in ["SENSORS", "TASKS"]:
-          self._model[var] = getattr(config,var).split(" ")
+          self._model[var] = value.split(" ")
+        elif var in ["HAVE_DISPLAY"]:
+          self._model[var] = value if not value is None else 'None'
         else:
-          self._model[var] = getattr(config,var)
+          self._model[var] = value
         self.debug(f"{var}={self._model[var]}")
     config = None
     gc.collect()
@@ -165,30 +168,35 @@ class WebAP(Server):
         value = self.html_decode(value)
       if key in ["SENSORS", "TASKS"]:
         self._model[key].append(value)
+      elif key in ["HAVE_DISPLAY"]:
+        self._model[key] = value if not value=='None' else None
       elif key in ["have_sd", "have_lora"]:
         self._model[key.upper()] = True
       else:
         self._model[key] = value
 
     # dump to config (needs write access to flash -> boot.py)
-    self.debug("writing config.py...")
-    with open("config.py","w") as file:
-      file.write("# generated from admin-mode web-interface\n\n")
-      for key in sorted(self._model.keys()):
-        if key[0] == "_":
-          continue
-        value = self._model[key]
-        if key in ["SENSORS", "TASKS"]:
-          file.write(f"{key}=\"{' '.join(value)}\"\n")
-        elif type(value) in [int,float,bool,list]:
-          file.write(f"{key}={value}\n")
-        elif value in ["True","False"]:
-          file.write(f"{key}={value}\n")
-        elif value.isdigit() and (value[0] != "0" or len(value) == 1):
-          file.write(f"{key}={value}\n")
-        else:
-          file.write(f"{key}=\"{value}\"\n")
-    self.debug("...done")
+    try:
+      self.debug("writing config.py...")
+      with open("config.py","w") as file:
+        file.write("# generated from admin-mode web-interface\n\n")
+        for key in sorted(self._model.keys()):
+          if key[0] == "_":
+            continue
+          value = self._model[key]
+          if key in ["SENSORS", "TASKS"]:
+            file.write(f"{key}=\"{' '.join(value)}\"\n")
+          elif type(value) in [int,float,bool,list]:
+            file.write(f"{key}={value}\n")
+          elif value in ["True","False"]:
+            file.write(f"{key}={value}\n")
+          elif value.isdigit() and (value[0] != "0" or len(value) == 1):
+            file.write(f"{key}={value}\n")
+          else:
+            file.write(f"{key}=\"{value}\"\n")
+      self.debug("...done")
+    except:
+      self.debug("/sd not writable")
 
   # --- run AP   -------------------------------------------------------------
 
