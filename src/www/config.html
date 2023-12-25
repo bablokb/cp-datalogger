@@ -205,12 +205,21 @@
   <div class="tab"><h2>Sensors</h2>
     <fieldset>
        <legend>List of Sensors:</legend>
-         <div class="pure-control-group">
-            <label for="sensors">Sensors:</label>
-            <select id="sensors" class="model" multiple
-                oninput="this.classList.remove('invalid')"
-                name="SENSORS">
-            </select>
+         <div style="width:100%; display:inline-flex;
+              justify-content:left">
+           <div style="display:inline-flex; flex-direction:column;
+                       width:30%">
+              <div style="display:inline-flex; flex-direction:row;">
+                <label for="sensors">Sensors:</label>
+                <input type="text" id="sensors"
+                    class="model" style="width:100%"
+                    oninput="this.classList.remove('invalid')"
+                    name="SENSORS">
+              </div>
+             <select id="SENSORS_OPTS" class="model" multiple
+                size="10" name="SENSORS_OPTS">
+             </select>
+           </div>
          </div>
     </fieldset>
   </div>
@@ -218,12 +227,21 @@
   <div class="tab"><h2>Tasks</h2>
     <fieldset>
        <legend>List of Tasks:</legend>
-         <div class="pure-control-group">
-            <label for="tasks">Tasks:</label>
-            <select id="tasks" class="model" multiple
-                oninput="this.classList.remove('invalid')"
-                name="TASKS">
-            </select>
+         <div style="width:100%; display:inline-flex;
+              justify-content:left">
+           <div style="display:inline-flex; flex-direction:column;
+                       width:30%">
+              <div style="display:inline-flex; flex-direction:row;">
+                <label for="tasks">Tasks:</label>
+                <input type="text" id="tasks"
+                    class="model" style="width:100%"
+                    oninput="this.classList.remove('invalid')"
+                    name="TASKS">
+              </div>
+             <select id="TASKS_OPTS" class="model" multiple
+                size="10" name="TASKS_OPTS">
+             </select>
+           </div>
          </div>
     </fieldset>
   </div>

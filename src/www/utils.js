@@ -84,16 +84,20 @@ function get_model() {
   $.getJSON('/get_model',
     function(model) {
       // set dynamic select options
-      $("#sensors").
+      $("#SENSORS_OPTS").
         append(model._s_options.map(function(value) {
               return new Option(value,value);
             }));
-      $("#tasks").
+      $("#TASKS_OPTS").
         append(model._t_options.map(function(value) {
               return new Option(value,value);
             }));
-      $("[name=STROBE_MODE]").val(["strobe"]);    // strobe-mode as default
-      $("[name=SIMPLE_UI]").val(["simple_ui"]);   // simple-ui as default
+
+      // set defaults for strobe-mode and simple-ui
+      $("[name=STROBE_MODE]").val(["strobe"]);
+      $("[name=SIMPLE_UI]").val(["simple_ui"]);
+
+      // update fields from model
       $.each(model,function(name,value) {
           if (name == "STROBE_MODE") {
             if (value) {
@@ -107,6 +111,10 @@ function get_model() {
             } else {
               $("[name=SIMPLE_UI]").val(["tab_ui"]);
             }
+          } else if (['SENSORS','TASKS'].includes(name)) {
+            $("[name="+name+"]").val(value.join(" "));
+            $("[name="+name+"_OPTS]").val(value);
+
           } else {
             $("[name="+name+"]").val(value);
           }
