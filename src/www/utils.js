@@ -80,18 +80,25 @@ function fixStepIndicator(n) {
   x[n].className += " active";
 }
 
+function create_select_options(name,options) {
+  ul = $("#UL_"+name);
+  li_templ = $("#"+name+"_T");
+  $.each(options,function(index,opt) {
+      item = li_templ.clone(true).
+        attr({
+            "onclick": "$(this).toggleClass('ul_sel_li_active')",
+              "id": name+"_"+opt}).text(opt);
+      item.appendTo(ul);
+    });
+  li_templ.remove();
+}
+
 function get_model() {
   $.getJSON('/get_model',
     function(model) {
       // set dynamic select options
-      $("#SENSORS_OPTS").
-        append(model._s_options.map(function(value) {
-              return new Option(value,value);
-            }));
-      $("#TASKS_OPTS").
-        append(model._t_options.map(function(value) {
-              return new Option(value,value);
-            }));
+      create_select_options("SENSORS",model._s_options);
+      create_select_options("TASKS",model._t_options);
 
       // set defaults for strobe-mode and simple-ui
       $("[name=STROBE_MODE]").val(["strobe"]);
@@ -113,8 +120,9 @@ function get_model() {
             }
           } else if (['SENSORS','TASKS'].includes(name)) {
             $("[name="+name+"]").val(value.join(" "));
-            $("[name="+name+"_OPTS]").val(value);
-
+            $.each(value,function(_,v) {
+                $("#"+name+"_"+v).toggleClass('ul_sel_li_active');
+              });
           } else {
             $("[name="+name+"]").val(value);
           }

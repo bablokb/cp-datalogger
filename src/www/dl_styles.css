@@ -65,3 +65,16 @@ input.invalid {
   background-color: rgb(66, 184, 221) !important;
   margin: .2em;
 }
+
+.ul_select {
+  list-style-type: none;
+  padding: 0;
+  border: 1px solid #ddd;
+}
+.ul_sel__li {
+  padding: 8px 16px;
+}
+
+.ul_sel_li_active {
+  background-color: rgb(66, 184, 221) !important;
+}
