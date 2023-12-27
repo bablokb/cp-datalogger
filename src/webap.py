@@ -125,9 +125,6 @@ class WebAP(Server):
     """ import config-module and create json-model """
 
     self._model = {}
-    self.debug("-"*60)
-    self.debug("current config.py:")
-    self.debug("-"*60)
     try:
       with open("config.py","r") as file:
         for line in file:
@@ -148,18 +145,32 @@ class WebAP(Server):
             self._model[var] = value.split(" ")
           else:
             self._model[var] = value
-          self.debug(f"{var}={self._model[var]}")
     except Exception as ex:
       self.debug(f"exception: {ex}")
       self.debug("could not read config.py")
-    self.debug("-"*60)
     gc.collect()
+    self._dump_config()
 
     # add select-options for sensors and tasks
     self._model["_s_options"] = [f.split(".")[0] for f in os.listdir("sensors")]
     self._model["_t_options"] = [f.split(".")[0] for f in os.listdir("tasks")]
     self.debug(f"sensor options: {self._model['_s_options']}")
     self.debug(f"task options:   {self._model['_t_options']}")
+
+  # --- dump config.py   -----------------------------------------------------
+
+  def _dump_config(self):
+    """ dump config.py """
+
+    self.debug("-"*60)
+    self.debug("config.py:")
+    self.debug("-"*60)
+    for key in sorted(self._model.keys()):
+      if key[0] == "_":
+        continue
+      value = self._model[key]
+      self.debug(f"{key}={value}")
+    self.debug("-"*60)
 
   # --- export configuration   -----------------------------------------------
 
@@ -185,6 +196,7 @@ class WebAP(Server):
         self._model[key.upper()] = True
       else:
         self._model[key] = value
+    self._dump_config()
 
     # dump to config (needs write access to flash -> boot.py)
     try:
@@ -202,6 +214,8 @@ class WebAP(Server):
           elif value in ["True","False"]:
             file.write(f"{key}={value}\n")
           elif value.isdigit() and (value[0] != "0" or len(value) == 1):
+            file.write(f"{key}={value}\n")
+          elif value[0] == 'f':               # dump f-strings literally
             file.write(f"{key}={value}\n")
           else:
             file.write(f"{key}=\"{value}\"\n")
