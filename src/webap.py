@@ -124,25 +124,36 @@ class WebAP(Server):
   def _import_config(self):
     """ import config-module and create json-model """
 
-    import config
+    self._model = {}
     self.debug("-"*60)
     self.debug("current config.py:")
     self.debug("-"*60)
-
-    self._model = {}
-    for var in dir(config):
-      if var[0] != '_':
-        value = getattr(config,var)
-        if var in ["SENSORS", "TASKS"]:
-          self._model[var] = value.split(" ")
-        elif var in ["HAVE_DISPLAY"]:
-          self._model[var] = value if not value is None else 'None'
-        else:
-          self._model[var] = value
-        self.debug(f"{var}={self._model[var]}")
-    config = None
-    gc.collect()
+    try:
+      with open("config.py","r") as file:
+        for line in file:
+          if line[0] in ['#','\n']:
+            continue
+          line = line.strip('\n').strip(' ')
+          var, value = line.split('=')
+          # remove comment
+          c = value.rfind('#')
+          if c > -1:
+            value = value[:c]
+          # strip blanks and quotes from var/value
+          var   = var.strip(' ')
+          value = value.strip(' ')
+          if value[0] in ["'",'"']:          # prevent stripping from f-string
+            value = value.strip("'\"")
+          if var in ["SENSORS", "TASKS"]:
+            self._model[var] = value.split(" ")
+          else:
+            self._model[var] = value
+          self.debug(f"{var}={self._model[var]}")
+    except Exception as ex:
+      self.debug(f"exception: {ex}")
+      self.debug("could not read config.py")
     self.debug("-"*60)
+    gc.collect()
 
     # add select-options for sensors and tasks
     self._model["_s_options"] = [f.split(".")[0] for f in os.listdir("sensors")]
