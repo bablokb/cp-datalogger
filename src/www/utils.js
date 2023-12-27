@@ -86,11 +86,30 @@ function create_select_options(name,options) {
   $.each(options,function(index,opt) {
       item = li_templ.clone(true).
         attr({
-            "onclick": "$(this).toggleClass('ul_sel_li_active')",
+            "onclick": `toggle_select_option($(this),"${name}","${opt}")`,
               "id": name+"_"+opt}).text(opt);
       item.appendTo(ul);
     });
   li_templ.remove();
+}
+
+function toggle_select_option(item,name,option) {
+  var was_active = item.hasClass('ul_sel_li_active');
+  item.toggleClass('ul_sel_li_active');
+  input = $("#"+name);
+  if (was_active) {
+    // remove option from input-field
+    re = new RegExp(`${option} | ${option} *$`,"g");
+    input.val(input.val().replace(re,""));
+  } else {
+    // add at current caret position
+    pos = input[0].selectionStart;
+    if (pos == undefined) {
+      pos = input.val().length;
+    }
+    content = input.val();
+    input.val(`${content.slice(0,pos)} ${option} ${content.slice(pos)}`);
+  }
 }
 
 function get_model() {
