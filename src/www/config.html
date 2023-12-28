@@ -42,7 +42,7 @@
          <div class="pure-control-group">
            <label for="logger_name">Name:</label>
            <input  id="logger_name"
-                class="pure-input-1-4 model"
+                class="pure-input-1-4 mandatory"
                 placeholder="Name..."
                 oninput="this.classList.remove('invalid')"
                 name="LOGGER_NAME" value="Datalogger"/>
@@ -50,7 +50,7 @@
          <div class="pure-control-group">
            <label for="logger_id">ID:</label>
            <input id="logger_id"
-                class="pure-input-1-4 model"
+                class="pure-input-1-4 mandatory"
                 placeholder="ID..."
                 oninput="this.classList.remove('invalid')"
                 name="LOGGER_ID" value="001"/>
@@ -58,7 +58,7 @@
          <div class="pure-control-group">
            <label for="logger_loc">Location:</label>
            <input id="logger_loc"
-                class="pure-input-1-4 model"
+                class="pure-input-1-4 mandatory"
                 placeholder="Location..."
                 oninput="this.classList.remove('invalid')"
                 name="LOGGER_LOCATION" value="@Home" />
@@ -66,7 +66,7 @@
          <div class="pure-control-group">
            <label for="logger_title">Title:</label>
            <input id="logger_title"
-                class="pure-input-1-4 model"
+                class="pure-input-1-4 mandatory"
                 laceholder="Title..."
                 oninput="this.classList.remove('invalid')"
                 name="LOGGER_TITLE" value="Datalogger 001 @Home" />
@@ -79,20 +79,106 @@
        <legend>Sampling mode and interval</legend>
           <div class="pure-control-group">
             <label for="cont">Continuous:</label>
-            <input type="radio" class="model" id="cont" name="STROBE_MODE"
+            <input type="radio" class="mandatory" id="cont" name="STROBE_MODE"
                 value="cont" />
             <br/>
             <label for="cont">Strobe:</label>
-            <input type="radio" class="model" id="strobe" name="STROBE_MODE"
+            <input type="radio" class="mandatory" id="strobe" name="STROBE_MODE"
                 value="strobe" />
           </div>
           <div class="pure-control-group">
             <label for="interval">Sampling Interval (secs):</label>
             <input placeholder="Interval (secs)..." id="interval"
-                class="model" type="number" min="10" value="60"
+                class="mandatory" type="number" min="10" value="60"
                 oninput="this.classList.remove('invalid')"
                 name="INTERVAL" />
           </div>
+          <table class="pure-table pure-table-bordered pure-table-striped">
+            <thead>
+              <tr>
+                <td>Day</td>
+                <td>Active</td>
+                <td>H-Start</td>
+                <td>H-End</td>
+                <td>H-Inc</td>
+                <td>M-Start</td>
+                <td>M-End</td>
+                <td>M-Inc</td>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Mo</td>
+                <td><input name="d_0"  type="checkbox"/></td>
+                <td><input name="hs_0" type="number" min="0" max="23"/> </td>
+                <td><input name="he_0" type="number" min="0" max="23"/> </td>
+                <td><input name="hi_0" type="number" min="0" max="23"/> </td>
+                <td><input name="ms_0" type="number" min="0" max="59"/> </td>
+                <td><input name="me_0" type="number" min="0" max="59"/> </td>
+                <td><input name="mi_0" type="number" min="0" max="60"/> </td>
+              </tr>
+              <tr>
+                <td>Tu</td>
+                <td><input name="d_1"  type="checkbox"/></td>
+                <td><input name="hs_1" type="number" min="0" max="23"/> </td>
+                <td><input name="he_1" type="number" min="0" max="23"/> </td>
+                <td><input name="hi_1" type="number" min="0" max="23"/> </td>
+                <td><input name="ms_1" type="number" min="0" max="59"/> </td>
+                <td><input name="me_1" type="number" min="0" max="59"/> </td>
+                <td><input name="mi_1" type="number" min="0" max="60"/> </td>
+              </tr>
+              <tr>
+                <td>We</td>
+                <td><input name="d_2"  type="checkbox"/></td>
+                <td><input name="hs_2" type="number" min="0" max="23"/> </td>
+                <td><input name="he_2" type="number" min="0" max="23"/> </td>
+                <td><input name="hi_2" type="number" min="0" max="23"/> </td>
+                <td><input name="ms_2" type="number" min="0" max="59"/> </td>
+                <td><input name="me_2" type="number" min="0" max="59"/> </td>
+                <td><input name="mi_2" type="number" min="0" max="60"/> </td>
+              </tr>
+              <tr>
+                <td>Th</td>
+                <td><input name="d_3"  type="checkbox"/></td>
+                <td><input name="hs_3" type="number" min="0" max="23"/> </td>
+                <td><input name="he_3" type="number" min="0" max="23"/> </td>
+                <td><input name="hi_3" type="number" min="0" max="23"/> </td>
+                <td><input name="ms_3" type="number" min="0" max="59"/> </td>
+                <td><input name="me_3" type="number" min="0" max="59"/> </td>
+                <td><input name="mi_3" type="number" min="0" max="60"/> </td>
+              </tr>
+              <tr>
+                <td>Fr</td>
+                <td><input name="d_4"  type="checkbox"/></td>
+                <td><input name="hs_4" type="number" min="0" max="23"/> </td>
+                <td><input name="he_4" type="number" min="0" max="23"/> </td>
+                <td><input name="hi_4" type="number" min="0" max="23"/> </td>
+                <td><input name="ms_4" type="number" min="0" max="59"/> </td>
+                <td><input name="me_4" type="number" min="0" max="59"/> </td>
+                <td><input name="mi_4" type="number" min="0" max="60"/> </td>
+              </tr>
+              <tr>
+                <td>Sa</td>
+                <td><input name="d_5"  type="checkbox"/></td>
+                <td><input name="hs_5" type="number" min="0" max="23"/> </td>
+                <td><input name="he_5" type="number" min="0" max="23"/> </td>
+                <td><input name="hi_5" type="number" min="0" max="23"/> </td>
+                <td><input name="ms_5" type="number" min="0" max="59"/> </td>
+                <td><input name="me_5" type="number" min="0" max="59"/> </td>
+                <td><input name="mi_5" type="number" min="0" max="60"/> </td>
+              </tr>
+              <tr>
+                <td>So</td>
+                <td><input name="d_6"  type="checkbox"/></td>
+                <td><input name="hs_6" type="number" min="0" max="23"/> </td>
+                <td><input name="he_6" type="number" min="0" max="23"/> </td>
+                <td><input name="hi_6" type="number" min="0" max="23"/> </td>
+                <td><input name="ms_6" type="number" min="0" max="59"/> </td>
+                <td><input name="me_6" type="number" min="0" max="59"/> </td>
+                <td><input name="mi_6" type="number" min="0" max="60"/> </td>
+              </tr>
+            </tbody>
+          </table>
     </fieldset>
   </div>
 
@@ -101,7 +187,7 @@
        <legend>Display, UI, CSV-Filenames:</legend>
          <div class="pure-control-group">
             <label for="display">Display:</label>
-            <select id="display" class="model"name="HAVE_DISPLAY"
+            <select id="display" class="mandatory" name="HAVE_DISPLAY"
                 oninput="this.classList.remove('invalid')">
               <option selected="selected">Inky-Pack</option>
               <option>None</option>
@@ -112,22 +198,22 @@
          </div>
          <div class="pure-control-group">
            <label for="tab_ui">Tabular UI:</label>
-           <input class="model" type="radio" id="tab_ui" name="SIMPLE_UI"
+           <input class="mandatory" type="radio" id="tab_ui" name="SIMPLE_UI"
                 value="tab_ui" />
          </div>
          <div class="pure-control-group">
            <label for="cont">Simple UI:</label>
-           <input class="model" type="radio" id="simple_ui" name="SIMPLE_UI"
+           <input class="mandatory" type="radio" id="simple_ui" name="SIMPLE_UI"
                 value="simple_ui" />
          </div>
          <div class="pure-control-group">
            <label for="have_sd">SD installed:</label>
-           <input class="model" type="checkbox" id="have_sd" name="have_sd"
+           <input class="mandatory" type="checkbox" id="have_sd" name="have_sd"
                 value="True" />
          </div>
          <div class="pure-control-group">
             <label for="pattern">CSV filename pattern</label>
-            <input class="model"
+            <input
                 placeholder="/sd/log_{ID}_{YMD}.csv" id="pattern"
                 oninput="this.classList.remove('invalid')"
                 name="CSV_FILENAME" value="/sd/log_{ID}_{YMD}.csv" />
@@ -138,14 +224,14 @@
   <div class="tab"><h2>LoRa</h2>
     <div class="pure-control-group">
       <label for="have_lora">LoRa installed:</label>
-      <input class="model" type="checkbox" id="have_lora" name="have_lora"
+      <input class="mandatory" type="checkbox" id="have_lora" name="have_lora"
            value="True" />
     </div>
     <fieldset>
        <legend>LoRa Addresses:</legend>
          <div class="pure-control-group">
             <label for="lora_node">This Node:</label>
-            <input class="model" type="number" min="1" max="254"
+            <input type="number" min="1" max="254"
                 id="lora_node" placeholder="Node Address..."
                 oninput="this.classList.remove('invalid')"
                 name="LORA_NODE_ADDR" value="1" />
@@ -153,7 +239,7 @@
           <div class="pure-control-group">
             <label for="lora_base">Base Node:</label>
             <input type="number" min="0" max="254"
-                class="model" id="lora_base" placeholder="Base Address..."
+                id="lora_base" placeholder="Base Address..."
                 oninput="this.classList.remove('invalid')"
                 name="LORA_BASE_ADDR" value="0" />
          </div>
@@ -163,28 +249,28 @@
        <legend>Technical Parameters:</legend>
          <div class="pure-control-group">
             <label for="lora_enable_time">Enable Time:</label>
-            <input class="model" type="number" min="0"
+            <input type="number" min="0"
                 id="lora_enable_time" placeholder="Enable Time..."
                 oninput="this.classList.remove('invalid')"
                 name="LORA_ENABLE_TIME" value="3" />
          </div>
          <div class="pure-control-group">
             <label for="lora_ack_time">Ack Time:</label>
-            <input class="model"  type="number" min="0"
+            <input  type="number" min="0"
                 id="lora_ack_time" placeholder="Ack Wait Time..."
                 oninput="this.classList.remove('invalid')"
                 name="LORA_ACK_WAIT" value="3" />
          </div>
          <div class="pure-control-group">
             <label for="lora_ack_retries">Ack Retries:</label>
-            <input class="model" type="number" min="0" max="5" steps="1"
+            <input type="number" min="0" max="5" steps="1"
                 id="lora_ack_retries" placeholder="Ack Retries..."
                 oninput="this.classList.remove('invalid')"
                 name="LORA_ACK_RETRIES" value="3" />
          </div>
          <div class="pure-control-group">
             <label for="lora_freq">Frequency:</label>
-            <select class="model" id="lora_freq"
+            <select id="lora_freq"
                 oninput="this.classList.remove('invalid')"
                 name="LORA_FREQ">
                 <option>433</option>
@@ -194,7 +280,7 @@
          </div>
          <div class="pure-control-group">
             <label for="lora_tx_power">TX Power</label>
-            <input class="model" type="number" min="5" max="23" step="1"
+            <input type="number" min="5" max="23" step="1"
                 id="lora_tx_power" placeholder="Transmit Power..."
             oninput="this.classList.remove('invalid')"
             name="LORA_TX_POWER" value="23" />
@@ -212,7 +298,7 @@
               <div style="display:inline-flex; flex-direction:row;">
                 <label for="SENSORS" style="flex:none">Selected:</label>
                 <input type="text" id="SENSORS"
-                    class="model" style="flex-grow:1"
+                    class="mandatory" style="flex-grow:1"
                     oninput="this.classList.remove('invalid')"
                     name="SENSORS">
               </div>
@@ -238,7 +324,7 @@
               <div style="display:inline-flex; flex-direction:row;">
                 <label for="TASKS" style="flex:none">Selected:</label>
                 <input type="text" id="TASKS"
-                    class="model" style="flex-grow:1"
+                    class="mandatory" style="flex-grow:1"
                     oninput="this.classList.remove('invalid')"
                     name="TASKS">
               </div>
