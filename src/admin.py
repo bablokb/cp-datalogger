@@ -12,7 +12,10 @@ from digitalio import DigitalInOut, Pull, Direction
 
 import pins
 import webap
-from datacollector import Settings
+from datacollector import g_config
+
+from log_writer import Logger
+g_logger = Logger()
 
 # access point settings
 try:
@@ -26,9 +29,6 @@ except:
     'auth_modes': [wifi.AuthMode.OPEN], # or [wifi.AuthMode.WPA2, wifi.AuthMode.PSK]
     'hostname': 'datalogger'           # msdn hostname
   }
-
-g_config = Settings()
-g_config.import_config()
 
 # --- turn on LED on sensor-pcb   --------------------------------------------
 
@@ -57,7 +57,7 @@ if g_config.HAVE_SD:
 
 if ap_config["debug"]:
   time.sleep(5)
-  print("!!! Starting in ADMIN-Mode !!!")
+  g_logger.print("!!! Starting in ADMIN-Mode !!!")
 
 server = webap.WebAP(config=ap_config)
 server.run()

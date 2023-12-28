@@ -17,6 +17,16 @@ import mdns
 import socketpool
 from ehttpserver import Server, Response, FileResponse, route
 
+# --- early configuration of the log-destination   ---------------------------
+
+try:
+  from log_config import g_logger
+except:
+  from log_writer import Logger
+  g_logger = Logger('console')
+
+# --- Webserver and Access-Point class   -------------------------------------
+
 class WebAP(Server):
   """ Access-point and webserver """
 
@@ -28,6 +38,12 @@ class WebAP(Server):
     super().__init__(debug=config["debug"])
     self.debug("Initializing WebAP")
     self._import_config()
+
+  # --- overwrite debug() from base class   -----------------------------------
+
+  def debug(self,msg):
+    """ route debug-messages to our logger """
+    g_logger.print(msg)
 
   # --- request-handler for /   -----------------------------------------------
 
@@ -149,7 +165,7 @@ class WebAP(Server):
       self.debug(f"exception: {ex}")
       self.debug("could not read config.py")
     gc.collect()
-    self._dump_config()
+    self._dump_model()
 
     # add select-options for sensors and tasks
     self._model["_s_options"] = [f.split(".")[0] for f in os.listdir("sensors")]
@@ -157,13 +173,13 @@ class WebAP(Server):
     self.debug(f"sensor options: {self._model['_s_options']}")
     self.debug(f"task options:   {self._model['_t_options']}")
 
-  # --- dump config.py   -----------------------------------------------------
+  # --- dump model   ---------------------------------------------------------
 
-  def _dump_config(self):
-    """ dump config.py """
+  def _dump_model(self):
+    """ dump model """
 
     self.debug("-"*60)
-    self.debug("config.py:")
+    self.debug("model:")
     self.debug("-"*60)
     for key in sorted(self._model.keys()):
       if key[0] == "_":
@@ -197,7 +213,7 @@ class WebAP(Server):
         self._model[key] = value
     for key in ["SENSORS", "TASKS"]:
       self._model[key] = self._model[key].split()
-    self._dump_config()
+    self._dump_model()
 
     # dump to config (needs write access to flash -> boot.py)
     try:
