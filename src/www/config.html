@@ -208,17 +208,21 @@
          <div style="width:100%; display:inline-flex;
               justify-content:left">
            <div style="display:inline-flex; flex-direction:column;
-                       width:30%">
+                       width:100%">
               <div style="display:inline-flex; flex-direction:row;">
-                <label for="sensors">Sensors:</label>
+                <label for="SENSORS" style="flex:none">Selected:</label>
                 <input type="text" id="SENSORS"
-                    class="model" style="width:100%"
+                    class="model" style="flex-grow:1"
                     oninput="this.classList.remove('invalid')"
                     name="SENSORS">
               </div>
-              <ul id="UL_SENSORS" class="ul_select" name="SENSORS_OPTS">
-                <li id="SENSORS_T" class="ul_sel_li"></li>
-              </ul>
+              <div style="display:inline-flex;
+                  align-items: baseline; flex-direction:row;">
+                <label for="UL_SENSORS" style="flex:none">All:</label>
+                <ul id="UL_SENSORS" class="ul_select" name="SENSORS_OPTS">
+                  <li id="SENSORS_T" class="ul_sel_li"></li>
+                </ul>
+             </div>
            </div>
          </div>
     </fieldset>
@@ -230,17 +234,21 @@
          <div style="width:100%; display:inline-flex;
               justify-content:left">
            <div style="display:inline-flex; flex-direction:column;
-                       width:30%">
+                       width:100%">
               <div style="display:inline-flex; flex-direction:row;">
-                <label for="tasks">Tasks:</label>
+                <label for="TASKS" style="flex:none">Selected:</label>
                 <input type="text" id="TASKS"
-                    class="model" style="width:100%"
+                    class="model" style="flex-grow:1"
                     oninput="this.classList.remove('invalid')"
                     name="TASKS">
               </div>
-              <ul id="UL_TASKS" class="ul_select" name="TASKS_OPTS">
-                <li id="TASKS_T" class="ul_sel_li"></li>
-              </ul>
+              <div style="display:inline-flex;
+                  align-items: baseline; flex-direction:row;">
+                <label for="UL_TASKS" style="flex:none">All:</label>
+                <ul id="UL_TASKS" class="ul_select" name="TASKS_OPTS">
+                  <li id="TASKS_T" class="ul_sel_li"></li>
+                </ul>
+             </div>
            </div>
          </div>
     </fieldset>

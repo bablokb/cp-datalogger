@@ -70,6 +70,7 @@ input.invalid {
   list-style-type: none;
   padding: 0;
   border: 1px solid #ddd;
+  padding-inline: 3px;
 }
 .ul_sel__li {
   padding: 8px 16px;
