@@ -186,8 +186,8 @@ class WebAP(Server):
     self._model['HAVE_LORA'] = False
     for field in fields:
       key,value = field.split("=")
-      if '%' in value:
-        value = self.html_decode(value)
+      if '%' in value or '+' in value:
+        value = self.html_decode(value).strip(" ")
       if key in ["SENSORS", "TASKS"]:
         self._model[key].append(value)
       elif key in ["HAVE_DISPLAY"]:

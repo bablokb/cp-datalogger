@@ -228,7 +228,7 @@ class Server:
   def html_decode(self,text):
     """ decode html esc-chars (subset only!) """
 
-    token = text.split('%')
+    token = text.replace('+',' ').split('%')
     result = token.pop(0)
     for t in token:
       decoded = chr(int(t[:2],16))
