@@ -180,22 +180,23 @@ class WebAP(Server):
     # update model
     fields = body.decode().split("&")
     self.debug(f"{fields}")
-    self._model['SENSORS'] = []
-    self._model['TASKS'] = []
+    self._model['SENSORS'] = ""
+    self._model['TASKS'] = ""
     self._model['HAVE_SD'] = False
     self._model['HAVE_LORA'] = False
     for field in fields:
       key,value = field.split("=")
       if '%' in value or '+' in value:
         value = self.html_decode(value).strip(" ")
-      if key in ["SENSORS", "TASKS"]:
-        self._model[key].append(value)
-      elif key in ["HAVE_DISPLAY"]:
+      print(f"{key=}: {value=}")
+      if key in ["HAVE_DISPLAY"]:
         self._model[key] = value if not value=='None' else None
       elif key in ["have_sd", "have_lora"]:
         self._model[key.upper()] = True
       else:
         self._model[key] = value
+    for key in ["SENSORS", "TASKS"]:
+      self._model[key] = self._model[key].split()
     self._dump_config()
 
     # dump to config (needs write access to flash -> boot.py)
