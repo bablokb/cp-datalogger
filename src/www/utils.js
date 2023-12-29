@@ -93,6 +93,23 @@ function create_select_options(name,options) {
   li_templ.remove();
 }
 
+function update_time_table(table) {
+  $.each(table,function(index,value) {
+      h = value[0];
+      m = value[1];
+      if (h === null) {
+        return;
+      }
+      $("[name=d_"+index+"]").prop("checked",true);
+      $("[name=hs_"+index+"]").val(h[0]);
+      $("[name=he_"+index+"]").val(h[1]);
+      $("[name=hi_"+index+"]").val(h[2]);
+      $("[name=ms_"+index+"]").val(m[0]);
+      $("[name=me_"+index+"]").val(m[1]);
+      $("[name=mi_"+index+"]").val(m[2]);
+    });
+}
+
 function toggle_select_option(item,name,option) {
   var was_active = item.hasClass('ul_sel_li_active');
   item.toggleClass('ul_sel_li_active');
@@ -137,20 +154,20 @@ function get_model() {
             } else {
               $("[name=SIMPLE_UI]").val(["tab_ui"]);
             }
+          } else if (name == "TIME_TABLE") {
+            update_time_table(value);
           } else if (['SENSORS','TASKS'].includes(name)) {
             $("[name="+name+"]").val(value.join(" "));
             $.each(value,function(_,v) {
                 $("#"+name+"_"+v).toggleClass('ul_sel_li_active');
               });
+          } else if (['HAVE_SD','HAVE_LORA'].includes(name)) {
+            $("[name="+name+"]").prop("checked",value);
           } else {
             $("[name="+name+"]").val(value);
           }
         });
     });
-}
-
-function update_config_form() {
-  fields = document.getElementsByClassName("model");
 }
 
 function get_csv_list() {
