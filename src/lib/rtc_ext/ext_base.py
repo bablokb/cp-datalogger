@@ -166,6 +166,8 @@ class ExtBase:
            ...
            ]
         with one entry per day (starting with Monday==0).
+        x_start and x_end are inclusive, i.e. (0,23,1),(0,59,1) will trigger
+        every minute.
         Replace (h_start,h_end,h_inc) with None to skip a day.
     """
 
@@ -187,10 +189,12 @@ class ExtBase:
       if not hours:       # no alarm on given day
         sod += 86400      # advance start of day
         continue
+      (h_start,h_end,h_inc) = hours
+      (m_start,m_end,m_inc) = minutes
       # iterate over all hours/minutes and find first time-point larger
       # than now
-      for h in range(*hours):
-        for m in range(*minutes):
+      for h in range(h_start,h_end+1,h_inc):
+        for m in range(m_start,m_end+1,m_inc):
           alarm_epoch = sod + h*3600 + m*60
           if alarm_epoch > now_epoch:
             next_alarm = time.localtime(alarm_epoch)
