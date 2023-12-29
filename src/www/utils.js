@@ -93,20 +93,29 @@ function create_select_options(name,options) {
   li_templ.remove();
 }
 
+function toggle_tt_mandatory(day) {
+  $("[name=hs_"+day+"]").toggleClass('mandatory').removeClass('invalid');
+  $("[name=he_"+day+"]").toggleClass('mandatory').removeClass('invalid');
+  $("[name=hi_"+day+"]").toggleClass('mandatory').removeClass('invalid');
+  $("[name=ms_"+day+"]").toggleClass('mandatory').removeClass('invalid');
+  $("[name=me_"+day+"]").toggleClass('mandatory').removeClass('invalid');
+  $("[name=mi_"+day+"]").toggleClass('mandatory').removeClass('invalid');
+}
+
 function update_time_table(table) {
-  $.each(table,function(index,value) {
+  $.each(table,function(day,value) {
       h = value[0];
       m = value[1];
       if (h === null) {
         return;
       }
-      $("[name=d_"+index+"]").prop("checked",true);
-      $("[name=hs_"+index+"]").val(h[0]);
-      $("[name=he_"+index+"]").val(h[1]);
-      $("[name=hi_"+index+"]").val(h[2]);
-      $("[name=ms_"+index+"]").val(m[0]);
-      $("[name=me_"+index+"]").val(m[1]);
-      $("[name=mi_"+index+"]").val(m[2]);
+      $("[name=d_"+day+"]").prop("checked",true);
+      $("[name=hs_"+day+"]").val(h[0]).addClass('mandatory');
+      $("[name=he_"+day+"]").val(h[1]).addClass('mandatory');
+      $("[name=hi_"+day+"]").val(h[2]).addClass('mandatory');
+      $("[name=ms_"+day+"]").val(m[0]).addClass('mandatory');
+      $("[name=me_"+day+"]").val(m[1]).addClass('mandatory');
+      $("[name=mi_"+day+"]").val(m[2]).addClass('mandatory');
     });
 }
 
