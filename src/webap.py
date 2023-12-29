@@ -125,7 +125,7 @@ class WebAP(Server):
     return Response("<h1>config.py upload not implemented yet</h1>",
                                 content_type="text/html")
 
-  # --- request-handler for csv-files   ---------------------------------------
+  # --- request-handler for csv-files   --------------------------------------
 
   @route("/[^.]+\.csv","GET")
   def _handle_csv_download(self,path,query_params, headers, body):
@@ -135,6 +135,39 @@ class WebAP(Server):
                         content_type="application/octet-stream",
                         buffer_size=4096)
 
+  # --- read lines from config.py   ------------------------------------------
+
+  def _next_config_line(self):
+    """ read next line from config.py """
+
+    with open("config.py","r") as file:
+      next_line = ""
+      for line in file:
+        if line[0] in ['#','\n']:
+          continue
+        line = line.strip('\n')
+        # remove comment
+        c = line.rfind('#')
+        if c > -1:
+          line = line[:c]
+        line = line.strip(' ')
+        if not '=' in line:
+          # must be a continuation-line
+          next_line += line
+          continue
+        parts = line.split('=')
+        if len(parts) == 1:
+          # first part of a continuation line
+          next_line = part[0]
+          continue
+        else:
+          # return next_line if already set
+          if next_line:
+            yield next_line
+          next_line = line
+      if next_line:
+        yield next_line
+
   # --- import configuration   -----------------------------------------------
 
   def _import_config(self):
@@ -142,25 +175,25 @@ class WebAP(Server):
 
     self._model = {}
     try:
-      with open("config.py","r") as file:
-        for line in file:
-          if line[0] in ['#','\n']:
-            continue
-          line = line.strip('\n').strip(' ')
-          var, value = line.split('=')
-          # remove comment
-          c = value.rfind('#')
-          if c > -1:
-            value = value[:c]
-          # strip blanks and quotes from var/value
-          var   = var.strip(' ')
-          value = value.strip(' ')
-          if value[0] in ["'",'"']:          # prevent stripping from f-string
-            value = value.strip("'\"")
-          if var in ["SENSORS", "TASKS"]:
-            self._model[var] = value.split(" ")
-          else:
-            self._model[var] = value
+      for line in self._next_config_line():
+        var, value = line.split('=')
+        # strip blanks and quotes from var/value
+        var   = var.strip(' ')
+        value = value.strip(' ')
+        if value[0] in ["'",'"']:          # prevent stripping from f-string
+          value = value.strip("'\"")
+        elif value in ["True","False"]:
+          value = True if value == "True" else False
+        if var in ["SENSORS", "TASKS"]:
+          self._model[var] = value.split(" ")
+        elif var == 'TIME_TABLE':
+          self._model[var] = json.loads(
+            value.replace('(','[').
+            replace(')',']').
+            replace('None','null')
+          )
+        else:
+          self._model[var] = value
     except Exception as ex:
       self.debug(f"exception: {ex}")
       self.debug("could not read config.py")
