@@ -233,22 +233,49 @@ class WebAP(Server):
     self._model['TASKS'] = ""
     self._model['HAVE_SD'] = False
     self._model['HAVE_LORA'] = False
+
+    self._model['TIME_TABLE'] = [(None,None) for i in range(7)]
+    tt_day_keys = [f"d_{i}" for i in range(7)]
+    tt_day_vals = [False for i in range(7)]
+    tt_keys = [f"{scale}{typ}_{i}" for i in range(7)
+               for typ in 'sei' for scale in 'hm']
+    tt_vals = [[[0,0,0],[0,0,0]] for i in range(7)]
+
     for field in fields:
       key,value = field.split("=")
       if '%' in value or '+' in value:
         value = self.html_decode(value).strip(" ")
-      print(f"{key=}: {value=}")
-      if key in ["HAVE_DISPLAY"]:
-        self._model[key] = value if not value=='None' else None
-      elif key in ["have_sd", "have_lora"]:
+      if key in ["have_sd", "have_lora"]:
         self._model[key.upper()] = True
+      elif key in tt_day_keys:
+        day = int(key[-1:])
+        tt_day_vals[day] = True
+      elif key in tt_keys:
+        scale = 'hm'.index(key[0])
+        typ   = 'sei'.index(key[1])
+        day   = int(key[3])
+        tt_vals[day][scale][typ] = int(value) if value else 0
       else:
         self._model[key] = value
+
+    # fix sensors and tasks
     for key in ["SENSORS", "TASKS"]:
       self._model[key] = self._model[key].split()
+
+    # fix time-table
+    have_time_table = False
+    for day in range(7):
+      if not tt_day_vals[day]:
+        continue
+      have_time_table = True
+      self._model['TIME_TABLE'][day] = tt_vals[day]
+    if not have_time_table:
+      del self._model['TIME_TABLE']
+
+    # dump model
     self._dump_model()
 
-    # dump to config (needs write access to flash -> boot.py)
+    # write to config.py (needs write access to flash -> boot.py)
     try:
       self.debug("writing config.py...")
       with open("config.py","w") as file:
@@ -261,7 +288,7 @@ class WebAP(Server):
             file.write(f"{key}=\"{' '.join(value)}\"\n")
           elif type(value) in [int,float,bool,list]:
             file.write(f"{key}={value}\n")
-          elif value in ["True","False"]:
+          elif value in ["True","False","None"]:
             file.write(f"{key}={value}\n")
           elif value.isdigit() and (value[0] != "0" or len(value) == 1):
             file.write(f"{key}={value}\n")
