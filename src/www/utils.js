@@ -153,15 +153,15 @@ function get_model() {
       $.each(model,function(name,value) {
           if (name == "STROBE_MODE") {
             if (value) {
-              $("[name=STROBE_MODE]").val(["strobe"]);
+              $("[name=STROBE_MODE]").val(["True"]);
             } else {
-              $("[name=STROBE_MODE]").val(["cont"]);
+              $("[name=STROBE_MODE]").val(["False"]);
             }
           } else if (name == "SIMPLE_UI") {
             if (value) {
-              $("[name=SIMPLE_UI]").val(["simple_ui"]);
+              $("[name=SIMPLE_UI]").val(["True"]);
             } else {
-              $("[name=SIMPLE_UI]").val(["tab_ui"]);
+              $("[name=SIMPLE_UI]").val(["False"]);
             }
           } else if (name == "TIME_TABLE") {
             update_time_table(value);

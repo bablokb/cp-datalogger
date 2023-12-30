@@ -245,8 +245,9 @@ class WebAP(Server):
       key,value = field.split("=")
       if '%' in value or '+' in value:
         value = self.html_decode(value).strip(" ")
-      if key in ["have_sd", "have_lora"]:
-        self._model[key.upper()] = True
+      if key in ["HAVE_SD", "HAVE_LORA"]:
+        # checkboxes send key="on" if checked, else nothing at all
+        self._model[key] = True
       elif key in tt_day_keys:
         day = int(key[-1:])
         tt_day_vals[day] = True

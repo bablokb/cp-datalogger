@@ -80,15 +80,15 @@
           <div class="pure-control-group">
             <label for="cont">Continuous:</label>
             <input type="radio" class="mandatory" id="cont" name="STROBE_MODE"
-                value="cont" />
+                value="False" />
             <br/>
             <label for="cont">Strobe:</label>
             <input type="radio" class="mandatory" id="strobe" name="STROBE_MODE"
-                value="strobe" />
+                value="True" />
           </div>
           <div class="pure-control-group">
-            <label for="interval">Sampling Interval (secs):</label>
-            <input placeholder="Interval (secs)..." id="interval"
+            <label for="INTERVAL">Sampling Interval (secs):</label>
+            <input placeholder="Interval (secs)..." id="INTERVAL"
                 class="mandatory" type="number" min="10" value="60"
                 oninput="this.classList.remove('invalid')"
                 name="INTERVAL" />
@@ -248,15 +248,15 @@
          <div class="pure-control-group">
            <label for="tab_ui">Tabular UI:</label>
            <input class="mandatory" type="radio" id="tab_ui" name="SIMPLE_UI"
-                value="tab_ui" />
+                value="False" />
          </div>
          <div class="pure-control-group">
-           <label for="cont">Simple UI:</label>
+           <label for="simple_ui">Simple UI:</label>
            <input class="mandatory" type="radio" id="simple_ui" name="SIMPLE_UI"
-                value="simple_ui" />
+                value="True" />
          </div>
          <div class="pure-control-group">
-           <label for="have_sd">SD installed:</label>
+           <label for="HAVE_SD">SD installed:</label>
            <input class="mandatory" type="checkbox" id="HAVE_SD" name="HAVE_SD"
                 checked="checked" />
          </div>
@@ -272,7 +272,7 @@
 
   <div class="tab"><h2>LoRa</h2>
     <div class="pure-control-group">
-      <label for="have_lora">LoRa installed:</label>
+      <label for="HAVE_LORA">LoRa installed:</label>
       <input class="mandatory" type="checkbox" id="HAVE_LORA" name="HAVE_LORA"
            checked="checked" />
     </div>
