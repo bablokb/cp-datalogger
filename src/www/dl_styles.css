@@ -66,6 +66,12 @@ input.invalid {
   margin: .2em;
 }
 
+.del-button {
+  border-radius: 4px !important;
+  background-color: rgb(255, 128, 128) !important;
+  margin: .2em;
+}
+
 .ul_select {
   list-style-type: none;
   padding: 0;

@@ -183,12 +183,15 @@ function get_csv_list() {
   $.getJSON('/get_csv_list',
     function(csv_list) {
       $.each(csv_list.files,function(index,file) {
-          var item = $("#file_0").
-            clone(true).
+          var item = $("#row_0").clone(true).
+            attr({"id": "row_"+(index+1)});
+          item.children().eq(0).
             attr({"id": "file_"+(index+1),"href": file}).
             html(file);
+          item.children().eq(1).
+            attr({"id": "del_"+(index+1),"href": file+".delete"});
           item.appendTo("#csv_list");
         });
-      $("#file_0").remove();   // remove template
+      $("#row_0").remove();   // remove template
     });
 }

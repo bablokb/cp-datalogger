@@ -135,6 +135,19 @@ class WebAP(Server):
                         content_type="application/octet-stream",
                         buffer_size=4096)
 
+  # --- request-handler for csv-delete   -------------------------------------
+
+  @route("/[^.]+\.csv.delete","GET")
+  def _handle_csv_delete(self,path,query_params, headers, body):
+    """ handle request for csv-delete """
+    self.debug(f"_handle_csv_delete for {path}")
+    try:
+      os.remove(f"/sd/{path[0:-7]}")
+    except:
+      return Response("",status_code=400)
+    return Response(f"<h1>successfully deleted {path[0:-7]}</h1>",
+                                content_type="text/html")
+
   # --- read lines from config.py   ------------------------------------------
 
   def _next_config_line(self):
