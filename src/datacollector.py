@@ -1,11 +1,12 @@
 #-----------------------------------------------------------------------------
-# Basic data-collection program. This program will
+# Basic data-collection program. This program is a framework that
 #
-#   - initialize hardware
+#   - initializes hardware (RTC, display, SD, sensors)
 #   - update RTCs (time-server->) external-RTC -> internal-RTC
-#   - collect data
-#   - update the display
-#   - save data
+#   - collects data
+#   - execute post collection tasks, e.g.
+#     - update the display
+#     - save data
 #   - set next wakeup alarm
 #   - turn power off
 #
@@ -80,8 +81,8 @@ class DataCollector():
     """ create hardware-objects """
 
     # pull CS of display high to prevent it from floating
-    cs_display = DigitalInOut(pins.PIN_INKY_CS)
-    cs_display.switch_to_output(value=True)
+    self._cs_display = DigitalInOut(pins.PIN_INKY_CS)
+    self._cs_display.switch_to_output(value=True)
 
     # early setup of SD-card (in case we send debug-logs to sd-card)
     self._spi = None
@@ -120,7 +121,7 @@ class DataCollector():
     g_ts.append((time.monotonic(),"rtc-update"))
 
     # display
-    cs_display.deinit()
+    self._cs_display.deinit()
     if g_config.HAVE_DISPLAY:
       from display import Display
       self.display = Display(g_config,self._spi)
@@ -304,45 +305,45 @@ class DataCollector():
   def cleanup(self):
     """ cleanup ressources """
 
+    self._cs_display.deinit()
     self._spi.deinit()
 
-# --- run datacollector   --------------------------------------------------
+  # --- run datacollector   ------------------------------------------------
 
-def run():
-  """ run datacollector """
-  global g_logger, g_config, g_ts
+  def run(self):
+    """ run datacollector """
+    global g_logger, g_config, g_ts
 
-  g_logger.print("main program start")
-  if g_config.TEST_MODE:
-    time.sleep(5)                        # give console some time to initialize
-    g_ts.append((time.monotonic(),"delay test-mode"))
-
-  g_logger.print("setup of hardware")
-  app = DataCollector()
-  g_ts.append((time.monotonic(),"DataCollector()"))
-  app.setup()
-  app.print_timings()
-
-  while True:
+    g_logger.print("main program start")
     if g_config.TEST_MODE:
-      app.blink(count=g_config.BLINK_START, blink_time=g_config.BLINK_TIME_START)
-      # reset timings
-      g_ts = []
-      g_ts.append((time.monotonic(),None))
+      time.sleep(5)                        # give console some time to initialize
+      g_ts.append((time.monotonic(),"delay test-mode"))
 
-    app.collect_data()
-    g_ts.append((time.monotonic(),"collect data"))
+    g_logger.print("setup of hardware")
+    g_ts.append((time.monotonic(),"DataCollector()"))
+    self.setup()
+    self.print_timings()
 
-    # run tasks after data-collection
-    app.run_tasks()
-    app.print_timings()
+    while True:
+      if g_config.TEST_MODE:
+        self.blink(count=g_config.BLINK_START, blink_time=g_config.BLINK_TIME_START)
+        # reset timings
+        g_ts = []
+        g_ts.append((time.monotonic(),None))
 
-    if not g_config.STROBE_MODE:
-      g_logger.print(f"continuous mode: next measurement in {g_config.INTERVAL} seconds")
-      time.sleep(g_config.INTERVAL)
-    else:
-      break
+      self.collect_data()
+      g_ts.append((time.monotonic(),"collect data"))
 
-  app.configure_wakeup()
-  app.configure_switchover()
-  app.shutdown()
+      # run tasks after data-collection
+      self.run_tasks()
+      self.print_timings()
+
+      if not g_config.STROBE_MODE:
+        g_logger.print(f"continuous mode: next measurement in {g_config.INTERVAL} seconds")
+        time.sleep(g_config.INTERVAL)
+      else:
+        break
+
+    self.configure_wakeup()
+    self.configure_switchover()
+    self.shutdown()
