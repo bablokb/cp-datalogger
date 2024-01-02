@@ -8,6 +8,7 @@
 
 import wifi
 import time
+import busio
 from digitalio import DigitalInOut, Pull, Direction
 
 import pins
@@ -38,20 +39,63 @@ switch_d.value = True
 
 # --- set CS of display to high   --------------------------------------------
 
-cs_display = DigitalInOut(pins.PIN_INKY_CS)
-cs_display.switch_to_output(value=True)
+if g_config.HAVE_DISPLAY:
+  cs_display = DigitalInOut(pins.PIN_INKY_CS)
+  cs_display.switch_to_output(value=True)
 
 # --- mount sd-card if available   -------------------------------------------
 
+spi = busio.SPI(pins.PIN_SD_SCK,pins.PIN_SD_MOSI,pins.PIN_SD_MISO)
 if g_config.HAVE_SD:
   import storage
   import adafruit_sdcard
-  import busio
-  spi    = busio.SPI(pins.PIN_SD_SCK,pins.PIN_SD_MOSI,pins.PIN_SD_MISO)
   sd_cs  = DigitalInOut(pins.PIN_SD_CS)
   sdcard = adafruit_sdcard.SDCard(spi,sd_cs)
   vfs    = storage.VfsFat(sdcard)
   storage.mount(vfs, "/sd")
+
+# --- put info on display if available   -------------------------------------
+
+if g_config.HAVE_DISPLAY:
+  import displayio
+  from adafruit_bitmap_font import bitmap_font
+  from adafruit_display_text import label as label
+  from vectorio import Rectangle
+  from display import Display
+
+  g_logger.print("starting display update")
+  cs_display.deinit()
+  display = Display(g_config,spi).get_display()
+
+  font = bitmap_font.load_font(f"fonts/{g_config.FONT_DISPLAY}.bdf")
+  group = displayio.Group()
+  shader = displayio.Palette(2)
+  shader[0] = 0xFFFFFF
+  shader[1] = 0x000000
+  group.append(Rectangle(pixel_shader=shader,x=0,y=0,
+                         width=display.width,
+                         height=display.height,
+                         color_index=0))
+  heading = label.Label(font=font,color=shader[1],scale=2,
+                        text='Admin-Mode',anchor_point=(0.5,0))
+  heading.anchored_position = (display.width/2,0)
+  group.append(heading)
+
+  ap_info_text=f"""
+  SSID: {ap_config['ssid']}
+  PW:   {ap_config['password']}
+  URL:  http://192.168.4.1
+  """
+  ap_info = label.Label(font=font,color=shader[1],
+                        tab_replacement=(2," "),
+                        line_spacing=1,
+                        text=ap_info_text,anchor_point=(0,0))
+  ap_info.anchored_position = (0,heading.height+3)
+  group.append(ap_info)
+
+  display.root_group = group
+  display.refresh()
+  g_logger.print("finished display update")
 
 # --- start AP and web-server   ----------------------------------------------
 
