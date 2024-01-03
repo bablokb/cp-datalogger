@@ -195,3 +195,11 @@ function get_csv_list() {
       $("#row_0").remove();   // remove template
     });
 }
+
+function upload_config() {
+  file = $("#filename")[0];
+  fetch('/upload_config',
+        {method: 'POST',
+            body: file.files[0]
+            });
+};

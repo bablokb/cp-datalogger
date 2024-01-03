@@ -1,15 +1,20 @@
 <html>
   <head>
     <title>Upload config.py</title>
+    <link rel="stylesheet" href="dl_styles.css">
     <link rel="stylesheet" href="pure-min.css">
+    <script src="jquery-min.js"></script>
+    <script src="utils.js"></script>
   </head>
   <body>
     <h1>Upload config.py</h1>
-    <form action="/upload_config" method="post" enctype="multipart/form-data"
+    <form action="/upload_config"
       class="pure-form pure-form-aligned">
       <label for="filename">Filename:</label>
-      <input type="file" id="filename" name="content"</input>
-      <input type="submit" value="upload config.py"</input>
+      <input type="file" id="filename" name="content">
+      <button class="pure-button menu-button" type="button"
+        onclick="upload_config()" value="upload">upload</button>
+    </input>
     </form>
   </body>
 </html>
