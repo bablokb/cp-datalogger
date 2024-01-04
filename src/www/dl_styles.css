@@ -85,3 +85,10 @@ input.invalid {
 .ul_sel_li_active {
   background-color: rgb(66, 184, 221) !important;
 }
+
+.csv_file {
+  display:flex !important;
+  align-content: flex-start;
+  flex-grow:1;
+  font-size:x-large !important;
+}

@@ -187,7 +187,7 @@ function get_csv_list() {
             attr({"id": "row_"+(index+1)});
           item.children().eq(0).
             attr({"id": "file_"+(index+1),"href": file}).
-            html(file);
+            html("&#128229; "+file);
           item.children().eq(1).
             attr({"id": "del_"+(index+1),"href": file+".delete"});
           item.appendTo("#csv_list");
