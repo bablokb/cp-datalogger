@@ -122,7 +122,15 @@ class WebAP(Server):
     """ handle request for config.py upload """
     self.debug(f"_handle_upload_config_py...\n{body}")
 
-    return Response("<h1>config.py upload not implemented yet</h1>",
+    try:
+      with open("config.py","wb") as file:
+        file.write(body)
+      self._import_config()
+    except Exception as ex:
+      self.debug(f"exception during update of config.py: {ex}")
+      return Response("<h1>config.py upload failed</h1>",
+                      content_type="text/html")
+    return Response("<h1>config.py uploaded successfully</h1>",
                                 content_type="text/html")
 
   # --- request-handler for csv-files   --------------------------------------
