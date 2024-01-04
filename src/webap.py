@@ -156,6 +156,17 @@ class WebAP(Server):
     return Response(f"<h1>successfully deleted {path[0:-7]}</h1>",
                                 content_type="text/html")
 
+  # --- request-handler for /reset   -----------------------------------------
+
+  @route("/reset","GET")
+  def _handle_reset(self,path,query_params, headers, body):
+    """ handle request for /reset """
+    self.debug(f"_handle_reset...")
+    import supervisor
+    supervisor.reload()
+    return Response("<h1>resetting...</h1>",
+                                content_type="text/html")
+
   # --- read lines from config.py   ------------------------------------------
 
   def _next_config_line(self):
