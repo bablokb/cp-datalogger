@@ -50,11 +50,11 @@ Additional resources
   * [Components](docs/components.md)
   * [Power](docs/power.md)
   * [Hardware setup](docs/hardware_setup.md)
+  * [Software](docs/software.md)
   * [Software deployment](docs/deployment.md)
   * [Pinout](docs/pins.md)
   * [Pinout V2](docs/pins.md)
   * Case for this PCB: https://github.com/OpenDevEd/case-for-pico-datalogger-rev1.00
-  * [Software](docs/datacollector.md)
   * [KiCAD design-files V1](./pico-datalogger.kicad/Readme.md)
   * [KiCAD design-files V2](./pico-datalogger-v2.kicad/Readme.md)
   * [KiCAD design-files sensor-PCB](./pico-sensor-pcb.kicad/Readme.md)
