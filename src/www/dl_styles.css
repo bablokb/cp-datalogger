@@ -92,3 +92,17 @@ input.invalid {
   flex-grow:1;
   font-size:x-large !important;
 }
+
+.msgarea {
+  display: none;
+  margin: 5px;
+  padding: 5px;
+  width: fit-content;
+  position: relative;
+  left: 5%;
+  text-align: center;
+  background: lightblue;
+  color: black;
+  border-radius: 10px;
+  font-size: large;
+}

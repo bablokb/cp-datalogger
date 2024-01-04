@@ -126,12 +126,12 @@ class WebAP(Server):
       with open("config.py","wb") as file:
         file.write(body)
       self._import_config()
+      return Response("config.py uploaded successfully",
+                      content_type="text/plain")
     except Exception as ex:
       self.debug(f"exception during update of config.py: {ex}")
-      return Response("<h1>config.py upload failed</h1>",
-                      content_type="text/html")
-    return Response("<h1>config.py uploaded successfully</h1>",
-                                content_type="text/html")
+      return Response("config.py upload failed",
+                      content_type="text/plain")
 
   # --- request-handler for csv-files   --------------------------------------
 

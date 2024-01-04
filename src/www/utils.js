@@ -196,10 +196,19 @@ function get_csv_list() {
     });
 }
 
-function upload_config() {
-  file = $("#filename")[0];
-  fetch('/upload_config',
-        {method: 'POST',
-            body: file.files[0]
-            });
+async function upload_config() {
+  const file = $("#filename")[0];
+  let response = await fetch('/upload_config',
+                             {method: 'POST',
+                                 body: file.files[0]
+                                 });
+  let msg = await response.text();
+  show_msg(msg,5000);
+};
+
+function show_msg(text,time) {
+  $("#msgarea").text(text).show();
+  setTimeout(function() {
+      $("#msgarea").empty().hide();
+    }, time);
 };
