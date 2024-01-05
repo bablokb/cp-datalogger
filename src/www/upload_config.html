@@ -6,14 +6,15 @@
     <script src="jquery-min.js"></script>
     <script src="utils.js"></script>
   </head>
-  <body>
+  <body onload="up_form.reset(); set_upload_btn();">
     <h1>Upload config.py</h1>
-    <form action="/upload_config"
+    <form id="up_form" action="/upload_config"
       class="pure-form pure-form-aligned">
       <label for="filename">Filename:</label>
-      <input type="file" id="filename" name="content">
-      <button class="pure-button menu-button" type="button"
-        onclick="upload_config()" value="upload">upload</button>
+      <input type="file" id="filename" name="content" value=""
+        onchange="set_upload_btn()">
+      <button class="pure-button menu-button" type="button" id="upload"
+        onclick="upload_config()" value="upload" disabled>upload</button>
     </input>
     </form>
     <div id="msgarea" class="msgarea"></div>

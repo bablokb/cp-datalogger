@@ -206,6 +206,10 @@ async function upload_config() {
   show_msg(msg,5000);
 };
 
+function set_upload_btn() {
+  $('#upload').prop('disabled',$('#filename').val().length==0);
+}
+
 function show_msg(text,time) {
   $("#msgarea").text(text).show();
   setTimeout(function() {
