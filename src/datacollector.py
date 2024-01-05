@@ -100,6 +100,7 @@ class DataCollector():
       try:
         i2c0 = busio.I2C(pins.PIN_SCL0,pins.PIN_SDA0)
       except:
+        g_logger.print("could not create i2c0, check wiring!")
         i2c0 = None
     else:
       i2c0 = None
