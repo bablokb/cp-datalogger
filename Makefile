@@ -13,9 +13,10 @@ DEPLOY_TO=deploy
 CONFIG=src/config.py
 LOG_CONFIG=src/log_config.py
 SECRETS=src/secrets.py
+MAKEVARS=makevars.tmp
 
 # make variables from commandline (last invocation)
-include makevars.tmp
+include ${MAKEVARS}
 
 # all sources
 SOURCES=$(wildcard src/*.py)
@@ -51,8 +52,8 @@ default: check_mpy_cross target_dir lib \
 	${DEPLOY_TO}/log_config.py \
 	${DEPLOY_TO}/secrets.mpy \
 	$(WWW:src/www/%=${DEPLOY_TO}/www/%.gz)
-	@rm makevars.tmp
-	@make makevars.tmp DEPLOY_TO=${DEPLOY_TO} \
+	@rm ${MAKEVARS}
+	@make ${MAKEVARS} DEPLOY_TO=${DEPLOY_TO} \
 		CONFIG=${CONFIG} \
 		LOG_CONFIG=${LOG_CONFIG}
 
@@ -70,12 +71,12 @@ lib:
 	rsync -av --delete src/lib ${DEPLOY_TO}
 	rsync -av --delete src/fonts ${DEPLOY_TO}
 
-# clean target-directory
+# clean target-directory (only delete auto-created makevars.tmp)
 clean:
 	rm -fr makevars.tmp ${DEPLOY_TO}/*
 
-# recreate makevars.tmp
-makevars.tmp:
+# recreate ${MAKEVARS}
+${MAKEVARS}:
 	@echo -e \
 	"DEPLOY_TO=${DEPLOY_TO}\nCONFIG=${CONFIG}\nLOG_CONFIG=${LOG_CONFIG}" > $@
 
