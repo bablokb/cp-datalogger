@@ -3,7 +3,19 @@ Pico Datalogger with Integrated Power-Management
 
 This is a breakout supporting low-frequency data-logging with a Raspberry Pi Pico.
 
-![](docs/pcb1.jpg)
+Version 1 PCB:
+
+![](docs/pcb-datalogger-v1-1.jpg)
+
+Version 2 PCB:
+
+![](docs/pcb-datalogger-v2.jpg)
+
+
+Sensor PCB (in combination with datalogger-v2):
+
+![](docs/pcb-sensor.jpg)
+
 
 Core functions:
   * log data to a micro-sd card;
@@ -17,12 +29,23 @@ From a technical viewpoint the breakout allows you to
   * keep time using a coincell backup-battery even if the board is not powered.
 
 
+Quick Links
+-----------
+
+  * [Hardware setup](docs/hardware_setup.md)
+  * [Software](docs/software.md)
+  * [Software deployment](docs/deployment.md)
+  * [Configuration](./configuration.md)
+  * [Initial setup of the RTC](./rtc_setup.md)
+  * [Administration mode](./admin_mode.md)
+
+
 Hardware Components
 -------------------
 
 Time-keeping uses the PCF8523 RTC with integrated support for a backup-battery.
 
-![](docs/pcb2.jpg)
+![](docs/pcb-datalogger-v1-2.jpg)
 
 Power management uses a D-type flip-flop which drives the enable pin of the Pico.
 In "reset"-state, the enable pin is pulled high and the Pico is running. The
@@ -49,9 +72,6 @@ Additional resources
   * [Sensors](docs/sensors.md)
   * [Components](docs/components.md)
   * [Power](docs/power.md)
-  * [Hardware setup](docs/hardware_setup.md)
-  * [Software](docs/software.md)
-  * [Software deployment](docs/deployment.md)
   * [Pinout](docs/pins.md)
   * [Pinout V2](docs/pins.md)
   * Case for this PCB: https://github.com/OpenDevEd/case-for-pico-datalogger-rev1.00
