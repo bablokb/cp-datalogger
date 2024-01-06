@@ -335,6 +335,9 @@ class DataCollector():
       self.collect_data()
       g_ts.append((time.monotonic(),"collect data"))
 
+      if g_config.TEST_MODE:
+        self.blink(count=g_config.BLINK_END, blink_time=g_config.BLINK_TIME_END)
+
       # run tasks after data-collection
       self.run_tasks()
       self.print_timings()
