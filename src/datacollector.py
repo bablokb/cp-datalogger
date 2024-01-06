@@ -107,10 +107,15 @@ class DataCollector():
 
     # If our custom PCB is connected, we have an RTC. Initialise it.
     if g_config.HAVE_PCB:
-      self.rtc = ExtRTC(i2c1,
-        net_update=g_config.NET_UPDATE)         # this will also clear interrupts
-      self.rtc.rtc_ext.high_capacitance = True  # the pcb uses a 12.5pF capacitor
-      self.rtc.update()                         # (time-server->)ext-rtc->int-rtc
+      try:
+        self.rtc = ExtRTC(i2c1,
+          net_update=g_config.NET_UPDATE)      # this will also clear interrupts
+        self.rtc.rtc_ext.high_capacitance = True  # the pcb uses a 12.5pF capacitor
+        self.rtc.update()                      # (time-server->)ext-rtc->int-rtc
+      except Exception as ex:
+        # either we don't have the PCB after all, or no battery is connected
+        g_logger.print(f"error while configuring RTC: {ex}")
+        g_config.HAVE_PCB = False
 
     self.done           = DigitalInOut(pins.PIN_DONE)
     self.done.direction = Direction.OUTPUT
