@@ -32,7 +32,7 @@ From a technical viewpoint the breakout allows you to
 Quick Links
 -----------
 
-  * [Hardware setup](docs/hardware_setup.md)
+  * [Basic Setup](docs/setup.md)
   * [Software](docs/software.md)
   * [Software deployment](docs/deployment.md)
   * [Configuration](./configuration.md)
