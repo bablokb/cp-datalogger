@@ -50,6 +50,12 @@ class Display:
       config.HAVE_DISPLAY = None
     self._view = None
 
+  # --- return display-object   -----------------------------------------------
+
+  def get_display(self):
+    """ return display-object """
+    return self._display
+
   # --- create view   ---------------------------------------------------------
 
   def create_view(self,formats):
@@ -81,11 +87,12 @@ class Display:
       del formats[dim[0]*dim[1]:]
 
     border  = 1
+    offset  = 1    # keep away from border-pixels
     divider = 1
     padding = 5
     self._view = DataView(
       dim=dim,
-      width=self._display.width-2*border-2*padding-(dim[1]-1)*divider,
+      width=self._display.width-2*(border+padding+offset)-(dim[1]-1)*divider,
       height=int(0.6*self._display.height),
       justify=Justify.LEFT,
       fontname=f"fonts/{self._config.FONT_DISPLAY}.bdf",
@@ -109,8 +116,10 @@ class Display:
                              fontname=f"fonts/{self._config.FONT_DISPLAY}.bdf",
                              justify=Justify.RIGHT)
     self._panel = DataPanel(
-      width=self._display.width,
-      height=self._display.height,
+      x = offset,
+      y = offset,
+      width=self._display.width-2*offset,
+      height=self._display.height-2*offset,
       view=self._view,
       title=title,
       footer=self._footer,
@@ -170,11 +179,12 @@ class Display:
     self._panel.anchored_position = (self._display.width/2,
                                      self._display.height/2)
     self._view.append(self._panel)
+    self._display.root_group = self._view
     g_logger.print("end:   _create_simple_view")
 
   # --- set ui-text for simple-ui   ------------------------------------------
 
-  def set_ui_text(self,csv_header,record):
+  def set_ui_text(self,app):
     """ set text of simple UI """
 
     # create dynamic format: width of label is widh - 4 - 1 (4:value, 1:colon)
@@ -182,8 +192,8 @@ class Display:
     w = int((self._max_chars-1)/2)
     template1 = "{label:<"+f"{w-5}.{w-5}"+"}:{value:>4.4}"
     template2 = "{label:<"+f"{w-4}.{w-4}"+"}:{value:>4.4}"
-    columns = csv_header.split('#')[-1].split(',')
-    merged = zip(columns,record.split(','))
+    columns = app.csv_header.split('#')[-1].split(',')
+    merged = zip(columns,app.record.split(','))
 
     # collect output into string
     ui_string = f"{self._config.LOGGER_TITLE}"
@@ -196,7 +206,7 @@ class Display:
       else:
         template = template1
       if label == "ts":
-        ts_line = f"\nat {value}"
+        ts_line = f"\nat {value} {app.save_status}"
       elif label == "ID":
         pass                 # skip ID (should be part of title)
       elif ui_line:          # second column
@@ -210,4 +220,3 @@ class Display:
     ui_string += ts_line
     g_logger.print(ui_string)
     self._panel.text = ui_string
-    self._display.root_group = self._view

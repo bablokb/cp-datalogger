@@ -25,7 +25,7 @@ def run(config,app):
     app.display.create_view(app.formats)
 
   if config.SIMPLE_UI:
-    app.display.set_ui_text(app.csv_header,app.record)
+    app.display.set_ui_text(app)
   else:
     if len(app.values) < len(app.formats):
       # fill in unused cells
