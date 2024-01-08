@@ -35,28 +35,9 @@ Quick Links
   * [Basic Setup](docs/setup.md)
   * [Software](docs/software.md)
   * [Software deployment](docs/deployment.md)
-  * [Configuration](./configuration.md)
-  * [Initial setup of the RTC](./rtc_setup.md)
-  * [Administration mode](./admin_mode.md)
-
-
-Hardware Components
--------------------
-
-Time-keeping uses the PCF8523 RTC with integrated support for a backup-battery.
-
-![](docs/pcb-datalogger-v1-2.jpg)
-
-Power management uses a D-type flip-flop which drives the enable pin of the Pico.
-In "reset"-state, the enable pin is pulled high and the Pico is running. The
-reset is triggered either by a button, or by an RTC-alarm.
-
-The "done"-pin of the Pico is connected to the CLK-pin of the flip-flop. A rising edge
-will toggle the enable pin.
-
-A micro-sd card reader is connected to SPI to enable logging of data.
-
-Various additional connectors allow the user to connect sensors or displays.
+  * [Configuration](docs/configuration.md)
+  * [Initial setup of the RTC](docs/rtc_setup.md)
+  * [Administration mode](docs/admin_mode.md)
 
 
 Background
@@ -71,6 +52,7 @@ Additional resources
 
   * [Sensors](docs/sensors.md)
   * [Components](docs/components.md)
+  * [Hardware Architecture](docs/hw_architecture.md)
   * [Power](docs/power.md)
   * [Pinout](docs/pins.md)
   * [Pinout V2](docs/pins.md)
