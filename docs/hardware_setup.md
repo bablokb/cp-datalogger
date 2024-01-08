@@ -1,20 +1,34 @@
-Hardware setup
---------------
+Setup
+=====
 
-To set up the board, you should:
-* Connect AA batteries (or similar) via the battery port
-* Add a coin cell to maintain data on the RTC (CR2032)
-* Remove the jumper between the Pico and the coin cell
-* Connect the Pico via USB cable to laptop
+/All references to the jumper below can be ignored for v2-boards. The
+v2-boards don't use jumpers./
 
-The put circuitpython on to the Raspberry Pi
-* If you have a Pico, install https://circuitpython.org/board/raspberry_pi_pico/
-* If you have a Pico W, install https://circuitpython.org/board/raspberry_pi_pico_w/
+1. CircuitPython
+----------------
 
-Them copy contents of the src folder onto the Pico.
+First step is to install CircuitPython on the board. Be sure to select
+the version 8.0.5 (note that this is not the most current version!).
 
-When you're done with software installation
-* Unplug the USB cable
-* Replace the jumper
+Sources:
+  - If you have a Pico, install  
+    <https://circuitpython.org/board/raspberry_pi_pico/>
+  - If you have a Pico W, install  
+    <https://circuitpython.org/board/raspberry_pi_pico_w/>
 
-Note that if you want to update software in the future, remove the jumper first.
+
+2. Software
+-----------
+
+Follow the instructions in [Software deployment](./deployment.md).
+
+
+3. Hardware
+-----------
+
+Steps:
+
+  - Connect AA batteries (or similar) via the battery port
+  - Add a coin cell to maintain data on the RTC (CR2032)
+  - Always remove the jumper if you plugin the USB-cable to the Pico, e.g.
+    for software updates.
