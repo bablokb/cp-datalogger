@@ -278,6 +278,9 @@ class DataCollector():
   def configure_switchover(self):
     """ configure rtc battery switchover """
 
+    if not g_config.HAVE_PCB:
+      return
+
     if "battery" not in self.data:
       from battery import BATTERY
       bat = BATTERY(g_config,None)
@@ -301,12 +304,25 @@ class DataCollector():
   def shutdown(self):
     """ tell the power-controller to cut power """
 
-    self.done.value = 1
-    time.sleep(0.001)
-    self.done.value = 0
-    time.sleep(2)
+    if g_config.HAVE_PCB:
+      self.done.value = 1
+      time.sleep(0.001)
+      self.done.value = 0
+      time.sleep(2)
+    else:
+      g_logger.print("ignoring shutdown (don't have PCB/RTC)")
 
-  # --- cleanup   -----------------------------------------------------------
+  # --- enter deep-sleep   ---------------------------------------------------
+
+  def goto_sleep(self):
+    """ enter deep-sleep """
+    import alarm
+    wakeup_alarm = alarm.time.TimeAlarm(
+      monotonic_time=time.monotonic() + g_config.INTERVAL)
+    g_logger.print(f"wakup from deep-sleep in {g_config.INTERVAL}s")
+    alarm.exit_and_deep_sleep_until_alarms(wakeup_alarm)
+
+  # --- cleanup   ------------------------------------------------------------
 
   def cleanup(self):
     """ cleanup ressources """
@@ -356,3 +372,10 @@ class DataCollector():
     self.configure_wakeup()
     self.configure_switchover()
     self.shutdown()
+
+    # we are only here if
+    # - we use strob-mode
+    # - we are running on USB-power
+    # - we are running on a v2-pcb
+    # Switch to deep-sleep (better than nothing)
+    self.goto_sleep()
