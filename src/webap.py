@@ -9,13 +9,16 @@
 # -------------------------------------------------------------------------
 
 import gc
+import sys
 import os
+import time
 import json
 import board
 import wifi
 import mdns
 import socketpool
 from ehttpserver import Server, Response, FileResponse, route
+import commit
 
 # --- early configuration of the log-destination   ---------------------------
 
@@ -74,6 +77,21 @@ class WebAP(Server):
     else:
       headers = {}
     return FileResponse(f"/www/{path}",headers=headers)
+
+  # --- request-handler for /get_status_info   -------------------------------
+
+  @route("/get_status_info","GET")
+  def _handle_get_status_info(self,path,query_params, headers, body):
+    """ handle request for /get_status_info """
+    self.debug(f"_handle_get_status_info...")
+    v = sys.implementation[1]
+    status = {
+      "board_id": board.board_id,
+      "cp_version": f"{v[0]}.{v[1]}.{v[2]}",
+      "dl_commit" : commit.commit,
+      "dev_time": time.time()
+      }
+    return Response(json.dumps(status),content_type="application/json")
 
   # --- request-handler for /get_model   -------------------------------------
 
