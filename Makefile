@@ -52,6 +52,7 @@ default: check_mpy_cross target_dir lib \
 	${DEPLOY_TO}/log_config.py \
 	${DEPLOY_TO}/secrets.mpy \
 	$(WWW:src/www/%=${DEPLOY_TO}/www/%.gz)
+	@git log --format="commit='%H'" -n 1 > ${DEPLOY_TO}/commit.py
 	@rm ${MAKEVARS}
 	@make ${MAKEVARS} DEPLOY_TO=${DEPLOY_TO} \
 		CONFIG=${CONFIG} \
