@@ -9,6 +9,7 @@
 #-----------------------------------------------------------------------------
 
 # options: override on the command-line
+PCB=v2
 DEPLOY_TO=deploy
 CONFIG=src/config.py
 LOG_CONFIG=src/log_config.py
@@ -44,6 +45,7 @@ WWW=$(wildcard src/www/*)
 
 # default target: pre-compile and compress files
 default: check_mpy_cross target_dir lib \
+	${DEPLOY_TO}/pins.mpy \
 	$(SOURCES:src/%.py=${DEPLOY_TO}/%.mpy) \
 	$(SPECIAL:src/%.py=${DEPLOY_TO}/%.py) \
 	$(SENSORS:src/sensors/%.py=${DEPLOY_TO}/sensors/%.mpy) \
@@ -54,7 +56,7 @@ default: check_mpy_cross target_dir lib \
 	$(WWW:src/www/%=${DEPLOY_TO}/www/%.gz)
 	@git log --format="commit='%H'" -n 1 > ${DEPLOY_TO}/commit.py
 	@rm makevars.tmp
-	@make makevars.tmp DEPLOY_TO=${DEPLOY_TO} \
+	@make makevars.tmp PCB=${PCB} DEPLOY_TO=${DEPLOY_TO} \
 		CONFIG=${CONFIG} \
 		LOG_CONFIG=${LOG_CONFIG}
 
@@ -79,7 +81,7 @@ clean:
 # recreate makevars.tmp
 makevars.tmp:
 	@echo -e \
-	"DEPLOY_TO=${DEPLOY_TO}\nCONFIG=${CONFIG}\nLOG_CONFIG=${LOG_CONFIG}" > $@
+	"PCB=${PCB}\nDEPLOY_TO=${DEPLOY_TO}\nCONFIG=${CONFIG}\nLOG_CONFIG=${LOG_CONFIG}" > $@
 
 # rsync content of target-directory to pico
 # note: this needs a LABEL=CIRCUITPY entry in /etc/fstab and it only works
@@ -101,6 +103,9 @@ ${DEPLOY_TO}/log_config.py: ${LOG_CONFIG}
 	cp -a $< $@
 
 ${DEPLOY_TO}/secrets.mpy: ${SECRETS}
+	mpy-cross $< -o $@
+
+${DEPLOY_TO}/pins.mpy: src/pins${PCB}.py
 	mpy-cross $< -o $@
 
 $(SPECIAL:src/%.py=${DEPLOY_TO}/%.py): ${DEPLOY_TO}/%.py: src/%.py
