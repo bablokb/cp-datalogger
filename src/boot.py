@@ -8,12 +8,25 @@
 # Website: https://github.com/pcb-pico-datalogger
 #-----------------------------------------------------------------------------
 
+import time
 import board
 import storage
 import supervisor
 from digitalio import DigitalInOut, Pull, Direction
 
 import pins
+from config import TEST_MODE
+
+# --- blink LED in test-mode   -----------------------------------------------
+
+if TEST_MODE:
+  switch_d = DigitalInOut(pins.PIN_SWD)
+  switch_d.direction = Direction.OUTPUT
+  for _ in range(3):
+    switch_d.value = True
+    time.sleep(0.15)
+    switch_d.value = False
+    time.sleep(0.15)
 
 # --- configure hardware   ---------------------------------------------------
 
