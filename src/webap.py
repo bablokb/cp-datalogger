@@ -91,6 +91,7 @@ class WebAP(Server):
       "dl_commit" : commit.commit,
       "dev_time": time.time()
       }
+    self.debug(f"{status=}")
     return Response(json.dumps(status),content_type="application/json")
 
   # --- request-handler for /get_model   -------------------------------------
