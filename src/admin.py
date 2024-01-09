@@ -16,7 +16,7 @@ import webap
 from datacollector import g_config
 
 from log_writer import Logger
-g_logger = Logger()
+from rtc_ext.pcf8523 import ExtPCF8523 as ExtRTC
 
 # access point settings
 try:
@@ -37,11 +37,30 @@ switch_d = DigitalInOut(pins.PIN_SWD)
 switch_d.direction = Direction.OUTPUT
 switch_d.value = True
 
+# --- init environment   -----------------------------------------------------
+
+g_logger = Logger()
+if g_config.TEST_MODE:
+  time.sleep(5)
+
 # --- set CS of display to high   --------------------------------------------
 
 if g_config.HAVE_DISPLAY:
   cs_display = DigitalInOut(pins.PIN_INKY_CS)
   cs_display.switch_to_output(value=True)
+
+# --- read rtc   -------------------------------------------------------------
+
+if g_config.HAVE_PCB:
+  try:
+    i2c1 = busio.I2C(pins.PIN_SCL1,pins.PIN_SDA1)
+    rtc = ExtRTC(i2c1)
+    rtc.rtc_ext.high_capacitance = True
+    rtc.update()
+  except Exception as ex:
+    g_logger.print(f"could not read RTC: {ex}")
+    rtc = None
+  ap_config["rtc"] = rtc  # pass to webap for later use
 
 # --- mount sd-card if available   -------------------------------------------
 
@@ -99,9 +118,6 @@ if g_config.HAVE_DISPLAY:
 
 # --- start AP and web-server   ----------------------------------------------
 
-if ap_config["debug"]:
-  time.sleep(5)
-  g_logger.print("!!! Starting in ADMIN-Mode !!!")
-
+g_logger.print("!!! Starting in ADMIN-Mode !!!")
 server = webap.WebAP(config=ap_config)
 server.run()
