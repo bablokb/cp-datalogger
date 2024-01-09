@@ -220,7 +220,7 @@ function show_msg(text,time) {
 function get_status_info() {
   $.getJSON('/get_status_info',
     function(info) {
-      d = new Date(info.dev_time);
+      d = new Date(info.dev_time*1000);
       $('#cp_version').text(info.cp_version);
       $('#board_id').text(info.board_id);
       $('#dl_commit').text(info.dl_commit);
