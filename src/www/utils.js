@@ -224,6 +224,8 @@ function get_status_info() {
       $('#cp_version').text(info.cp_version);
       $('#board_id').text(info.board_id);
       $('#dl_commit').text(info.dl_commit);
-      $('#dev_time').text(d.toLocaleString());
+      $('#dev_time').text(d.toLocaleString(navigator.language,
+                                           {"timeZone": "UTC"})
+                          );
     });
 }
