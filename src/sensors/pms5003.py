@@ -1,5 +1,6 @@
 #-----------------------------------------------------------------------------
-# Sensor definition for PMS5003.
+# Sensor definition for PMS5003. The code first checks for I2C-devices.
+# If no I2C is detected, the code assumes a PMS5003 attached via UART.
 #
 # Naming convention:
 #   - filenames in lowercase (pms5003.py)
@@ -21,6 +22,7 @@ import busio
 import time
 import pins
 from adafruit_pm25.uart import PM25_UART
+from adafruit_pm25.i2c  import PM25_I2C
 
 class PMS5003:
   formats = ["PM0.3:", "{0}","PM1.0:", "{0}","PM2.5:", "{0}"]
@@ -28,8 +30,19 @@ class PMS5003:
 
   def __init__(self,config,i2c,addr=None,spi=None):
     """ constructor """
-    uart = busio.UART(pins.PIN_TX, pins.PIN_RX, baudrate=9600)
-    self.pms5003 = PM25_UART(uart,None)
+    self.pms5003 = None
+    for bus,nr in i2c:
+      try:
+        g_logger.print(f"testing pms5003 on i2c{nr}")
+        self.pms5003 = PM25_I2C(bus)
+        g_logger.print(f"detected pms5003 on i2c{nr}")
+        break
+      except Exception as ex:
+        g_logger.print(f"exception: {ex}")
+    if not self.pms5003:
+      g_logger.print("no pms5003 on I2C detected. Falling back to UART")
+      uart = busio.UART(pins.PIN_TX, pins.PIN_RX, baudrate=9600)
+      self.pms5003 = PM25_UART(uart,None)
 
   def read(self,data,values):
     """ read sensor """
