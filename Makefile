@@ -7,6 +7,7 @@
 #
 # Website: https://github.com/pcb-pico-datalogger
 #-----------------------------------------------------------------------------
+SHELL=/bin/bash
 
 # options: override on the command-line
 PCB=v2
