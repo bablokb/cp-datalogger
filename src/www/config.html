@@ -391,8 +391,12 @@
 
   <div style="overflow:auto;">
     <div style="float:right;">
-      <button type="button" id="prevBtn" onclick="nextPrev(-1)">Previous</button>
-      <button type="button" id="nextBtn" onclick="nextPrev(1)">Next</button>
+      <button type="button" id="prevBtn" class="pure-button menu-button"
+              onclick="nextPrev(-1)">Previous</button>
+      <button type="button" id="nextBtn" class="pure-button menu-button"
+              onclick="nextPrev(1)">Next</button>
+      <button type="button" id="homeBtn" class="pure-button del-button"
+              onclick="window.location.replace('index.html')">Main-Menu</button>
     </div>
   </div>
   <!-- Circles which indicates the steps of the form: -->
