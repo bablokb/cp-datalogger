@@ -122,9 +122,14 @@ class WebAP(Server):
   def _handle_save_config(self,path,query_params, headers, body):
     """ handle request for /save_config """
     self.debug(f"_handle_save_config...\n{body}")
-    self._export_config(body)
-    return Response("<h1>configuration saved</h1>",
-                                content_type="text/html")
+    try:
+      self._export_config(body)
+      return Response("configuration saved",
+                      content_type="text/plain")
+    except Exception as ex:
+      self.debug(f"exception during save_config: {ex}")
+      return Response("could not save configuration",
+                      content_type="text/plain")
 
   # --- request-handler for config.py download   -----------------------------
 
