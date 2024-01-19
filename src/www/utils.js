@@ -229,3 +229,7 @@ function get_status_info() {
                           );
     });
 }
+
+function goto_main_menu() {
+  window.location.replace("index.html");
+}
