@@ -37,7 +37,19 @@ function nextPrev(n) {
   // if you have reached the end of the form...
   if (n == 1 && currentTab == x.length-1) {
     // ... the form gets submitted:
-    document.getElementById("configForm").submit();
+    $.ajax({
+      url: '/save_config',
+      type: 'post',
+      dataType: 'text',
+      data: $('#configForm').serialize()
+      })
+      .done(function(msg) {
+        show_msg(msg,5000);
+        goto_main_menu();
+      })
+      .fail(function( xhr, status, errorThrown ) {
+          show_msg(`Error: ${errorThrown} (status: ${status})`);
+    });
   } else {
     // Increase or decrease the current tab by 1:
     currentTab = currentTab + n;
