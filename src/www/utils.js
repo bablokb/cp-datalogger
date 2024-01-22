@@ -191,20 +191,47 @@ function get_model() {
     });
 }
 
+function download_csv(index,file) {
+  window.open(file);
+  btn_id = "#file_"+(index+1);
+  $(btn_id).removeClass('menu-button');
+}
+
+function delete_csv(index,file) {
+  row_id = "#row_"+(index+1);
+  $.ajax({
+    url: file+'.delete',
+    type: 'get',
+    dataType: 'text',
+        data: {}
+    })
+    .done(function(msg) {
+      show_msg(`${file} deleted`);
+      get_csv_list();
+    })
+    .fail(function( xhr, status, errorThrown ) {
+        show_msg(`Error: ${errorThrown} (status: ${status})`);
+  });
+}
+
 function get_csv_list() {
   $.getJSON('/get_csv_list',
     function(csv_list) {
+      // clear existing list (keep template)
+      $('#csv_list').children().slice(1).remove();
+      // rebuild list
       $.each(csv_list.files,function(index,file) {
           var item = $("#row_0").clone(true).
-            attr({"id": "row_"+(index+1)});
+            attr({"id": "row_"+(index+1)}).css('display','inline-flex');
           item.children().eq(0).
-            attr({"id": "file_"+(index+1),"href": file}).
+            attr({"id": "file_"+(index+1),
+                  "onclick": `download_csv(${index},'${file}')`}).
             html("&#128229; "+file);
           item.children().eq(1).
-            attr({"id": "del_"+(index+1),"href": file+".delete"});
+            attr({"id": "del_"+(index+1),
+                  "onclick": `delete_csv(${index},'${file}')`});
           item.appendTo("#csv_list");
         });
-      $("#row_0").remove();   // remove template
     });
 }
 

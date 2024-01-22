@@ -176,9 +176,10 @@ class WebAP(Server):
     try:
       os.remove(f"/sd/{path[0:-7]}")
     except:
-      return Response("",status_code=400)
-    return Response(f"<h1>successfully deleted {path[0:-7]}</h1>",
-                                content_type="text/html")
+      return Response(f"delete failed for {path[0:-7]}",status_code=400,
+                      content_type="text/plain")
+    return Response(f"successfully deleted {path[0:-7]}",
+                                content_type="text/plain")
 
   # --- read lines from config.py   ------------------------------------------
 
