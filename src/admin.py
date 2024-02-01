@@ -23,12 +23,12 @@ try:
   from ap_config import ap_config
 except:
   ap_config = {
-    'debug': True,
-    'cache': False,
+    'debug': False,
+    'cache': True,
     'ssid': 'datalogger',
-    'password': '12345678',             # ignored for wifi.AuthMode.OPEN
-    'auth_modes': [wifi.AuthMode.OPEN], # or [wifi.AuthMode.WPA2, wifi.AuthMode.PSK]
-    'hostname': 'datalogger'           # msdn hostname
+    'password': '12345678',                     # ignored for wifi.AuthMode.OPEN
+    'auth_modes': [wifi.AuthMode.WPA2, wifi.AuthMode.PSK], # [wifi.AuthMode.OPEN]
+    'hostname': 'datalogger'                               # msdn hostname
   }
 
 # --- turn on LED on sensor-pcb   --------------------------------------------
