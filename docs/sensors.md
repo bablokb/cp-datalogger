@@ -132,6 +132,13 @@ ID
   - Status: implemented
 
 
+LOCATION
+--
+
+  - Pseudo-sensor: returns the location of the logger (`LOGGER_LOCATION` from the configuration)
+  - Status: implemented
+
+
 LTR-559
 -------
 
