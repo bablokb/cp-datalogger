@@ -14,6 +14,7 @@ PCB=v2
 DEPLOY_TO=deploy
 CONFIG=src/config.py
 LOG_CONFIG=src/log_config.py
+AP_CONFIG=
 SECRETS=src/secrets.py
 MAKEVARS=makevars.tmp
 
@@ -42,10 +43,16 @@ TASKS=$(wildcard src/tasks/*.py)
 # files served by the webserver in admin-mode
 WWW=$(wildcard src/www/*)
 
+ifneq ($(strip ${AP_CONFIG}),)
+ap_config=${DEPLOY_TO}/ap_config.mpy
+else
+ap_config=
+endif
+
 .PHONY: target_dir check_mpy_cross clean copy2pico
 
 # default target: pre-compile and compress files
-default: check_mpy_cross target_dir lib \
+default: check_mpy_cross target_dir lib ${ap_config} \
 	${DEPLOY_TO}/pins.mpy \
 	$(SOURCES:src/%.py=${DEPLOY_TO}/%.mpy) \
 	$(SPECIAL:src/%.py=${DEPLOY_TO}/%.py) \
@@ -82,7 +89,7 @@ clean:
 # recreate makevars.tmp
 makevars.tmp:
 	@echo -e \
-	"PCB=${PCB}\nDEPLOY_TO=${DEPLOY_TO}\nCONFIG=${CONFIG}\nLOG_CONFIG=${LOG_CONFIG}" > $@
+	"PCB=${PCB}\nDEPLOY_TO=${DEPLOY_TO}\nCONFIG=${CONFIG}\nLOG_CONFIG=${LOG_CONFIG}\nAP_CONFIG=${AP_CONFIG}" > $@
 
 # rsync content of target-directory to pico
 # note: this needs a LABEL=CIRCUITPY entry in /etc/fstab and it only works
@@ -100,8 +107,11 @@ copy2pico: default
 ${DEPLOY_TO}/config.py: ${CONFIG}
 	cp -a $< $@
 
-${DEPLOY_TO}/log_config.py: ${LOG_CONFIG} 
+${DEPLOY_TO}/log_config.py: ${LOG_CONFIG}
 	cp -a $< $@
+
+${DEPLOY_TO}/ap_config.mpy: ${AP_CONFIG}
+	mpy-cross $< -o $@
 
 ${DEPLOY_TO}/secrets.mpy: ${SECRETS}
 	mpy-cross $< -o $@
