@@ -63,6 +63,7 @@ the commandline:
          DEPLOY_TO=whatever \
          CONFIG=my_special_config.py \
          LOG_CONFIG=my_logconfiguration.py \
+         AP_CONFIG=my_apconfiguration.py \
          SECRETS=my_credentials.py
 
 After invocation of make, the commandline arguments are saved and reused.
@@ -76,6 +77,7 @@ You can even keep sets of make-variables, e.g.:
       DEPLOY_TO=whatever
       CONFIG=my_special_config.py
       LOG_CONFIG=my_logconfiguration.py
+      AP_CONFIG=my_apconfiguration.py
       SECRETS=my_credentials.py
 
     > make MAKEVARS=my_vars.txt
