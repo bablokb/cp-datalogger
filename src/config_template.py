@@ -41,6 +41,7 @@ HAVE_PCB     = True                # The Pico is running on the pcb described he
 HAVE_SD      = False               # The PCB has an sd card inserted (or an sd card is connected otherwise)
 CSV_FILENAME = "/sd/log_{ID}_{YMD}.csv"
 HAVE_DISPLAY = 'Inky-Pack'         # 'Inky-Pack', 'Display-Pack' or None
+HAVE_LIPO = False                  # True, False
 
 # List of sensors. Each needs a <sensor>.py file.
 # An entry must be any off (no spaces allowed!):
