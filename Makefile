@@ -89,7 +89,7 @@ clean:
 # recreate makevars.tmp
 makevars.tmp:
 	@echo -e \
-	"PCB=${PCB}\nDEPLOY_TO=${DEPLOY_TO}\nCONFIG=${CONFIG}\nLOG_CONFIG=${LOG_CONFIG}\nAP_CONFIG=${AP_CONFIG}" > $@
+	"PCB=${PCB}\nDEPLOY_TO=${DEPLOY_TO}\nCONFIG=${CONFIG}\nLOG_CONFIG=${LOG_CONFIG}\nAP_CONFIG=${AP_CONFIG}\nSECRETS=${SECRETS}" > $@
 
 # rsync content of target-directory to pico
 # note: this needs a LABEL=CIRCUITPY entry in /etc/fstab and it only works
