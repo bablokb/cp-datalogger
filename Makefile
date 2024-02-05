@@ -63,7 +63,7 @@ default: check_mpy_cross target_dir lib ${ap_config} \
 	${DEPLOY_TO}/secrets.mpy \
 	$(WWW:src/www/%=${DEPLOY_TO}/www/%.gz)
 	@git log --format="commit='%H'" -n 1 > ${DEPLOY_TO}/commit.py
-	@rm makevars.tmp
+	@rm -f makevars.tmp
 	@make makevars.tmp PCB=${PCB} DEPLOY_TO=${DEPLOY_TO} \
 		CONFIG=${CONFIG} \
 		LOG_CONFIG=${LOG_CONFIG}
