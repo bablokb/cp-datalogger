@@ -9,17 +9,103 @@
 import rtc
 import time
 from log_writer import Logger
+g_logger = Logger()
 
 # --- class ExtBase   ----------------------------------------------------------
 
 class ExtBase:
+
+  # --- print struct_time   --------------------------------------------------
+
+  @classmethod
+  def print_ts(cls,label,ts):
+    """ print struct_time """
+    g_logger.print("%s: %04d-%02d-%02d %02d:%02d:%02d" %
+          (label,ts.tm_year,ts.tm_mon,ts.tm_mday,
+           ts.tm_hour,ts.tm_min,ts.tm_sec)
+          )
+
+  # --- get alarm-time   ----------------------------------------------------
+
+  @classmethod
+  def get_alarm_time(cls,d=None,h=None,m=None,s=None):
+    """ get alarm-time. """
+
+    # you can pass either a fixed date (alarm_time) or an interval
+    # in days, hours, minutes, seconds
+    sleep_time = 0
+    if d is not None:
+      sleep_time += d*86400
+    if h is not None:
+      sleep_time += h*3600
+    if m is not None:
+      sleep_time += m*60
+    if s is not None:
+      sleep_time += s
+    if sleep_time == 0:
+      return
+    alarm_time = time.localtime(time.time() + sleep_time)
+    ExtBase.print_ts("next rtc-wakeup",alarm_time)
+    return alarm_time
+
+  # --- get alarm from table   ---------------------------------------------
+
+  @classmethod
+  def get_table_alarm(cls,time_table):
+    """ get alarm from time-table.
+        This is a list of daily entries in
+        the form
+          [((h_start,h_end,h_incr),(m_start,m_end,m_incr)),
+           ((h_start,h_end,h_incr),(m_start,m_end,m_incr)),
+           ...
+           ]
+        with one entry per day (starting with Monday==0).
+        x_start and x_end are inclusive, i.e. (0,23,1),(0,59,1) will trigger
+        every minute.
+        Replace (h_start,h_end,h_inc) with None to skip a day.
+    """
+
+    now_epoch = time.time()                          # seconds since 01/01/1970
+    now_ts    = time.localtime(now_epoch)            # struct-time
+    now_day   = (int(now_epoch/86400)+3) % 7         # 01/01/1970 is Thursday
+    sod       = now_epoch - (now_ts.tm_hour*3600 +   # start of day
+                             now_ts.tm_min*60 +
+                             now_ts.tm_sec)
+
+    g_logger.print("looking up next boot from time-table")
+    ExtBase.print_ts("now",now_ts)
+    g_logger.print(f"weekday: {now_day}")
+
+    # search table (wrap-around, starting from current weekday)
+    for i in range(now_day,now_day+7,1):
+      wd_index = i % 7
+      hours, minutes = time_table[wd_index]
+      if not hours:       # no alarm on given day
+        sod += 86400      # advance start of day
+        continue
+      (h_start,h_end,h_inc) = hours
+      (m_start,m_end,m_inc) = minutes
+      # iterate over all hours/minutes and find first time-point larger
+      # than now
+      for h in range(h_start,h_end+1,h_inc):
+        for m in range(m_start,m_end+1,m_inc):
+          alarm_epoch = sod + h*3600 + m*60
+          if alarm_epoch > now_epoch:
+            next_alarm = time.localtime(alarm_epoch)
+            ExtBase.print_ts("next alarm",next_alarm)
+            return next_alarm
+
+      # no suitable time-point today. Try next day
+      sod += 86400      # advance start of day
+
+    # we should not be here
+    raise Exception("no alarm from time-table")
 
   # --- constructor   --------------------------------------------------------
 
   def __init__(self,rtc_ext,wifi=None,net_update=False):
     """ constructor """
 
-    self.logger      = Logger()            # reuse global settings
     self._rtc_ext    = rtc_ext
     self._wifi       = wifi
     self._net_update = net_update
@@ -58,41 +144,32 @@ class ExtBase:
     """ check for power-loss, must be plemented by subclass """
     pass
 
-  # --- print struct_time   --------------------------------------------------
-
-  def print_ts(self,label,ts):
-    """ print struct_time """
-    self.logger.print("%s: %04d-%02d-%02d %02d:%02d:%02d" %
-          (label,ts.tm_year,ts.tm_mon,ts.tm_mday,
-           ts.tm_hour,ts.tm_min,ts.tm_sec)
-          )
-
   # --- update rtc   ---------------------------------------------------------
 
   def update(self):
     """ update rtc """
 
     # update internal rtc to valid date
-    self.print_ts("rtc int",self._rtc_int.datetime)
+    ExtBase.print_ts("rtc int",self._rtc_int.datetime)
     if self._check_rtc(self._rtc_int):
       if self._lost_power() or self._check_rtc(self._rtc_ext):
-        self.print_ts("rtc ext",self._rtc_ext.datetime)
+        ExtBase.print_ts("rtc ext",self._rtc_ext.datetime)
         if not self._fetch_time():
-          self.logger.print("rtc-ext not updated from time-server")
-          self.logger.print("setting rtc-ext to 2022-01-01 12:00:00")
+          g_logger.print("rtc-ext not updated from time-server")
+          g_logger.print("setting rtc-ext to 2022-01-01 12:00:00")
           self._rtc_ext.datetime = time.struct_time((2022,1,1,12,00,00,5,1,-1))
         else:
-          self.logger.print("rtc-ext updated from time-server")
-      self.logger.print("updating internal rtc from external rtc")
+          g_logger.print("rtc-ext updated from time-server")
+      g_logger.print("updating internal rtc from external rtc")
       ext_ts = self._rtc_ext.datetime   # needs two statements!
       self._rtc_int.datetime = ext_ts
-      self.print_ts("new time",ext_ts)
+      ExtBase.print_ts("new time",ext_ts)
     else:
       # this will typically happen when starting from Thonny
-      self.logger.print("assuming valid rtc int")
+      g_logger.print("assuming valid rtc int")
       int_ts = self._rtc_int.datetime   # needs two statements!
       self._rtc_ext.datetime = int_ts
-      self.logger.print("updated external rtc from internal rtc")
+      g_logger.print("updated external rtc from internal rtc")
 
   # --- update time from time-server   ---------------------------------------
 
@@ -100,7 +177,7 @@ class ExtBase:
     """ update time from time-server """
 
     if not self._net_update:
-      self.logger.print("net_update not set")
+      g_logger.print("net_update not set")
       return False
 
     try:
@@ -132,80 +209,6 @@ class ExtBase:
     self._rtc_ext.datetime = time.struct_time(
       (year, month, mday, hours, minutes, seconds, week_day, year_day, is_dst))
     return True
-
-  # --- get alarm-time   ----------------------------------------------------
-
-  def get_alarm_time(self,d=None,h=None,m=None,s=None):
-    """ get alarm-time. """
-
-    # you can pass either a fixed date (alarm_time) or an interval
-    # in days, hours, minutes, seconds
-    sleep_time = 0
-    if d is not None:
-      sleep_time += d*86400
-    if h is not None:
-      sleep_time += h*3600
-    if m is not None:
-      sleep_time += m*60
-    if s is not None:
-      sleep_time += s
-    if sleep_time == 0:
-      return
-    alarm_time = time.localtime(time.time() + sleep_time)
-    self.print_ts("next rtc-wakeup",alarm_time)
-    return alarm_time
-
-  # --- get alarm from table   ---------------------------------------------
-
-  def get_table_alarm(self,time_table):
-    """ get alarm from time-table.
-        This is a list of daily entries in
-        the form
-          [((h_start,h_end,h_incr),(m_start,m_end,m_incr)),
-           ((h_start,h_end,h_incr),(m_start,m_end,m_incr)),
-           ...
-           ]
-        with one entry per day (starting with Monday==0).
-        x_start and x_end are inclusive, i.e. (0,23,1),(0,59,1) will trigger
-        every minute.
-        Replace (h_start,h_end,h_inc) with None to skip a day.
-    """
-
-    now_epoch = time.time()                          # seconds since 01/01/1970
-    now_ts    = time.localtime(now_epoch)            # struct-time
-    now_day   = (int(now_epoch/86400)+3) % 7         # 01/01/1970 is Thursday
-    sod       = now_epoch - (now_ts.tm_hour*3600 +   # start of day
-                             now_ts.tm_min*60 +
-                             now_ts.tm_sec)
-
-    self.logger.print("looking up next boot from time-table")
-    self.print_ts("now",now_ts)
-    self.logger.print(f"weekday: {now_day}")
-
-    # search table (wrap-around, starting from current weekday)
-    for i in range(now_day,now_day+7,1):
-      wd_index = i % 7
-      hours, minutes = time_table[wd_index]
-      if not hours:       # no alarm on given day
-        sod += 86400      # advance start of day
-        continue
-      (h_start,h_end,h_inc) = hours
-      (m_start,m_end,m_inc) = minutes
-      # iterate over all hours/minutes and find first time-point larger
-      # than now
-      for h in range(h_start,h_end+1,h_inc):
-        for m in range(m_start,m_end+1,m_inc):
-          alarm_epoch = sod + h*3600 + m*60
-          if alarm_epoch > now_epoch:
-            next_alarm = time.localtime(alarm_epoch)
-            self.print_ts("next alarm",next_alarm)
-            return next_alarm
-
-      # no suitable time-point today. Try next day
-      sod += 86400      # advance start of day
-
-    # we should not be here
-    raise Exception("no alarm from time-table")
 
   # --- set alarm   --------------------------------------------------------
 
