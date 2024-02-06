@@ -37,7 +37,7 @@ class LORA:
     g_logger.print("LoRa: enabling rfm9x")
     pin_enable.value = 1
     time.sleep(config.LORA_ENABLE_TIME)
-    g_logger.print("LoRa: nitializing rfm9x")
+    g_logger.print("LoRa: initializing rfm9x")
     self.rfm9x = adafruit_rfm9x.RFM9x(
       spi1, pin_cs,pin_reset,config.LORA_FREQ,baudrate=100000)
       
