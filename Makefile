@@ -116,8 +116,13 @@ ${DEPLOY_TO}/ap_config.mpy: ${AP_CONFIG}
 ${DEPLOY_TO}/secrets.mpy: ${SECRETS}
 	mpy-cross $< -o $@
 
+ifeq (,$(findstring /,${PCB}))
 ${DEPLOY_TO}/pins.mpy: src/pins${PCB}.py
+else
+${DEPLOY_TO}/pins.mpy: ${PCB}
+endif
 	mpy-cross $< -o $@
+
 
 $(SPECIAL:src/%.py=${DEPLOY_TO}/%.py): ${DEPLOY_TO}/%.py: src/%.py
 	cp -a $< $@
