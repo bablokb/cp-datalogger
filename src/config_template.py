@@ -68,6 +68,7 @@ LOGGER_TITLE = LOGGER_NAME + " " + LOGGER_LOCATION
 FONT_DISPLAY     = 'DejaVuSansMono-Bold-18-subset'
 
 # LoRa configuration
+HAVE_LORA = False                  # True, False
 LORA_ENABLE_TIME = 0
 LORA_ACK_WAIT    = 0.5
 LORA_ACK_RETRIES = 3
