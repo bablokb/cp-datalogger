@@ -182,7 +182,7 @@ function get_model() {
             $.each(value,function(_,v) {
                 $("#"+name+"_"+v).toggleClass('ul_sel_li_active');
               });
-          } else if (['HAVE_SD','HAVE_LORA'].includes(name)) {
+          } else if (['HAVE_SD','HAVE_LIPO','HAVE_LORA'].includes(name)) {
             $("[name="+name+"]").prop("checked",value);
           } else {
             $("[name="+name+"]").val(value);

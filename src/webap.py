@@ -8,6 +8,7 @@
 #
 # -------------------------------------------------------------------------
 
+import re
 import gc
 import sys
 import os
@@ -46,7 +47,8 @@ class WebAP(Server):
 
   def debug(self,msg):
     """ route debug-messages to our logger """
-    g_logger.print(msg)
+    if self._debug:
+      g_logger.print(msg)
 
   # --- request-handler for /   -----------------------------------------------
 
@@ -267,6 +269,12 @@ class WebAP(Server):
       self.debug(f"{key}={value}")
     self.debug("-"*60)
 
+  # --- check for number   ---------------------------------------------------
+
+  def _is_num(self,txt):
+    """ check text for numbers """
+    return re.match("^-?[.0-9]+$",txt)  # optional -, then only . and numbers
+
   # --- export configuration   -----------------------------------------------
 
   def _export_config(self,body):
@@ -278,6 +286,7 @@ class WebAP(Server):
     self._model['SENSORS'] = ""
     self._model['TASKS'] = ""
     self._model['HAVE_SD'] = False
+    self._model['HAVE_LIPO'] = False
     self._model['HAVE_LORA'] = False
 
     self._model['TIME_TABLE'] = [(None,None) for i in range(7)]
@@ -291,7 +300,7 @@ class WebAP(Server):
       key,value = field.split("=")
       if '%' in value or '+' in value:
         value = self.html_decode(value).strip(" ")
-      if key in ["HAVE_SD", "HAVE_LORA"]:
+      if key in ["HAVE_SD", "HAVE_LIPO", "HAVE_LORA"]:
         # checkboxes send key="on" if checked, else nothing at all
         self._model[key] = True
       elif key in tt_day_keys:
@@ -323,13 +332,14 @@ class WebAP(Server):
     self._dump_model()
 
     # write to config.py (needs write access to flash -> boot.py)
+    # (dump SENSORS as first variable for reuse in other variables)
     try:
       self.debug("writing config.py...")
+      keys = ["SENSORS"] + [key for
+        key in sorted(self._model.keys()) if key[0] != "_" and key != "SENSORS"]
       with open("config.py","w") as file:
         file.write("# generated from admin-mode web-interface\n\n")
-        for key in sorted(self._model.keys()):
-          if key[0] == "_":
-            continue
+        for key in keys:
           value = self._model[key]
           if key in ["SENSORS", "TASKS"]:
             file.write(f"{key}=\"{' '.join(value)}\"\n")
@@ -337,15 +347,17 @@ class WebAP(Server):
             file.write(f"{key}={value}\n")
           elif value in ["True","False","None"]:
             file.write(f"{key}={value}\n")
-          elif value.isdigit() and (value[0] != "0" or len(value) == 1):
+          elif self._is_num(value) and (
+            len(value) == 1 or value[0] != "0" or '.' in value):
             file.write(f"{key}={value}\n")
           elif value[0] == 'f':               # dump f-strings literally
             file.write(f"{key}={value}\n")
           else:
             file.write(f"{key}=\"{value}\"\n")
       self.debug("...done")
-    except:
-      self.debug("/sd not writable")
+    except Exception as ex:
+      self.debug(f"exception: {ex}")
+      self.debug(f"error writing config.py")
 
   # --- run AP   -------------------------------------------------------------
 

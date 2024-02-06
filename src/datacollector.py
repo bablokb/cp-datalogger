@@ -35,7 +35,6 @@ import adafruit_sdcard
 
 # imports for i2c and rtc
 import busio
-from rtc_ext.pcf8523 import ExtPCF8523 as ExtRTC
 
 # pin definitions
 import pins
@@ -51,6 +50,12 @@ except:
   g_logger = Logger('console')
 
 g_ts.append((time.monotonic(),"log-config"))
+
+# imports for rtc
+from rtc_ext.pcf8523 import ExtPCF8523 as ExtRTC
+
+# pin definitions
+import pins
 
 # --- default configuration is in config.py on the pico.   -------------------
 
@@ -263,12 +268,26 @@ class DataCollector():
     g_logger.print(f"{g_ts[-1][0]-g_ts[0][0]:0.3f} (total)")
     g_logger.print(60*"-")
 
+  # --- read battery   -------------------------------------------------------
+
+  def read_battery(self):
+    """ read battery if not already done """
+
+    if "battery" not in self.data:
+      from battery import BATTERY
+      bat = BATTERY(g_config,None)
+      bat.read(self.data,self.values)
+    self.with_lipo = getattr(g_config,"HAVE_LIPO",False)
+
   # --- set next wakeup   ----------------------------------------------------
 
   def configure_wakeup(self):
     """ configure rtc for next wakeup """
     if g_config.HAVE_PCB:
-      if hasattr(g_config,"TIME_TABLE"):
+      if self.with_lipo and self.data["battery"] < 3.0:
+        # don't wake up on low-LiPo
+        g_logger.print("!!! LiPo voltage low: wakeup disabled !!!")
+      elif hasattr(g_config,"TIME_TABLE"):
         self.rtc.set_alarm(self.rtc.get_table_alarm(g_config.TIME_TABLE))
       else:
         self.rtc.set_alarm(self.rtc.get_alarm_time(s=g_config.INTERVAL))
@@ -281,20 +300,19 @@ class DataCollector():
     if not g_config.HAVE_PCB:
       return
 
-    if "battery" not in self.data:
-      from battery import BATTERY
-      bat = BATTERY(g_config,None)
-      bat.read(self.data,self.values)
-
     if self.data["battery"] < 2.0:
       # enable switchover (end of life)
       self.rtc.rtc_ext.power_managment = 0b000
       g_logger.print("enabling rtc battery switchover")
-    elif self.data["battery"] < 2.7:
+    elif not self.with_lipo and self.data["battery"] < 2.7:
       # disable switchover (within working range)
       self.rtc.rtc_ext.power_managment = 0b111
       g_logger.print("disabling rtc battery switchover")
-    else:  # >= 2.7
+    elif self.with_lipo and self.data["battery"] < 3.0:
+      # enable direct switchover to protect LiPo
+      self.rtc.rtc_ext.power_managment = 0b001
+      g_logger.print("LiPo low, enabling rtc battery switchover")
+    else:  # >= 2.7 (battery) or >= 3.0 (LiPo)
       # enable switchover (initial dispatching)
       self.rtc.rtc_ext.power_managment = 0b000
       g_logger.print("enabling rtc battery switchover")
@@ -363,6 +381,13 @@ class DataCollector():
       self.run_tasks()
       self.print_timings()
 
+      # read battery and check for low LiPo
+      self.read_battery()
+      if self.with_lipo and self.data["battery"] < 3.0:
+        # prevent strobe-mode
+        # TODO: update display with "change batteries"
+        break
+
       if not g_config.STROBE_MODE:
         g_logger.print(f"continuous mode: next measurement in {g_config.INTERVAL} seconds")
         time.sleep(g_config.INTERVAL)
@@ -374,7 +399,7 @@ class DataCollector():
     self.shutdown()
 
     # we are only here if
-    # - we use strob-mode
+    # - we use strobe-mode
     # - we are running on USB-power
     # - we are running on a v2-pcb
     # Switch to deep-sleep (better than nothing)

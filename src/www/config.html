@@ -233,7 +233,12 @@
 
   <div class="tab"><h2>Hardware</h2>
     <fieldset>
-       <legend>Display, UI, CSV-Filenames:</legend>
+       <legend>LiPo, Display, UI, CSV-Filenames:</legend>
+         <div class="pure-control-group">
+           <label for="HAVE_LIPO">LiPo as power-source:</label>
+           <input class="mandatory" type="checkbox"
+                id="HAVE_LIPO" name="HAVE_LIPO"/>
+         </div>
          <div class="pure-control-group">
             <label for="display">Display:</label>
             <select id="display" class="mandatory" name="HAVE_DISPLAY"
@@ -261,7 +266,7 @@
                 checked="checked" />
          </div>
          <div class="pure-control-group">
-            <label for="pattern">CSV filename pattern</label>
+            <label for="pattern">CSV filename pattern:</label>
             <input
                 placeholder="/sd/log_{ID}_{YMD}.csv" id="pattern"
                 oninput="this.classList.remove('invalid')"
