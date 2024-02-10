@@ -108,11 +108,23 @@ class WebAP(Server):
 
   @route("/get_csv_list","GET")
   def _handle_get_csv_list(self,path,query_params, headers, body):
-    """ handle request for /get_csv_list """
-    self.debug(f"_handle_get_csv_list...")
+    return self._handle_get_file_list(path,query_params, headers, body)
+
+  # --- request-handler for /get_log_list   ----------------------------------
+
+  @route("/get_log_list","GET")
+  def _handle_get_file_list(self,path,query_params, headers, body):
+    return self._handle_get_file_list(path,query_params, headers, body)
+
+  # --- implementing handler for csv/log lists   -----------------------------
+
+  def _handle_get_file_list(self,path,query_params, headers, body):
+    """ handle requests for /get_xxx_list """
+    self.debug(f"_handle_get_file_list...")
+    ftype = f".{path.split('_')[1]}"
     response = json.dumps({
       "files":
-      sorted([csv for csv in os.listdir("/sd") if csv[-4:] == ".csv"],
+      sorted([fname for fname in os.listdir("/sd") if fname[-4:] == ftype],
              reverse=True)
         })
     self.debug(f"{response=}")
@@ -159,22 +171,22 @@ class WebAP(Server):
       return Response("config.py upload failed",
                       content_type="text/plain")
 
-  # --- request-handler for csv-files   --------------------------------------
+  # --- request-handler for csv/log-files   ----------------------------------
 
-  @route("/[^.]+\.csv","GET")
-  def _handle_csv_download(self,path,query_params, headers, body):
-    """ handle request for csv-download """
-    self.debug(f"_handle_csv_download for {path}")
+  @route("/[^.]+\.(csv|log)","GET")
+  def _handle_file_download(self,path,query_params, headers, body):
+    """ handle request for file-download """
+    self.debug(f"_handle_file_download for {path}")
     return FileResponse(f"/sd/{path}",
                         content_type="application/octet-stream",
                         buffer_size=4096)
 
-  # --- request-handler for csv-delete   -------------------------------------
+  # --- request-handler for csv/log-delete   ---------------------------------
 
-  @route("/[^.]+\.csv.delete","GET")
-  def _handle_csv_delete(self,path,query_params, headers, body):
-    """ handle request for csv-delete """
-    self.debug(f"_handle_csv_delete for {path}")
+  @route("/[^.]+\.(csv|log).delete","GET")
+  def _handle_file_delete(self,path,query_params, headers, body):
+    """ handle request for file-delete """
+    self.debug(f"_handle_file_delete for {path}")
     try:
       os.remove(f"/sd/{path[0:-7]}")
     except:
