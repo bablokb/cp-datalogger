@@ -20,10 +20,16 @@ class ExtBase:
   @classmethod
   def print_ts(cls,label,ts):
     """ print struct_time """
-    g_logger.print("%s: %04d-%02d-%02d %02d:%02d:%02d" %
-          (label,ts.tm_year,ts.tm_mon,ts.tm_mday,
-           ts.tm_hour,ts.tm_min,ts.tm_sec)
-          )
+    if label:
+      g_logger.print("%s: %04d-%02d-%02d %02d:%02d:%02d" %
+                     (label,ts.tm_year,ts.tm_mon,ts.tm_mday,
+                      ts.tm_hour,ts.tm_min,ts.tm_sec)
+                     )
+    else:
+     return "%04d-%02d-%02d %02d:%02d:%02d" % (
+       ts.tm_year,ts.tm_mon,ts.tm_mday,
+       ts.tm_hour,ts.tm_min,ts.tm_sec
+       )
 
   # --- get alarm-time   ----------------------------------------------------
 
@@ -31,8 +37,7 @@ class ExtBase:
   def get_alarm_time(cls,d=None,h=None,m=None,s=None):
     """ get alarm-time. """
 
-    # you can pass either a fixed date (alarm_time) or an interval
-    # in days, hours, minutes, seconds
+    # you can pass a combination of days, hours, minutes, seconds
     sleep_time = 0
     if d is not None:
       sleep_time += d*86400
@@ -45,7 +50,7 @@ class ExtBase:
     if sleep_time == 0:
       return
     alarm_time = time.localtime(time.time() + sleep_time)
-    ExtBase.print_ts("next rtc-wakeup",alarm_time)
+    ExtBase.print_ts("next wakeup",alarm_time)
     return alarm_time
 
   # --- get alarm from table   ---------------------------------------------

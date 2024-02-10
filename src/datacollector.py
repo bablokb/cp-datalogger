@@ -287,10 +287,14 @@ class DataCollector():
       if self.with_lipo and self.data["battery"] < 3.0:
         # don't wake up on low-LiPo
         g_logger.print("!!! LiPo voltage low: wakeup disabled !!!")
+        return
       elif hasattr(g_config,"TIME_TABLE"):
-        self.rtc.set_alarm(self.rtc.get_table_alarm(g_config.TIME_TABLE))
+        self.wakeup = self.rtc.get_table_alarm(g_config.TIME_TABLE)
       else:
-        self.rtc.set_alarm(self.rtc.get_alarm_time(s=g_config.INTERVAL))
+        self.wakeup = self.rtc.get_alarm_time(s=g_config.INTERVAL)
+      self.rtc.set_alarm(self.wakeup)
+    else:
+      self.wakeup = ExtRTC.get_alarm_time(s=g_config.INTERVAL)
 
   # --- configure battery-switchover for RTC   -------------------------------
 
@@ -323,6 +327,7 @@ class DataCollector():
     """ tell the power-controller to cut power """
 
     if g_config.HAVE_PCB:
+      g_logger.print("signal power-off")
       self.done.value = 1
       time.sleep(0.001)
       self.done.value = 0
@@ -335,9 +340,10 @@ class DataCollector():
   def goto_sleep(self):
     """ enter deep-sleep """
     import alarm
-    wakeup_alarm = alarm.time.TimeAlarm(
-      monotonic_time=time.monotonic() + g_config.INTERVAL)
-    g_logger.print(f"wakup from deep-sleep in {g_config.INTERVAL}s")
+    # self.wakeup is a struct_time, but we need epoch-time
+    wakeup_alarm = alarm.time.TimeAlarm(epoch_time=time.mktime(self.wakeup))
+    g_logger.print(
+      f"wakeup from deep-sleep at {ExtRTC.print_ts(None,self.wakeup)}")
     alarm.exit_and_deep_sleep_until_alarms(wakeup_alarm)
 
   # --- cleanup   ------------------------------------------------------------
@@ -401,6 +407,6 @@ class DataCollector():
     # we are only here if
     # - we use strobe-mode
     # - we are running on USB-power
-    # - we are running on a v2-pcb
+    # - we are running on a v2-PCB or without PCB
     # Switch to deep-sleep (better than nothing)
     self.goto_sleep()
