@@ -86,15 +86,8 @@ class WebAP(Server):
   def _handle_get_status_info(self,path,query_params, headers, body):
     """ handle request for /get_status_info """
     self.debug(f"_handle_get_status_info...")
-    v = sys.implementation[1]
-    status = {
-      "board_id": board.board_id,
-      "cp_version": f"{v[0]}.{v[1]}.{v[2]}",
-      "dl_commit" : commit.commit,
-      "dev_time": time.time()
-      }
-    self.debug(f"{status=}")
-    return Response(json.dumps(status),content_type="application/json")
+    return Response(json.dumps(self._get_status()),
+                    content_type="application/json")
 
   # --- request-handler for /get_model   -------------------------------------
 
@@ -194,6 +187,20 @@ class WebAP(Server):
                       content_type="text/plain")
     return Response(f"successfully deleted {path[0:-7]}",
                                 content_type="text/plain")
+
+  # --- get system status   --------------------------------------------------
+
+  def _get_status(self):
+    """ get system status """
+    v = sys.implementation[1]
+    status = {
+      "board_id": board.board_id,
+      "cp_version": f"{v[0]}.{v[1]}.{v[2]}",
+      "dl_commit" : commit.commit,
+      "dev_time": time.time()
+      }
+    self.debug(f"{status=}")
+    return status
 
   # --- read lines from config.py   ------------------------------------------
 
