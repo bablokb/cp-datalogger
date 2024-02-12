@@ -183,6 +183,7 @@ PDM-Micro
   - Guide: <http://learn.adafruit.com/adafruit-pdm-microphone-breakout/>
   - CircuitPython-driver: uses builtin module `audiobusio` and class `PDMin`.
   - [datasheet](https://cdn-learn.adafruit.com/assets/assets/000/049/977/original/MP34DT01-M.pdf)
+  - Note: the sensor-PCB uses the similar [MP34DT05TR](https://www.st.com/resource/en/datasheet/mp34dt05-a.pdf)
 
 
 PMS5003
