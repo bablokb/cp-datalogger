@@ -138,6 +138,23 @@ class WebAP(Server):
       return Response("could not save configuration",
                       content_type="text/plain")
 
+  # --- request-handler for /set_time   --------------------------------------
+
+  @route("/set_time","POST")
+  def _handle_set_time(self,path,query_params, headers, body):
+    """ handle request for /set_time """
+    self.debug(f"_handle_set_time...\n{body}")
+    try:
+      _,new_time = body.decode().split("=")
+      if self._config["rtc"]:
+        self._config["rtc"].update(int(new_time))
+      return Response(json.dumps(self._get_status()),
+                      content_type="application/json")
+    except Exception as ex:
+      self.debug(f"exception updating time: {ex}")
+      return Response("could not update time",
+                      content_type="text/plain")
+
   # --- request-handler for config.py download   -----------------------------
 
   @route("/config.py","GET")

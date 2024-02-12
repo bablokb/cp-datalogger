@@ -256,19 +256,31 @@ function show_msg(text,time) {
     }, time);
 }
 
+function update_status_fields(info) {
+  d = new Date(info.dev_time*1000);
+  $('#cp_version').text(info.cp_version);
+  $('#board_id').text(info.board_id);
+  $('#dl_commit').text(info.dl_commit);
+  $('#dev_time').text(d.toLocaleString(navigator.language,
+                                       {"timeZone": "UTC"})
+                      );
+}
+
 function get_status_info() {
-  $.getJSON('/get_status_info',
-    function(info) {
-      d = new Date(info.dev_time*1000);
-      $('#cp_version').text(info.cp_version);
-      $('#board_id').text(info.board_id);
-      $('#dl_commit').text(info.dl_commit);
-      $('#dev_time').text(d.toLocaleString(navigator.language,
-                                           {"timeZone": "UTC"})
-                          );
-    });
+  $.getJSON('/get_status_info',update_status_fields);
 }
 
 function goto_main_menu() {
   window.location.replace("index.html");
+}
+
+function set_time() {
+  // get epoch time. getTimezoneOffset() is in minutes.
+  d = new Date();
+  ts = Math.floor((d.getTime()-d.getTimezoneOffset()*60000)/1000);
+  $.post('/set_time',{ts},
+         function(info) {
+           update_status_fields(info);
+           show_msg("time updated",5000);
+         },'json');
 }
