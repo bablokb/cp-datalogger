@@ -44,8 +44,7 @@ function nextPrev(n) {
       data: $('#configForm').serialize()
       })
       .done(function(msg) {
-        show_msg(msg,5000);
-        goto_main_menu();
+        show_msg(msg,2000,goto_main_menu);
       })
       .fail(function( xhr, status, errorThrown ) {
           show_msg(`Error: ${errorThrown} (status: ${status})`);
@@ -249,10 +248,13 @@ function set_upload_btn() {
   $('#upload').prop('disabled',$('#filename').val().length==0);
 }
 
-function show_msg(text,time) {
+function show_msg(text,time,callback) {
   $("#msgarea").text(text).show();
   setTimeout(function() {
       $("#msgarea").empty().hide();
+      if (callback !== undefined) {
+        callback();
+      }
     }, time);
 }
 
