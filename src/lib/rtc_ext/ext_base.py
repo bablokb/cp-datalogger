@@ -151,8 +151,18 @@ class ExtBase:
 
   # --- update rtc   ---------------------------------------------------------
 
-  def update(self):
+  def update(self,new_time=None):
     """ update rtc """
+
+    if new_time:
+      # externally provided time
+      if isinstance(new_time,int):
+        new_time = time.localtime(new_time)
+      g_logger.print("updating RTCs from provided time")
+      self._rtc_ext.datetime = new_time
+      self._rtc_int.datetime = new_time
+      ExtBase.print_ts("new time",new_time)
+      return
 
     # update internal rtc to valid date
     ExtBase.print_ts("rtc int",self._rtc_int.datetime)
