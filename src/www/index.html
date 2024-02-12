@@ -21,10 +21,10 @@
         <a class="pure-button menu-button"
           style="display:flex; align-content: flex-start; font-size:x-large"
           href="config.py">&#128229; Download config.py</a>
-        <a class="pure-button menu-button"
+        <a class="pure-button menu-button" id="upload"
           style="display:flex; align-content: flex-start; font-size:x-large"
           href="upload_config.html">&#128228; Upload config.py</a>
-        <a class="pure-button menu-button"
+        <a class="pure-button menu-button" id="manual"
           style="display:flex; align-content: flex-start; font-size:x-large"
           href="config.html">&#128295; Manual configuration</a>
         <a class="pure-button menu-button"
@@ -57,6 +57,11 @@
         <div style="display:inline-flex; flex-direction:row">
           <span>Device Time:</span>
           <span id="dev_time"></span>
+        </div>
+        <div style="display:inline-flex; flex-direction:row">
+          <span>Battery Level:</span>
+          <span id="battery"></span>
+          <span>V</span>
         </div>
       </div>
     </div>

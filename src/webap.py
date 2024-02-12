@@ -29,6 +29,8 @@ except:
   from log_writer import Logger
   g_logger = Logger('console')
 
+from sensors.battery import BATTERY
+
 # --- Webserver and Access-Point class   -------------------------------------
 
 class WebAP(Server):
@@ -209,13 +211,16 @@ class WebAP(Server):
 
   def _get_status(self):
     """ get system status """
+    bat = BATTERY(None,None)
+    status = {"lipo": getattr(self._model,"HAVE_LIPO",False)}
+    bat.read(status,[])
     v = sys.implementation[1]
-    status = {
+    status.update({
       "board_id": board.board_id,
       "cp_version": f"{v[0]}.{v[1]}.{v[2]}",
       "dl_commit" : commit.commit,
       "dev_time": time.time()
-      }
+      })
     self.debug(f"{status=}")
     return status
 

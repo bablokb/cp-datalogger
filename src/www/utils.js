@@ -266,6 +266,13 @@ function update_status_fields(info) {
   $('#dev_time').text(d.toLocaleString(navigator.language,
                                        {"timeZone": "UTC"})
                       );
+  $('#battery').text(info.battery);
+  if (info.lipo && info.battery < 3.2 ||
+      !info.lipo && info.battery < 2.2) {
+    $('#upload').hide();
+    $('#manual').hide();
+    show_msg("battery low, please replace before proceeding!",10000);
+  }
 }
 
 function get_status_info() {

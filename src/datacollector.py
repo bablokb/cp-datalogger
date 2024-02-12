@@ -274,7 +274,7 @@ class DataCollector():
     """ read battery if not already done """
 
     if "battery" not in self.data:
-      from battery import BATTERY
+      from sensors.battery import BATTERY
       bat = BATTERY(g_config,None)
       bat.read(self.data,self.values)
     self.with_lipo = getattr(g_config,"HAVE_LIPO",False)
