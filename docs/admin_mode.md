@@ -6,8 +6,8 @@ Overview
 
 Administration mode supports the following tasks:
 
-  - download and update the base configuration file `config.py`
-  - download and delete the logfile (if logging to sd-card is enabled)
+  - download and update of the base configuration file `config.py`
+  - download and delete of the logfile (if logging to sd-card is enabled)
   - download and delete of csv-files with sensor-measurements
   - set the time of the device
 
@@ -63,6 +63,9 @@ browser to the IP of the access-point (usually `192.168.4.1`).
 
 The interface is responsive and should be simple to use from desktop
 or mobile systems.
+
+Critical functions (i.e. upload of a new `config.py` or the manual
+configuration of `config.py`) is disabled on low battery.
 
 
 Stop Admin-Mode
