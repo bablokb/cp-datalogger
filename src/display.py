@@ -133,13 +133,31 @@ class Display:
 
     g_logger.print("end:  _create_view")
 
+  # --- get status-text   ----------------------------------------------------
+
+  def _get_status(self,app):
+    """ get text of status line """
+
+    dt, ts = app.data['ts_str'].split("T")
+    return f"at {dt} {ts} {app.save_status}"
+
   # --- set values for ui   --------------------------------------------------
 
-  def set_values(self,values,footer):
+  def set_values(self,app):
     """ set values """
 
-    self._view.set_values(values)
-    self._footer.text = footer
+    if len(app.values) < len(app.formats):
+      # fill in unused cells
+      app.values.extend(
+        [None for _ in range(len(app.formats)-len(app.values))])
+    elif len(app.values) > len(app.formats):
+      # remove extra values
+      del app.values[len(app.formats):]
+
+    # set footer
+    self._footer.text = self._get_status(app)
+    # set values
+    self._view.set_values(app.values)
 
   # --- refresh the display   ------------------------------------------------
 
@@ -206,7 +224,7 @@ class Display:
       else:
         template = template1
       if label == "ts":
-        ts_line = f"\nat {value} {app.save_status}"
+        ts_line = f"\n{self._get_status(app)}"
       elif label == "ID":
         pass                 # skip ID (should be part of title)
       elif ui_line:          # second column
