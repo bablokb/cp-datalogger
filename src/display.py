@@ -14,6 +14,10 @@ from dataviews.DisplayFactory import DisplayFactory
 
 g_logger = Logger()
 
+CHAR_BAT_FULL  = "\u25AE"    # black vertical rectangle
+CHAR_BAT_EMPTY = "\u25AF"    # white vertical rectangle
+CHAR_WARN      = "\u26A0"    # warning sign
+
 class Display:
   """ prepare and update display for the datalogger """
 
@@ -139,7 +143,18 @@ class Display:
     """ get text of status line """
 
     dt, ts = app.data['ts_str'].split("T")
-    return f"at {dt} {ts} {app.save_status}"
+    bat_level = app.data['battery']
+    if app.with_lipo:
+      warn_level = getattr(self._config,"LIPO_WARN",3.2)
+    else:
+      warn_level = getattr(self._config,"BAT_WARN",2.2)
+
+    if bat_level <= warn_level:
+      bat_status = f"{CHAR_WARN}{CHAR_BAT_EMPTY}"
+    else:
+      bat_status = f" {CHAR_BAT_FULL}"
+
+    return f"at {dt} {ts} {app.save_status} {bat_status}"
 
   # --- set values for ui   --------------------------------------------------
 
