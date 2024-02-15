@@ -304,6 +304,7 @@ class DataCollector():
     if not g_config.HAVE_PCB:
       return
 
+    g_logger.print(f'battery-level: {self.data["battery"]} (LiPo:{self.with_lipo})')
     if self.data["battery"] < 2.0:
       # enable switchover (end of life)
       self.rtc.rtc_ext.power_managment = 0b000
@@ -312,11 +313,11 @@ class DataCollector():
       # disable switchover (within working range)
       self.rtc.rtc_ext.power_managment = 0b111
       g_logger.print("disabling rtc battery switchover")
-    elif self.with_lipo and self.data["battery"] < 3.0:
+    elif self.with_lipo and self.data["battery"] < 3.1:
       # enable direct switchover to protect LiPo
       self.rtc.rtc_ext.power_managment = 0b001
-      g_logger.print("LiPo low, enabling rtc battery switchover")
-    else:  # >= 2.7 (battery) or >= 3.0 (LiPo)
+      g_logger.print("LiPo low, enabling direct rtc battery switchover")
+    else:  # >= 2.7 (battery) or >= 3.1 (LiPo)
       # enable switchover (initial dispatching)
       self.rtc.rtc_ext.power_managment = 0b000
       g_logger.print("enabling rtc battery switchover")
@@ -379,6 +380,8 @@ class DataCollector():
 
       self.collect_data()
       g_ts.append((time.monotonic(),"collect data"))
+      # always read battery (if not yet done as part of sensors)
+      self.read_battery()
 
       if g_config.TEST_MODE:
         self.blink(count=g_config.BLINK_END, blink_time=g_config.BLINK_TIME_END)
@@ -387,11 +390,9 @@ class DataCollector():
       self.run_tasks()
       self.print_timings()
 
-      # read battery and check for low LiPo
-      self.read_battery()
-      if self.with_lipo and self.data["battery"] < 3.0:
-        # prevent strobe-mode
-        # TODO: update display with "change batteries"
+      # check for low LiPo
+      if self.with_lipo and self.data["battery"] < 3.1:
+        # prevent continuous-mode
         break
 
       if not g_config.STROBE_MODE:
