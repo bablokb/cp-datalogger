@@ -301,24 +301,34 @@ class DataCollector():
   def configure_switchover(self):
     """ configure rtc battery switchover """
 
+    # Note: RTC-battery switchover does not work well with batteries, since
+    #       the switchover threshold (2.5V) is within the normal working
+    #       range. Therefore we disable switchover for batteries for
+    #       2.0 < VSYS < 2.7. This assumes that initial deployment uses
+    #       full batteries.
+
     if not g_config.HAVE_PCB:
       return
 
+    BAT_OFF  = getattr(g_config,"BAT_OFF",2.0)
+    BAT_NORM = getattr(g_config,"BAT_NORM",2.7)
+    LIPO_OFF = getattr(g_config,"LIPO_OFF",3.1)
+
     g_logger.print(f'battery-level: {self.data["battery"]} (LiPo:{self.with_lipo})')
-    if self.data["battery"] < 2.0:
+    if self.data["battery"] < BAT_OFF:
       # enable switchover (end of life)
       self.rtc.rtc_ext.power_managment = 0b000
       g_logger.print("enabling rtc battery switchover")
-    elif not self.with_lipo and self.data["battery"] < 2.7:
+    elif not self.with_lipo and self.data["battery"] < BAT_NORM:
       # disable switchover (within working range)
       self.rtc.rtc_ext.power_managment = 0b111
       g_logger.print("disabling rtc battery switchover")
-    elif self.with_lipo and self.data["battery"] < 3.1:
+    elif self.with_lipo and self.data["battery"] < LIPO_OFF:
       # enable direct switchover to protect LiPo
       self.rtc.rtc_ext.power_managment = 0b001
       g_logger.print("LiPo low, enabling direct rtc battery switchover")
-    else:  # >= 2.7 (battery) or >= 3.1 (LiPo)
-      # enable switchover (initial dispatching)
+    else:  # >= BAT_NORM (battery) or >= LIPO_OFF (LiPo)
+      # enable switchover (initial dispatching (bat) or working range(LiPo))
       self.rtc.rtc_ext.power_managment = 0b000
       g_logger.print("enabling rtc battery switchover")
 
