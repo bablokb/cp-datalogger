@@ -262,6 +262,7 @@ function update_status_fields(info) {
   d = new Date(info.dev_time*1000);
   $('#cp_version').text(info.cp_version);
   $('#board_id').text(info.board_id);
+  $('#pcb_version').text(info.pcb_version);
   $('#dl_commit').text(info.dl_commit);
   $('#dev_time').text(d.toLocaleString(navigator.language,
                                        {"timeZone": "UTC"})

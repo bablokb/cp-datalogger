@@ -19,7 +19,9 @@ import wifi
 import mdns
 import socketpool
 from ehttpserver import Server, Response, FileResponse, route
+
 import commit
+from pins import PCB_VERSION
 
 # --- early configuration of the log-destination   ---------------------------
 
@@ -217,6 +219,7 @@ class WebAP(Server):
     v = sys.implementation[1]
     status.update({
       "board_id": board.board_id,
+      "pcb_version": PCB_VERSION,
       "cp_version": f"{v[0]}.{v[1]}.{v[2]}",
       "dl_commit" : commit.commit,
       "dev_time": time.time()

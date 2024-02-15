@@ -11,6 +11,8 @@
 
 import board
 
+PCB_VERSION = 2          # PCB-version of datalogger
+
 # --- pin-constants (don't change unless you know what you are doing)   ------
 
 PIN_DONE = board.GP4   # connect to 74HC74 CLK
