@@ -144,7 +144,8 @@ class DataCollector():
       self._led            = DigitalInOut(board.LED)
       self._led.direction  = Direction.OUTPUT
 
-    self.save_status = "__"
+    self.sd_status = "_"
+    self.lora_status = "~"
 
     #configure sensors
     self._configure_sensors(i2c0,i2c1)

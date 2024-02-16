@@ -55,13 +55,14 @@ class LORA:
   def transmit(self, header, string):
     """ send data """
     g_logger.print("LoRa: sending data...")
-    send_ok = self.rfm9x.send_with_ack(bytes(string, "UTF-8"))
-    if send_ok:
-      g_logger.print("LoRa: ... successful")
-    else:
-      g_logger.print("LoRa: ... failed")
+    return self.rfm9x.send_with_ack(bytes(string, "UTF-8"))
 
 def run(config,app):
   """ send data using LoRa """
   lora = LORA(config)
-  lora.transmit(app.csv_header,app.record)
+  if lora.transmit(app.csv_header,app.record):
+    g_logger.print("LoRa: ... successful")
+    app.lora_status = 'T'
+  else:
+    g_logger.print("LoRa: ... failed")
+    app.lora_status = 'F'

@@ -154,7 +154,7 @@ class Display:
     else:
       bat_status = f" {CHAR_BAT_FULL}"
 
-    return f"at {dt} {ts} {app.save_status} {bat_status}"
+    return f"at {dt} {ts} {app.sd_status}{app.lora_status} {bat_status}"
 
   # --- set values for ui   --------------------------------------------------
 
