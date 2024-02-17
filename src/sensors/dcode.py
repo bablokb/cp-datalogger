@@ -45,7 +45,8 @@ SENSOR_MAP = {
   "scd40":   "F",
   "scd41":   "G",
   "sht45":   "H",
-  "meteo":   "I"
+  "meteo":   "I",
+  "location": "J"
   }
 
 class DCODE:

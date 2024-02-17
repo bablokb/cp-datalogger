@@ -16,8 +16,6 @@ BLINK_END   = 5           # blink n times after finish of data-collection
 
 NET_UPDATE  = True        # update RTC from time-server if time is invalid
 
-OFF_MINUTES = 1           # turn off for x minutes
-
 # tasks to execute after data-collection
 TASKS = "dump_data save_data update_display"
 
@@ -34,9 +32,8 @@ TASKS = "dump_data save_data update_display"
 #  (None,None)
 #  ]
 
-FORCE_CONT_MODE       = False      # Use continuous mode (with CONT_INT) even when on battery
-FORCE_STROBE_MODE     = False      # Use strobe mode (with OFF_MINUTES) even when on power
-CONT_INT              = 60         #  interval in continuous mode (in seconds)
+STROBE_MODE = True      # strobe-mode or continuous-mode
+INTERVAL    = 60        # interval (in seconds)
 
 # hardware setup
 HAVE_I2C0    = False               # also use second I2C-bus
@@ -44,6 +41,7 @@ HAVE_PCB     = True                # The Pico is running on the pcb described he
 HAVE_SD      = False               # The PCB has an sd card inserted (or an sd card is connected otherwise)
 CSV_FILENAME = "/sd/log_{ID}_{YMD}.csv"
 HAVE_DISPLAY = 'Inky-Pack'         # 'Inky-Pack', 'Display-Pack' or None
+HAVE_LIPO = False                  # True, False
 
 # List of sensors. Each needs a <sensor>.py file.
 # An entry must be any off (no spaces allowed!):
@@ -70,6 +68,7 @@ LOGGER_TITLE = LOGGER_NAME + " " + LOGGER_LOCATION
 FONT_DISPLAY     = 'DejaVuSansMono-Bold-18-subset'
 
 # LoRa configuration
+HAVE_LORA = False                  # True, False
 LORA_ENABLE_TIME = 0
 LORA_ACK_WAIT    = 0.5
 LORA_ACK_RETRIES = 3

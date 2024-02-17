@@ -1,0 +1,108 @@
+/*
+# -------------------------------------------------------------------------
+# Run AP together with a web-server.
+#
+# Author: Bernhard Bablok
+# License: GPL3
+#
+# Website: https://github.com/bablokb/pcb-pico-datalogger
+#
+# -------------------------------------------------------------------------
+*/
+
+h1 {
+  text-align: center;  
+}
+
+input {
+  padding: 10px;
+  font-size: 17px;
+  font-family: Arial, sans-serif;
+  border: 1px solid #aaaaaa;
+}
+
+/* Mark input boxes that gets an error on validation: */
+input.invalid {
+  background-color: #ffdddd;
+}
+
+/* Hide all steps by default: */
+.tab {
+  display: none;
+}
+
+
+#prevBtn {
+  background-color: #bbbbbb;
+}
+
+/* Make circles that indicate the steps of the form: */
+.step {
+  height: 15px;
+  width: 15px;
+  margin: 0 2px;
+  background-color: #bbbbbb;
+  border: none;  
+  border-radius: 50%;
+  display: inline-block;
+  opacity: 0.5;
+}
+
+.step.active {
+  opacity: 1;
+}
+
+/* Mark the steps that are finished and valid: */
+.step.finish {
+  background-color: #04AA6D;
+}
+
+/* marker class for mandatory-elements */
+.mandatory {  }
+
+.menu-button {
+  border-radius: 4px !important;
+  background-color: rgb(66, 184, 221) !important;
+  margin: .2em;
+}
+
+.del-button {
+  border-radius: 4px !important;
+  background-color: rgb(255, 128, 128) !important;
+  margin: .2em;
+}
+
+.ul_select {
+  list-style-type: none;
+  padding: 0;
+  border: 1px solid #ddd;
+  padding-inline: 3px;
+}
+.ul_sel__li {
+  padding: 8px 16px;
+}
+
+.ul_sel_li_active {
+  background-color: rgb(66, 184, 221) !important;
+}
+
+.csv_file {
+  display:flex !important;
+  align-content: flex-start;
+  flex-grow:1;
+  font-size:x-large !important;
+}
+
+.msgarea {
+  display: none;
+  margin: 5px;
+  padding: 5px;
+  width: fit-content;
+  position: relative;
+  left: 5%;
+  text-align: center;
+  background: lightblue;
+  color: black;
+  border-radius: 10px;
+  font-size: large;
+}

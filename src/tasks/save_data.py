@@ -21,9 +21,9 @@ def run(config,app):
     ID=config.LOGGER_ID,
     YMD=ymd,Y=y,M=m,D=d)
   new_csv = not app.file_exists(outfile)
-  app.save_status = ":("
+  app.sd_status = "X"
   with open(outfile, "a") as f:
     if new_csv:
       f.write(f"{app.csv_header}\n")
     f.write(f"{app.record}\n")
-    app.save_status = "SD"
+    app.sd_status = "W"

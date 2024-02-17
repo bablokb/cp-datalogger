@@ -1,0 +1,74 @@
+<html>
+  <head>
+    <title>Datalogger Administration</title>
+    <link rel="stylesheet" href="dl_styles.css">
+    <link rel="stylesheet" href="pure-min.css">
+
+    <script src="utils.js"></script>
+    <script src="jquery-min.js"></script>
+
+     <script  type="text/javascript">
+       $(document).ready(function() {
+          get_status_info();
+       });
+     </script>
+  </head>
+  <body>
+    <h1>Datalogger Administration</h1>
+    <!-- action menu -->
+    <div style="width:100%; display:inline-flex; justify-content:center">
+      <div style="display:inline-flex; flex-direction:column">
+        <a class="pure-button menu-button"
+          style="display:flex; align-content: flex-start; font-size:x-large"
+          href="config.py">&#128229; Download config.py</a>
+        <a class="pure-button menu-button" id="upload"
+          style="display:flex; align-content: flex-start; font-size:x-large"
+          href="upload_config.html">&#128228; Upload config.py</a>
+        <a class="pure-button menu-button" id="manual"
+          style="display:flex; align-content: flex-start; font-size:x-large"
+          href="config.html">&#128295; Manual configuration</a>
+        <a class="pure-button menu-button"
+          style="display:flex; align-content: flex-start; font-size:x-large"
+          href="csv_download.html">&#128229; Download CSV</a>
+        <a class="pure-button menu-button"
+          style="display:flex; align-content: flex-start; font-size:x-large"
+          href="log_download.html">&#128229; Download Logs</a>
+        <a class="pure-button del-button"
+          style="display:flex; align-content: flex-start; font-size:x-large"
+          onclick="set_time()">&#128338; Set Datalogger-Time</a>
+      </div>
+    </div>
+
+    <!-- status information -->
+    <div style="border: 1px; display:inline-flex; justify-content:left">
+      <div style="display:inline-flex; flex-direction:column">
+        <div style="display:inline-flex; flex-direction:row">
+          <span>CircuitPython:</span>
+          <span id="cp_version"></span>
+        </div>
+        <div style="display:inline-flex; flex-direction:row">
+          <span>Board-ID:</span>
+          <span id="board_id"></span>
+        </div>
+        <div style="display:inline-flex; flex-direction:row">
+          <span>PCB-Version:</span>
+          <span id="pcb_version"></span>
+        </div>
+        <div style="display:inline-flex; flex-direction:row">
+          <span>Last Commit:</span>
+          <span id="dl_commit"></span>
+        </div>
+        <div style="display:inline-flex; flex-direction:row">
+          <span>Device Time:</span>
+          <span id="dev_time"></span>
+        </div>
+        <div style="display:inline-flex; flex-direction:row">
+          <span>Battery Level:</span>
+          <span id="battery"></span>
+          <span>V</span>
+        </div>
+      </div>
+    </div>
+    <div id="msgarea" class="msgarea"></div>
+  </body>
+</html>

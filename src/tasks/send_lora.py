@@ -37,7 +37,7 @@ class LORA:
     g_logger.print("LoRa: enabling rfm9x")
     pin_enable.value = 1
     time.sleep(config.LORA_ENABLE_TIME)
-    g_logger.print("LoRa: nitializing rfm9x")
+    g_logger.print("LoRa: initializing rfm9x")
     self.rfm9x = adafruit_rfm9x.RFM9x(
       spi1, pin_cs,pin_reset,config.LORA_FREQ,baudrate=100000)
       
@@ -55,13 +55,14 @@ class LORA:
   def transmit(self, header, string):
     """ send data """
     g_logger.print("LoRa: sending data...")
-    send_ok = self.rfm9x.send_with_ack(bytes(string, "UTF-8"))
-    if send_ok:
-      g_logger.print("LoRa: ... successful")
-    else:
-      g_logger.print("LoRa: ... failed")
+    return self.rfm9x.send_with_ack(bytes(string, "UTF-8"))
 
 def run(config,app):
   """ send data using LoRa """
   lora = LORA(config)
-  lora.transmit(app.csv_header,app.record)
+  if lora.transmit(app.csv_header,app.record):
+    g_logger.print("LoRa: ... successful")
+    app.lora_status = 'T'
+  else:
+    g_logger.print("LoRa: ... failed")
+    app.lora_status = 'F'

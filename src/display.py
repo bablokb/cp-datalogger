@@ -14,6 +14,10 @@ from dataviews.DisplayFactory import DisplayFactory
 
 g_logger = Logger()
 
+CHAR_BAT_FULL  = "\u25AE"    # black vertical rectangle
+CHAR_BAT_EMPTY = "\u25AF"    # white vertical rectangle
+CHAR_WARN      = "\u26A0"    # warning sign
+
 class Display:
   """ prepare and update display for the datalogger """
 
@@ -28,6 +32,7 @@ class Display:
 
     # spi - if not already created
     if not self._spi:
+      import busio
       self._spi = busio.SPI(pins.PIN_SD_SCK,pins.PIN_SD_MOSI)
 
     displayio.release_displays()
@@ -48,6 +53,12 @@ class Display:
       g_logger.print(f"unsupported display: {config.HAVE_DISPLAY}")
       config.HAVE_DISPLAY = None
     self._view = None
+
+  # --- return display-object   -----------------------------------------------
+
+  def get_display(self):
+    """ return display-object """
+    return self._display
 
   # --- create view   ---------------------------------------------------------
 
@@ -80,11 +91,12 @@ class Display:
       del formats[dim[0]*dim[1]:]
 
     border  = 1
+    offset  = 1    # keep away from border-pixels
     divider = 1
     padding = 5
     self._view = DataView(
       dim=dim,
-      width=self._display.width-2*border-(dim[1]-1)*divider,
+      width=self._display.width-2*(border+padding+offset)-(dim[1]-1)*divider,
       height=int(0.6*self._display.height),
       justify=Justify.LEFT,
       fontname=f"fonts/{self._config.FONT_DISPLAY}.bdf",
@@ -108,8 +120,10 @@ class Display:
                              fontname=f"fonts/{self._config.FONT_DISPLAY}.bdf",
                              justify=Justify.RIGHT)
     self._panel = DataPanel(
-      width=self._display.width,
-      height=self._display.height,
+      x = offset,
+      y = offset,
+      width=self._display.width-2*offset,
+      height=self._display.height-2*offset,
       view=self._view,
       title=title,
       footer=self._footer,
@@ -123,13 +137,42 @@ class Display:
 
     g_logger.print("end:  _create_view")
 
+  # --- get status-text   ----------------------------------------------------
+
+  def _get_status(self,app):
+    """ get text of status line """
+
+    dt, ts = app.data['ts_str'].split("T")
+    bat_level = app.data['battery']
+    if app.with_lipo:
+      warn_level = getattr(self._config,"LIPO_WARN",3.2)
+    else:
+      warn_level = getattr(self._config,"BAT_WARN",2.2)
+
+    if bat_level <= warn_level:
+      bat_status = f"{CHAR_WARN}{CHAR_BAT_EMPTY}"
+    else:
+      bat_status = f" {CHAR_BAT_FULL}"
+
+    return f"at {dt} {ts} {app.sd_status}{app.lora_status} {bat_status}"
+
   # --- set values for ui   --------------------------------------------------
 
-  def set_values(self,values,footer):
+  def set_values(self,app):
     """ set values """
 
-    self._view.set_values(values)
-    self._footer.text = footer
+    if len(app.values) < len(app.formats):
+      # fill in unused cells
+      app.values.extend(
+        [None for _ in range(len(app.formats)-len(app.values))])
+    elif len(app.values) > len(app.formats):
+      # remove extra values
+      del app.values[len(app.formats):]
+
+    # set footer
+    self._footer.text = self._get_status(app)
+    # set values
+    self._view.set_values(app.values)
 
   # --- refresh the display   ------------------------------------------------
 
@@ -169,11 +212,12 @@ class Display:
     self._panel.anchored_position = (self._display.width/2,
                                      self._display.height/2)
     self._view.append(self._panel)
+    self._display.root_group = self._view
     g_logger.print("end:   _create_simple_view")
 
   # --- set ui-text for simple-ui   ------------------------------------------
 
-  def set_ui_text(self,csv_header,record):
+  def set_ui_text(self,app):
     """ set text of simple UI """
 
     # create dynamic format: width of label is widh - 4 - 1 (4:value, 1:colon)
@@ -181,8 +225,8 @@ class Display:
     w = int((self._max_chars-1)/2)
     template1 = "{label:<"+f"{w-5}.{w-5}"+"}:{value:>4.4}"
     template2 = "{label:<"+f"{w-4}.{w-4}"+"}:{value:>4.4}"
-    columns = csv_header.split('#')[-1].split(',')
-    merged = zip(columns,record.split(','))
+    columns = app.csv_header.split('#')[-1].split(',')
+    merged = zip(columns,app.record.split(','))
 
     # collect output into string
     ui_string = f"{self._config.LOGGER_TITLE}"
@@ -195,7 +239,7 @@ class Display:
       else:
         template = template1
       if label == "ts":
-        ts_line = f"\nat {value}"
+        ts_line = f"\n{self._get_status(app)}"
       elif label == "ID":
         pass                 # skip ID (should be part of title)
       elif ui_line:          # second column
@@ -209,4 +253,3 @@ class Display:
     ui_string += ts_line
     g_logger.print(ui_string)
     self._panel.text = ui_string
-    self._display.root_group = self._view

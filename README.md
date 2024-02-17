@@ -3,7 +3,19 @@ Pico Datalogger with Integrated Power-Management
 
 This is a breakout supporting low-frequency data-logging with a Raspberry Pi Pico.
 
-![](pcb1.jpg)
+Version 1 PCB:
+
+![](docs/pcb-datalogger-v1-1.jpg)
+
+Version 2 PCB:
+
+![](docs/pcb-datalogger-v2.jpg)
+
+
+Sensor PCB (in combination with datalogger-v2):
+
+![](docs/pcb-sensor.jpg)
+
 
 Core functions:
   * log data to a micro-sd card;
@@ -17,23 +29,15 @@ From a technical viewpoint the breakout allows you to
   * keep time using a coincell backup-battery even if the board is not powered.
 
 
-Hardware Components
--------------------
+Quick Links
+-----------
 
-Time-keeping uses the PCF8523 RTC with integrated support for a backup-battery.
-
-![](pcb2.jpg)
-
-Power management uses a D-type flip-flop which drives the enable pin of the Pico.
-In "reset"-state, the enable pin is pulled high and the Pico is running. The
-reset is triggered either by a button, or by an RTC-alarm.
-
-The "done"-pin of the Pico is connected to the CLK-pin of the flip-flop. A rising edge
-will toggle the enable pin.
-
-A micro-sd card reader is connected to SPI to enable logging of data.
-
-Various additional connectors allow the user to connect sensors or displays.
+  * [Basic Setup](docs/setup.md)
+  * [Software](docs/software.md)
+  * [Software deployment](docs/deployment.md)
+  * [Configuration](docs/configuration.md)
+  * [Initial setup of the RTC](docs/rtc_setup.md)
+  * [Administration mode](docs/admin_mode.md)
 
 
 Background
@@ -46,15 +50,19 @@ For background on / motivation for this project, please see
 Additional resources
 --------------------
 
-  * [Sensors](sensors.md)
-  * [Components](components.md)
-  * [Power](power.md)
-  * [Hardware setup](hardware_setup.md)
-  * [Pinout](pins.md)
+  * [Sensors](docs/sensors.md)
+  * [Components](docs/components.md)
+  * [Hardware Architecture](docs/hw_architecture.md)
+  * [Power](docs/power.md)
+  * [Pinout](docs/pins.md)
+  * [Pinout V2](docs/pins-v2.md)
   * Case for this PCB: https://github.com/OpenDevEd/case-for-pico-datalogger-rev1.00
-  * [Software](datacollector.md)
-  * [KiCAD design-files](./pico-datalogger.kicad/Readme.md)
-  * [References](references.md)
+  * [KiCAD design-files V1](./pico-datalogger.kicad/Readme.md)
+  * [KiCAD design-files V2](./pico-datalogger-v2.kicad/Readme.md)
+  * [KiCAD design-files sensor-PCB](./pico-sensor-pcb.kicad/Readme.md)
+  * [KiCAD design-files display-adapter](./display-adapter.kicad/Readme.md)
+  * [KiCAD design-files LoRa-adapter](./lora-adapter.kicad/Readme.md)
+  * [References](docs/references.md)
 
 
 License

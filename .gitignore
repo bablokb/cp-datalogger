@@ -17,12 +17,15 @@ fp-info-cache
 
 jlcpcb
 work
+deploy
 TODO
+*.local
 
 boot_out.txt
 *.pyc
 *secrets.py
 config.py
+ap_config.py
 log_config.py
 __pycache__
 

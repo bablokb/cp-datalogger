@@ -11,6 +11,8 @@
 
 import board
 
+PCB_VERSION = 2          # PCB-version of datalogger
+
 # --- pin-constants (don't change unless you know what you are doing)   ------
 
 PIN_DONE = board.GP4   # connect to 74HC74 CLK
@@ -31,8 +33,8 @@ PIN_INKY_RST  = board.GP21
 PIN_INKY_DC   = board.GP20
 PIN_INKY_BUSY = board.GP26
 
-PIN_LORA_CS   = board.GP9
-PIN_LORA_RST  = board.GP7
+PIN_LORA_CS   = board.GP13
+PIN_LORA_RST  = board.GP12
 PIN_LORA_EN   = board.GP15
 PIN_LORA_SCK  = board.GP10
 PIN_LORA_MOSI = board.GP11
@@ -49,5 +51,10 @@ PIN_TX = board.GP0
 # 1-wire
 PIN_ONE_WIRE = board.GP27
 
-# special pins
-PIN_SWA = board.GP12  # for both Inky-Pack and Display-Pack
+# special pins:
+# v2-boards: connect SWA-SWC to buttons on the sensor-pcb
+#            connects SWD to the LED on the sensor-pcb
+PIN_SWA = board.GP7
+PIN_SWB = board.GP9
+PIN_SWC = board.GP14
+PIN_SWD = board.GP6

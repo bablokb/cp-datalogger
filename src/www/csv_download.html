@@ -1,0 +1,39 @@
+<html>
+  <head>
+    <title>CSV Download</title>
+    <link rel="stylesheet" href="dl_styles.css">
+    <link rel="stylesheet" href="pure-min.css">
+
+    <script src="utils.js"></script>
+    <script src="jquery-min.js"></script>
+
+     <script  type="text/javascript">
+       $(document).ready(function() {
+          get_file_list('csv');
+       });
+     </script>
+
+  </head>
+<body>
+
+<h1>Download CSV-Files</h1>
+    <div style="width:100%; display:inline-flex; justify-content:center">
+      <div id="csv_list" style="display:inline-flex; flex-direction:column">
+        <div id="row_0" style="display:none; flex-direction:row">
+          <a id="file_0"
+            class="pure-button menu-button csv_file"></a>
+          <a id="del_0"
+            class="pure-button del-button"
+            style="flex:none; font-size:x-large">&#128465; Del</a>
+        </div>
+      </div>
+    </div>
+    <div style="overflow:auto;">
+      <div style="float:right;">
+        <button type="button" id="homeBtn" class="pure-button del-button"
+                onclick="goto_main_menu()">Main-Menu</button>
+      </div>
+    </div>
+    <div id="msgarea" class="msgarea"></div>
+</body>
+</html>
