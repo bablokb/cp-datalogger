@@ -9,15 +9,21 @@
 import time
 import busio
 import board
+import busio
 from digitalio import DigitalInOut, Direction, Pull
 
-import busio
+# --- imports for display
 import displayio
 from terminalio import FONT
 from adafruit_display_text import label
 from adafruit_displayio_ssd1306 import SSD1306
 
+# --- imports for LoRa
 import adafruit_rfm9x
+
+# --- imports for Notecard
+import notecard
+from notecard import hub, card, note, file
 
 # --- constants   -------------------------------------------------------------
 
@@ -70,6 +76,11 @@ rfm9x.node = LORA_STATION_ID
 rfm9x.ack_delay = 0.1
 rfm9x.tx_power = 23
 
+# --- Notecard   -------------------------------------------------------------
+
+my_card = notecard.OpenI2C(i2c,0,0,debug=False)
+hub.set(my_card,mode="minimum")
+
 # --- update display   -------------------------------------------------------
 
 def update_display(lines=[]):
@@ -82,9 +93,15 @@ def update_display(lines=[]):
 
 # --- process data   ---------------------------------------------------------
 
-def process_data(data):
-  """ process data (e.g. send into the cloud) """
+def process_data(data,id):
+  """ process data (currently just queue to notecard) """
+  start = time.monotonic()
   print(f"data: {data}")
+  resp = note.add(my_card,
+                  file=f"dl_{id}.qo",
+                  body={"data":data},
+                  sync=False)
+  print(f"{time.monotonic()-start}: {resp=}")
 
 # --- main-loop   ------------------------------------------------------------
 
@@ -102,8 +119,8 @@ while True:
   # Decode packet: assume it is csv with a timestamp as first field
   try:
     data = packet.decode()
-    process_data(data)
     values = data.split(',')         # expect csv
+    process_data(data,values[1])     # expect id as second field
     ts = values[0].split('T')[1]     # removes date from timestamp
     # Display packet information
     update_display([f"{ts} ({snr}/{rssi})",values[1],values[2]])
