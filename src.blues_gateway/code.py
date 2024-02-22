@@ -27,6 +27,7 @@ from notecard import hub, card, note, file
 
 # --- constants   -------------------------------------------------------------
 
+SYNC_BLUES = None         # None, True, False
 INTERVAL = 0.1
 RADIO_FREQ_MHZ  = 868.0
 LORA_STATION_ID = 0
@@ -97,11 +98,14 @@ def process_data(data,id):
   """ process data (currently just queue to notecard) """
   start = time.monotonic()
   print(f"data: {data}")
-  resp = note.add(my_card,
-                  file=f"dl_{id}.qo",
-                  body={"data":data},
-                  sync=False)
-  print(f"{time.monotonic()-start}: {resp=}")
+  if SYNC_BLUES is not None:
+    resp = note.add(my_card,
+                    file=f"dl_{id}.qo",
+                    body={"data":data},
+                    sync=SYNC_BLUES)
+  else:
+    resp = "action: noop"
+  print(f"{time.monotonic()-start}: action: {SYNC_BLUES}, {resp=}")
 
 # --- main-loop   ------------------------------------------------------------
 
