@@ -23,12 +23,13 @@ include ${MAKEVARS}
 
 # all sources
 SOURCES=$(wildcard src/*.py)
-SPECIAL=src/boot.py src/main.py src/admin.py
+SPECIAL=src/boot.py src/main.py src/admin.py src/broadcast.py
 
 # remove files that cannot be precompiled
 SOURCES:=$(subst src/boot.py,,${SOURCES})
 SOURCES:=$(subst src/main.py,,${SOURCES})
 SOURCES:=$(subst src/admin.py,,${SOURCES})
+SOURCES:=$(subst src/broadcast.py,,${SOURCES})
 SOURCES:=$(subst src/secrets.py,,${SOURCES})
 
 # remove template files
