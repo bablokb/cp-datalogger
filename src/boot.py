@@ -1,7 +1,7 @@
 #-----------------------------------------------------------------------------
 # Pico initialization file after hard reset. This file will check if
-# GP12 is low (i.e. button SW-A is pressed) and enter admin-mode by
-# restarting into admin.py.
+# certain GPs are low (e.g. button SW-A is pressed) and will enter
+# special modes (e.g. admin-mode, broadcast-mode).
 #
 # Author: Bernhard Bablok
 #
@@ -49,4 +49,10 @@ if not switch_a.value:
   # make flash writable
   storage.remount("/",False)
   supervisor.set_next_code_file("admin.py",sticky_on_reload=True)
+  supervisor.reload()
+
+# --- check if switch B is pressed and if so, enter broadcast-mode   ---------
+
+if not switch_b.value:
+  supervisor.set_next_code_file("broadcast.py",sticky_on_reload=True)
   supervisor.reload()
