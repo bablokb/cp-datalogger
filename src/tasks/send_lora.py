@@ -17,7 +17,7 @@ from lora import LORA
 def run(config,app):
   """ send data using LoRa """
   lora = LORA(config)
-  if lora.transmit(app.csv_header,app.record):
+  if lora.transmit(app.record):
     g_logger.print("LoRa: ... successful")
     app.lora_status = 'T'
   else:
