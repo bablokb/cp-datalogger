@@ -28,9 +28,9 @@ from notecard import hub, card, note, file
 # --- constants   -------------------------------------------------------------
 
 SYNC_BLUES = None         # None, True, False
-INTERVAL = 0.1
+INTERVAL = 0.05
 RADIO_FREQ_MHZ  = 868.0
-LORA_STATION_ID = 0
+LORA_BASE_ADDR = 0
 HEADER_TEXT = 'Datalogger Gateway'
 WAIT_TEXT   = 'listening...'
 ERROR_TEXT  = 'invalid data'
@@ -73,7 +73,7 @@ cs  = DigitalInOut(PIN_CS)
 rst = DigitalInOut(PIN_RST)
 spi = busio.SPI(PIN_SCK, MOSI=PIN_MOSI, MISO=PIN_MISO)
 rfm9x = adafruit_rfm9x.RFM9x(spi, cs, rst, RADIO_FREQ_MHZ)
-rfm9x.node = LORA_STATION_ID
+rfm9x.node = LORA_BASE_ADDR
 rfm9x.ack_delay = 0.1
 rfm9x.tx_power = 23
 
@@ -87,29 +87,54 @@ hub.set(my_card,mode="minimum")
 def update_display(lines=[]):
   """ update display """
 
-  txt = f"{HEADER_TEXT}\n{lines[0]}"
-  if len(lines) > 1:
-    txt = f"{txt}\n{lines[1]}: {lines[2]}"
+  txt = f"{HEADER_TEXT}"
+  for line in lines:
+    txt = f"{txt}\n{line}"
   lbl.text = txt
 
 # --- process data   ---------------------------------------------------------
 
-def process_data(data,id):
+def process_data(values,ts,id,snr,rssi):
   """ process data (currently just queue to notecard) """
+
+  print("processing sensor-data...")
   start = time.monotonic()
-  print(f"data: {data}")
   if SYNC_BLUES is not None:
     resp = note.add(my_card,
                     file=f"dl_{id}.qo",
-                    body={"data":data},
+                    body={"data":','.join(values)},
                     sync=SYNC_BLUES)
   else:
     resp = "action: noop"
   print(f"{time.monotonic()-start}: action: {SYNC_BLUES}, {resp=}")
 
+  # Display packet information
+  update_display([f"{id}:{ts}",f"{snr}/{rssi}"])
+
+# --- reply to broadcast-messages   ------------------------------------------
+
+def handle_broadcast(values,ts,id,snr,rssi):
+  """ echo data to sender """
+
+  print("processing broadcast-data...")
+  start = time.monotonic()
+
+  resp = f"{values[2]},{snr},{rssi}"                    # 2: packet-nr
+  rfm9x.destination = int(values[3])                    # 3: LoRa-node
+  print(f"sending '{resp}' to {rfm9x.destination}...")
+  rc = rfm9x.send(bytes(resp, "UTF-8"),keep_listening=True)
+
+  if rc:
+    print(f"echo_values() successful. Duration: {time.monotonic()-start}s")
+  else:
+    print(f"echo_data() failed. Duration: {time.monotonic()-start}s")
+
 # --- main-loop   ------------------------------------------------------------
 
 update_display([WAIT_TEXT])
+print(f"{HEADER_TEXT}")
+print(f"{WAIT_TEXT}")
+
 while True:
   packet = None
 
@@ -120,14 +145,23 @@ while True:
   snr  = rfm9x.last_snr
   rssi = rfm9x.last_rssi
 
-  # Decode packet: assume it is csv with a timestamp as first field
+  # Decode packet: expect csv data
   try:
     data = packet.decode()
-    values = data.split(',')         # expect csv
-    process_data(data,values[1])     # expect id as second field
+    print(f"data: {data}")
+    values = data.split(',')
+    if values[0] == 'B':
+      broadcast_mode = True
+      values.pop(0)
+    else:
+      broadcast_mode = False
     ts = values[0].split('T')[1]     # removes date from timestamp
-    # Display packet information
-    update_display([f"{ts} ({snr}/{rssi})",values[1],values[2]])
-  except:
+    id = values[1]
+    if broadcast_mode:
+      handle_broadcast(values,ts,id,snr,rssi)
+    else:
+      process_data(values,ts,id,snr,rssi)
+  except Exception as ex:
+    raise
     update_display([ERROR_TEXT])
   time.sleep(INTERVAL)
