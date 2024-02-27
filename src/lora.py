@@ -50,9 +50,24 @@ class LORA:
     self.rfm9x.ack_retries = config.LORA_ACK_RETRIES
     self.rfm9x.sleep()
 
-  # --- transmit command   ----------------------------------------------
+  # --- transmit command   ---------------------------------------------------
 
-  def transmit(self, header, string):
+  def transmit(self,string,ack=True,keep_listening=False):
     """ send data """
     g_logger.print("LoRa: sending data...")
-    return self.rfm9x.send_with_ack(bytes(string, "UTF-8"))
+    if ack:
+      return self.rfm9x.send_with_ack(bytes(string, "UTF-8"))
+    else:
+      return self.rfm9x.send(bytes(string, "UTF-8"),keep_listening=keep_listening)
+
+  # --- receive command   ----------------------------------------------------
+
+  def receive(self,with_ack=True,timeout=0.5):
+    """ receive and decode data """
+    g_logger.print("LoRa: receiving data...")
+    packet = self.rfm9x.receive(with_ack=with_ack,timeout=timeout)
+    if packet is None:
+      return None
+    else:
+      g_logger.print(f"LoRa: packet: {packet.decode()}")
+      return (packet.decode(),self.rfm9x.last_snr,self.rfm9x.last_rssi)
