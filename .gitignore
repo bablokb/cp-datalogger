@@ -29,9 +29,6 @@ ap_config.py
 log_config.py
 __pycache__
 
-#notecard python-interface code
-src.blues_gateway/lib/notecard
-
 src/.vscode
 .vscode
 BaCkUp
