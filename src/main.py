@@ -1,5 +1,5 @@
 #-----------------------------------------------------------------------------
-# Basic data-collection program. This program will
+# Basic data-collection program.
 #
 # The code is encapsulated in the class Datacollector, mainly to allow
 # the use of precompiled code.
