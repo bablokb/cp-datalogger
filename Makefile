@@ -12,37 +12,48 @@ SHELL=/bin/bash
 # options: override on the command-line
 PCB=v2
 DEPLOY_TO=deploy
-CONFIG=src/config.py
-LOG_CONFIG=src/log_config.py
 AP_CONFIG=
 SECRETS=src/secrets.py
 MAKEVARS=makevars.tmp
+CONFIG=src/config.py
+LOG_CONFIG=src/log_config.py
+
+ifeq (${MAKECMDGOALS},gateway)
+SRC=src.blues_gateway
+SOURCES=$(wildcard src.blues_gateway/*.py)
+SOURCES2=src/lora.py src/log_writer.py src/singleton.py
+SPECIAL=src.blues_gateway/main.py
+CONFIG=src.blues_gateway/config.py
+LOG_CONFIG=src.blues_gateway/log_config.py
+COPY_PREREQ=gateway
+else
+SRC=src
+SOURCES=$(wildcard src/*.py)
+SPECIAL=src/boot.py src/main.py src/admin.py src/broadcast.py
+COPY_PREREQ=default
+endif
 
 # make variables from commandline (last invocation)
 include ${MAKEVARS}
 
-# all sources
-SOURCES=$(wildcard src/*.py)
-SPECIAL=src/boot.py src/main.py src/admin.py src/broadcast.py
-
 # remove files that cannot be precompiled
-SOURCES:=$(subst src/boot.py,,${SOURCES})
-SOURCES:=$(subst src/main.py,,${SOURCES})
-SOURCES:=$(subst src/admin.py,,${SOURCES})
-SOURCES:=$(subst src/broadcast.py,,${SOURCES})
-SOURCES:=$(subst src/secrets.py,,${SOURCES})
+SOURCES:=$(subst ${SRC}/boot.py,,${SOURCES})
+SOURCES:=$(subst ${SRC}/main.py,,${SOURCES})
+SOURCES:=$(subst ${SRC}/admin.py,,${SOURCES})
+SOURCES:=$(subst ${SRC}/broadcast.py,,${SOURCES})
+SOURCES:=$(subst ${SRC}/secrets.py,,${SOURCES})
 
 # remove template files
-SOURCES:=$(subst src/sec_template.py,,${SOURCES})
-SOURCES:=$(subst src/config_template.py,,${SOURCES})
-SOURCES:=$(subst src/log_config_template.py,,${SOURCES})
+SOURCES:=$(subst ${SRC}/sec_template.py,,${SOURCES})
+SOURCES:=$(subst ${SRC}/config_template.py,,${SOURCES})
+SOURCES:=$(subst ${SRC}/log_config_template.py,,${SOURCES})
 
 # sensor-wrappers and task-plugins
-SENSORS=$(wildcard src/sensors/*.py)
-TASKS=$(wildcard src/tasks/*.py)
+SENSORS=$(wildcard ${SRC}/sensors/*.py)
+TASKS=$(wildcard ${SRC}/tasks/*.py)
 
 # files served by the webserver in admin-mode
-WWW=$(wildcard src/www/*)
+WWW=$(wildcard ${SRC}/www/*)
 
 ifneq ($(strip ${AP_CONFIG}),)
 ap_config=${DEPLOY_TO}/ap_config.mpy
@@ -50,20 +61,33 @@ else
 ap_config=
 endif
 
-.PHONY: target_dir check_mpy_cross clean copy2pico
+.PHONY: check_mpy_cross clean copy2pico
 
 # default target: pre-compile and compress files
-default: check_mpy_cross target_dir lib ${ap_config} \
+default: check_mpy_cross ${DEPLOY_TO} ${DEPLOY_TO}/sensors \
+	${DEPLOY_TO}/tasks ${DEPLOY_TO}/www lib ${ap_config} \
 	${DEPLOY_TO}/pins.mpy \
-	$(SOURCES:src/%.py=${DEPLOY_TO}/%.mpy) \
-	$(SPECIAL:src/%.py=${DEPLOY_TO}/%.py) \
-	$(SENSORS:src/sensors/%.py=${DEPLOY_TO}/sensors/%.mpy) \
-	$(TASKS:src/tasks/%.py=${DEPLOY_TO}/tasks/%.mpy) \
+	$(SOURCES:${SRC}/%.py=${DEPLOY_TO}/%.mpy) \
+	$(SPECIAL:${SRC}/%.py=${DEPLOY_TO}/%.py) \
+	$(SENSORS:${SRC}/sensors/%.py=${DEPLOY_TO}/sensors/%.mpy) \
+	$(TASKS:${SRC}/tasks/%.py=${DEPLOY_TO}/tasks/%.mpy) \
 	${DEPLOY_TO}/config.py \
 	${DEPLOY_TO}/log_config.py \
 	${DEPLOY_TO}/secrets.mpy \
-	$(WWW:src/www/%=${DEPLOY_TO}/www/%.gz)
+	$(WWW:${SRC}/www/%=${DEPLOY_TO}/www/%.gz)
 	@git log --format="commit='%H'" -n 1 > ${DEPLOY_TO}/commit.py
+	@rm -f makevars.tmp
+	@make makevars.tmp PCB=${PCB} DEPLOY_TO=${DEPLOY_TO} \
+		CONFIG=${CONFIG} \
+		LOG_CONFIG=${LOG_CONFIG}
+
+gateway: ${DEPLOY_TO} lib \
+	${DEPLOY_TO}/pins.mpy \
+	$(SOURCES:${SRC}/%.py=${DEPLOY_TO}/%.mpy) \
+	$(SOURCES2:src/%.py=${DEPLOY_TO}/%.mpy) \
+	$(SPECIAL:${SRC}/%.py=${DEPLOY_TO}/%.py) \
+	${DEPLOY_TO}/config.py \
+	${DEPLOY_TO}/log_config.py
 	@rm -f makevars.tmp
 	@make makevars.tmp PCB=${PCB} DEPLOY_TO=${DEPLOY_TO} \
 		CONFIG=${CONFIG} \
@@ -75,13 +99,13 @@ check_mpy_cross:
 	  (echo "please install mpy-cross from https://adafruit-circuit-python.s3.amazonaws.com/index.html?prefix=bin/mpy-cross/" && false)
 
 # create target-directory
-target_dir:
-	mkdir -p ${DEPLOY_TO}/sensors ${DEPLOY_TO}/tasks ${DEPLOY_TO}/www
+${DEPLOY_TO} ${DEPLOY_TO}/sensors ${DEPLOY_TO}/tasks ${DEPLOY_TO}/www:
+	mkdir -p  $@
 
 # copy libs and fonts
 lib:
-	rsync -av --delete src/lib ${DEPLOY_TO}
-	rsync -av --delete src/fonts ${DEPLOY_TO}
+	rsync -av --delete ${SRC}/lib ${DEPLOY_TO}
+	-rsync -av --delete ${SRC}/fonts ${DEPLOY_TO}
 
 # clean target-directory (only delete auto-created makevars.tmp)
 clean:
@@ -95,7 +119,7 @@ makevars.tmp:
 # rsync content of target-directory to pico
 # note: this needs a LABEL=CIRCUITPY entry in /etc/fstab and it only works
 #       if the CIRCUITPY-drive is not already mounted (e.g. by an automounter)
-copy2pico: default
+copy2pico: ${COPY_PREREQ}
 	mount -L CIRCUITPY
 	rsync -av -L --exclude boot_out.txt \
 		--exclude  __pycache__ \
@@ -118,26 +142,29 @@ ${DEPLOY_TO}/secrets.mpy: ${SECRETS}
 	mpy-cross $< -o $@
 
 ifeq (,$(findstring /,${PCB}))
-${DEPLOY_TO}/pins.mpy: src/pins${PCB}.py
+${DEPLOY_TO}/pins.mpy: ${SRC}/pins${PCB}.py
 else
 ${DEPLOY_TO}/pins.mpy: ${PCB}
 endif
 	mpy-cross $< -o $@
 
 
-$(SPECIAL:src/%.py=${DEPLOY_TO}/%.py): ${DEPLOY_TO}/%.py: src/%.py
+$(SPECIAL:${SRC}/%.py=${DEPLOY_TO}/%.py): ${DEPLOY_TO}/%.py: ${SRC}/%.py
 	cp -a $< $@
 
-$(SOURCES:src/%.py=${DEPLOY_TO}/%.mpy): ${DEPLOY_TO}/%.mpy: src/%.py
+$(SOURCES:${SRC}/%.py=${DEPLOY_TO}/%.mpy): ${DEPLOY_TO}/%.mpy: ${SRC}/%.py
 	mpy-cross $< -o $@
 
-$(SENSORS:src/sensors/%.py=${DEPLOY_TO}/sensors/%.mpy): \
-	${DEPLOY_TO}/sensors/%.mpy: src/sensors/%.py
+$(SOURCES2:src/%.py=${DEPLOY_TO}/%.mpy): ${DEPLOY_TO}/%.mpy: src/%.py
 	mpy-cross $< -o $@
 
-$(TASKS:src/tasks/%.py=${DEPLOY_TO}/tasks/%.mpy): \
-	${DEPLOY_TO}/tasks/%.mpy: src/tasks/%.py
+$(SENSORS:${SRC}/sensors/%.py=${DEPLOY_TO}/sensors/%.mpy): \
+	${DEPLOY_TO}/sensors/%.mpy: ${SRC}/sensors/%.py
 	mpy-cross $< -o $@
 
-$(WWW:src/www/%=${DEPLOY_TO}/www/%.gz): ${DEPLOY_TO}/www/%.gz: src/www/%
+$(TASKS:${SRC}/tasks/%.py=${DEPLOY_TO}/tasks/%.mpy): \
+	${DEPLOY_TO}/tasks/%.mpy: ${SRC}/tasks/%.py
+	mpy-cross $< -o $@
+
+$(WWW:${SRC}/www/%=${DEPLOY_TO}/www/%.gz): ${DEPLOY_TO}/www/%.gz: ${SRC}/www/%
 	gzip -9c $< > $@
