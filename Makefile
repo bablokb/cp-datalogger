@@ -18,7 +18,7 @@ MAKEVARS=makevars.tmp
 CONFIG=src/config.py
 LOG_CONFIG=src/log_config.py
 
-ifeq (${MAKECMDGOALS},gateway)
+ifeq (gateway,$(findstring gateway,${MAKECMDGOALS}))
 SRC=src.blues_gateway
 SOURCES=$(wildcard src.blues_gateway/*.py)
 SOURCES2=src/lora.py src/log_writer.py src/singleton.py
@@ -61,7 +61,7 @@ else
 ap_config=
 endif
 
-.PHONY: check_mpy_cross clean copy2pico
+.PHONY: check_mpy_cross clean copy2pico copy2gateway
 
 # default target: pre-compile and compress files
 default: check_mpy_cross ${DEPLOY_TO} ${DEPLOY_TO}/sensors \
@@ -81,7 +81,7 @@ default: check_mpy_cross ${DEPLOY_TO} ${DEPLOY_TO}/sensors \
 		CONFIG=${CONFIG} \
 		LOG_CONFIG=${LOG_CONFIG}
 
-gateway: ${DEPLOY_TO} lib \
+gateway: check_mpy_cross ${DEPLOY_TO} lib \
 	${DEPLOY_TO}/pins.mpy \
 	$(SOURCES:${SRC}/%.py=${DEPLOY_TO}/%.mpy) \
 	$(SOURCES2:src/%.py=${DEPLOY_TO}/%.mpy) \
@@ -119,7 +119,7 @@ makevars.tmp:
 # rsync content of target-directory to pico
 # note: this needs a LABEL=CIRCUITPY entry in /etc/fstab and it only works
 #       if the CIRCUITPY-drive is not already mounted (e.g. by an automounter)
-copy2pico: ${COPY_PREREQ}
+copy2pico copy2gateway: ${COPY_PREREQ}
 	mount -L CIRCUITPY
 	rsync -av -L --exclude boot_out.txt \
 		--exclude  __pycache__ \
