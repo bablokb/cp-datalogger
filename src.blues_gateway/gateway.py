@@ -113,17 +113,16 @@ class Gateway:
 
     g_logger.print(f"waiting for incoming transmissions ...")
     while True:
-      packet = None
+      data = None
 
       # check for packet
-      packet, self._snr, self._rssi = self._lora.receive(
+      data, self._snr, self._rssi = self._lora.receive(
         with_ack=True,timeout=g_config.RECEIVE_TIMEOUT)
-      if packet is None:
+      if data is None:
         continue
 
       # Decode packet: expect csv data
       try:
-        data = packet.decode()
         g_logger.print(f"data: {data}")
         values = data.split(',')
         if values[0] == 'B':
