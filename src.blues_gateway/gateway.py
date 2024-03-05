@@ -10,6 +10,7 @@ import time
 import busio
 import board
 import busio
+import rtc
 from digitalio import DigitalInOut, Direction, Pull
 
 # --- early configuration of the log-destination   ---------------------------
@@ -49,15 +50,67 @@ class Gateway:
     self._i2c  = busio.I2C(sda=pins.PIN_SDA,scl=pins.PIN_SCL)
     self._lora = LORA(g_config)
     self._init_notecard()
+    self._init_rtc()
+    self._dev_mode = getattr(g_config,'DEV_MODE',False)
+    if self._dev_mode:
+      self._startup = time.monotonic()
     g_logger.print(f"gateway initialized")
 
-  # --- Notecard   -------------------------------------------------------------
+  # --- Notecard   -----------------------------------------------------------
 
   def _init_notecard(self):
     """ initialize Notecard """
 
     self._card = notecard.OpenI2C(self._i2c,0,0,debug=False)
     hub.set(self._card,mode="minimum")
+
+    # query start-mode (timer or manual)
+    resp = card.attn(self._card,mode="")
+    self._is_timer_start = 'files' in resp and 'timeout' in resp['files']
+    g_logger.print(f"start in timer-mode: {self._is_timer_start}")
+    # disarm attn
+    resp = card.attn(self._card,mode="disarm")
+
+  # --- initialize on-board RTC   --------------------------------------------
+
+  def _init_rtc(self):
+    """ initialize RTC """
+
+    self._rtc = rtc.RTC()
+    i = 0
+    while i < 2:
+      i += 1
+      g_logger.print("trying to set time from notecard...")
+      resp = card.time(self._card)
+      if 'time' in resp:
+        ts = time.localtime(resp['time'] + 60*resp['minutes'])
+        self._rtc.datetime = ts
+        return True
+      else:
+        g_logger.print(f"time not available, wating for sync")
+        if not self._sync_notecard():
+          g_logger.print("could not set time")
+          return False
+
+  # --- sync notecard   ------------------------------------------------------
+
+  def _sync_notecard(self,wait=True):
+    """ sync notecard """
+
+    resp = hub.sync(self._card)
+    if not wait:
+      return False
+    max_sync_time = getattr(g_config,'MAX_SYNC_TIME',120)
+    resp = hub.syncStatus(self._card)
+    while "requested" in resp:
+      requested = resp['requested']
+      g_logger.print(f"sync request in progress since {requested}s")
+      if requested > max_sync_time:
+        g_logger.print(f"could not sync within {max_sync_time}s")
+        return False
+      time.sleep(10)
+      resp = hub.syncStatus(self._card)
+    return True
 
   # --- process data   -------------------------------------------------------
 
@@ -101,6 +154,38 @@ class Gateway:
     """ cleanup ressources """
     pass
 
+  def _shutdown(self):
+    """ signal attn to notecard to cut power and set wakeup """
+
+    # get start of next active window (tomorrow)
+    window_start = getattr(g_config,'ACTIVE_WINDOW_START',7)
+    g_logger.print(f"shutdown until tomorrow, {window_start:02}:00")
+
+    # calculate sleep-time
+    tm = self._rtc.datetime
+    s_time = ((23-tm.tm_hour)*3600 +
+              (59-tm.tm_min)*60 +
+              (60-tm.tm_sec) +
+              3600*window_start)
+    g_logger.print(f"sleep-duration: {s_time}s")
+
+    # in DEV_MODE, only sleep for a short time
+    if self._dev_mode:
+      uptime_left = getattr(g_config,'DEV_UPTIME',300) - int(
+        time.monotonic()-self._startup)
+      if uptime_left > 0:
+        # ignore to guarantee a minum uptime
+        g_logger.print(f"DEV_MODE: ignoring shutdown for {uptime_left}s")
+        return
+      else:
+        s_time = getattr(g_config,'DEV_SLEEP',60)
+        g_logger.print(f"DEV_MODE: change sleep-duration to: {s_time}s")
+
+    # notify card to disable power until sleep-time expires
+    g_logger.print(f"executing card.attn() with seconds={s_time}s")
+    card.attn(self._card,mode="sleep",seconds=s_time)
+    time.sleep(3)
+
   # --- main-loop   ----------------------------------------------------------
 
   def run(self):
@@ -119,6 +204,9 @@ class Gateway:
       data, self._snr, self._rssi = self._lora.receive(
         with_ack=True,timeout=g_config.RECEIVE_TIMEOUT)
       if data is None:
+        # check active time period
+        if self._rtc.datetime.tm_hour > getattr(g_config,'ACTIVE_WINDOW_END',17):
+          self._shutdown()
         continue
 
       # Decode packet: expect csv data
@@ -138,5 +226,3 @@ class Gateway:
       except Exception as ex:
         g_logger.print(f"could not process data: {ex}")
 
-      # add minimal sleep
-      time.sleep(0.05)
