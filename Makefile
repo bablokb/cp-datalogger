@@ -65,7 +65,7 @@ endif
 
 # default target: pre-compile and compress files
 default: check_mpy_cross ${DEPLOY_TO} ${DEPLOY_TO}/sensors \
-	${DEPLOY_TO}/tasks ${DEPLOY_TO}/www lib ${ap_config} \
+	${DEPLOY_TO}/tasks ${DEPLOY_TO}/www lib fonts ${ap_config} \
 	${DEPLOY_TO}/pins.mpy \
 	$(SOURCES:${SRC}/%.py=${DEPLOY_TO}/%.mpy) \
 	$(SPECIAL:${SRC}/%.py=${DEPLOY_TO}/%.py) \
@@ -105,7 +105,8 @@ ${DEPLOY_TO} ${DEPLOY_TO}/sensors ${DEPLOY_TO}/tasks ${DEPLOY_TO}/www:
 # copy libs and fonts
 lib:
 	rsync -av --delete ${SRC}/lib ${DEPLOY_TO}
-	-rsync -av --delete ${SRC}/fonts ${DEPLOY_TO}
+fonts:
+	rsync -av --delete ${SRC}/fonts ${DEPLOY_TO}
 
 # clean target-directory (only delete auto-created makevars.tmp)
 clean:
