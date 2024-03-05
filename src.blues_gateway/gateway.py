@@ -165,7 +165,7 @@ class Gateway:
     tm = self._rtc.datetime
     s_time = ((23-tm.tm_hour)*3600 +
               (59-tm.tm_min)*60 +
-              (60-tm.tm_sec) +
+              (59-tm.tm_sec) +
               3600*window_start)
     g_logger.print(f"sleep-duration: {s_time}s")
 
