@@ -100,7 +100,7 @@ class Gateway:
     resp = hub.sync(self._card)
     if not wait:
       return False
-    max_sync_time = getattr(g_config,'MAX_SYNC_TIME',120)
+    max_sync_time = getattr(g_config,'MAX_SYNC_TIME',300)
     resp = hub.syncStatus(self._card)
     while "requested" in resp:
       requested = resp['requested']
@@ -206,6 +206,9 @@ class Gateway:
       if data is None:
         # check active time period
         if self._rtc.datetime.tm_hour > getattr(g_config,'ACTIVE_WINDOW_END',17):
+          # if necessary, sync notes before shutdown
+          if g_config.SYNC_BLUES_ACTION == False:
+            self._sync_notecard(wait=False)
           self._shutdown()
         continue
 
