@@ -26,6 +26,8 @@ class LORA:
     """ constructor """
 
     self._config = config
+    self._trace = getattr(self._config,'LORA_TRACE',False)
+
     # don't catch exceptions, main.py will handle that
 
     g_logger.print("LoRa: setting up SPI")
@@ -54,12 +56,18 @@ class LORA:
     self.rfm9x.ack_retries = getattr(config,"LORA_ACK_RETRIES",3)
     self.rfm9x.sleep()
 
+  # --- trace LoRa-events   --------------------------------------------------
+
+  def trace(self,msg):
+    """ trace LoRa events """
+    if self._trace:
+      g_logger.print(msg)
+
   # --- transmit command   ---------------------------------------------------
 
   def transmit(self,string,ack=True,keep_listening=False):
     """ send data """
-    if getattr(self._config,'TEST_MODE',False) or getattr(self._config,'DEV_MODE',False):
-      g_logger.print("LoRa: sending data...")
+    self.trace(f"LoRa: sending data: {string}")
     if ack:
       return self.rfm9x.send_with_ack(bytes(string, "UTF-8"))
     else:
@@ -69,14 +77,13 @@ class LORA:
 
   def receive(self,with_ack=True,timeout=0.5):
     """ receive and decode data """
-    if getattr(self._config,'TEST_MODE',False) or getattr(self._config,'DEV_MODE',False):
-      g_logger.print("LoRa: receiving data...")
+    self.trace("LoRa: receiving data...")
     packet = self.rfm9x.receive(with_ack=with_ack,timeout=timeout)
     if packet is None:
+      self.trace(f"LoRa: no packet within {timeout}s")
       return (None,None,None)
     else:
-      if getattr(self._config,'TEST_MODE',False) or getattr(self._config,'DEV_MODE',False):
-        g_logger.print(f"LoRa: packet: {packet.decode()}")
+      self.trace(f"LoRa: packet: {packet.decode()}")
       return (packet.decode(),self.rfm9x.last_snr,self.rfm9x.last_rssi)
 
   # --- set destination   ----------------------------------------------------
