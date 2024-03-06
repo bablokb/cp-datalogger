@@ -51,6 +51,16 @@ class Gateway:
     self._lora = LORA(g_config)
     self._init_notecard()
     self._init_rtc()
+
+    start = getattr(g_config,'ACTIVE_WINDOW_START',"7:00").split(':')
+    self._start_h = int(start[0])
+    self._start_m = int(start[1])
+    end = getattr(g_config,'ACTIVE_WINDOW_END',"17:00").split(':')
+    self._end_h = int(end[0])
+    self._end_m = int(end[1])
+    g_logger.print(
+      f"Active Window: {self._start_h:02}:{self._start_m:02}-{self._end_h:02}:{self._end_m:02}")
+
     self._dev_mode = getattr(g_config,'DEV_MODE',False)
     if self._dev_mode:
       self._startup = time.monotonic()
@@ -154,19 +164,21 @@ class Gateway:
     """ cleanup ressources """
     pass
 
+  # --- shutdown   -----------------------------------------------------------
+
   def _shutdown(self):
     """ signal attn to notecard to cut power and set wakeup """
 
     # get start of next active window (tomorrow)
-    window_start = getattr(g_config,'ACTIVE_WINDOW_START',7)
-    g_logger.print(f"shutdown until tomorrow, {window_start:02}:00")
+    g_logger.print(
+      f"shutdown until tomorrow, {self._start_h:02}:{self._start_m:02}")
 
     # calculate sleep-time
     tm = self._rtc.datetime
     s_time = ((23-tm.tm_hour)*3600 +
               (59-tm.tm_min)*60 +
               (59-tm.tm_sec) +
-              3600*window_start)
+              3600*self._start_h + 60*self._start_m)
     g_logger.print(f"sleep-duration: {s_time}s")
 
     # in DEV_MODE, only sleep for a short time
@@ -176,7 +188,7 @@ class Gateway:
       if uptime_left > 0:
         # ignore to guarantee a minum uptime
         g_logger.print(f"DEV_MODE: ignoring shutdown for {uptime_left}s")
-        return
+        return False
       else:
         s_time = getattr(g_config,'DEV_SLEEP',60)
         g_logger.print(f"DEV_MODE: change sleep-duration to: {s_time}s")
@@ -184,7 +196,8 @@ class Gateway:
     # notify card to disable power until sleep-time expires
     g_logger.print(f"executing card.attn() with seconds={s_time}s")
     card.attn(self._card,mode="sleep",seconds=s_time)
-    time.sleep(3)
+    time.sleep(10)
+    return True
 
   # --- main-loop   ----------------------------------------------------------
 
@@ -205,11 +218,13 @@ class Gateway:
         with_ack=True,timeout=g_config.RECEIVE_TIMEOUT)
       if data is None:
         # check active time period
-        if self._rtc.datetime.tm_hour > getattr(g_config,'ACTIVE_WINDOW_END',17):
+        if (self._rtc.datetime.tm_hour >= self._end_h and
+            self._rtc.datetime.tm_min  >= self._end_m):
           # if necessary, sync notes before shutdown
           if g_config.SYNC_BLUES_ACTION == False:
             self._sync_notecard(wait=False)
-          self._shutdown()
+          if self._shutdown():
+            break
         continue
 
       # Decode packet: expect csv data
