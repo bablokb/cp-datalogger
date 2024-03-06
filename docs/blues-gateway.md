@@ -125,6 +125,12 @@ This is mainly due to the Challenger - the onboard regulator does
 not seem to shut down completely when the EN-pin of the feather
 is pulled low.
 
+The power requirement could be drastically reduced if the nodes would
+only send once a day. In this case, the *active window* could be one
+hour instead of ten hours. This needs changes in the way the nodes
+operate and is planned for a future iteration. The gateway itself
+already supports this alternative operation mode.
+
 
 Solar Power Recommendations
 ---------------------------
