@@ -16,9 +16,9 @@ The current hardware setup uses these components:
   - Solar-Panel with 6V
 
 The Challenger, solar-panel and LiPo plug into the F-carrierboard. The
-antenna plugs into the Challenger. *Since the F-carrierboard does not have
+antenna plugs into the Challenger. **Since the F-carrierboard does not have
 any over-discharge protection, the LiPo must provide the protection
-itself!*
+itself!**
 
 On the back of the F-carrierboard is a switch. Remove the protective
 foil and use a very small screwdriver and push the switch to the right.
@@ -61,10 +61,10 @@ Operation
 ---------
 
 The current implementation will run the gateway every day during an
-/active window/. Both the start and end hour of the active window have to
+*active window*. Both the start and end hour of the active window have to
 be defined in `config.py`. The active window should match the time-table
 of the dataloggers. The following setting will run the gateway from
-07:00 - 17:59 every day:
+07:00 - 17:00 every day:
 
     ACTIVE_WINDOW_START = 7:00  # active (online) window start time
     ACTIVE_WINDOW_END   = 17:00 # active (online) window end time
@@ -79,7 +79,7 @@ active window and will shutdown the device at the end of the active
 window.
 
 There are two methods of synchronisation of the data to the cloud
-(i.e. to <nothub.io>):
+(i.e. to <https://nothub.io>):
 
   - synchronisation directly after receiving the data from the
     datalogger via LoRa
@@ -89,13 +89,15 @@ There are two methods of synchronisation of the data to the cloud
 The modes are controlled by the variable `SYNC_BLUES_ACTION`:
 
   - `SYNC_BLUES_ACTION = True` will sync immediately
-  - `SYNC_BLUES_ACTION = False` will sync after at the end of the
+  - `SYNC_BLUES_ACTION = False` will sync after the end of the
     active window
+  - `SYNC_BLUES_ACTION = None` will print to the log and discard the
+    data (useful only during development)
 
 The second option is for now the recommended option. It is more efficient
-(less data-transfer, less power-consumption). The only reason /not/ to
+(less data-transfer, less power-consumption). The only reason *not* to
 use the second option is the potential problem of a low-battery at
-the end of the day.
+the end of the day (to be verified).
 
 
 Power Requirements
@@ -130,7 +132,7 @@ Solar Power Recommendations
 Total energy-harvesting per day using a solar-panel should therefore
 provide at least
 
-    50 mAh * hours in receive-mode + ???mAh
+    50 mAh * hours in receive-mode + 2mA * hours not in receive mode + ???mAh
 
 The absolute term on the right side of the equation is for the final
 sync to the cloud and depends on the amount of data sent by the nodes.
