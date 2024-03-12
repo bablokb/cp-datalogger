@@ -59,7 +59,7 @@ class WebAP(Server):
   @route("/","GET")
   def _handle_main(self,path,query_params, headers, body):
     """ handle request for main-page """
-    self.debug("_handle_main...")
+    g_logger.print("_handle_main...")
     return FileResponse("/www/index.html")
 
   # --- request-handler for /favicon.ico   -----------------------------------
@@ -75,7 +75,7 @@ class WebAP(Server):
   @route("/[^.]*\.(js|css|html)","GET")
   def _handle_static(self,path,query_params, headers, body):
     """ handle request for static-files """
-    self.debug(f"_handle_static for {path}")
+    g_logger.print(f"_handle_static for {path}")
     if self._config["cache"]:
       headers = {
         "Cache-Control": "max-age=2592000"
@@ -89,7 +89,7 @@ class WebAP(Server):
   @route("/get_status_info","GET")
   def _handle_get_status_info(self,path,query_params, headers, body):
     """ handle request for /get_status_info """
-    self.debug(f"_handle_get_status_info...")
+    g_logger.print(f"_handle_get_status_info...")
     return Response(json.dumps(self._get_status()),
                     content_type="application/json")
 
@@ -98,7 +98,7 @@ class WebAP(Server):
   @route("/get_model","GET")
   def _handle_get_model(self,path,query_params, headers, body):
     """ handle request for /get_model """
-    self.debug(f"_handle_get_model...")
+    g_logger.print(f"_handle_get_model...")
     return Response(json.dumps(self._model),content_type="application/json")
 
   # --- request-handler for /get_csv_list   ----------------------------------
@@ -117,7 +117,7 @@ class WebAP(Server):
 
   def _handle_get_file_list(self,path,query_params, headers, body):
     """ handle requests for /get_xxx_list """
-    self.debug(f"_handle_get_file_list...")
+    g_logger.print(f"_handle_get_file_list...")
     ftype = f".{path.split('_')[1]}"
     response = json.dumps({
       "files":
@@ -132,13 +132,13 @@ class WebAP(Server):
   @route("/save_config","POST")
   def _handle_save_config(self,path,query_params, headers, body):
     """ handle request for /save_config """
-    self.debug(f"_handle_save_config...\n{body}")
+    g_logger.print(f"_handle_save_config...\n{body}")
     try:
       self._export_config(body)
       return Response("configuration saved",
                       content_type="text/plain")
     except Exception as ex:
-      self.debug(f"exception during save_config: {ex}")
+      g_logger.print(f"exception during save_config: {ex}")
       return Response("could not save configuration",
                       content_type="text/plain")
 
@@ -147,7 +147,7 @@ class WebAP(Server):
   @route("/set_time","POST")
   def _handle_set_time(self,path,query_params, headers, body):
     """ handle request for /set_time """
-    self.debug(f"_handle_set_time...\n{body}")
+    g_logger.print(f"_handle_set_time...\n{body}")
     try:
       _,new_time = body.decode().split("=")
       if self._config["rtc"]:
@@ -155,7 +155,7 @@ class WebAP(Server):
       return Response(json.dumps(self._get_status()),
                       content_type="application/json")
     except Exception as ex:
-      self.debug(f"exception updating time: {ex}")
+      g_logger.print(f"exception updating time: {ex}")
       return Response("could not update time",
                       content_type="text/plain")
 
@@ -164,7 +164,7 @@ class WebAP(Server):
   @route("/config.py","GET")
   def _handle_download_config_py(self,path,query_params, headers, body):
     """ handle request for config.py download """
-    self.debug(f"_handle_download_config_py")
+    g_logger.print(f"_handle_download_config_py")
     return FileResponse(f"config.py",content_type="application/octet-stream")
 
   # --- request-handler for config.py upload   -------------------------------
@@ -172,7 +172,7 @@ class WebAP(Server):
   @route("/upload_config","POST")
   def _handle_upload_config_py(self,path,query_params, headers, body):
     """ handle request for config.py upload """
-    self.debug(f"_handle_upload_config_py...\n{body}")
+    g_logger.print(f"_handle_upload_config_py...\n{body}")
 
     try:
       with open("config.py","wb") as file:
@@ -181,7 +181,7 @@ class WebAP(Server):
       return Response("config.py uploaded successfully",
                       content_type="text/plain")
     except Exception as ex:
-      self.debug(f"exception during update of config.py: {ex}")
+      g_logger.print(f"exception during update of config.py: {ex}")
       return Response("config.py upload failed",
                       content_type="text/plain")
 
@@ -190,7 +190,7 @@ class WebAP(Server):
   @route("/[^.]+\.(csv|log)","GET")
   def _handle_file_download(self,path,query_params, headers, body):
     """ handle request for file-download """
-    self.debug(f"_handle_file_download for {path}")
+    g_logger.print(f"_handle_file_download for {path}")
     return FileResponse(f"/sd/{path}",
                         content_type="application/octet-stream",
                         buffer_size=4096)
@@ -200,7 +200,7 @@ class WebAP(Server):
   @route("/[^.]+\.(csv|log).delete","GET")
   def _handle_file_delete(self,path,query_params, headers, body):
     """ handle request for file-delete """
-    self.debug(f"_handle_file_delete for {path}")
+    g_logger.print(f"_handle_file_delete for {path}")
     try:
       os.remove(f"/sd/{path[0:-7]}")
     except:
@@ -224,7 +224,7 @@ class WebAP(Server):
       "dl_commit" : commit.commit,
       "dev_time": time.time()
       })
-    self.debug(f"{status=}")
+    g_logger.print(f"{status=}")
     return status
 
   # --- read lines from config.py   ------------------------------------------
@@ -287,8 +287,8 @@ class WebAP(Server):
         else:
           self._model[var] = value
     except Exception as ex:
-      self.debug(f"exception: {ex}")
-      self.debug("could not read config.py")
+      g_logger.print(f"exception: {ex}")
+      g_logger.print("could not read config.py")
     gc.collect()
     self._dump_model()
 
@@ -378,7 +378,7 @@ class WebAP(Server):
     # write to config.py (needs write access to flash -> boot.py)
     # (dump SENSORS as first variable for reuse in other variables)
     try:
-      self.debug("writing config.py...")
+      g_logger.print("writing config.py...")
       keys = ["SENSORS"] + [key for
         key in sorted(self._model.keys()) if key[0] != "_" and key != "SENSORS"]
       with open("config.py","w") as file:
@@ -398,10 +398,10 @@ class WebAP(Server):
             file.write(f"{key}={value}\n")
           else:
             file.write(f"{key}=\"{value}\"\n")
-      self.debug("...done")
+      g_logger.print("...done")
     except Exception as ex:
-      self.debug(f"exception: {ex}")
-      self.debug(f"error writing config.py")
+      g_logger.print(f"exception: {ex}")
+      g_logger.print(f"error writing config.py")
 
   # --- run AP   -------------------------------------------------------------
 
@@ -425,7 +425,7 @@ class WebAP(Server):
     server.advertise_service(service_type="_http",
                              protocol="_tcp", port=80)
     pool = socketpool.SocketPool(wifi.radio)
-    self.debug(f"starting {server.hostname}.local ({wifi.radio.ipv4_address_ap})")
+    g_logger.print(f"starting {server.hostname}.local ({wifi.radio.ipv4_address_ap})")
     with pool.socket() as server_socket:
       yield from self.start(server_socket)
 
@@ -437,6 +437,6 @@ class WebAP(Server):
     started = False
     for _ in self.run_server():
       if not started:
-        self.debug(f"Listening on http://{wifi.radio.ipv4_address_ap}:80")
+        g_logger.print(f"Listening on http://{wifi.radio.ipv4_address_ap}:80")
         started = True
       gc.collect()
