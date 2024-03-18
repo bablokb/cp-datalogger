@@ -105,6 +105,6 @@ per day will consume
   - 40 * 0.47mAh = 18,8mAh (with display)
   - 40 * 0.11mAh =  4,4mAh (without display)
 
-With measurements from Monday to Friday This would result in a runtime
+With measurements from Monday to Friday this would result in a runtime
 of about 28 weeks (with display) or 122 weeks (without display) under the
 assumption of a total capacity of 2700mAh for two fresh AA-batteries.
