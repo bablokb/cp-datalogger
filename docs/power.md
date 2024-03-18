@@ -3,15 +3,16 @@ Power
 
 The board needs to be powered with one of the following options:
 
-  - Two or three AA or AAA batteries
-  - Three AA or AAA rechargeables (take care to get the 'slow discharge' type)
+  - Two AA or AAA batteries
   - A LiPo battery
 
-The RTC requires a CR2032 cell. This cell is not used for operation, it
+The RTC supports a CR2032 cell. This cell is not used for operation, it
 just keeeps the internal state of the RTC when the standard batteries
-are not connected.
+are not connected. **Adding this coin-cell will shut down the RTC at
+about 2.5V. This has no negative effect for LiPo-batteries which operate
+above 3.0V, but for batteries, this severely limits the usable capacity.**
 
-The power-management circuit has a leakage current of about 75µA during
+The power-management circuit has a leakage current of about 1.5µA during
 "off-time" (at 3V).
 
 
@@ -49,63 +50,61 @@ datalogger can theoretically use the full capacity of the cells.
 Current Measurements
 --------------------
 
-The test-setup uses a typical set of sensors for temperature, humidity,
-light and noise (measured at 3V):
+The test-setup uses the datalogger-v2 PCB with the standard sensor-PCB:
 
   - AHT20 (temperature/humidity)
-  - LTR599 (light)
+  - BH1750 (light)
   - PDM-mic (noise)
 
-The results for these sensors (including SD-card and e-ink display):
+The results for these sensors (including writing to the XTSD-card,
+update of the e-ink display and LoRa transmission):
 
-![](current-aht20-ltr599-pdm-sd-display.png)
+![](v2_std_inky+lora_2.5V_10cycles.png)
 
-Average current for "on-time" (18secs) is 57.26mA, used charge capacity is
-18/3600*57.26mA = 0.2863mAh.
+The spike occurs during LoRa transmission and uses a relative high
+current for a very short time. This spike is not the driver of the
+total energy consumption.
 
-Same data without the e-ink display:
+The average current during a measurment cycle depends on the voltage
+of the batteries. Some figures (mean of 10 measured cycles):
 
-![](current-aht20-ltr599-pdm-sd.png)
+  - 2.5V: 28.5mA (0.47mAh per cycle)
+  - 3.0V: 21.1mA (0.35mAh per cycle)
+  - 3.7V: 15.9mA (0.27mAh per cycle)
 
-Average current for "on-time" (6 secs) is 68,08mA, used charge capacity is
-6/3600*68,08mA = 0.1135mAh.
+These figures include current during "on-time" and current during
+"off-time" which is essentially neglegible.
+
+Without the display update, the "on-time" is much shorter and the
+energy per cycle is also much smaller:
+
+![](v2_std_lora_2.5V_10cycles.png)
+
+  - 2.5V: 6.6mA (0.11mAh per cycle)
+
+A typical power curve will show a fast initial discharge followed by
+a linear phase and again a final steep voltage drop at the end of the
+life of the batteries:
+
+![](battery-voltage.png)
+
+This curve was created with one measurement cycle per minute which is
+not the target setup. It is expected that lower duty-cycles will give
+the battery more time to recover.
 
 
 Extrapolated Current Usage
 --------------------------
 
-The following calculations don't take the variable current draw into
-account. I.e. the real current draw will be higher.
+Using the figures from above for 2.5V (mean battery voltage during lifetime)
+we have:
 
-Four measurements per hour with display: 4 * 24 = 96 measurements a day
-with a total on time of 96 * 18 secs = 1728 secs. Off time is 84672 secs.
+Four measurements per hour for 10 hours, i.e. 40 measurements
+per day will consume
 
-  - on: 4 * 24 * 0.2863mAh = 27,4848mAh
-  - off: 84672/3600 * 75µA = 1.764mAh
+  - 40 * 0.47mAh = 18,8mAh (with display)
+  - 40 * 0.11mAh =  4,4mAh (without display)
 
-So per day the needed charge capacity is 29.25mAh
-
-Four measurements per hour without display: 4 * 24 = 96 measurements a day
-with a total on time of 96 * 6 secs = 576 secs. Off time is 85824 secs.
-
-  - on: 4 * 24 * 0.1135mAh = 10.89mAh
-  - off: 85824/3600 * 75µA = 1.788mAh
-
-So per day the needed charge capacity is 12.68mAh.
-
-
-Longterm Test
--------------
-
-A longterm test with one measurement, i.e. a duty-cycle of 30% (18s/60s
-on-time) lasted 5.5 days and the battery voltage showed the expected
-curve:
-
-![](battery-voltage.png)
-
-With this data, the expected active time of a datalogger (with display)
-on one set of AA batteries is 2.5 months with one measurement every
-15 minutes or 5 months when the system is only active half of the day.
-
-For a datalogger without display the batteries should last something
-like 7.5-15 month depending on the measurement cycle.
+With measurements from Monday to Friday This would result in a runtime
+of about 28 weeks (with display) or 122 weeks (without display) under the
+assumption of a total capacity of 2700mAh for two fresh AA-batteries.
