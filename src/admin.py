@@ -9,6 +9,7 @@
 import wifi
 import time
 import busio
+import gc
 from digitalio import DigitalInOut, Pull, Direction
 
 import pins
@@ -115,6 +116,20 @@ if g_config.HAVE_DISPLAY:
   display.root_group = group
   display.refresh()
   g_logger.print("finished display update")
+
+  # cleanup (free memory)
+  g_logger.print(f"free memory before cleanup: {gc.mem_free()}")
+  for _ in range(len(group)):
+    group.pop()
+  group   = None
+  font    = None
+  shader  = None
+  heading = None
+  ap_info = None
+  ap_info_text = None
+  display.root_group = None
+  gc.collect()
+  g_logger.print(f"free memory after  cleanup: {gc.mem_free()}")
 
 # --- start AP and web-server   ----------------------------------------------
 
