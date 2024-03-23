@@ -221,10 +221,15 @@ class DataCollector():
       }
     self.record = ts_str
 
+    if g_config.TEST_MODE:
+      g_logger.print(f"sensors: free memory before readout: {gc.mem_free()}")
     self.values = []
     for read_sensor in self._sensors:
       rec = read_sensor(self.data,self.values)
       self.record += f",{rec}"
+    if g_config.TEST_MODE:
+      g_logger.print(f"sensors: free memory after readout: {gc.mem_free()}")
+    gc.collect()
 
   # --- check if file already exists   --------------------------------------
 
@@ -245,6 +250,8 @@ class DataCollector():
       return
 
     for task in g_config.TASKS.split(" "):
+      if g_config.TEST_MODE:
+        g_logger.print(f"{task}: free memory before task: {gc.mem_free()}")
       try:
         g_logger.print(f"{task}: loading")
         task_module = builtins.__import__("tasks."+task,None,None,["run"],0)
@@ -254,6 +261,10 @@ class DataCollector():
         g_logger.print(f"{task} ended")
       except Exception as ex:
         g_logger.print(f"{task} failed: exception: {ex}")
+      if g_config.TEST_MODE:
+        g_logger.print(f"{task}: free memory after task: {gc.mem_free()}")
+      task_module = None
+      gc.collect()
 
   # --- print timings   ------------------------------------------------------
 
