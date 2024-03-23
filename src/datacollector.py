@@ -98,6 +98,8 @@ class DataCollector():
       self.vfs   = storage.VfsFat(sdcard)
       storage.mount(self.vfs, "/sd")
       g_ts.append((time.monotonic(),"sd-mount"))
+      if g_config.TEST_MODE:
+        g_logger.print(f"setup: free memory after sd-mount: {gc.mem_free()}")
 
     # Initialse i2c bus for use by sensors and RTC
     i2c1 = busio.I2C(pins.PIN_SCL1,pins.PIN_SDA1)
@@ -109,6 +111,8 @@ class DataCollector():
         i2c0 = None
     else:
       i2c0 = None
+    if g_config.TEST_MODE:
+      g_logger.print(f"setup: free memory after create i2c-bus: {gc.mem_free()}")
 
     # If our custom PCB is connected, we have an RTC. Initialise it.
     if g_config.HAVE_PCB:
@@ -117,6 +121,8 @@ class DataCollector():
           net_update=g_config.NET_UPDATE)      # this will also clear interrupts
         self.rtc.rtc_ext.high_capacitance = True  # the pcb uses a 12.5pF capacitor
         self.rtc.update()                      # (time-server->)ext-rtc->int-rtc
+        if g_config.TEST_MODE:
+          g_logger.print(f"setup: free memory after rtc-update: {gc.mem_free()}")
       except Exception as ex:
         # either we don't have the PCB after all, or no battery is connected
         g_logger.print(f"error while configuring RTC: {ex}")
@@ -136,6 +142,8 @@ class DataCollector():
     if g_config.HAVE_DISPLAY:
       from display import Display
       self.display = Display(g_config,self._spi)
+      if g_config.TEST_MODE:
+        g_logger.print(f"setup: free memory after create display: {gc.mem_free()}")
 
     g_ts.append((time.monotonic(),"display-config"))
 
@@ -148,7 +156,11 @@ class DataCollector():
     self.lora_status = "~"
 
     #configure sensors
+    if g_config.TEST_MODE:
+      g_logger.print(f"setup: free memory before config sensors: {gc.mem_free()}")
     self._configure_sensors(i2c0,i2c1)
+    if g_config.TEST_MODE:
+      g_logger.print(f"setup: free memory after config sensors: {gc.mem_free()}")
 
     g_ts.append((time.monotonic(),"sensor-config"))
 

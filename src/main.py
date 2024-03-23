@@ -9,7 +9,11 @@
 # Website: https://github.com/pcb-pico-datalogger
 #-----------------------------------------------------------------------------
 
+import gc
+print(f"main: free memory at start: {gc.mem_free()}")
+
 import datacollector
+print(f"main: free memory after import datacollector: {gc.mem_free()}")
 
 try:
   app = datacollector.DataCollector()
