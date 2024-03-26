@@ -9,7 +9,9 @@
 # Website: https://github.com/pcb-pico-datalogger
 #-----------------------------------------------------------------------------
 
+import time
 import gc
+time.sleep(5)
 print(f"main: free memory at start: {gc.mem_free()}")
 
 import datacollector
