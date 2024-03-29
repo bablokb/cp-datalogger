@@ -24,3 +24,4 @@ adafruit_bme280
 adafruit_onewire
 adafruit_pm25
 adafruit_pcf8523
+ehttpserver
