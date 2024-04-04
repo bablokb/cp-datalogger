@@ -68,9 +68,8 @@ if g_config.HAVE_PCB:
 spi = busio.SPI(pins.PIN_SD_SCK,pins.PIN_SD_MOSI,pins.PIN_SD_MISO)
 if g_config.HAVE_SD:
   import storage
-  import adafruit_sdcard
-  sd_cs  = DigitalInOut(pins.PIN_SD_CS)
-  sdcard = adafruit_sdcard.SDCard(spi,sd_cs)
+  import sdcardio
+  sdcard = sdcardio.SDCard(spi,pins.PIN_SD_CS,1_000_000)
   vfs    = storage.VfsFat(sdcard)
   storage.mount(vfs, "/sd")
 

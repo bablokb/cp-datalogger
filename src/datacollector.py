@@ -30,8 +30,8 @@ import builtins
 from digitalio import DigitalInOut, Direction, Pull
 
 # import for SD-card
+import sdcardio
 import storage
-import adafruit_sdcard
 
 # imports for i2c and rtc
 import busio
@@ -96,8 +96,7 @@ class DataCollector():
     self._spi = None
     if g_config.HAVE_SD:
       self._spi = busio.SPI(pins.PIN_SD_SCK,pins.PIN_SD_MOSI,pins.PIN_SD_MISO)
-      self.sd_cs = DigitalInOut(pins.PIN_SD_CS)
-      sdcard     = adafruit_sdcard.SDCard(self._spi,self.sd_cs)
+      sdcard     = sdcardio.SDCard(self._spi,pins.PIN_SD_CS,1_000_000)
       self.vfs   = storage.VfsFat(sdcard)
       storage.mount(self.vfs, "/sd")
       g_ts.append((time.monotonic(),"sd-mount"))

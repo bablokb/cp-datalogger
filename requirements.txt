@@ -3,7 +3,6 @@ adafruit_bh1750
 adafruit_ens160
 adafruit_mcp9808
 adafruit_requests
-adafruit_sdcard
 adafruit_sht4x
 adafruit_st7789
 adafruit_am2320
