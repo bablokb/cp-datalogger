@@ -85,6 +85,9 @@ class DataCollector():
   def setup(self):
     """ create hardware-objects """
 
+    # save LiPo status
+    self.with_lipo = getattr(g_config,"HAVE_LIPO",False)
+
     # pull CS of display high to prevent it from floating
     self._cs_display = DigitalInOut(pins.PIN_INKY_CS)
     self._cs_display.switch_to_output(value=True)
@@ -118,9 +121,13 @@ class DataCollector():
     if g_config.HAVE_PCB:
       try:
         self.rtc = ExtRTC(i2c1,
-          net_update=g_config.NET_UPDATE)      # this will also clear interrupts
-        self.rtc.rtc_ext.high_capacitance = True  # the pcb uses a 12.5pF capacitor
-        self.rtc.update()                      # (time-server->)ext-rtc->int-rtc
+          net_update=g_config.NET_UPDATE)         # also clears interrupts
+        self.rtc.rtc_ext.high_capacitance = True  # uses a 12.5pF capacitor
+        if self.with_lipo:
+          self.rtc.rtc_ext.power_managment = 0b001  # direct switchover Vdd<Vbat
+        else:
+          self.rtc.rtc_ext.power_managment = 0b000  # Vdd<Vbat and Vdd < Vth
+        self.rtc.update()                   # (time-server->)ext-rtc->int-rtc
         if g_config.TEST_MODE:
           g_logger.print(f"setup: free memory after rtc-update: {gc.mem_free()}")
       except Exception as ex:
@@ -301,7 +308,6 @@ class DataCollector():
       from sensors.battery import BATTERY
       bat = BATTERY(g_config,None)
       bat.read(self.data,self.values)
-    self.with_lipo = getattr(g_config,"HAVE_LIPO",False)
 
   # --- set next wakeup   ----------------------------------------------------
 
@@ -319,42 +325,6 @@ class DataCollector():
       self.rtc.set_alarm(self.wakeup)
     else:
       self.wakeup = ExtRTC.get_alarm_time(s=g_config.INTERVAL)
-
-  # --- configure battery-switchover for RTC   -------------------------------
-
-  def configure_switchover(self):
-    """ configure rtc battery switchover """
-
-    # Note: RTC-battery switchover does not work well with batteries, since
-    #       the switchover threshold (2.5V) is within the normal working
-    #       range. Therefore we disable switchover for batteries for
-    #       2.0 < VSYS < 2.7. This assumes that initial deployment uses
-    #       full batteries.
-
-    if not g_config.HAVE_PCB:
-      return
-
-    BAT_OFF  = getattr(g_config,"BAT_OFF",2.0)
-    BAT_NORM = getattr(g_config,"BAT_NORM",2.7)
-    LIPO_OFF = getattr(g_config,"LIPO_OFF",3.1)
-
-    g_logger.print(f'battery-level: {self.data["battery"]} (LiPo:{self.with_lipo})')
-    if self.data["battery"] < BAT_OFF:
-      # enable switchover (end of life)
-      self.rtc.rtc_ext.power_managment = 0b000
-      g_logger.print("enabling rtc battery switchover")
-    elif not self.with_lipo and self.data["battery"] < BAT_NORM:
-      # disable switchover (within working range)
-      self.rtc.rtc_ext.power_managment = 0b111
-      g_logger.print("disabling rtc battery switchover")
-    elif self.with_lipo and self.data["battery"] < LIPO_OFF:
-      # enable direct switchover to protect LiPo
-      self.rtc.rtc_ext.power_managment = 0b001
-      g_logger.print("LiPo low, enabling direct rtc battery switchover")
-    else:  # >= BAT_NORM (battery) or >= LIPO_OFF (LiPo)
-      # enable switchover (initial dispatching (bat) or working range(LiPo))
-      self.rtc.rtc_ext.power_managment = 0b000
-      g_logger.print("enabling rtc battery switchover")
 
   # --- shutdown   -----------------------------------------------------------
 
@@ -436,7 +406,6 @@ class DataCollector():
         break
 
     self.configure_wakeup()
-    self.configure_switchover()
     self.shutdown()
 
     # we are only here if
