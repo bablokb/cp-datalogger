@@ -94,46 +94,31 @@ broadcast_int = getattr(g_config,'BROADCAST_INT',10)
 i = 0
 while True:
   i += 1
-  ts = time.localtime()
-  ts_str = f"{ts.tm_year}-{ts.tm_mon:02d}-{ts.tm_mday:02d}T{ts.tm_hour:02d}:{ts.tm_min:02d}:{ts.tm_sec:02d}"
-
-  # send packet ("B",TS,ID,nr,node)
-  g_logger.print(f"Broadcast: packet {i}: sending at {ts_str}")
   start = time.monotonic()
-  if lora.transmit(f"B,{ts_str},{g_config.LOGGER_ID},{i},{lora.rfm9x.node}",
-                   ack=True,keep_listening=True):
-    duration = time.monotonic()-start
-    g_logger.print(f"Broadcast: packet {i}: transfer-time: {duration}s")
-  else:
-    g_logger.print("Broadcast: packet {i}: failed")
+  packet = lora.broadcast(nr,timeout=broadcast_int)
+  duration = time.monotonic()-start
+  if not packet:
     stime = max(0,broadcast_int-duration)
     g_logger.print(f"Broadcast: next cycle in {stime}s...")
     time.sleep(stime)
     continue
 
-  # wait for response
-  timeout  = max(1,broadcast_int-duration)
-  packet   = lora.receive(with_ack=False,timeout=timeout)
-  duration = time.monotonic()-start
-  if packet:
-    try:
-      data,my_snr,my_rssi = packet
-      # decode and print/update display
-      nr,gw_snr,gw_rssi = data.split(',')
-      if int(nr) != i:
-        g_logger.print(f"Broadcast: received wrong packet ({nr} but expected {i})")
-      else:
-        g_logger.print(
-          f"Broadcast: packet {i}: SNR(gw), RSSI(gw): {gw_snr}, {gw_rssi}dBm")
-        g_logger.print(
-          f"Broadcast: packet {i}: SNR(node), RSSI(node): {my_snr}, {my_rssi}dBm")
-        g_logger.print(
-          f"Broadcast: packet {i}: roundtrip-time: {duration}s")
-    except:
+  try:
+    data,my_snr,my_rssi = packet
+    # decode and print/update display
+    nr,gw_snr,gw_rssi = data.split(',')
+    if int(nr) != i:
+      g_logger.print(f"Broadcast: received wrong packet ({nr} but expected {i})")
+    else:
       g_logger.print(
-          f"Broadcast: packet {i}: wrong data-format: {data}")
-  else:
-    g_logger.print(f"Broadcast: packet {i}: no response within {timeout}s")
+        f"Broadcast: packet {i}: SNR(gw), RSSI(gw): {gw_snr}, {gw_rssi}dBm")
+      g_logger.print(
+        f"Broadcast: packet {i}: SNR(node), RSSI(node): {my_snr}, {my_rssi}dBm")
+      g_logger.print(
+        f"Broadcast: packet {i}: roundtrip-time: {duration}s")
+  except:
+    g_logger.print(
+        f"Broadcast: packet {i}: wrong data-format: {data}")
 
   # wait until broadcast-interval is done
   stime = max(0,broadcast_int-duration)

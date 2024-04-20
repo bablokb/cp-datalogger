@@ -91,3 +91,27 @@ class LORA:
   def set_destination(self,dest):
     """ set destination for transmit """
     self.rfm9x.destination = dest
+
+  # --- broadcast a package and wait for response   --------------------------
+
+  def broadcast(self,nr,timeout=10):
+    """ send a broadcast package """
+
+    ts = time.localtime()
+    ts_str = f"{ts.tm_year}-{ts.tm_mon:02d}-{ts.tm_mday:02d}T{ts.tm_hour:02d}:{ts.tm_min:02d}:{ts.tm_sec:02d}"
+
+    # send packet ("B",TS,ID,nr,node)
+    g_logger.print(f"LoRa: broadcast packet {nr}: sending at {ts_str}")
+    start = time.monotonic()
+    if lora.transmit(
+      f"B,{ts_str},{self._config.LOGGER_ID},{nr},{self.rfm9x.node}",
+      ack=True,keep_listening=True):
+      duration = time.monotonic()-start
+      g_logger.print(f"LoRa: broadcast: packet {nr}: transfer-time: {duration}s")
+    else:
+      g_logger.print("LoRa: broadcast: packet {nr}: failed")
+      return None
+
+    # wait for response
+    timeout  = max(1,timeout-duration)
+    return lora.receive(with_ack=False,timeout=timeout)
