@@ -95,7 +95,7 @@ i = 0
 while True:
   i += 1
   start = time.monotonic()
-  packet = lora.broadcast(nr,timeout=broadcast_int)
+  packet = lora.broadcast(i,timeout=broadcast_int)
   duration = time.monotonic()-start
   if not packet:
     stime = max(0,broadcast_int-duration)
