@@ -29,7 +29,7 @@ class BATTERY:
     """ read voltage monitor """
 
     adc = AnalogIn(board.VOLTAGE_MONITOR)
-    level = adc.value *  3 * 3.3 / 65535
+    level = round(adc.value *  3 * 3.3 / 65535,2)
     adc.deinit()
     data["battery"] = level
     values.extend([None,level])

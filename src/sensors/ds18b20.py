@@ -63,7 +63,7 @@ class DS18B20:
     record = ""
     sep    = ""
     for ds18b20,rom in self.ds18b20:
-      t = ds18b20.temperature
+      t = round(ds18b20.temperature,1)
       data["ds18b20"]["-".join(hex(b) for b in rom)] = t
       values.extend([None,t])
       record += f"{sep}{t:0.1f}"

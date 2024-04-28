@@ -40,7 +40,7 @@ class PDM:
         float(sample - mean_samples) * (sample - mean_samples)
         for sample in samples
     )
-    mag = math.sqrt(sum2_samples / len(samples))
+    mag = round(math.sqrt(sum2_samples / len(samples)),0)
     data["pdm"] = {
       "mag": mag
     }

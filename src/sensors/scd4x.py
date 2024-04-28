@@ -74,8 +74,8 @@ class SCD4X:
         if self.scd4x.data_ready:
           t_rel = time.monotonic() - t0
           co2   = self.scd4x.CO2
-          temp  = self.scd4x.temperature
-          hum   = self.scd4x.relative_humidity
+          temp  = round(self.scd4x.temperature,1)
+          hum   = round(self.scd4x.relative_humidity,0)
           g_logger.print(f"{self.product}: CO2 at {t_rel:.2f}: {co2}")
           if not self.DISCARD:
             csv_results += f",{t_rel:.2f},{co2}"

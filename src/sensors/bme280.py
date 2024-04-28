@@ -57,9 +57,9 @@ class BME280:
   def read(self,data,values):
     """ read sensor """
     self.bme280.mode = adafruit_bme280.MODE_FORCE
-    t = self.bme280.temperature
-    p = self.bme280.pressure/self.alt_factor
-    h = self.bme280.humidity
+    t = round(self.bme280.temperature,1)
+    p = round(self.bme280.pressure/self.alt_factor,0)
+    h = round(self.bme280.humidity,0)
     data["bme280"] = {
       "temp": t,
       "hum":  h,

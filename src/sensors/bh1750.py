@@ -39,7 +39,7 @@ class BH1750:
       raise Exception("no bh1750 detected. Check config/cabling!")
 
   def read(self,data,values):
-    lux = self.bh1750.lux
+    lux = round(self.bh1750.lux,0)
     data["bh1750"] = {
       "lux": lux
     }

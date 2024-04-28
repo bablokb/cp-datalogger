@@ -39,8 +39,8 @@ class AHT20:
 
   def read(self,data,values):
     """ read sensor """
-    t = self.aht20.temperature
-    h = self.aht20.relative_humidity
+    t = round(self.aht20.temperature,1)
+    h = round(self.aht20.relative_humidity,0)
     data["aht20"] = {
       "temp": t,
       "hum":  h

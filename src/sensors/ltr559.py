@@ -39,7 +39,7 @@ class LTR559:
       raise Exception("no ltr559 detected. Check config/cabling!")
 
   def read(self,data,values):
-    lux = self.ltr559.lux
+    lux = round(self.ltr559.lux,0)
     data["ltr559"] = {
       "lux": lux
     }

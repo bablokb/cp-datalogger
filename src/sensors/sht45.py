@@ -40,8 +40,8 @@ class SHT45:
 
   def read(self,data,values):
     """ read sensor """
-    t = self.sht45.temperature
-    h = self.sht45.relative_humidity
+    t = round(self.sht45.temperature,1)
+    h = round(self.sht45.relative_humidity,0)
     data["sht45"] = {
       "temp": t,
       "hum":  h

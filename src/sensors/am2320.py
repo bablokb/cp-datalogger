@@ -40,8 +40,8 @@ class AM2320:
 
   def read(self,data,values):
     """ read sensor """
-    t = self.am2320.temperature
-    h = self.am2320.relative_humidity
+    t = round(self.am2320.temperature,1)
+    h = round(self.am2320.relative_humidity,0)
     data["am2320"] = {
       "temp": t,
       "hum":  h

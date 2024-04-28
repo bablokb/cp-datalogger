@@ -55,8 +55,8 @@ class BMP280:
   def read(self,data,values):
     """ read sensor """
     self.bmp280.mode = adafruit_bmp280.MODE_FORCE
-    t = self.bmp280.temperature
-    p = self.bmp280.pressure/self.alt_factor
+    t = round(self.bmp280.temperature,1)
+    p = round(self.bmp280.pressure/self.alt_factor,0)
     data["bmp280"] = {
       "temp": t,
       "pressure": p

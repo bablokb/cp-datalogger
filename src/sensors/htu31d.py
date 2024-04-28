@@ -40,6 +40,8 @@ class HTU31D:
   def read(self,data,values):
     """ read sensor """
     t,h = self.htu31d.measurements
+    t = round(t,1)
+    h = round(h,0)
     data["htu31d"] = {
       "temp": t,
       "hum":  h

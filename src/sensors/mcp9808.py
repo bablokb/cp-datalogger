@@ -39,7 +39,7 @@ class MCP9808:
       raise Exception("no mcp9808 detected. Check config/cabling!")
 
   def read(self,data,values):
-    t = self.mcp9808.temperature
+    t = round(self.mcp9808.temperature,1)
     data["mcp9808"] = {
       "temp": t
     }
