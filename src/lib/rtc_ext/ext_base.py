@@ -15,6 +15,12 @@ g_logger = Logger()
 
 class ExtBase:
 
+  TIME_SOURCE_NONE = 0       # no time source
+  TIME_SOURCE_INT  = 1       # internal RTC
+  TIME_SOURCE_EXT  = 2       # external RTC
+  TIME_SOURCE_NET  = 3       # RTCs updated from network
+  TIME_SOURCE_SET  = 4       # explicitly set time
+
   # --- print struct_time   --------------------------------------------------
 
   @classmethod
@@ -162,7 +168,7 @@ class ExtBase:
       self._rtc_ext.datetime = new_time
       self._rtc_int.datetime = new_time
       ExtBase.print_ts("new time",new_time)
-      return
+      return ExtBase.TIME_SOURCE_SET
 
     # update internal rtc to valid date
     ExtBase.print_ts("rtc int",self._rtc_int.datetime)
@@ -173,8 +179,12 @@ class ExtBase:
           g_logger.print("rtc-ext not updated from time-server")
           g_logger.print("setting rtc-ext to 2022-01-01 12:00:00")
           self._rtc_ext.datetime = time.struct_time((2022,1,1,12,00,00,5,1,-1))
+          rc = ExtBase.TIME_SOURCE_NONE
         else:
           g_logger.print("rtc-ext updated from time-server")
+          rc = ExtBase.TIME_SOURCE_NET
+      else:
+        rc = ExtBase.TIME_SOURCE_EXT
       g_logger.print("updating internal rtc from external rtc")
       ext_ts = self._rtc_ext.datetime   # needs two statements!
       self._rtc_int.datetime = ext_ts
@@ -185,6 +195,8 @@ class ExtBase:
       int_ts = self._rtc_int.datetime   # needs two statements!
       self._rtc_ext.datetime = int_ts
       g_logger.print("updated external rtc from internal rtc")
+      rc = ExtBase.TIME_SOURCE_INT
+    return rc
 
   # --- update time from time-server   ---------------------------------------
 

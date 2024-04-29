@@ -15,6 +15,7 @@ BLINK_START = 3           # blink n times before start of data-collection
 BLINK_END   = 5           # blink n times after finish of data-collection
 
 NET_UPDATE  = True        # update RTC from time-server if time is invalid
+SAVE_WAKEUP = False       # save wakup-time on SD (workaround for buggy batteries)
 
 # tasks to execute after data-collection
 TASKS = "dump_data save_data update_display"
