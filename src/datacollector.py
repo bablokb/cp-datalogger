@@ -117,7 +117,7 @@ class DataCollector():
       g_logger.print(f"setup: free memory after create i2c-bus: {gc.mem_free()}")
 
     # If our custom PCB is connected, we have an RTC. Initialise it.
-    if g_config.HAVE_PCB:
+    if g_config.HAVE_PCB or getattr(g_config,'HAVE_RTC',False):
       try:
         self.rtc = ExtRTC(i2c1,
           net_update=g_config.NET_UPDATE)         # also clears interrupts
@@ -323,18 +323,21 @@ class DataCollector():
 
   def configure_wakeup(self):
     """ configure rtc for next wakeup """
-    if g_config.HAVE_PCB:
-      if self.with_lipo and self.data["battery"] < 3.0:
-        # don't wake up on low-LiPo
-        g_logger.print("!!! LiPo voltage low: wakeup disabled !!!")
-        return
-      elif hasattr(g_config,"TIME_TABLE"):
-        self.wakeup = self.rtc.get_table_alarm(g_config.TIME_TABLE)
-      else:
-        self.wakeup = self.rtc.get_alarm_time(s=g_config.INTERVAL)
-      self.rtc.set_alarm(self.wakeup)
+
+    # don't wake up on low LiPo
+    if self.with_lipo and self.data["battery"] < 3.0:
+      g_logger.print("!!! LiPo voltage low: wakeup disabled !!!")
+      # prevent that goto_sleep() fails (unlikely to be called anyhow)
+      self.wakeup = ExtRTC.get_alarm_time(d=365)
+      return
+
+    if hasattr(g_config,"TIME_TABLE"):
+      self.wakeup = self.rtc.get_table_alarm(g_config.TIME_TABLE)
     else:
       self.wakeup = ExtRTC.get_alarm_time(s=g_config.INTERVAL)
+
+    if g_config.HAVE_PCB:
+      self.rtc.set_alarm(self.wakeup)
 
     # save alarm time to SD
     if g_config.HAVE_SD and getattr(g_config,'SAVE_WAKEUP',False):
