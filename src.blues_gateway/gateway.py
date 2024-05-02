@@ -167,7 +167,7 @@ class Gateway:
     start = time.monotonic()
 
     self._lora.set_destination(int(values[0]))
-    resp = f"{time.mktime(self._rtc.datetime)}"
+    resp = f"{time.time()}"
     g_logger.print(f"sending time ({resp}) to node {self._lora.rfm9x.destination}...")
     rc = self._lora.transmit(resp,
                              ack=False,keep_listening=True)
