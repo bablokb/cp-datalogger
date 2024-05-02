@@ -158,6 +158,25 @@ class Gateway:
     else:
       g_logger.print(f"retransmit failed. Duration: {duration}s")
 
+  # --- reply to query-time-messages   ---------------------------------------
+
+  def _handle_time_request(self,values):
+    """ echo data to sender """
+
+    g_logger.print("processing time-request...")
+    start = time.monotonic()
+
+    self._lora.set_destination(int(values[0]))
+    resp = f"{time.mktime(self._rtc.datetime)}"
+    g_logger.print(f"sending time ({resp}) to node {self._lora.rfm9x.destination}...")
+    rc = self._lora.transmit(resp,
+                             ack=False,keep_listening=True)
+    duration = time.monotonic()-start
+    if rc:
+      g_logger.print(f"transmit successful. Duration: {duration}s")
+    else:
+      g_logger.print(f"transmit failed. Duration: {duration}s")
+
   # --- cleanup   ------------------------------------------------------------
 
   def cleanup(self):
@@ -231,14 +250,16 @@ class Gateway:
       try:
         g_logger.print(f"data: {data}")
         values = data.split(',')
-        if values[0] == 'B':
-          broadcast_mode = True
+        if values[0] in ['B', 'T']:
+          mode = values[0]
           values.pop(0)
         else:
-          broadcast_mode = False
+          mode = 'N'
 
-        if broadcast_mode:
+        if mode == 'B':
           self._handle_broadcast(values)
+        elif mode == 'T':
+          self._handle_time_request(values)
         else:
           self._process_data(values)
       except Exception as ex:
