@@ -105,7 +105,7 @@ class LORA:
     start = time.monotonic()
     if self.transmit(
       f"B,{ts_str},{self._config.LOGGER_ID},{nr},{self.rfm9x.node}",
-      ack=True,keep_listening=True):
+      ack=True):
       duration = time.monotonic()-start
       g_logger.print(f"LoRa: broadcast: packet {nr}: transfer-time: {duration}s")
     else:
@@ -115,3 +115,29 @@ class LORA:
     # wait for response
     timeout  = max(1,timeout-duration)
     return self.receive(with_ack=False,timeout=timeout)
+
+  # --- query time   ---------------------------------------------------------
+
+  def get_time(self,retries=3,timeout=10):
+    """ send a time-query package """
+
+    for i in range(retries):
+       # send packet ("T",node)
+       g_logger.print(f"LoRa: sending time-query package, retry={i}")
+       start = time.monotonic()
+       if self.transmit(f"T,{self.rfm9x.node}",ack=True):
+         duration = time.monotonic()-start
+         g_logger.print(f"LoRa: time-query {i} sent in {duration}s")
+       else:
+         g_logger.print(f"LoRa: : time-query {i} failed")
+         continue
+
+       # wait for response
+       timeout  = max(1,timeout-duration)
+       new_time = self.receive(with_ack=False,timeout=timeout)[0]
+       if new_time:
+         g_logger.print(f"LoRa: : time-query {i} returned {new_time}")
+         return int(new_time)
+    # query failed!
+    g_logger.print(f"LoRa: time-query failed after {retries} retries")
+    return None
