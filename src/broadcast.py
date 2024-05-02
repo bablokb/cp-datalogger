@@ -91,6 +91,13 @@ g_logger.print("!!! Starting in Broadcast-Mode !!!")
 lora = LORA(g_config)
 
 broadcast_int = getattr(g_config,'BROADCAST_INT',10)
+
+# query time from gateway and update local time
+new_time = lora.get_time(timeout=3)
+if new_time:
+  g_logger.print(f"Broadcast: updating device-time from gateway-time")
+  rtc.update(new_time)
+
 i = 0
 while True:
   i += 1
