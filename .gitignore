@@ -28,6 +28,7 @@ config.py
 ap_config.py
 log_config.py
 __pycache__
+*.stl
 
 src/.vscode
 .vscode
