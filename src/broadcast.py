@@ -17,6 +17,8 @@ import busio
 from digitalio import DigitalInOut, Pull, Direction
 
 import displayio
+displayio.release_displays()
+
 from adafruit_bitmap_font import bitmap_font
 from adafruit_display_text import label as label
 from vectorio import Rectangle
@@ -60,20 +62,15 @@ if g_config.HAVE_PCB:
 
 # --- check and initialize OLED-display   ------------------------------------
 
-oled = getattr(g_config,'HAVE_OLED',None)
-if oled:
+
+if getattr(g_config,'HAVE_OLED',None):
   try:
-    width,height,address = oled.split(',')
-    if not i2c1:
-      i2c1 = busio.I2C(pins.PIN_SCL1,pins.PIN_SDA1)
-    displayio.release_displays()
-    from adafruit_displayio_ssd1306 import SSD1306
-    display_bus = displayio.I2CDisplay(i2c1,device_address=int(address,16))
-    oled = SSD1306(display_bus,width=int(width),height=int(height))
+    from oled import OLED
+    oled_display = OLED(g_config,i2c1)
     g_logger.print(f"OLED created with size {width}x{height}")
   except Exception as ex:
     g_logger.print(f"could not initialize OLED: {ex}")
-    oled = None
+    oled_display = None
 
 # --- put info on display if available   -------------------------------------
 
