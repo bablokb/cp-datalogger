@@ -25,7 +25,9 @@ class ExtBase:
 
   @classmethod
   def print_ts(cls,label,ts):
-    """ print struct_time """
+    """ print epoch-time or struct_time """
+    if isinstance(ts,int):
+      ts = time.localtime(ts)
     if label:
       g_logger.print("%s: %04d-%02d-%02d %02d:%02d:%02d" %
                      (label,ts.tm_year,ts.tm_mon,ts.tm_mday,
