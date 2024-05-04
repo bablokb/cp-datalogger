@@ -16,6 +16,11 @@ import time
 import busio
 from digitalio import DigitalInOut, Pull, Direction
 
+import displayio
+from adafruit_bitmap_font import bitmap_font
+from adafruit_display_text import label as label
+from vectorio import Rectangle
+
 import pins
 from datacollector import g_config
 from lora import LORA
@@ -42,6 +47,7 @@ if g_config.HAVE_DISPLAY:
 
 # --- read rtc   -------------------------------------------------------------
 
+i2c1 = None
 if g_config.HAVE_PCB:
   try:
     i2c1 = busio.I2C(pins.PIN_SCL1,pins.PIN_SDA1)
@@ -52,13 +58,26 @@ if g_config.HAVE_PCB:
     g_logger.print(f"could not read RTC: {ex}")
     rtc = None
 
+# --- check and initialize OLED-display   ------------------------------------
+
+oled = getattr(g_config,'HAVE_OLED',None)
+if oled:
+  try:
+    width,height,address = oled.split(',')
+    if not i2c1:
+      i2c1 = busio.I2C(pins.PIN_SCL1,pins.PIN_SDA1)
+    displayio.release_displays()
+    from adafruit_displayio_ssd1306 import SSD1306
+    display_bus = displayio.I2CDisplay(i2c1,device_address=int(address,16))
+    oled = SSD1306(display_bus,width=int(width),height=int(height))
+    g_logger.print(f"OLED created with size {width}x{height}")
+  except Exception as ex:
+    g_logger.print(f"could not initialize OLED: {ex}")
+    oled = None
+
 # --- put info on display if available   -------------------------------------
 
 if g_config.HAVE_DISPLAY:
-  import displayio
-  from adafruit_bitmap_font import bitmap_font
-  from adafruit_display_text import label as label
-  from vectorio import Rectangle
   from display import Display
 
   g_logger.print("starting display update")
