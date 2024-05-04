@@ -40,6 +40,7 @@ switch_d.value = True
 g_logger = Logger()
 if g_config.TEST_MODE:
   time.sleep(5)
+g_logger.print("!!! Starting in Broadcast-Mode !!!")
 
 # --- set CS of display to high   --------------------------------------------
 
@@ -67,6 +68,7 @@ if getattr(g_config,'HAVE_OLED',None):
   try:
     from oled import OLED
     oled_display = OLED(g_config,i2c1)
+    width,height = oled_display.get_size()
     g_logger.print(f"OLED created with size {width}x{height}")
   except Exception as ex:
     g_logger.print(f"could not initialize OLED: {ex}")
@@ -101,8 +103,6 @@ if g_config.HAVE_DISPLAY:
   g_logger.print("finished display update")
 
 # --- loop and send/receive data   -------------------------------------------
-
-g_logger.print("!!! Starting in Broadcast-Mode !!!")
 
 lora = LORA(g_config)
 
