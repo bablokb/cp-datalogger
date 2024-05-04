@@ -109,11 +109,23 @@ lora = LORA(g_config)
 broadcast_int = getattr(g_config,'BROADCAST_INT',10)
 
 # query time from gateway and update local time
+oled_display.show_text(["Updating time..."])
 new_time = lora.get_time(timeout=3)
 if new_time:
   g_logger.print(f"Broadcast: updating device-time from gateway-time")
   rtc.update(new_time)
+  if oled_display:
+    oled_display.show_text(["... ok!",ExtRTC.print_ts(None,new_time)],
+                           row=1)
+else:
+  if oled_display:
+    oled_display.show_text(["... failed!"],row=1)
 
+time.sleep(5)
+
+# send broadcast packages
+oled_display.clear()
+oled_display.show_text(["broadcasting..."])
 i = 0
 while True:
   i += 1
