@@ -23,6 +23,7 @@ class OLED:
 
     width,height,address = config.HAVE_OLED.split(',')
     if not i2c1:
+      import busio
       i2c1 = busio.I2C(pins.PIN_SCL1,pins.PIN_SDA1)
     display_bus = displayio.I2CDisplay(i2c1,device_address=int(address,16))
     self._display = SSD1306(display_bus,width=int(width),height=int(height))
@@ -31,7 +32,7 @@ class OLED:
     if height == 32:
       self._lines.extend([""]*2)
     else:
-      self._lines.extend([""]*5)
+      self._lines.extend([""]*4)
     group = displayio.Group()
     self._text = label.Label(FONT,
                              text=self._lines[0],
@@ -39,7 +40,7 @@ class OLED:
                              anchor_point=(0,0),x=0,y=4
                              )
     group.append(self._text)
-    self._display.show(group)
+    self._display.root_group = group
 
   # --- return size   --------------------------------------------------------
 

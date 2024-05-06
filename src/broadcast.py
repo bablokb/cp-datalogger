@@ -134,7 +134,7 @@ while True:
   pnr += 1
 
   # update time on larger OLED-displays
-  oled_display.show_text([ExtRTC.print_ts(None,time.localtime())],row=5)
+  oled_display.show_text([ExtRTC.print_ts(None,time.localtime())],row=4)
 
   start = time.monotonic()
   packet = lora.broadcast(pnr,timeout=interval)
