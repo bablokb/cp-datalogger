@@ -6,6 +6,7 @@
 # Website: https://github.com/pcb-pico-datalogger
 #-----------------------------------------------------------------------------
 
+import busio
 import displayio
 from adafruit_displayio_ssd1306 import SSD1306
 from terminalio import FONT
@@ -23,9 +24,13 @@ class OLED:
 
     width,height,address = config.HAVE_OLED.split(',')
     if not i2c1:
-      import busio
       i2c1 = busio.I2C(pins.PIN_SCL1,pins.PIN_SDA1)
-    display_bus = displayio.I2CDisplay(i2c1,device_address=int(address,16))
+    try:
+      display_bus = displayio.I2CDisplay(i2c1,device_address=int(address,16))
+    except:
+      # try ic20
+      i2c0 = busio.I2C(pins.PIN_SCL0,pins.PIN_SDA0)
+      display_bus = displayio.I2CDisplay(i2c0,device_address=int(address,16))
     self._display = SSD1306(display_bus,width=int(width),height=int(height))
 
     self._lines = ["Starting..."]
