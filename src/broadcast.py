@@ -149,7 +149,16 @@ while True:
     data,my_snr,my_rssi = packet
     # decode and print/update display
     nr,gw_snr,gw_rssi = data.split(',')
-    if int(nr) != pnr:
+    nr      = int(nr)
+    gw_snr  = round(float(gw_snr),1)
+    gw_rssi = int(gw_rssi)
+  except Exception as ex:
+    g_logger.print(
+        f"Broadcast: packet {pnr}: wrong data-format: {data}")
+    nr = 0
+
+  try:
+    if nr != pnr:
       g_logger.print(f"Broadcast: received wrong packet ({nr} but expected {pnr})")
       oled_display.show_text([f"packet {pnr} failed!",
                               f"count: {p_ok}/{pnr} ok",
@@ -157,17 +166,15 @@ while True:
     else:
       p_ok += 1
       g_logger.print(
-        f"Broadcast: packet {pnr}: SNR(gw), RSSI(gw): {gw_snr}, {gw_rssi}dBm")
-      oled_display.show_text([f"SNR: {gw_snr} / RSSI: {gw_rssi}dBm",
-                              f"count: {p_ok}/{pnr} ok",
-                              f"RTT: {duration}s"],row=1)
+        f"Broadcast: packet {pnr}: SNR(gw), RSSI(gw): {gw_snr:0.1f}, {gw_rssi}dBm")
       g_logger.print(
-        f"Broadcast: packet {pnr}: SNR(node), RSSI(node): {my_snr}, {my_rssi}dBm")
+        f"Broadcast: packet {pnr}: SNR(node), RSSI(node): {my_snr:0.1f}, {my_rssi}dBm")
       g_logger.print(
         f"Broadcast: packet {pnr}: roundtrip-time: {duration}s")
+      oled_display.show_text([f"SNR: {gw_snr:0.1f},RSSI:{gw_rssi}dBm",
+                              f"count: {p_ok}/{pnr} ok",
+                              f"RTT: {duration}s"],row=1)
   except Exception as ex:
-    g_logger.print(
-        f"Broadcast: packet {pnr}: wrong data-format: {data}")
     g_logger.print(f"excepion: {ex}")
 
   # wait until broadcast-interval is done
