@@ -102,13 +102,16 @@ if getattr(g_config,'HAVE_OLED',None):
   except Exception as ex:
     g_logger.print(f"could not initialize OLED: {ex}")
     oled_display = None
+else:
+  oled_display = None
 
 # --- update time   ----------------------------------------------------------
 
 lora = LORA(g_config)
 
 # query time from gateway and update local time
-oled_display.show_text(["Updating time..."])
+if oled_display:
+  oled_display.show_text(["Updating time..."])
 new_time = lora.get_time(timeout=3)
 if new_time:
   g_logger.print(f"Broadcast: updating device-time from gateway-time")
@@ -124,9 +127,10 @@ time.sleep(5)
 
 # --- loop and send/receive data   -------------------------------------------
 
-oled_display.clear()
-oled_display.show_text(
-  [f"Node: {g_config.LORA_NODE_ADDR}, ID: {g_config.LOGGER_ID}"])
+if oled_display:
+  oled_display.clear()
+  oled_display.show_text(
+    [f"Node: {g_config.LORA_NODE_ADDR}, ID: {g_config.LOGGER_ID}"])
 
 interval = getattr(g_config,'BROADCAST_INT',10)
 pnr = 0
@@ -135,7 +139,8 @@ while True:
   pnr += 1
 
   # update time on larger OLED-displays
-  oled_display.show_text([ExtRTC.print_ts(None,time.localtime())],row=4)
+  if oled_display:
+    oled_display.show_text([ExtRTC.print_ts(None,time.localtime())],row=4)
 
   start = time.monotonic()
   packet = lora.broadcast(pnr,timeout=interval)
@@ -161,9 +166,10 @@ while True:
   try:
     if nr != pnr:
       g_logger.print(f"Broadcast: received wrong packet ({nr} but expected {pnr})")
-      oled_display.show_text([f"packet {pnr} failed!",
-                              f"count: {p_ok}/{pnr} ok",
-                              f"RTT: {duration}s"],row=1)
+      if oled_display:
+        oled_display.show_text([f"packet {pnr} failed!",
+                                f"count: {p_ok}/{pnr} ok",
+                                f"RTT: {duration}s"],row=1)
     else:
       p_ok += 1
       g_logger.print(
@@ -172,9 +178,10 @@ while True:
         f"Broadcast: packet {pnr}: SNR(node), RSSI(node): {my_snr:0.1f}, {my_rssi}dBm")
       g_logger.print(
         f"Broadcast: packet {pnr}: roundtrip-time: {duration}s")
-      oled_display.show_text([f"SNR: {gw_snr:0.1f},RSSI:{gw_rssi}dBm",
-                              f"count: {p_ok}/{pnr} ok",
-                              f"RTT: {duration}s"],row=1)
+      if oled_display:
+        oled_display.show_text([f"SNR: {gw_snr:0.1f},RSSI:{gw_rssi}dBm",
+                                f"count: {p_ok}/{pnr} ok",
+                                f"RTT: {duration}s"],row=1)
   except Exception as ex:
     g_logger.print(f"excepion: {ex}")
 
