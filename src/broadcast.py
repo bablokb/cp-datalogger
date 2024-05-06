@@ -61,19 +61,6 @@ if g_config.HAVE_PCB:
     g_logger.print(f"could not read RTC: {ex}")
     rtc = None
 
-# --- check and initialize OLED-display   ------------------------------------
-
-
-if getattr(g_config,'HAVE_OLED',None):
-  try:
-    from oled import OLED
-    oled_display = OLED(g_config,i2c1)
-    oled_width,oled_height = oled_display.get_size()
-    g_logger.print(f"OLED created with size {oled_width}x{oled_height}")
-  except Exception as ex:
-    g_logger.print(f"could not initialize OLED: {ex}")
-    oled_display = None
-
 # --- put info on display if available   -------------------------------------
 
 if g_config.HAVE_DISPLAY:
@@ -101,6 +88,20 @@ if g_config.HAVE_DISPLAY:
   display.root_group = group
   display.refresh()
   g_logger.print("finished display update")
+
+# --- check and initialize OLED-display   ------------------------------------
+
+# NOTE: the main display will receive no more updates once this is setup
+if getattr(g_config,'HAVE_OLED',None):
+  try:
+    from oled import OLED
+    displayio.release_displays()
+    oled_display = OLED(g_config,i2c1)
+    oled_width,oled_height = oled_display.get_size()
+    g_logger.print(f"OLED created with size {oled_width}x{oled_height}")
+  except Exception as ex:
+    g_logger.print(f"could not initialize OLED: {ex}")
+    oled_display = None
 
 # --- update time   ----------------------------------------------------------
 
