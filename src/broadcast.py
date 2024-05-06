@@ -68,8 +68,8 @@ if getattr(g_config,'HAVE_OLED',None):
   try:
     from oled import OLED
     oled_display = OLED(g_config,i2c1)
-    width,height = oled_display.get_size()
-    g_logger.print(f"OLED created with size {width}x{height}")
+    oled_width,oled_height = oled_display.get_size()
+    g_logger.print(f"OLED created with size {oled_width}x{oled_height}")
   except Exception as ex:
     g_logger.print(f"could not initialize OLED: {ex}")
     oled_display = None
@@ -102,11 +102,9 @@ if g_config.HAVE_DISPLAY:
   display.refresh()
   g_logger.print("finished display update")
 
-# --- loop and send/receive data   -------------------------------------------
+# --- update time   ----------------------------------------------------------
 
 lora = LORA(g_config)
-
-broadcast_int = getattr(g_config,'BROADCAST_INT',10)
 
 # query time from gateway and update local time
 oled_display.show_text(["Updating time..."])
@@ -123,17 +121,26 @@ else:
 
 time.sleep(5)
 
-# send broadcast packages
+# --- loop and send/receive data   -------------------------------------------
+
 oled_display.clear()
-oled_display.show_text(["broadcasting..."])
-i = 0
+oled_display.show_text(
+  [f"Node: {g_config.LORA_NODE_ADDR}, ID: {g_config.LOGGER_ID}"])
+
+interval = getattr(g_config,'BROADCAST_INT',10)
+pnr = 0
+p_ok = 0
 while True:
-  i += 1
+  pnr += 1
+
+  # update time on larger OLED-displays
+  oled_display.show_text([ExtRTC.print_ts(None,time.localtime())],row=5)
+
   start = time.monotonic()
-  packet = lora.broadcast(i,timeout=broadcast_int)
+  packet = lora.broadcast(pnr,timeout=interval)
   duration = time.monotonic()-start
   if not packet:
-    stime = max(0,broadcast_int-duration)
+    stime = max(0,interval-duration)
     g_logger.print(f"Broadcast: next cycle in {stime}s...")
     time.sleep(stime)
     continue
@@ -142,20 +149,28 @@ while True:
     data,my_snr,my_rssi = packet
     # decode and print/update display
     nr,gw_snr,gw_rssi = data.split(',')
-    if int(nr) != i:
-      g_logger.print(f"Broadcast: received wrong packet ({nr} but expected {i})")
+    if int(nr) != pnr:
+      g_logger.print(f"Broadcast: received wrong packet ({nr} but expected {pnr})")
+      oled_display.show_text([f"packet {pnr} failed!",
+                              f"count: {p_ok}/{pnr} ok",
+                              f"RTT: {duration}s"],row=1)
     else:
+      p_ok += 1
       g_logger.print(
-        f"Broadcast: packet {i}: SNR(gw), RSSI(gw): {gw_snr}, {gw_rssi}dBm")
+        f"Broadcast: packet {pnr}: SNR(gw), RSSI(gw): {gw_snr}, {gw_rssi}dBm")
+      oled_display.show_text([f"SNR: {gw_snr} / RSSI: {gw_rssi}dBm",
+                              f"count: {p_ok}/{pnr} ok",
+                              f"RTT: {duration}s"],row=1)
       g_logger.print(
-        f"Broadcast: packet {i}: SNR(node), RSSI(node): {my_snr}, {my_rssi}dBm")
+        f"Broadcast: packet {pnr}: SNR(node), RSSI(node): {my_snr}, {my_rssi}dBm")
       g_logger.print(
-        f"Broadcast: packet {i}: roundtrip-time: {duration}s")
-  except:
+        f"Broadcast: packet {pnr}: roundtrip-time: {duration}s")
+  except Exception as ex:
     g_logger.print(
-        f"Broadcast: packet {i}: wrong data-format: {data}")
+        f"Broadcast: packet {pnr}: wrong data-format: {data}")
+    g_logger.print(f"excepion: {ex}")
 
   # wait until broadcast-interval is done
-  stime = max(0,broadcast_int-duration)
+  stime = max(0,interval-duration)
   g_logger.print(f"Broadcast: next cycle in  {stime}s...")
   time.sleep(stime)
