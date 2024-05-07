@@ -29,163 +29,231 @@ from lora import LORA
 from log_writer import Logger
 from rtc_ext.pcf8523 import ExtPCF8523 as ExtRTC
 
-# --- turn on LED on sensor-pcb   --------------------------------------------
+# --- init environment   -----------------------------------------------------
 
 switch_d = DigitalInOut(pins.PIN_SWD)
 switch_d.direction = Direction.OUTPUT
 switch_d.value = True
-
-# --- init environment   -----------------------------------------------------
 
 g_logger = Logger()
 if g_config.TEST_MODE:
   time.sleep(5)
 g_logger.print("!!! Starting in Broadcast-Mode !!!")
 
-# --- set CS of display to high   --------------------------------------------
+# --- application class for broadcast-mode   ---------------------------------
 
-if g_config.HAVE_DISPLAY:
-  cs_display = DigitalInOut(pins.PIN_INKY_CS)
-  cs_display.switch_to_output(value=True)
+class Broadcast:
+  """ main application class for broadcast-mode """
 
-# --- read rtc   -------------------------------------------------------------
+  # --- constructor   --------------------------------------------------------
 
-i2c1 = None
-if g_config.HAVE_PCB:
-  try:
-    i2c1 = busio.I2C(pins.PIN_SCL1,pins.PIN_SDA1)
-    rtc = ExtRTC(i2c1)
-    rtc.rtc_ext.high_capacitance = True
-    rtc.update()
-  except Exception as ex:
-    g_logger.print(f"could not read RTC: {ex}")
-    rtc = None
+  def __init__(self):
+    """ constructor """
+    self._display = None
+    self._lines   = [""]*5
+    self._pnr     = 0
+    self._pok     = 0
+    self._lora    = LORA(g_config)
 
-# --- put info on display if available   -------------------------------------
+    self._init_rtc()
+    self._init_display()
+    self._have_oled = self._init_oled()
+    if self._have_oled or not self._display:
+      self.interval = getattr(g_config,'BROADCAST_INT',10)
+    else:
+      # set update-interval to at least 60 seconds to protect display
+      self.interval = max(getattr(g_config,'BROADCAST_INT',10),60)
+      self._last_ref = 0
 
-if g_config.HAVE_DISPLAY:
-  from display import Display
+  # --- read rtc   -----------------------------------------------------------
 
-  g_logger.print("starting display update")
-  cs_display.deinit()
-  spi = busio.SPI(pins.PIN_SD_SCK,pins.PIN_SD_MOSI,pins.PIN_SD_MISO)
-  display = Display(g_config,spi).get_display()
+  def _init_rtc(self):
+    """ initialize RTC """
+    self._i2c1 = None
+    if g_config.HAVE_PCB:
+      try:
+        self._i2c1 = busio.I2C(pins.PIN_SCL1,pins.PIN_SDA1)
+        self._rtc = ExtRTC(self._i2c1)
+        self._rtc.rtc_ext.high_capacitance = True
+        self._rtc.update()
+      except Exception as ex:
+        g_logger.print(f"could not read RTC: {ex}")
+        self._rtc = None
 
-  font = bitmap_font.load_font(f"fonts/{g_config.FONT_DISPLAY}.bdf")
-  group = displayio.Group()
-  shader = displayio.Palette(2)
-  shader[0] = 0xFFFFFF
-  shader[1] = 0x000000
-  group.append(Rectangle(pixel_shader=shader,x=0,y=0,
-                         width=display.width,
-                         height=display.height,
-                         color_index=0))
-  heading = label.Label(font=font,color=shader[1],scale=2,
-                        text='Broadcast-Mode',anchor_point=(0.5,0))
-  heading.anchored_position = (display.width/2,0)
-  group.append(heading)
+  # --- standard display   -------------------------------------------------
 
-  display.root_group = group
-  display.refresh()
-  g_logger.print("finished display update")
+  def _init_display(self):
+    """ initialize standard display """
 
-# --- check and initialize OLED-display   ------------------------------------
+    if g_config.HAVE_DISPLAY:
+      from display import Display
 
-# NOTE: the main display will receive no more updates once this is setup
-if getattr(g_config,'HAVE_OLED',None):
-  try:
-    from oled import OLED
-    displayio.release_displays()
-    oled_display = OLED(g_config,i2c1)
-    oled_width,oled_height = oled_display.get_size()
-    g_logger.print(f"OLED created with size {oled_width}x{oled_height}")
-  except Exception as ex:
-    g_logger.print(f"could not initialize OLED: {ex}")
-    oled_display = None
-else:
-  oled_display = None
+      g_logger.print("starting display update")
+      spi = busio.SPI(pins.PIN_SD_SCK,pins.PIN_SD_MOSI,pins.PIN_SD_MISO)
+      self._display = Display(g_config,spi).get_display()
 
-# --- update time   ----------------------------------------------------------
+      font = bitmap_font.load_font(f"fonts/{g_config.FONT_DISPLAY}.bdf")
+      group = displayio.Group()
+      shader = displayio.Palette(2)
+      shader[0] = 0xFFFFFF
+      shader[1] = 0x000000
+      group.append(Rectangle(pixel_shader=shader,x=0,y=0,
+                             width=self._display.width,
+                             height=self._display.height,
+                             color_index=0))
+      heading = label.Label(font=font,color=shader[1],scale=2,
+                            text='Broadcast-Mode',anchor_point=(0.5,0))
+      heading.anchored_position = (self._display.width/2,0)
+      group.append(heading)
 
-lora = LORA(g_config)
+      self._text = label.Label(font=font,color=shader[1],scale=1,
+                               text="",line_spacing=1.0,
+                               anchor_point=(0,0))
+      self._text.anchored_position = (2,heading.height+15)
+      group.append(self._text)
 
-# query time from gateway and update local time
-if oled_display:
-  oled_display.show_text(["Updating time..."])
-new_time = lora.get_time(timeout=3)
-if new_time:
-  g_logger.print(f"Broadcast: updating device-time from gateway-time")
-  rtc.update(new_time)
-  if oled_display:
-    oled_display.show_text(["... ok!",ExtRTC.print_ts(None,new_time)],
-                           row=1)
-else:
-  if oled_display:
-    oled_display.show_text(["... failed!"],row=1)
+      self._display.root_group = group
+      self._display.refresh()
+      self._last_ref = time.monotonic()
+      g_logger.print("finished display update")
 
+  # --- OLED display   -------------------------------------------------------
+  # NOTE: the main display will receive no more updates once this is setup
+
+  def _init_oled(self):
+    """ init OLED display """
+
+    if getattr(g_config,'HAVE_OLED',None):
+      try:
+        from oled import OLED
+        displayio.release_displays()
+        oled_display = OLED(g_config,self._i2c1)
+        self._display = oled_display.get_display()
+        self._text    = oled_display.get_text()
+        g_logger.print(
+          f"OLED created with size {self._display.width}x{self._display.height}")
+        return True
+      except Exception as ex:
+        g_logger.print(f"could not initialize OLED: {ex}")
+    return False
+
+  # --- update info   --------------------------------------------------------
+
+  def update_info(self,lines,row=0):
+    """ update info-text """
+
+    for line in lines:
+      if row >= len(self._lines):
+        break
+      self._lines[row] = line
+      row += 1
+
+  # --- update display   -----------------------------------------------------
+
+  def update_display(self):
+    """ update display """
+    if self._display:
+      self._text.text = "\n".join(self._lines)
+      if not self._have_oled:
+        # refresh only once per minute
+        wait_for_ref = max(0,60-(time.monotonic()-self._last_ref))
+        g_logger.print(f"waiting {wait_for_ref}s for display refresh")
+        time.sleep(max(0,60-(time.monotonic()-self._last_ref)))
+        self._last_ref = time.monotonic()
+      g_logger.print(f"refreshing display")
+      self._display.refresh()
+
+  # --- clear display   ------------------------------------------------------
+
+  def clear(self):
+    """ clear display """
+    self._lines = [""]*len(self._lines)
+    if self._display:
+      self._text.text = ""
+      if self._have_oled:
+        self._display.refresh()
+
+  # --- update time   --------------------------------------------------------
+
+  def update_time(self):
+    """ update time """
+
+    self.update_info(["Updating time..."])
+    new_time = self._lora.get_time(timeout=3)
+    if new_time:
+      g_logger.print(f"Broadcast: updating device-time from gateway-time")
+      self._rtc.update(new_time)
+      self.update_info(["... ok!",ExtRTC.print_ts(None,new_time)],
+                       row=1)
+    else:
+      self.update_info(["... failed!"],row=1)
+    self.update_display()
+
+  # --- send broadcast-packet   ----------------------------------------------
+
+  def send_packet(self):
+    """ send broadcast packet """
+
+    self._pnr += 1
+
+    # update time on display (will not show on 128x32)
+    self.update_info([ExtRTC.print_ts(None,time.localtime())],row=4)
+
+    # send packet and receive response
+    start = time.monotonic()
+    packet = self._lora.broadcast(self._pnr,timeout=self.interval)
+    duration = time.monotonic()-start
+    if not packet:
+      return
+
+    # try to decode packet
+    try:
+      data,my_snr,my_rssi = packet
+      nr,gw_snr,gw_rssi = data.split(',')
+      nr      = int(nr)
+      gw_snr  = round(float(gw_snr),1)
+      gw_rssi = int(gw_rssi)
+    except Exception as ex:
+      g_logger.print(
+          f"Broadcast: packet {self._pnr}: wrong data-format: {data}")
+      nr = 0    # will trigger failed-message
+
+    # check packet
+    try:
+      if nr != self._pnr:
+        g_logger.print(
+          f"Broadcast: received wrong packet ({nr} but expected {self._pnr})")
+        self.update_info([f"packet {self._pnr} failed!",
+                          f"count: {self._pok}/{self._pnr} ok",
+                          f"RTT: {duration}s"],row=1)
+      else:
+        self._pok += 1
+        g_logger.print(
+          f"Broadcast: packet {self._pnr}: SNR(gw), RSSI(gw): {gw_snr:0.1f}, {gw_rssi}dBm")
+        g_logger.print(
+          f"Broadcast: packet {self._pnr}: SNR(node), RSSI(node): {my_snr:0.1f}, {my_rssi}dBm")
+        g_logger.print(
+          f"Broadcast: packet {self._pnr}: roundtrip-time: {duration}s")
+        self.update_info([f"SNR: {gw_snr:0.1f},RSSI:{gw_rssi}dBm",
+                          f"count: {self._pok}/{self._pnr} ok",
+                          f"RTT: {duration}s"],row=1)
+    except Exception as ex:
+      g_logger.print(f"excepion: {ex}")   # not expected
+    return
+
+# --- main program start   ---------------------------------------------------
+
+app = Broadcast()
+app.update_time()
 time.sleep(5)
 
-# --- loop and send/receive data   -------------------------------------------
+app.clear()
+app.update_info([f"Node: {g_config.LORA_NODE_ADDR}, ID: {g_config.LOGGER_ID}"])
 
-if oled_display:
-  oled_display.clear()
-  oled_display.show_text(
-    [f"Node: {g_config.LORA_NODE_ADDR}, ID: {g_config.LOGGER_ID}"])
-
-interval = getattr(g_config,'BROADCAST_INT',10)
-pnr = 0
-p_ok = 0
 while True:
-  pnr += 1
-
-  # update time on larger OLED-displays
-  if oled_display:
-    oled_display.show_text([ExtRTC.print_ts(None,time.localtime())],row=4)
-
   start = time.monotonic()
-  packet = lora.broadcast(pnr,timeout=interval)
-  duration = time.monotonic()-start
-  if not packet:
-    stime = max(0,interval-duration)
-    g_logger.print(f"Broadcast: next cycle in {stime}s...")
-    time.sleep(stime)
-    continue
-
-  try:
-    data,my_snr,my_rssi = packet
-    # decode and print/update display
-    nr,gw_snr,gw_rssi = data.split(',')
-    nr      = int(nr)
-    gw_snr  = round(float(gw_snr),1)
-    gw_rssi = int(gw_rssi)
-  except Exception as ex:
-    g_logger.print(
-        f"Broadcast: packet {pnr}: wrong data-format: {data}")
-    nr = 0
-
-  try:
-    if nr != pnr:
-      g_logger.print(f"Broadcast: received wrong packet ({nr} but expected {pnr})")
-      if oled_display:
-        oled_display.show_text([f"packet {pnr} failed!",
-                                f"count: {p_ok}/{pnr} ok",
-                                f"RTT: {duration}s"],row=1)
-    else:
-      p_ok += 1
-      g_logger.print(
-        f"Broadcast: packet {pnr}: SNR(gw), RSSI(gw): {gw_snr:0.1f}, {gw_rssi}dBm")
-      g_logger.print(
-        f"Broadcast: packet {pnr}: SNR(node), RSSI(node): {my_snr:0.1f}, {my_rssi}dBm")
-      g_logger.print(
-        f"Broadcast: packet {pnr}: roundtrip-time: {duration}s")
-      if oled_display:
-        oled_display.show_text([f"SNR: {gw_snr:0.1f},RSSI:{gw_rssi}dBm",
-                                f"count: {p_ok}/{pnr} ok",
-                                f"RTT: {duration}s"],row=1)
-  except Exception as ex:
-    g_logger.print(f"excepion: {ex}")
-
-  # wait until broadcast-interval is done
-  stime = max(0,interval-duration)
+  app.send_packet()
+  app.update_display()
+  stime = max(0,app.interval - (time.monotonic()-start))
   g_logger.print(f"Broadcast: next cycle in  {stime}s...")
   time.sleep(stime)
