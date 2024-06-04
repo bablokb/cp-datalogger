@@ -1,32 +1,26 @@
 Pico Datalogger with Integrated Power-Management
 ================================================
 
-This is a breakout supporting low-frequency data-logging with a Raspberry Pi Pico.
-
-Version 1 PCB:
-
-![](docs/pcb-datalogger-v1-1.jpg)
-
-Version 2 PCB:
-
-![](docs/pcb-datalogger-v2.jpg)
-
-
-Sensor PCB (in combination with datalogger-v2):
-
-![](docs/pcb-sensor.jpg)
-
+This is a breakout supporting low-frequency data-logging with
+a Raspberry Pi Pico. 
 
 Core functions:
-  * log data to a micro-sd card;
-  * software-controlled power-control with very low standby current.
+  * log data to a XTSD-chip (emulates a micro-SD card)
+  * software-controlled power-control with very low standby current
+  * manual or interval-based wakeup (supporting a weekly time-table)
+  * supports running from a LiPo or two AA/AAA batteries 
 
-From a technical viewpoint the breakout allows you to
-  * turn on the system using a button or
-  * use a RTC-alarm to trigger wakup,
-  * turn off the system using a dedicated digital-io,
-  * power the system from a lipo or battery-pack,
-  * keep time using a coincell backup-battery even if the board is not powered.
+The design has gone through multiple iterations, you
+can find images of these versions in the `docs` folder.
+
+Current PCB:
+
+![](docs/pcb-datalogger-v2-2.jpg)
+
+As a supplemental board we also have a sensor PCB with sensors for
+temperature/humidity (AHT20), light (BH1750) and noise (PDM-mic):
+
+![](docs/pcb-sensor-2.jpg)
 
 
 Quick Links
