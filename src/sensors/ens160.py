@@ -80,7 +80,7 @@ class ENS160:
       values.extend([None,0])
       values.extend([None,0])
       values.extend([None,0])
-      return f"{ens_data['status']},0,0,0"
+      return f"{status},0,0,0"
 
     # warmup
     if status == 1:
