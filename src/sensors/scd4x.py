@@ -16,6 +16,7 @@
 #-----------------------------------------------------------------------------
 
 SAMPLES = 2
+TIMEOUT = 10                  # data should be ready every 5 seconds
 DISCARD = True                # only keep last reading
 
 from log_writer import Logger
@@ -32,14 +33,9 @@ class SCD4X:
   def __init__(self,config,i2c,addr=None,spi=None):
     """ constructor """
 
-    if hasattr(config,"SCD4X_SAMPLES"):
-      self.SAMPLES = config.SCD4X_SAMPLES
-    else:
-      self.SAMPLES = SAMPLES
-    if hasattr(config,"SCD4X_DISCARD"):
-      self.DISCARD = config.SCD4X_DISCARD
-    else:
-      self.DISCARD = DISCARD
+    self.SAMPLES = getattr(config,"SCD4X_SAMPLES",SAMPLES)
+    self.TIMEOUT = getattr(config,"SCD4X_TIMEOUT",TIMEOUT)
+    self.DISCARD = getattr(config,"SCD4X_DISCARD",DISCARD)
 
     if not self.DISCARD:
       self.headers = 't (1),CO2 ppm (1)'
@@ -69,7 +65,12 @@ class SCD4X:
     t0 = time.monotonic()
     for i in range(self.SAMPLES):
       g_logger.print(f"{self.product}: waiting for data...")
-      while True:
+      t_rel = 0
+      co2   = 0
+      temp  = 0
+      hum   = 0
+      start = time.monotonic()
+      while time.monotonic()-start < self.TIMEOUT:
         self.read_sensor()
         if self.scd4x.data_ready:
           t_rel = time.monotonic() - t0
