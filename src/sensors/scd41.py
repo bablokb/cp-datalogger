@@ -21,7 +21,7 @@ from log_writer import Logger
 g_logger = Logger()
 
 import time
-from scd4x import SCD4X
+from .scd4x import SCD4X
 
 class SCD41(SCD4X):
   def __init__(self,config,i2c,addr=None,spi=None):
