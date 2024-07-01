@@ -33,8 +33,9 @@
 # we could put this into the global configuration, but since changing
 # this is only for experimental purposes, we don't pollute config.py
 
-MEASUREMENT_INTERVALS = [0,5] # interval between readings
-DISCARD = True                # only keep last reading
+INTERVALS  = [0,5]             # interval between readings
+DISCARD    = True              # only keep last reading
+PROPERTIES = "AQI TVOC eCO2"   # properties for the display
 
 from log_writer import Logger
 g_logger = Logger()
@@ -43,17 +44,6 @@ import time
 import adafruit_ens160
 
 class ENS160:
-  # don't print status on display, but add to csv
-  formats = ["AQI:", "{0}",
-             "TVOC:", "{0}",
-             "eCO2:", "{0}"
-             ]
-  headers = 'status'
-  if DISCARD:
-    headers += f",AQI,TVOC ppb,eCO2 ppm eq."
-  else:
-    for i in range(len(MEASUREMENT_INTERVALS)):
-      headers += f",AQI ({i+1}),TVOC ppb ({i+1}),eCO2 ppm eq. ({i+1})"
 
   def __init__(self,config,i2c,addr=None,spi=None):
     """ constructor """
@@ -70,16 +60,31 @@ class ENS160:
     if not self.ens160:
       raise Exception("no ens160 detected. Check config/cabling!")
 
+    self.DISCARD    = getattr(config,"ENS160_DISCARD",DISCARD)
+    self.INTERVALS  = getattr(config,"ENS160_INTERVALS",INTERVALS)
+    self.PROPERTIES = getattr(config,"ENS160_PROPERTIES",PROPERTIES).split()
+
+    # dynamically create formats for display...
+    self.formats = []
+    for p in self.PROPERTIES:
+      self.formats.extend([f"{p}:","{0}"])
+
+    # ... and header for csv
+    self.headers = 'status'
+    if DISCARD:
+      self.headers += f",AQI,TVOC ppb,eCO2 ppm eq."
+    else:
+      for i in range(len(self.INTERVALS)):
+        self.headers += f",AQI ({i+1}),TVOC ppb ({i+1}),eCO2 ppm eq. ({i+1})"
+
   def read(self,data,values):
     status = self.ens160.data_validity
 
     # initial startup or invalid data
     if status > 1:
       g_logger.print("ens160: initial startup or invalid data!")
-      values.extend([None,status])
-      values.extend([None,0])
-      values.extend([None,0])
-      values.extend([None,0])
+      for _ in self.PROPERTIES:
+        values.extend([None,0])
       return f"{status},0,0,0"
 
     # warmup
@@ -100,8 +105,8 @@ class ENS160:
 
       # take multiple readings
       csv_results = f"{status}"
-      for i in range(len(MEASUREMENT_INTERVALS)):
-        time.sleep(MEASUREMENT_INTERVALS[i])
+      for i in range(len(self.INTERVALS)):
+        time.sleep(self.INTERVALS[i])
         #status == 0 might still not provide valid data
         while True:
           while not self.ens160.new_data_available:
@@ -110,13 +115,12 @@ class ENS160:
           ens_data = self.ens160.read_all_sensors()
           if not ens_data['eCO2'] is None:
             break
-        if not DISCARD or i == len(MEASUREMENT_INTERVALS)-1:
+        if not self.DISCARD or i == len(self.INTERVALS)-1:
           csv_results += (
             f",{ens_data['AQI']},{ens_data['TVOC']},{ens_data['eCO2']}")
 
       # only show last reading on display
       data["ens160"] = ens_data
-      values.extend([None,ens_data['AQI']])
-      values.extend([None,ens_data['TVOC']])
-      values.extend([None,ens_data['eCO2']])
+      for p in self.PROPERTIES:
+        values.extend([None,ens_data[p]])
       return csv_results
