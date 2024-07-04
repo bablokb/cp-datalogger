@@ -20,12 +20,15 @@ import alarm
 def light_sleep(duration=0,until=None):
   """ sleep the given duration or until given time-point """
 
-  if duration:
+  if until:
+    wakeup_alarm = alarm.time.TimeAlarm(
+      epoch_time=time.mktime(until))
+  elif duration >= 2:
     time_alarm = alarm.time.TimeAlarm(
       monotonic_time=time.monotonic()+duration)
   else:
-    wakeup_alarm = alarm.time.TimeAlarm(
-      epoch_time=time.mktime(until))
+    time.sleep(duration)
+    return
 
   try:
     old_freq = microcontroller.cpu.frequency
@@ -42,7 +45,9 @@ def light_sleep(duration=0,until=None):
 
 # --- enter deep-sleep   -----------------------------------------------------
 
-def deep_sleep(until):
+def deep_sleep(until=None):
   """ enter deep-sleep """
+  if not until:
+    return
   wakeup_alarm = alarm.time.TimeAlarm(epoch_time=time.mktime(until))
   alarm.exit_and_deep_sleep_until_alarms(wakeup_alarm)
