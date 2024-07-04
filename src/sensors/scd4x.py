@@ -18,6 +18,12 @@
 SAMPLES = 2
 TIMEOUT = 10                  # data should be ready every 5 seconds
 DISCARD = True                # only keep last reading
+PROPERTIES = "CO2 T H"        # properties for the display
+FORMATS = {
+  "CO2": ["CO2:", "{0}"],
+  "T":   ["T/SCD:", "{0:.1f}°C"],
+  "H":   ["H/SCD:", "{0:.0f}%rH"]
+  }
 
 from log_writer import Logger
 g_logger = Logger()
@@ -27,21 +33,10 @@ import adafruit_scd4x
 
 class SCD4X:
   # we don't use timestamps on the display ...
-  formats = ["CO2:", "{0}", "T/SCD:", "{0:.1f}°C","H/SCD:", "{0:.0f}%rH"]
   headers = 'CO2 ppm,T/SCD °C,H/SCD %rH'
 
   def __init__(self,config,i2c,addr=None,spi=None):
     """ constructor """
-
-    self.SAMPLES = getattr(config,"SCD4X_SAMPLES",SAMPLES)
-    self.TIMEOUT = getattr(config,"SCD4X_TIMEOUT",TIMEOUT)
-    self.DISCARD = getattr(config,"SCD4X_DISCARD",DISCARD)
-
-    if not self.DISCARD:
-      self.headers = 't (1),CO2 ppm (1)'
-      for i in range(1,self.SAMPLES):
-        self.headers += f",t ({i+1}),CO2 ppm ({i+1})"
-      self.headers += ',T/SCD °C,H/SCD %rH'
 
     self.scd4x = None
     for bus,nr in i2c:
@@ -54,6 +49,23 @@ class SCD4X:
         g_logger.print(f"exception: {ex}")
     if not self.scd4x:
       raise Exception(f"no {self.product} detected. Check config/cabling!")
+
+    self.SAMPLES = getattr(config,"SCD4X_SAMPLES",SAMPLES)
+    self.TIMEOUT = getattr(config,"SCD4X_TIMEOUT",TIMEOUT)
+    self.DISCARD = getattr(config,"SCD4X_DISCARD",DISCARD)
+    self.PROPERTIES = getattr(config,"SCD4X_PROPERTIES",PROPERTIES).split()
+
+    # dynamically create formats for display...
+    self.formats = []
+    for p in self.PROPERTIES:
+      self.formats.extend(FORMATS[p])
+
+    # ... and header for csv
+    if not self.DISCARD:
+      self.headers = 't (1),CO2 ppm (1)'
+      for i in range(1,self.SAMPLES):
+        self.headers += f",t ({i+1}),CO2 ppm ({i+1})"
+      self.headers += ',T/SCD °C,H/SCD %rH'
 
   def read_sensor(self):
     """ dummy method, must be implemented by subclass if necessary """
@@ -91,11 +103,10 @@ class SCD4X:
     
     # only show last reading on display
     data[self.product] = {
-      "temp": temp,
-      "hum":  hum,
-      "co2":  co2
+      "T": temp,
+      "H":  hum,
+      "CO2":  co2
     }
-    values.extend([None,co2])
-    values.extend([None,temp])
-    values.extend([None,hum])
+    for p in self.PROPERTIES:
+      values.extend([None,data[self.product][p])
     return csv_results[1:]
