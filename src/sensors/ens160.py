@@ -43,6 +43,8 @@ g_logger = Logger()
 import time
 import adafruit_ens160
 
+import sleep
+
 class ENS160:
 
   def __init__(self,config,i2c,addr=None,spi=None):
@@ -91,8 +93,8 @@ class ENS160:
     if status == 1:
       sleep_time = 120
       while status == 1:
-        g_logger.print(f"ens160: warmup - sleeping {sleep_time}s}")
-        time.sleep(sleep_time)
+        g_logger.print(f"ens160: warmup - sleeping {sleep_time}s")
+        sleep.light_sleep(duration=sleep_time)
         sleep_time = max(sleep_time/2,10)
         status = self.ens160.data_validity
 
@@ -106,7 +108,7 @@ class ENS160:
       # take multiple readings
       csv_results = f"{status}"
       for i in range(len(self.INTERVALS)):
-        time.sleep(self.INTERVALS[i])
+        sleep.light_sleep(duration=self.INTERVALS[i])
         #status == 0 might still not provide valid data
         while True:
           while not self.ens160.new_data_available:
