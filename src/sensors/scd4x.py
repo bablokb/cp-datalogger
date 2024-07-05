@@ -108,5 +108,5 @@ class SCD4X:
       "CO2":  co2
     }
     for p in self.PROPERTIES:
-      values.extend([None,data[self.product][p])
+      values.extend([None,data[self.product][p]])
     return csv_results[1:]
