@@ -1,53 +1,73 @@
 #-----------------------------------------------------------------------------
 # Optimized sleep:
 #
-#   - use light-sleep
+#   - use light-sleep/deep-sleep
 #   - reduce cpu-frequency
 #   - support duration and time-point
+#
+# Note: changing CPU-frequency is not yet supported with 8.0.5 and only
+#       available on RP2040 boards
 #
 # Author: Bernhard Bablok
 #
 # Website: https://github.com/pcb-pico-datalogger
 #-----------------------------------------------------------------------------
 
-CPU_FREQ_LOW =  40000000
-
 import time
 import alarm
+import microcontroller
 
-# --- light sleep   ----------------------------------------------------------
+# --- class Sleep   ----------------------------------------------------------
 
-def light_sleep(duration=0,until=None):
-  """ sleep the given duration or until given time-point """
+class TimeSleep:
+  """ minimal wrapper class for light and deep sleep """
 
-  if until:
-    wakeup_alarm = alarm.time.TimeAlarm(
-      epoch_time=time.mktime(until))
-  elif duration >= 2:
-    time_alarm = alarm.time.TimeAlarm(
-      monotonic_time=time.monotonic()+duration)
-  else:
-    time.sleep(duration)
-    return
+  CPU_FREQ_LOW   = 20000000
+  cpu_freq_sleep = None
 
-  try:
-    old_freq = microcontroller.cpu.frequency
-    microcontroller.cpu.frequency = CPU_FREQ_LOW
-    have_freq = True
-  except:
-    have_freq = False
-  alarm.light_sleep_until_alarms(time_alarm)
-  if have_freq:
-    try:
-      microcontroller.cpu.frequency = old_freq
-    except:
-      pass
+  @classmethod
+  def _sleep_impl(cls,duration=0,until=None,sleep_func=None):
+    """ implement sleep """
 
-# --- enter deep-sleep   -----------------------------------------------------
+    if until:
+      time_alarm = alarm.time.TimeAlarm(epoch_time=time.mktime(until))
+    elif duration >= 2:
+      time_alarm = alarm.time.TimeAlarm(
+        monotonic_time=time.monotonic()+duration)
+    else:
+      time.sleep(duration)
+      return
 
-def deep_sleep(until=None):
-  """ enter deep-sleep """
-  if not until:
-    return
-  wakeup_alarm = alarm.time.TimeAlarm(epoch_time=time.mktime(until))
-  alarm.exit_and_deep_sleep_until_alarms(wakeup_alarm)
+    if TimeSleep.cpu_freq_sleep:
+      try:
+        old_freq = microcontroller.cpu.frequency
+        microcontroller.cpu.frequency = TimeSleep.cpu_freq_sleep
+        have_freq = True
+      except:
+        have_freq = False
+
+    sleep_func(time_alarm)   # the code below won't execute with deep-sleep!
+
+    if TimeSleep.cpu_freq_sleep and have_freq:
+      try:
+        microcontroller.cpu.frequency = old_freq
+      except:
+        pass
+
+  # --- light sleep   ----------------------------------------------------------
+
+  @classmethod
+  def light_sleep(cls,duration=0,until=None):
+
+    """ sleep the given duration or until given time-point """
+    TimeSleep._sleep_impl(duration=duration,until=until,
+                      sleep_func=alarm.light_sleep_until_alarms)
+
+  # --- deep sleep   ----------------------------------------------------------
+
+  @classmethod
+  def deep_sleep(cls,duration=0,until=None):
+
+    """ sleep the given duration or until given time-point """
+    TimeSleep._sleep_impl(duration=duration,until=until,
+                      sleep_func=alarm.exit_and_deep_sleep_until_alarms)
