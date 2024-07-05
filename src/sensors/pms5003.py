@@ -24,6 +24,8 @@ import pins
 from adafruit_pm25.uart import PM25_UART
 from adafruit_pm25.i2c  import PM25_I2C
 
+from sleep import TimeSleep
+
 class PMS5003:
   formats = ["PM0.3:", "{0}","PM1.0:", "{0}","PM2.5:", "{0}"]
   headers = 'PM0.3,PM1.0,PM2.5'
@@ -50,7 +52,7 @@ class PMS5003:
     wtime = max(30-int(time.monotonic()),0)
     if wtime > 0:
       g_logger.print(f"pms5003: waiting {wtime}s for first measurement")
-      time.sleep(wtime)
+      TimeSleep.light_sleep(wtime)
 
     # retry until read does not throw an exception
     # TODO: limit retries

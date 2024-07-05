@@ -36,6 +36,9 @@ import storage
 # imports for i2c and rtc
 import busio
 
+# sleep-helper
+from sleep import TimeSleep
+
 # pin definitions
 import pins
 
@@ -336,6 +339,9 @@ class DataCollector():
     else:
       self.wakeup = ExtRTC.get_alarm_time(s=g_config.INTERVAL)
 
+    if not g_config.STROBE_MODE:  # only calculate wakeup, don't set alarm
+      return
+
     if g_config.HAVE_PCB:
       self.rtc.set_alarm(self.wakeup)
 
@@ -362,17 +368,6 @@ class DataCollector():
     else:
       g_logger.print("ignoring shutdown (don't have PCB/RTC)")
 
-  # --- enter deep-sleep   ---------------------------------------------------
-
-  def goto_sleep(self):
-    """ enter deep-sleep """
-    import alarm
-    # self.wakeup is a struct_time, but we need epoch-time
-    wakeup_alarm = alarm.time.TimeAlarm(epoch_time=time.mktime(self.wakeup))
-    g_logger.print(
-      f"wakeup from deep-sleep at {ExtRTC.print_ts(None,self.wakeup)}")
-    alarm.exit_and_deep_sleep_until_alarms(wakeup_alarm)
-
   # --- cleanup   ------------------------------------------------------------
 
   def cleanup(self):
@@ -389,7 +384,7 @@ class DataCollector():
 
     g_logger.print("main program start")
     if g_config.TEST_MODE:
-      time.sleep(5)                        # give console some time to initialize
+      TimeSleep.light_sleep(duration=5)       # give console some time to initialize
       g_ts.append((time.monotonic(),"delay test-mode"))
 
     g_logger.print("setup of hardware")
@@ -416,18 +411,25 @@ class DataCollector():
       self.run_tasks()
       self.print_timings()
 
+      # configure wakeup-time
+      self.configure_wakeup()
+
       # check for low LiPo
       if self.with_lipo and self.data["battery"] < 3.1:
         # prevent continuous-mode
         break
 
       if not g_config.STROBE_MODE:
-        g_logger.print(f"continuous mode: next measurement in {g_config.INTERVAL} seconds")
-        time.sleep(g_config.INTERVAL)
+        g_logger.print(
+          f"continuous mode: next measurement " +
+          f"at {ExtRTC.print_ts(None,self.wakeup)}")
+        if g_config.INTERVAL < 61:
+          TimeSleep.light_sleep(until=self.wakeup)
+        else:
+          TimeSleep.deep_sleep(until=self.wakeup)
       else:
         break
 
-    self.configure_wakeup()
     self.shutdown()
 
     # we are only here if
@@ -435,4 +437,6 @@ class DataCollector():
     # - we are running on USB-power
     # - we are running on a v2-PCB or without PCB
     # Switch to deep-sleep (better than nothing)
-    self.goto_sleep()
+    g_logger.print(
+      f"wakeup from deep-sleep at {ExtRTC.print_ts(None,self.wakeup)}")
+    TimeSleep.deep_sleep(until=self.wakeup)

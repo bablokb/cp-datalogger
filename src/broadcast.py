@@ -28,6 +28,7 @@ from datacollector import g_config
 from lora import LORA
 from log_writer import Logger
 from rtc_ext.pcf8523 import ExtPCF8523 as ExtRTC
+from sleep import TimeSleep
 
 # --- init environment   -----------------------------------------------------
 
@@ -37,7 +38,7 @@ switch_d.value = True
 
 g_logger = Logger()
 if g_config.TEST_MODE:
-  time.sleep(5)
+  TimeSleep.light_sleep(duration=5)
 g_logger.print("!!! Starting in Broadcast-Mode !!!")
 
 # --- application class for broadcast-mode   ---------------------------------
@@ -158,10 +159,12 @@ class Broadcast:
         # refresh only once per minute
         wait_for_ref = max(0,60-(time.monotonic()-self._last_ref))
         g_logger.print(f"waiting {wait_for_ref}s for display refresh")
-        time.sleep(max(0,60-(time.monotonic()-self._last_ref)))
+        TimeSleep.light_sleep(duration=max(0,60-(time.monotonic()-self._last_ref)))
         self._last_ref = time.monotonic()
       g_logger.print(f"refreshing display")
       self._display.refresh()
+      if not self._have_oled:
+        time.sleep(3)             # e-ink needs some additional time
 
   # --- clear display   ------------------------------------------------------
 
@@ -245,7 +248,7 @@ class Broadcast:
 
 app = Broadcast()
 app.update_time()
-time.sleep(5)
+TimeSleep.light_sleep(duration=5)
 
 app.clear()
 app.update_info([f"Node: {g_config.LORA_NODE_ADDR}, ID: {g_config.LOGGER_ID}"])
@@ -256,4 +259,4 @@ while True:
   app.update_display()
   stime = max(0,app.interval - (time.monotonic()-start))
   g_logger.print(f"Broadcast: next cycle in  {stime}s...")
-  time.sleep(stime)
+  TimeSleep.light_sleep(duration=stime)
