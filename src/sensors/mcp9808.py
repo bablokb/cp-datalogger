@@ -26,6 +26,7 @@ class MCP9808:
   def __init__(self,config,i2c,addr=None,spi=None):
     """ constructor """
 
+    self.ignore = False
     self.mcp9808 = None
     for bus,nr in i2c:
       try:
@@ -43,5 +44,6 @@ class MCP9808:
     data["mcp9808"] = {
       "temp": t
     }
-    values.extend([None,t])
+    if not self.ignore:
+      values.extend([None,t])
     return  f"{t:0.1f}"

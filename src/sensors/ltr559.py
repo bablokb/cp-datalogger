@@ -26,6 +26,7 @@ class LTR559:
   def __init__(self,config,i2c,addr=None,spi=None):
     """ constructor """
 
+    self.ignore = False
     self.ltr559 = None
     for bus,nr in i2c:
       try:
@@ -43,5 +44,6 @@ class LTR559:
     data["ltr559"] = {
       "lux": lux
     }
-    values.extend([None,lux])
+    if not self.ignore:
+      values.extend([None,lux])
     return f"{lux:.0f}"

@@ -190,6 +190,8 @@ class DataCollector():
     """ configure sensors """
 
     self.formats = []
+    sensors_ignore = getattr(g_config,"SENSORS_CSV_ONLY","")
+    sensors_ignore = sensors_ignore.split(" ")
     self.csv_header = f"#ID: {g_config.LOGGER_ID}\n#Location: {g_config.LOGGER_LOCATION}\n"
     self.csv_header += "#ts"
     self._sensors = []
@@ -202,6 +204,8 @@ class DataCollector():
     # parse sensor specification. Will fail if i2c0 is requested, but not
     # configured
     for spec in g_config.SENSORS.split(' '):
+      # ignore fully qualified spec for display
+      csv_only = True if spec in sensors_ignore else False
       # spec is sensor(addr,bus) or sensor(bus,addr) with bus and/or addr optional
       # defaults for normal case without addr/bus
       spec   = spec.split('(')
@@ -227,8 +231,10 @@ class DataCollector():
                                           None,None,[sensor.upper()],0)
       sensor_class = getattr(sensor_module,sensor.upper())
       _sensor = sensor_class(g_config,i2c,addr,None)
+      _sensor.ignore = csv_only
       self._sensors.append(_sensor.read)
-      self.formats.extend(_sensor.formats)
+      if not csv_only:
+        self.formats.extend(_sensor.formats)
       self.csv_header += f",{_sensor.headers}"
 
   # --- blink   --------------------------------------------------------------

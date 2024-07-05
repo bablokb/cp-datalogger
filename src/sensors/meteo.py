@@ -32,6 +32,7 @@ class METEO:
 
   def __init__(self,config,i2c,addr=None,spi=None):
     """ constructor """
+    self.ignore = False
     if hasattr(config,"METEO_LATITUDE"):
       METEO_LATITUDE=config.METEO_LATITUDE
     else:
@@ -82,9 +83,10 @@ class METEO:
       }
 
     # fill in subset of data for display
-    values.extend([None,t])
-    values.extend([None,h])
-    values.extend([None,p])
+    if not self.ignore:
+      values.extend([None,t])
+      values.extend([None,h])
+      values.extend([None,p])
 
     # return all data for csv
     return f"{t:0.1f},{h:0.0f},{p:0.0f},{c:d},{ws:0.1f},{wd:0.0f},{r:0.1f}"

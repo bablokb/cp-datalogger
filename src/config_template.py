@@ -54,7 +54,13 @@ HAVE_LIPO = False                  # True, False
 # When no bus is provided, busses are probed in the order i2c1,i2c0.
 # When no address is provided, the default address as configured in
 # the driver is used.
+#
+# Since the display can only show 6 values, you can exclude sensors
+# from the display. The data is still recorded in the CSV.
+# Entries in 'SENSORS_CSV_ONLY' must match exactly to entries in 'SENSORS'.
+
 SENSORS = "id battery"
+SENSORS_CSV_ONLY = ""
 
 SHOW_UNITS = False # Show units in the csv output
 SIMPLE_UI  = False # use simple UI

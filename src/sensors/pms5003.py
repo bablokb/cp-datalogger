@@ -32,6 +32,7 @@ class PMS5003:
 
   def __init__(self,config,i2c,addr=None,spi=None):
     """ constructor """
+    self.ignore = False
     self.pms5003 = None
     for bus,nr in i2c:
       try:
@@ -69,7 +70,8 @@ class PMS5003:
     pm25 = pms5003_data["particles 25um"]
 
     data["pms5003"] = pms5003_data
-    values.extend([None,pm03])
-    values.extend([None,pm10])
-    values.extend([None,pm25])
+    if not self.ignore:
+      values.extend([None,pm03])
+      values.extend([None,pm10])
+      values.extend([None,pm25])
     return f"{pm03},{pm10},{pm25}"

@@ -27,6 +27,7 @@ class BMP280:
   def __init__(self,config,i2c,addr=None,spi=None):
     """ constructor """
 
+    self.ignore = False
     self.bmp280 = None
     address = addr if addr else 0x77
     for bus,nr in i2c:
@@ -61,6 +62,7 @@ class BMP280:
       "temp": t,
       "pressure": p
     }
-    values.extend([None,t])
-    values.extend([None,p])
+    if not self.ignore:
+      values.extend([None,t])
+      values.extend([None,p])
     return f"{t:0.1f},{p:0.0f}"

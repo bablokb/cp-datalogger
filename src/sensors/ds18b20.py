@@ -38,6 +38,7 @@ class DS18B20:
   def __init__(self,config,i2c,addr=None,spi=None):
     """ constructor """
 
+    self.ignore = False
     ow_bus = OneWireBus(PIN_ONE_WIRE)
     while True:
       g_logger.print("scanning for ds18b20")
@@ -65,7 +66,8 @@ class DS18B20:
     for ds18b20,rom in self.ds18b20:
       t = round(ds18b20.temperature,1)
       data["ds18b20"]["-".join(hex(b) for b in rom)] = t
-      values.extend([None,t])
+      if not self.ignore:
+        values.extend([None,t])
       record += f"{sep}{t:0.1f}"
       sep = ","
     return record

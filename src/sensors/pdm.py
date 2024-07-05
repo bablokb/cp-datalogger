@@ -28,6 +28,7 @@ class PDM:
   def __init__(self,config,i2c,addr=None,spi=None):
     """ constructor """
 
+    self.ignore = False
     self.mic = audiobusio.PDMIn(pins.PIN_PDM_CLK,pins.PIN_PDM_DAT,
                                 sample_rate=16000, bit_depth=16)
 
@@ -44,5 +45,6 @@ class PDM:
     data["pdm"] = {
       "mag": mag
     }
-    values.extend([None,mag])
+    if not self.ignore:
+      values.extend([None,mag])
     return f"{mag:0.0f}"

@@ -23,7 +23,7 @@ class BATTERY:
 
   def __init__(self,config,i2c,addr=None,spi=None):
     """ constructor """
-    pass
+    self.ignore = False
 
   def read(self,data,values):
     """ read voltage monitor """
@@ -32,5 +32,6 @@ class BATTERY:
     level = round(adc.value *  3 * 3.3 / 65535,2)
     adc.deinit()
     data["battery"] = level
-    values.extend([None,level])
+    if not self.ignore:
+      values.extend([None,level])
     return f"{level:0.2f}"

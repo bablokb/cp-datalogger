@@ -26,6 +26,7 @@ class AM2320:
   def __init__(self,config,i2c,addr=None,spi=None):
     """ constructor """
 
+    self.ignore = False
     self.am2320 = None
     for bus,nr in i2c:
       try:
@@ -46,6 +47,7 @@ class AM2320:
       "temp": t,
       "hum":  h
     }
-    values.extend([None,t])
-    values.extend([None,h])
+    if not self.ignore:
+      values.extend([None,t])
+      values.extend([None,h])
     return f"{t:0.1f},{h:0.0f}"

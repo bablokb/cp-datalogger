@@ -26,6 +26,7 @@ class BH1750:
   def __init__(self,config,i2c,addr=None,spi=None):
     """ constructor """
 
+    self.ignore = False
     self.bh1750 = None
     for bus,nr in i2c:
       try:
@@ -43,5 +44,6 @@ class BH1750:
     data["bh1750"] = {
       "lux": lux
     }
-    values.extend([None,lux])
+    if not self.ignore:
+      values.extend([None,lux])
     return f"{lux:.0f}"

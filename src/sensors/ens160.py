@@ -55,6 +55,7 @@ class ENS160:
   def __init__(self,config,i2c,addr=None,spi=None):
     """ constructor """
 
+    self.ignore = False
     self.ens160 = None
     for bus,nr in i2c:
       try:
@@ -75,8 +76,9 @@ class ENS160:
 
     # dynamically create formats for display...
     self.formats = []
-    for p in self.PROPERTIES:
-      self.formats.extend([f"{p}:","{0}"])
+    if not self.ignore:
+      for p in self.PROPERTIES:
+        self.formats.extend([f"{p}:","{0}"])
 
     # ... and header for csv
     self.headers = 'status'
@@ -92,8 +94,9 @@ class ENS160:
     # initial startup or invalid data
     if status > 1:
       g_logger.print("ens160: initial startup or invalid data!")
-      for _ in self.PROPERTIES:
-        values.extend([None,0])
+      if not self.ignore:
+        for _ in self.PROPERTIES:
+          values.extend([None,0])
       return f"{status},0,0,0"
 
     # warmup: in strobe-mode we restart the system later, otherwise only
@@ -105,8 +108,9 @@ class ENS160:
         TimeSleep.deep_sleep(duration=self.WARMUP)
       else:
         g_logger.print("ens160: initial warmup!")
-        for _ in self.PROPERTIES:
-          values.extend([None,0])
+        if not self.ignore:
+          for _ in self.PROPERTIES:
+            values.extend([None,0])
         return f"{status},0,0,0"
 
     # normal operation
@@ -134,6 +138,7 @@ class ENS160:
 
       # only show last reading on display
       data["ens160"] = ens_data
-      for p in self.PROPERTIES:
-        values.extend([None,ens_data[p]])
+      if not self.ignore:
+        for p in self.PROPERTIES:
+          values.extend([None,ens_data[p]])
       return csv_results

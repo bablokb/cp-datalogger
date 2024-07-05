@@ -25,6 +25,7 @@ class AHT20:
 
   def __init__(self,config,i2c,addr=None,spi=None):
     """ constructor """
+    self.ignore = False
     self.aht20 = None
     for bus,nr in i2c:
       try:
@@ -45,6 +46,7 @@ class AHT20:
       "temp": t,
       "hum":  h
     }
-    values.extend([None,t])
-    values.extend([None,h])
+    if not self.ignore:
+      values.extend([None,t])
+      values.extend([None,h])
     return f"{t:0.1f},{h:0.0f}"

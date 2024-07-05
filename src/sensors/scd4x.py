@@ -38,6 +38,7 @@ class SCD4X:
   def __init__(self,config,i2c,addr=None,spi=None):
     """ constructor """
 
+    self.ignore = False
     self.scd4x = None
     for bus,nr in i2c:
       try:
@@ -57,8 +58,9 @@ class SCD4X:
 
     # dynamically create formats for display...
     self.formats = []
-    for p in self.PROPERTIES:
-      self.formats.extend(FORMATS[p])
+    if not self.ignore:
+      for p in self.PROPERTIES:
+        self.formats.extend(FORMATS[p])
 
     # ... and header for csv
     if not self.DISCARD:
@@ -107,6 +109,7 @@ class SCD4X:
       "H":  hum,
       "CO2":  co2
     }
-    for p in self.PROPERTIES:
-      values.extend([None,data[self.product][p]])
+    if not self.ignore:
+      for p in self.PROPERTIES:
+        values.extend([None,data[self.product][p]])
     return csv_results[1:]
