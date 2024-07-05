@@ -16,11 +16,16 @@
 
 # Important notes:
 #
-# A reading of the sensor right after startup is more or less useless.
-# After about 60s, the readings are stable. Nevertheless, taking
-# readings earlier is a good compromise between accuracy and
-# current consumption. You just cannot use absolute values but should
-# use relative values compared to a well known baseline.
+# The sensor needs an initial run in period of at least 48 hours.
+#
+# After POR, the sensor needs a warmup period of about 3 minutes.
+#
+# This implementation will:
+#   - return the warmup-status and no data for continuous-mode
+#   - will trigger a deep sleep for the expected warmup period for strobe-mode
+# This strategy assumes that in continuous-mode the system is running on
+# USB-power. In strobe-mode, the deep sleep will at least minimize the
+# battery drain (with CP 8.0.5: 6.3mA).
 #
 # eCO2 seems to be highly correlated to TVOC, so eCO2 is actually
 # redundant to judge air-quality. The AQI itself is highly questionable,
@@ -30,11 +35,11 @@
 #
 # Otherwise, the sensor is fine and shows a good reaction to ventilation.
 
-# we could put this into the global configuration, but since changing
-# this is only for experimental purposes, we don't pollute config.py
+# Default configuration. Override with ENS160_xxx in config.py.
 
 INTERVALS  = [0,5]             # interval between readings
 DISCARD    = True              # only keep last reading
+WARMUP     = 190               # warmup time in seconds (for status==1)
 PROPERTIES = "AQI TVOC eCO2"   # properties for the display
 
 from log_writer import Logger
@@ -43,7 +48,7 @@ g_logger = Logger()
 import time
 import adafruit_ens160
 
-import sleep
+from sleep import TimeSleep
 
 class ENS160:
 
@@ -54,7 +59,7 @@ class ENS160:
     for bus,nr in i2c:
       try:
         g_logger.print(f"testing ens160 on i2c{nr}")
-        self.ens160 = adafruit_ens160.ENS160(bus)
+        self.ens160 = adafruit_ens160.ENS160(bus,reset=False)
         g_logger.print(f"detected ens160 on i2c{nr}")
         break
       except Exception as ex:
@@ -62,9 +67,11 @@ class ENS160:
     if not self.ens160:
       raise Exception("no ens160 detected. Check config/cabling!")
 
-    self.DISCARD    = getattr(config,"ENS160_DISCARD",DISCARD)
-    self.INTERVALS  = getattr(config,"ENS160_INTERVALS",INTERVALS)
-    self.PROPERTIES = getattr(config,"ENS160_PROPERTIES",PROPERTIES).split()
+    self.STROBE_MODE = config.STROBE_MODE
+    self.DISCARD     = getattr(config,"ENS160_DISCARD",DISCARD)
+    self.INTERVALS   = getattr(config,"ENS160_INTERVALS",INTERVALS)
+    self.WARMUP      = getattr(config,"ENS160_WARMUP",WARMUP)
+    self.PROPERTIES  = getattr(config,"ENS160_PROPERTIES",PROPERTIES).split()
 
     # dynamically create formats for display...
     self.formats = []
@@ -89,14 +96,18 @@ class ENS160:
         values.extend([None,0])
       return f"{status},0,0,0"
 
-    # warmup
+    # warmup: in strobe-mode we restart the system later, otherwise only
+    #         return status information
     if status == 1:
-      sleep_time = 120
-      while status == 1:
-        g_logger.print(f"ens160: warmup - sleeping {sleep_time}s")
-        sleep.light_sleep(duration=sleep_time)
-        sleep_time = max(sleep_time/2,10)
-        status = self.ens160.data_validity
+      if self.STROBE_MODE:
+        g_logger.print(
+          f"ens160: warmup - deep-sleep for {self.WARMUP}s")
+        TimeSleep.deep_sleep(duration=self.WARMUP)
+      else:
+        g_logger.print("ens160: initial warmup!")
+        for _ in self.PROPERTIES:
+          values.extend([None,0])
+        return f"{status},0,0,0"
 
     # normal operation
     if status == 0:
@@ -108,7 +119,7 @@ class ENS160:
       # take multiple readings
       csv_results = f"{status}"
       for i in range(len(self.INTERVALS)):
-        sleep.light_sleep(duration=self.INTERVALS[i])
+        TimeSleep.light_sleep(duration=self.INTERVALS[i])
         #status == 0 might still not provide valid data
         while True:
           while not self.ens160.new_data_available:
