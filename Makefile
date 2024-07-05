@@ -78,7 +78,7 @@ default: check_mpy_cross ${DEPLOY_TO} ${DEPLOY_TO}/sensors \
 	@git log --format="commit='%H'" -n 1 > ${DEPLOY_TO}/commit.py
 	@rm -f makevars.tmp
 	@make makevars.tmp PCB=${PCB} DEPLOY_TO=${DEPLOY_TO} \
-		CONFIG=${CONFIG} \
+		CONFIG=${CONFIG} AP_CONFIG=${AP_CONFIG} \
 		LOG_CONFIG=${LOG_CONFIG}
 
 gateway: check_mpy_cross ${DEPLOY_TO} lib \
@@ -90,7 +90,7 @@ gateway: check_mpy_cross ${DEPLOY_TO} lib \
 	${DEPLOY_TO}/log_config.py
 	@rm -f makevars.tmp
 	@make makevars.tmp PCB=${PCB} DEPLOY_TO=${DEPLOY_TO} \
-		CONFIG=${CONFIG} \
+		CONFIG=${CONFIG} AP_CONFIG=${AP_CONFIG} \
 		LOG_CONFIG=${LOG_CONFIG}
 
 # check for mpy-cross pre-compiler
