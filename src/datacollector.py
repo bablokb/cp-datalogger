@@ -237,6 +237,11 @@ class DataCollector():
         self.formats.extend(_sensor.formats)
       self.csv_header += f",{_sensor.headers}"
 
+    if getattr(g_config,"CSV_HEADER_EXTENDED",False):
+      f_nr = 0
+      for f_nr,field in enumerate(self.csv_header.split('#')[-1].split(',')):
+        self.csv_header += f"\n# {f_nr:2d}: {field}"
+
   # --- blink   --------------------------------------------------------------
 
   def blink(self, count=1, blink_time=0.25):
