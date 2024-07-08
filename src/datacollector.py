@@ -193,7 +193,7 @@ class DataCollector():
     sensors_ignore = getattr(g_config,"SENSORS_CSV_ONLY","")
     sensors_ignore = sensors_ignore.split(" ")
     self.csv_header = f"#ID: {g_config.LOGGER_ID}\n#Location: {g_config.LOGGER_LOCATION}\n"
-    self.csv_header += "#ts"
+    column_headings = "#ts"
     self._sensors = []
 
     # setup defaults
@@ -235,17 +235,15 @@ class DataCollector():
       self._sensors.append(_sensor.read)
       if not csv_only:
         self.formats.extend(_sensor.formats)
-      self.csv_header += f",{_sensor.headers}"
+      column_headings += f",{_sensor.headers}"
 
-    # insert extended header before column-headings
+    # insert extended header
     if getattr(g_config,"CSV_HEADER_EXTENDED",False):
-      old_header = self.csv_header.split('#')
-      self.csv_header = ('#'.join(old_header[:-1]))[:-1]
-      columns         = old_header[-1]
-      f_nr = 0
-      for f_nr,field in enumerate(columns.split(',')):
-        self.csv_header += f"\n# {f_nr:2d}: {field}"
-      self.csv_header += f"\n#{columns}"
+      for f_nr,field in enumerate(column_headings[1:].split(',')):
+        self.csv_header += f"# {f_nr:2d}: {field}\n"
+
+    # add column headings as last line of csv-header
+    self.csv_header += f"{column_headings}"
 
   # --- blink   --------------------------------------------------------------
 
