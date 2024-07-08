@@ -107,11 +107,11 @@ class Broadcast:
       heading.anchored_position = (self._display.width/2,0)
       group.append(heading)
 
-      self._text = label.Label(font=font,color=shader[1],scale=1,
-                               text="",line_spacing=1.0,
-                               anchor_point=(0,0))
-      self._text.anchored_position = (2,heading.height+15)
-      group.append(self._text)
+      self._textlabel = label.Label(font=font,color=shader[1],scale=1,
+                                    text="",line_spacing=1.0,
+                                    anchor_point=(0,0))
+      self._textlabel.anchored_position = (2,heading.height+15)
+      group.append(self._textlabel)
 
       self._display.root_group = group
       self._display.refresh()
@@ -128,9 +128,9 @@ class Broadcast:
       try:
         from oled import OLED
         displayio.release_displays()
-        oled_display = OLED(g_config,self._i2c1)
-        self._display = oled_display.get_display()
-        self._text    = oled_display.get_text()
+        oled_display    = OLED(g_config,self._i2c1,None)
+        self._display   = oled_display.get_display()
+        self._textlabel = oled_display.get_textlabel()
         g_logger.print(
           f"OLED created with size {self._display.width}x{self._display.height}")
         return True
@@ -154,7 +154,7 @@ class Broadcast:
   def update_display(self):
     """ update display """
     if self._display:
-      self._text.text = "\n".join(self._lines)
+      self._textlabel.text = "\n".join(self._lines)
       if not self._have_oled:
         # refresh only once per minute
         wait_for_ref = max(0,60-(time.monotonic()-self._last_ref))
@@ -172,7 +172,7 @@ class Broadcast:
     """ clear display """
     self._lines = [""]*len(self._lines)
     if self._display:
-      self._text.text = ""
+      self._textlabel.text = ""
       if self._have_oled:
         self._display.refresh()
 

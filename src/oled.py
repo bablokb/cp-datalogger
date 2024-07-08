@@ -19,7 +19,7 @@ class OLED:
 
   # --- constructor   --------------------------------------------------------
 
-  def __init__(self,config,i2c1):
+  def __init__(self,config,i2c1,i2c0):
     """ constructor """
 
     width,height,address = config.HAVE_OLED.split(',')
@@ -29,17 +29,18 @@ class OLED:
       display_bus = displayio.I2CDisplay(i2c1,device_address=int(address,16))
     except:
       # try ic20
-      i2c0 = busio.I2C(pins.PIN_SCL0,pins.PIN_SDA0)
+      if not i2c0:
+        i2c0 = busio.I2C(pins.PIN_SCL0,pins.PIN_SDA0)
       display_bus = displayio.I2CDisplay(i2c0,device_address=int(address,16))
     self._display = SSD1306(display_bus,width=int(width),height=int(height))
 
     group = displayio.Group()
-    self._text = label.Label(FONT,
-                             text="",
-                             color=0xFFFFFF,line_spacing=1.05,
-                             anchor_point=(0,0),x=0,y=4
-                             )
-    group.append(self._text)
+    self._textlabel = label.Label(FONT,
+                                  text="",
+                                  color=0xFFFFFF,line_spacing=1.05,
+                                  anchor_point=(0,0),x=0,y=4
+                                  )
+    group.append(self._textlabel)
     self._display.root_group = group
 
   # --- return display   -----------------------------------------------------
@@ -50,6 +51,6 @@ class OLED:
 
   # --- return text   ---------------------------------------------------------
 
-  def get_text(self):
+  def get_textlabel(self):
     """ return label-object """
-    return self._text
+    return self._textlabel

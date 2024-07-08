@@ -107,22 +107,22 @@ class DataCollector():
         g_logger.print(f"setup: free memory after sd-mount: {gc.mem_free()}")
 
     # Initialse i2c bus for use by sensors and RTC
-    i2c1 = busio.I2C(pins.PIN_SCL1,pins.PIN_SDA1)
+    self.i2c1 = busio.I2C(pins.PIN_SCL1,pins.PIN_SDA1)
     if g_config.HAVE_I2C0:
       try:
-        i2c0 = busio.I2C(pins.PIN_SCL0,pins.PIN_SDA0)
+        self.i2c0 = busio.I2C(pins.PIN_SCL0,pins.PIN_SDA0)
       except:
         g_logger.print("could not create i2c0, check wiring!")
-        i2c0 = None
+        self.i2c0 = None
     else:
-      i2c0 = None
+      self.i2c0 = None
     if g_config.TEST_MODE:
       g_logger.print(f"setup: free memory after create i2c-bus: {gc.mem_free()}")
 
     # If our custom PCB is connected, we have an RTC. Initialise it.
     if g_config.HAVE_PCB or getattr(g_config,'HAVE_RTC',False):
       try:
-        self.rtc = ExtRTC(i2c1,
+        self.rtc = ExtRTC(self.i2c1,
           net_update=g_config.NET_UPDATE)         # also clears interrupts
         self.rtc.rtc_ext.high_capacitance = True  # uses a 12.5pF capacitor
         if self.with_lipo:
@@ -178,7 +178,7 @@ class DataCollector():
     #configure sensors
     if g_config.TEST_MODE:
       g_logger.print(f"setup: free memory before config sensors: {gc.mem_free()}")
-    self._configure_sensors(i2c0,i2c1)
+    self._configure_sensors(self.i2c0,self.i2c1)
     if g_config.TEST_MODE:
       g_logger.print(f"setup: free memory after config sensors: {gc.mem_free()}")
 
@@ -237,10 +237,15 @@ class DataCollector():
         self.formats.extend(_sensor.formats)
       self.csv_header += f",{_sensor.headers}"
 
+    # insert extended header before column-headings
     if getattr(g_config,"CSV_HEADER_EXTENDED",False):
+      old_header = self.csv_header.split('#')
+      self.csv_header = ('#'.join(old_header[:-1]))[:-1]
+      columns         = old_header[-1]
       f_nr = 0
-      for f_nr,field in enumerate(self.csv_header.split('#')[-1].split(',')):
+      for f_nr,field in enumerate(columns.split(',')):
         self.csv_header += f"\n# {f_nr:2d}: {field}"
+      self.csv_header += f"\n#{columns}"
 
   # --- blink   --------------------------------------------------------------
 
@@ -377,7 +382,7 @@ class DataCollector():
       self.done.value = 0
       time.sleep(2)
     else:
-      g_logger.print("ignoring shutdown (don't have PCB/RTC)")
+      g_logger.print("ignoring shutdown (don't have PCB)")
 
   # --- cleanup   ------------------------------------------------------------
 
