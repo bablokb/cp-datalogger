@@ -66,11 +66,24 @@ class Settings:
   def import_config(self):
     """ import config-module and make variables attributes """
     import config
+
+    # set defaults
+    self.TEST_MODE = False
+    self.HAVE_PM   = False
+    self.SHUTDOWN_HIGH = True
+    self.HAVE_RTC  = None
+    self.HAVE_LIPO = False
+    self.HAVE_SD   = True
+
     for var in dir(config):
       if var[0] != '_':
         g_logger.print(f"{var}={getattr(config,var)}")
         setattr(self,var,getattr(config,var))
     config = None
+    if hasattr(self,"HAVE_PCB"):
+      self.HAVE_PM = True
+      self.HAVE_RTC = "PCF8523(1)"
+
     gc.collect()
 
 g_config = Settings()
@@ -89,7 +102,7 @@ class DataCollector():
     """ create hardware-objects """
 
     # save LiPo status
-    self.with_lipo = getattr(g_config,"HAVE_LIPO",False)
+    self.with_lipo = g_config.HAVE_LIPO
 
     # pull CS of display high to prevent it from floating
     self._cs_display = DigitalInOut(pins.PIN_INKY_CS)
@@ -116,10 +129,11 @@ class DataCollector():
     if g_config.TEST_MODE:
       g_logger.print(f"setup: free memory after create i2c-busses: {gc.mem_free()}")
 
-    # If our custom PCB is connected, we have an RTC. Initialise it.
-    if g_config.HAVE_PCB or getattr(g_config,'HAVE_RTC',False):
+    # Initialise RTC if configured.
+    if g_config.HAVE_RTC:
+      rtc_bus = g_config.HAVE_RTC.split('(')[1][0]
       try:
-        self.rtc = ExtRTC(self._i2c[1],
+        self.rtc = ExtRTC(self._i2c[rtc_bus],
           net_update=g_config.NET_UPDATE)         # also clears interrupts
         self.rtc.rtc_ext.high_capacitance = True  # uses a 12.5pF capacitor
         if self.with_lipo:
@@ -141,13 +155,13 @@ class DataCollector():
         if g_config.TEST_MODE:
           g_logger.print(f"setup: free memory after rtc-update: {gc.mem_free()}")
       except Exception as ex:
-        # either we don't have the PCB after all, or no battery is connected
+        # could not detect or configure RTC
         g_logger.print(f"error while configuring RTC: {ex}")
-        g_config.HAVE_PCB = False
+        g_config.HAVE_RTC = None
 
     self.done           = DigitalInOut(pins.PIN_DONE)
     self.done.direction = Direction.OUTPUT
-    self.done.value     = 0
+    self.done.value     = not g_config.SHUTDOWN_HIGH
 
     self.vbus_sense           = DigitalInOut(board.VBUS_SENSE)
     self.vbus_sense.direction = Direction.INPUT
@@ -350,7 +364,7 @@ class DataCollector():
     if not g_config.STROBE_MODE:  # only calculate wakeup, don't set alarm
       return
 
-    if g_config.HAVE_PCB:
+    if g_config.HAVE_RTC:
       self.rtc.set_alarm(self.wakeup)
 
     # save alarm time to SD
@@ -367,11 +381,11 @@ class DataCollector():
   def shutdown(self):
     """ tell the power-controller to cut power """
 
-    if g_config.HAVE_PCB:
+    if g_config.HAVE_PM:
       g_logger.print("signal power-off")
-      self.done.value = 1
+      self.done.value = g_config.SHUTDOWN_HIGH
       time.sleep(0.001)
-      self.done.value = 0
+      self.done.value = not g_config.SHUTDOWN_HIGH
       time.sleep(2)
     else:
       g_logger.print("ignoring shutdown (don't have PCB)")
