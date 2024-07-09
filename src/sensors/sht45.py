@@ -28,7 +28,9 @@ class SHT45:
 
     self.ignore = False
     self.sht45 = None
-    for bus,nr in i2c:
+    for nr,bus in enumerate(i2c):
+      if not bus:
+        continue
       try:
         g_logger.print(f"testing sht45 on i2c{nr}")
         self.sht45 = adafruit_sht4x.SHT4x(bus)

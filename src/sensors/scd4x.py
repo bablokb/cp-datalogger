@@ -40,7 +40,9 @@ class SCD4X:
 
     self.ignore = False
     self.scd4x = None
-    for bus,nr in i2c:
+    for nr,bus in enumerate(i2c):
+      if not bus:
+        continue
       try:
         g_logger.print(f"testing {self.product} on i2c{nr}")
         self.scd4x = adafruit_scd4x.SCD4X(bus)

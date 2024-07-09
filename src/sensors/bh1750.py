@@ -28,7 +28,9 @@ class BH1750:
 
     self.ignore = False
     self.bh1750 = None
-    for bus,nr in i2c:
+    for nr,bus in enumerate(i2c):
+      if not bus:
+        continue
       try:
         g_logger.print(f"testing bh1750 on (i2c{nr},{addr})")
         self.bh1750 = adafruit_bh1750.BH1750(bus,0x23 if not addr else addr)

@@ -27,7 +27,9 @@ class HTU31D:
     """ constructor """
     self.ignore = False
     self.htu31d = None
-    for bus,nr in i2c:
+    for nr,bus in enumerate(i2c):
+      if not bus:
+        continue
       try:
         g_logger.print(f"testing htu31d on i2c{nr}")
         self.htu31d = adafruit_htu31d.HTU31D(bus)

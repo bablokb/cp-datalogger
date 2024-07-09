@@ -57,7 +57,9 @@ class ENS160:
 
     self.ignore = False
     self.ens160 = None
-    for bus,nr in i2c:
+    for nr,bus in enumerate(i2c):
+      if not bus:
+        continue
       try:
         g_logger.print(f"testing ens160 on i2c{nr}")
         self.ens160 = adafruit_ens160.ENS160(bus,reset=False)

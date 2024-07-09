@@ -30,7 +30,9 @@ class BMP280:
     self.ignore = False
     self.bmp280 = None
     address = addr if addr else 0x77
-    for bus,nr in i2c:
+    for nr,bus in enumerate(i2c):
+      if not bus:
+        continue
       try:
         g_logger.print(f"testing bmp280 on (i2c{nr},{address})")
         self.bmp280 = adafruit_bmp280.Adafruit_BMP280_I2C(

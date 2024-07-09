@@ -27,7 +27,9 @@ class AHT20:
     """ constructor """
     self.ignore = False
     self.aht20 = None
-    for bus,nr in i2c:
+    for nr,bus in enumerate(i2c):
+      if not bus:
+        continue
       try:
         g_logger.print(f"testing aht20 on i2c{nr}")
         self.aht20 = adafruit_ahtx0.AHTx0(bus)

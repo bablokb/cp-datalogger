@@ -28,7 +28,9 @@ class AM2320:
 
     self.ignore = False
     self.am2320 = None
-    for bus,nr in i2c:
+    for nr,bus in enumerate(i2c):
+      if not bus:
+        continue
       try:
         g_logger.print(f"testing am2320 on i2c{nr}")
         self.am2320 = adafruit_am2320.AM2320(bus)

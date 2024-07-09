@@ -34,7 +34,9 @@ class PMS5003:
     """ constructor """
     self.ignore = False
     self.pms5003 = None
-    for bus,nr in i2c:
+    for nr,bus in enumerate(i2c):
+      if not bus:
+        continue
       try:
         g_logger.print(f"testing pms5003 on i2c{nr}")
         self.pms5003 = PM25_I2C(bus)

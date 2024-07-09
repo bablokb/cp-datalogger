@@ -28,7 +28,9 @@ class LTR559:
 
     self.ignore = False
     self.ltr559 = None
-    for bus,nr in i2c:
+    for nr,bus in enumerate(i2c):
+      if not bus:
+        continue
       try:
         g_logger.print(f"testing ltr559 on i2c{nr}")
         self.ltr559 = Pimoroni_LTR559(bus)

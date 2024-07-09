@@ -106,23 +106,20 @@ class DataCollector():
       if g_config.TEST_MODE:
         g_logger.print(f"setup: free memory after sd-mount: {gc.mem_free()}")
 
-    # Initialse i2c bus for use by sensors and RTC
-    self.i2c1 = busio.I2C(pins.PIN_SCL1,pins.PIN_SDA1)
+    # Initialse i2c busses for use by sensors and RTC
+    self._i2c = [None,busio.I2C(pins.PIN_SCL1,pins.PIN_SDA1)]
     if g_config.HAVE_I2C0:
       try:
-        self.i2c0 = busio.I2C(pins.PIN_SCL0,pins.PIN_SDA0)
+        self._i2c[0] = busio.I2C(pins.PIN_SCL0,pins.PIN_SDA0)
       except:
         g_logger.print("could not create i2c0, check wiring!")
-        self.i2c0 = None
-    else:
-      self.i2c0 = None
     if g_config.TEST_MODE:
-      g_logger.print(f"setup: free memory after create i2c-bus: {gc.mem_free()}")
+      g_logger.print(f"setup: free memory after create i2c-busses: {gc.mem_free()}")
 
     # If our custom PCB is connected, we have an RTC. Initialise it.
     if g_config.HAVE_PCB or getattr(g_config,'HAVE_RTC',False):
       try:
-        self.rtc = ExtRTC(self.i2c1,
+        self.rtc = ExtRTC(self._i2c[1],
           net_update=g_config.NET_UPDATE)         # also clears interrupts
         self.rtc.rtc_ext.high_capacitance = True  # uses a 12.5pF capacitor
         if self.with_lipo:
@@ -178,7 +175,7 @@ class DataCollector():
     #configure sensors
     if g_config.TEST_MODE:
       g_logger.print(f"setup: free memory before config sensors: {gc.mem_free()}")
-    self._configure_sensors(self.i2c0,self.i2c1)
+    self._configure_sensors()
     if g_config.TEST_MODE:
       g_logger.print(f"setup: free memory after config sensors: {gc.mem_free()}")
 
@@ -186,7 +183,7 @@ class DataCollector():
 
   # --- configure sensors   ---------------------------------------------------
 
-  def _configure_sensors(self,i2c0,i2c1):
+  def _configure_sensors(self):
     """ configure sensors """
 
     self.formats = []
@@ -195,11 +192,6 @@ class DataCollector():
     self.csv_header = f"#ID: {g_config.LOGGER_ID}\n#Location: {g_config.LOGGER_LOCATION}\n"
     column_headings = "#ts"
     self._sensors = []
-
-    # setup defaults
-    i2c_default = [(i2c1,1)]
-    if i2c0:
-      i2c_default.append((i2c0,0))
 
     # parse sensor specification. Will fail if i2c0 is requested, but not
     # configured
@@ -211,21 +203,23 @@ class DataCollector():
       spec   = spec.split('(')
       sensor = spec[0]
       addr   = None
-      i2c    = list(i2c_default)
+      i2c    = list(self._i2c)
       # check for parameters
       if len(spec) > 1:
         spec = spec[1][:-1].split(',')   # remove trailing ) and split
-        # parse parameters
-        addr = int(spec[0],16)
+        # parse parameters: can be (addr), (bus), (addr,bus) or (bus,addr)
+        para1 = int(spec[0],16)
         spec.pop(0)
-        if addr < 2:                                # addr is actually a bus
-          i2c = [i2c_default[1-addr]]
-          addr = None
-        if len(spec):
-          if addr:
-            i2c = [i2c_default[1-int(spec[0])]]
-          else:
-            addr = int(spec[0],16)
+        if para1 < 2:                    # first parameter is a bus
+          i2c[1-para1] = None            # don't search the other one
+          addr = None                    # init address as None
+        else:                            # first parameter is an address
+          addr = para1                   # init address with para1 value
+        if len(spec):                    # we have a second parameter
+          if addr:                       # second parameter must be bus
+            i2c[1-int(spec[0])] = None   # don't search the other one
+          else:                          # first parameter was bus, so
+            addr = int(spec[0],16)       # second parameter is address
 
       sensor_module = builtins.__import__("sensors."+sensor,
                                           None,None,[sensor.upper()],0)

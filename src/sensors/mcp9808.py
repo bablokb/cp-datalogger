@@ -28,7 +28,9 @@ class MCP9808:
 
     self.ignore = False
     self.mcp9808 = None
-    for bus,nr in i2c:
+    for nr,bus in enumerate(i2c):
+      if not bus:
+        continue
       try:
         g_logger.print(f"testing mcp9808 on (i2c{nr},{addr})")
         self.mcp9808 = adafruit_mcp9808.MCP9808(bus,0x18 if not addr else addr)
