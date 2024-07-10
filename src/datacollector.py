@@ -131,7 +131,7 @@ class DataCollector():
 
     # Initialise RTC if configured.
     if g_config.HAVE_RTC:
-      rtc_bus = g_config.HAVE_RTC.split('(')[1][0]
+      rtc_bus = int(g_config.HAVE_RTC.split('(')[1][0])
       try:
         self.rtc = ExtRTC(self._i2c[rtc_bus],
           net_update=g_config.NET_UPDATE)         # also clears interrupts
