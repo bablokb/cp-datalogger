@@ -120,7 +120,10 @@ class DataCollector():
         g_logger.print(f"setup: free memory after sd-mount: {gc.mem_free()}")
 
     # Initialse i2c busses for use by sensors and RTC
-    self._i2c = [None,busio.I2C(pins.PIN_SCL1,pins.PIN_SDA1)]
+    try:
+      self._i2c = [None,busio.I2C(pins.PIN_SCL1,pins.PIN_SDA1)]
+    except:
+      self._i2c = [None,None]
     if g_config.HAVE_I2C0:
       try:
         self._i2c[0] = busio.I2C(pins.PIN_SCL0,pins.PIN_SDA0)
@@ -160,8 +163,7 @@ class DataCollector():
         g_config.HAVE_RTC = None
 
     self.done           = DigitalInOut(pins.PIN_DONE)
-    self.done.direction = Direction.OUTPUT
-    self.done.value     = not g_config.SHUTDOWN_HIGH
+    self.done.switch_to_output(value=not g_config.SHUTDOWN_HIGH)
 
     self.vbus_sense           = DigitalInOut(board.VBUS_SENSE)
     self.vbus_sense.direction = Direction.INPUT
