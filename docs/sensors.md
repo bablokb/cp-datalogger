@@ -79,6 +79,13 @@ BMP280
   - Note: supports I2C and SPI.
 
 
+CPUTEMP
+-------
+
+  - Pseudo-sensor: returns the value of `microcontroller.cpu.temperature`
+  - Status: implemented
+
+
 DCODE
 -----
 
@@ -133,9 +140,10 @@ ID
 
 
 LOCATION
---
+--------
 
-  - Pseudo-sensor: returns the location of the logger (`LOGGER_LOCATION` from the configuration)
+  - Pseudo-sensor: returns the location of the logger
+    (`LOGGER_LOCATION` from the configuration)
   - Status: implemented
 
 
@@ -202,8 +210,8 @@ PMS5003
   - Note: UART-versions need 5V. The Adafruit I2C-version has an onboard regulator.
 
 
-SCD40
------
+SCD40/SCD41
+-----------
 
   - Measures CO2, temperature, humidity
   - Status: implemented
