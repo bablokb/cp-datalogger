@@ -21,3 +21,7 @@ secrets.debugflag = False
 #secrets.timeout   = 10        # optional
 
 secrets.time_url = 'http://worldtimeapi.org/api/ip'
+
+# UDP-target configuration (task send_udp)
+secrets.udp_ip   = '1.2.3.4'
+secrets.udp_port = 6600
