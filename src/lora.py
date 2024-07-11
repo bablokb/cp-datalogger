@@ -48,7 +48,7 @@ class LORA:
 
     g_logger.print("LoRa: configuring rfm9x")
     self.rfm9x.enable_crc = True
-    self.rfm9x.tx_power = config.LORA_TX_POWER
+    self.rfm9x.tx_power = getattr(config.LORA_TX_POWER,13)
     self.rfm9x.node = config.LORA_NODE_ADDR                      # this
     self.rfm9x.destination = getattr(config,"LORA_BASE_ADDR",0)  # gateway
     self.rfm9x.ack_wait = getattr(config,'LORA_ACK_WAIT',0.25)
