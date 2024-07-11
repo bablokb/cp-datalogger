@@ -29,7 +29,7 @@ def init_oled(config,app):
 def run(config,app):
   """ update oled display """
 
-  if config.HAVE_DISPLAY:
+  if config.HAVE_DISPLAY or not config.HAVE_OLED:
     return
 
   gc.collect()
