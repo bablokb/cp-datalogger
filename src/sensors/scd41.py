@@ -26,9 +26,7 @@ from .scd4x import SCD4X
 class SCD41(SCD4X):
   def __init__(self,config,i2c,addr=None,spi=None):
     """ constructor """
+
     self.product = "scd41"
     super().__init__(config,i2c,addr,spi)
-
-  def read_sensor(self):
-    """ quer data from sensor """
-    self.scd4x.measure_single_shot()
+    self.scd4x.start_periodic_measurement()
