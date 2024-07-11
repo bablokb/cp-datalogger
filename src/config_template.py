@@ -1,53 +1,33 @@
 #-----------------------------------------------------------------------------
 # Configuration constants for main.py.
 #
-# !!! This file is not maintained within Github !!!
+# This template file contains common constants that are used in the firmware.
+# For a complete list, read the documentation.
+#
+# Copy this file to config.py and adapt to your needs. config.py itself is
+# not maintained in the repo (part of .gitignore).
 #
 # Author: Bernhard Bablok
 #
 # Website: https://github.com/pcb-pico-datalogger
 #-----------------------------------------------------------------------------
 
-TEST_MODE   = True        # set to FALSE for a production setup
-BLINK_TIME_START  = 0.5   # blink time of LED before start of data-collection
-BLINK_TIME_END  = 0.25    # blink time of LED  after finish of data-collection
-BLINK_START = 3           # blink n times before start of data-collection
-BLINK_END   = 5           # blink n times after finish of data-collection
+# !!! NOTE: everything without comments is mandatory !!!
 
-NET_UPDATE  = True        # update RTC from time-server if time is invalid
-SAVE_WAKEUP = False       # save wakup-time on SD (workaround for buggy batteries)
+# --- Logger identification   ------------------------------------------------
 
-# tasks to execute after data-collection
-TASKS = "dump_data save_data update_display"
+LOGGER_NAME     = 'My Datalogger'
+LOGGER_ID       = 'xxx'            # any string (without commas)
+LOGGER_LOCATION = 'yyy'            # use e.g. Plus Code (no commas)
+LOGGER_TITLE    = 'zzz'            # used for the display
 
-# time table: one entry per day (starting with Monday)
-#             ((h_start,h_end,h_inc),(m_start,m_end,m_inc))
-# The example has Mo-Fr from 07:00-17:45 every 15 minutes
-#TIME_TABLE = [
-#  ((7,18,1),(0,59,15)),
-#  ((7,18,1),(0,59,15)),
-#  ((7,18,1),(0,59,15)),
-#  ((7,18,1),(0,59,15)),
-#  ((7,18,1),(0,59,15)),
-#  (None,None),
-#  (None,None)
-#  ]
+# --- destination filename for data (see docs for format)   ------------------
 
-STROBE_MODE = True      # strobe-mode or continuous-mode
-INTERVAL    = 60        # interval (in seconds)
+#CSV_FILENAME = "/sd/log_{ID}_{YMD}.csv"
 
-# hardware setup
-HAVE_PM      = True          # power-management (e.g. special PCB) available
-HAVE_RTC     = "PCF8523(1)"  # RTC on i2c-bus 1
-HAVE_SD      = True          # SD-card support
-HAVE_I2C0    = False         # also use second I2C-bus
-HAVE_LIPO    = False         # True, False
+# --- List of sensors (see docs for available sensors)   ---------------------
 
-CSV_FILENAME = "/sd/log_{ID}_{YMD}.csv"
-HAVE_DISPLAY = 'Inky-Pack'         # 'Inky-Pack', 'Display-Pack' or None
-
-# List of sensors. Each needs a <sensor>.py file.
-# An entry must be any off (no spaces allowed!):
+# An entry must be any of (no spaces allowed!):
 #   sensor
 #   sensor(bus)          bus = 0|1
 #   sensor(addr)         addr = 0xZZ
@@ -61,31 +41,57 @@ HAVE_DISPLAY = 'Inky-Pack'         # 'Inky-Pack', 'Display-Pack' or None
 # from the display. The data is still recorded in the CSV.
 # Entries in 'SENSORS_CSV_ONLY' must match exactly to entries in 'SENSORS'.
 
-SENSORS = "id battery"
-SENSORS_CSV_ONLY = ""
+SENSORS = "id battery cputemp"
+#SENSORS_CSV_ONLY = ""
 
-SHOW_UNITS = False # Show units in the csv output
-SIMPLE_UI  = False # use simple UI
+# --- tasks to execute after data-collection   -------------------------------
+# See the docs for a complete list of tasks and for special task configuration.
 
-# Logger identification constants
-LOGGER_NAME  = 'Darasa Kamili'  # Perfect Classroom
-LOGGER_ID    = '000'            # Change this to your logger id
-LOGGER_LOCATION = '6G5X46G4+XQ' # Plus Code for Dar airport
-LOGGER_TITLE = LOGGER_NAME + " " + LOGGER_LOCATION
+TASKS = "save_data update_display"
 
-# font for the display
-FONT_DISPLAY     = 'DejaVuSansMono-Bold-18-subset'
+# --- time update   ----------------------------------------------------------
 
-# LoRa configuration
-HAVE_LORA = False                  # True, False
-LORA_ENABLE_TIME = 0
-LORA_ACK_WAIT    = 0.5
-LORA_ACK_RETRIES = 3
+#NET_UPDATE  = True        # update RTC from time-server if time is invalid
+#SAVE_WAKEUP = False       # save wakup-time on SD (workaround for buggy batteries)
+
+# --- sample mode and intervals/time-table   ---------------------------------
+
+#STROBE_MODE = True      # strobe-mode or continuous-mode
+#INTERVAL    = 900       # interval (in seconds), default: 15 minutes
+#TIME_TABLE  = None      # defaults to no time-table
+
+# time table: one entry per day (starting with Monday), ranges are inclusive
+#             ((h_start,h_end,h_inc),(m_start,m_end,m_inc))
+# Example: Mo-Fr from 07:00-18:45 every 15 minutes
+#TIME_TABLE = [
+#  ((7,18,1),(0,59,15)),
+#  ((7,18,1),(0,59,15)),
+#  ((7,18,1),(0,59,15)),
+#  ((7,18,1),(0,59,15)),
+#  ((7,18,1),(0,59,15)),
+#  (None,None),
+#  (None,None)
+#  ]
+
+# --- hardware setup   -------------------------------------------------------
+
+#HAVE_PM      = True          # power-management (e.g. special PCB) available
+#SHUTDOWN_HIGH = True
+#HAVE_RTC     = "PCF8523(1)"  # RTC on i2c-bus 1
+#HAVE_SD      = True          # SD-card support
+#HAVE_I2C0    = False         # use second I2C-bus (no more UART!)
+#HAVE_LIPO    = False         # True, False
+#HAVE_DISPLAY = None          # 'Inky-Pack', 'Display-Pack' or None
+#HAVE_LORA    = False         # True, False
+#HAVE_OLED    = None          # "128,64,0x3c" or "128,32,0x3c" (alt: 0x3d)
+
+# --- LoRa configuration (in case LoRa is available)   -----------------------
+
 LORA_FREQ        = 433.0
-LORA_TX_POWER    = 13     # default: 13, range: 5-23
-LORA_NODE_ADDR   =
-LORA_BASE_ADDR   =
+LORA_BASE_ADDR   = 0
+LORA_NODE_ADDR   = 1
 
-# UDP (WLAN) configuration
-UDP_IP = '1.2.3.4'
-UDP_PORT = 6600
+#LORA_ENABLE_TIME = 0
+#LORA_ACK_WAIT    = 0.25
+#LORA_ACK_RETRIES = 3
+#LORA_TX_POWER    = 13     # default: 13, range: 5-23
