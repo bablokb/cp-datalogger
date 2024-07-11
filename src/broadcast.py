@@ -71,10 +71,14 @@ class Broadcast:
   def _init_rtc(self):
     """ initialize RTC """
     self._i2c1 = None
-    if g_config.HAVE_PCB:
+    if g_config.HAVE_RTC:
+      rtc_bus = int(g_config.HAVE_RTC.split('(')[1][0])
       try:
-        self._i2c1 = busio.I2C(pins.PIN_SCL1,pins.PIN_SDA1)
-        self._rtc = ExtRTC(self._i2c1)
+        if rtc_bus == 1:
+          i2c = busio.I2C(pins.PIN_SCL1,pins.PIN_SDA1)
+        else:
+          i2c = busio.I2C(pins.PIN_SCL0,pins.PIN_SDA0)
+        self._rtc = ExtRTC(i2c)
         self._rtc.rtc_ext.high_capacitance = True
         self._rtc.update()
       except Exception as ex:

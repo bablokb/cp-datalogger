@@ -37,12 +37,14 @@ STROBE_MODE = True      # strobe-mode or continuous-mode
 INTERVAL    = 60        # interval (in seconds)
 
 # hardware setup
-HAVE_I2C0    = False               # also use second I2C-bus
-HAVE_PCB     = True                # The Pico is running on the pcb described here: https://github.com/pcb-pico-datalogger
-HAVE_SD      = False               # The PCB has an sd card inserted (or an sd card is connected otherwise)
+HAVE_PM      = True          # power-management (e.g. special PCB) available
+HAVE_RTC     = "PCF8523(1)"  # RTC on i2c-bus 1
+HAVE_SD      = True          # SD-card support
+HAVE_I2C0    = False         # also use second I2C-bus
+HAVE_LIPO    = False         # True, False
+
 CSV_FILENAME = "/sd/log_{ID}_{YMD}.csv"
 HAVE_DISPLAY = 'Inky-Pack'         # 'Inky-Pack', 'Display-Pack' or None
-HAVE_LIPO = False                  # True, False
 
 # List of sensors. Each needs a <sensor>.py file.
 # An entry must be any off (no spaces allowed!):

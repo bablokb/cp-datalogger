@@ -52,10 +52,14 @@ if g_config.HAVE_DISPLAY:
 
 # --- read rtc   -------------------------------------------------------------
 
-if g_config.HAVE_PCB:
+if g_config.HAVE_RTC:
+  rtc_bus = int(g_config.HAVE_RTC.split('(')[1][0])
   try:
-    i2c1 = busio.I2C(pins.PIN_SCL1,pins.PIN_SDA1)
-    rtc = ExtRTC(i2c1)
+    if rtc_bus == 1:
+      i2c = busio.I2C(pins.PIN_SCL1,pins.PIN_SDA1)
+    else:
+      i2c = busio.I2C(pins.PIN_SCL0,pins.PIN_SDA0)
+    rtc = ExtRTC(i2c)
     rtc.rtc_ext.high_capacitance = True
     rtc.update()
   except Exception as ex:

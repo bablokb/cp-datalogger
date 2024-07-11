@@ -80,7 +80,7 @@ class Settings:
         g_logger.print(f"{var}={getattr(config,var)}")
         setattr(self,var,getattr(config,var))
     config = None
-    if hasattr(self,"HAVE_PCB"):
+    if hasattr(self,"HAVE_PCB"):     # compatibility to old configurations
       self.HAVE_PM = True
       self.HAVE_RTC = "PCF8523(1)"
 
