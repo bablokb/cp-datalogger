@@ -37,9 +37,17 @@ Select Datalogger-PCB version
 -----------------------------
 
 The default builds a system for the v2 version of the datalogger PCB. To
-build a system for the v1 pcb, run
+build a system for the v1 PCB, run
 
     > make PCB=v1
+
+This make-variable pulls in the correct pin-mapping
+(`src/pins${PCB}.py`).  For other mappings pass in a different value
+for `PCB` (e.g. when using a PicoBell Adalogger: `PCB=pbada`). Create
+an appropriate named pin-configuration file if necessary.
+
+You can also pass in a path to the mapping file, in this case the mapping
+file can be out of tree (i.e. not within the `src/`-direcotory).
 
 
 Direct Deployment
