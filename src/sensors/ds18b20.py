@@ -15,7 +15,6 @@
 #-----------------------------------------------------------------------------
 
 # This sensor is not an I2C-sensor, but uses the 1-wire protocol.
-# The code needs the configuration-variable PIN_ONE_WIRE.
 #
 # The code scans the bus for all DS18B20 and returns the values
 # sorted according to the ROM-address.
@@ -28,9 +27,8 @@ import board
 import time
 from adafruit_onewire.bus import OneWireBus, OneWireAddress
 import adafruit_ds18x20
+import pins
 
-PIN_ONE_WIRE = board.GP27
- 
 class DS18B20:
   formats = ["T/18B:", "{0:.1f}°C"]
   headers = 'T/18B °C,'
@@ -39,7 +37,7 @@ class DS18B20:
     """ constructor """
 
     self.ignore = False
-    ow_bus = OneWireBus(PIN_ONE_WIRE)
+    ow_bus = OneWireBus(pins.PIN_ONE_WIRE)
     while True:
       g_logger.print("scanning for ds18b20")
       addresses = [d for d in ow_bus.scan() if d.family_code == 0x28 ]
