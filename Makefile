@@ -137,7 +137,7 @@ dynvars.tmp:
 #       if the CIRCUITPY-drive is not already mounted (e.g. by an automounter)
 copy2pico copy2gateway: ${COPY_PREREQ}
 	mount -L CIRCUITPY
-	rsync -av -L --exclude boot_out.txt \
+	rsync -av -L --inplace --exclude boot_out.txt \
 		--exclude  __pycache__ \
 		--no-owner --no-group --delete \
 		--modify-window=2 "${DEPLOY_TO}/" \
