@@ -55,6 +55,9 @@ TASKS=$(wildcard ${SRC}/tasks/*.py)
 # files served by the webserver in admin-mode
 WWW=$(wildcard ${SRC}/www/*)
 
+# tools
+TOOLS=$(wildcard ./tools/*)
+
 ifneq ($(strip ${AP_CONFIG}),)
 ap_config=${DEPLOY_TO}/ap_config.mpy
 else
@@ -65,11 +68,13 @@ endif
 
 # default target: pre-compile and compress files
 default: check_mpy_cross ${DEPLOY_TO} ${DEPLOY_TO}/sensors \
-	${DEPLOY_TO}/tasks ${DEPLOY_TO}/www lib fonts ${ap_config} \
+	${DEPLOY_TO}/tasks ${DEPLOY_TO}/tools ${DEPLOY_TO}/www \
+        lib fonts ${ap_config} \
 	${DEPLOY_TO}/pins.mpy \
 	$(SOURCES:${SRC}/%.py=${DEPLOY_TO}/%.mpy) \
 	$(SPECIAL:${SRC}/%.py=${DEPLOY_TO}/%.py) \
 	$(SENSORS:${SRC}/sensors/%.py=${DEPLOY_TO}/sensors/%.mpy) \
+	$(TOOLS:./tools/%=${DEPLOY_TO}/tools/%) \
 	$(TASKS:${SRC}/tasks/%.py=${DEPLOY_TO}/tasks/%.mpy) \
 	${DEPLOY_TO}/config.py \
 	${DEPLOY_TO}/log_config.py \
@@ -99,7 +104,7 @@ check_mpy_cross:
 	  (echo "please install mpy-cross from https://adafruit-circuit-python.s3.amazonaws.com/index.html?prefix=bin/mpy-cross/" && false)
 
 # create target-directory
-${DEPLOY_TO} ${DEPLOY_TO}/sensors ${DEPLOY_TO}/tasks ${DEPLOY_TO}/www:
+${DEPLOY_TO} ${DEPLOY_TO}/sensors ${DEPLOY_TO}/tasks ${DEPLOY_TO}/tools ${DEPLOY_TO}/www:
 	mkdir -p  $@
 
 # copy libs and fonts
@@ -169,3 +174,7 @@ $(TASKS:${SRC}/tasks/%.py=${DEPLOY_TO}/tasks/%.mpy): \
 
 $(WWW:${SRC}/www/%=${DEPLOY_TO}/www/%.gz): ${DEPLOY_TO}/www/%.gz: ${SRC}/www/%
 	gzip -9c $< > $@
+
+$(TOOLS:./tools/%.py=${DEPLOY_TO}/tools/%.py): \
+         ${DEPLOY_TO}/tools/%.py: ./tools/%.py
+	cp -a $< $@
