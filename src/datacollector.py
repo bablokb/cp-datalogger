@@ -82,7 +82,7 @@ class Settings:
     self.NET_UPDATE  = True    # update RTC from time-server if time is invalid
     self.SAVE_WAKEUP = False   # save wakup-time on SD (workaround for buggy batteries)
 
-    sample-mode and interval/time-table
+    #sample-mode and interval/time-table
     self.STROBE_MODE = True      # strobe-mode or continuous-mode
     self.INTERVAL    = 900       # interval (in seconds)
     self.TIME_TABLE  = None      # no time-table
