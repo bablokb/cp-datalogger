@@ -17,6 +17,7 @@ SECRETS=src/secrets.py
 MAKEVARS=makevars.tmp
 CONFIG=src/config.py
 LOG_CONFIG=src/log_config.py
+FONT=DejaVuSansMono-Bold-18-subset.bdf
 
 ifeq (gateway,$(findstring gateway,${MAKECMDGOALS}))
 SRC=src.blues_gateway
@@ -35,6 +36,9 @@ endif
 
 # make variables from commandline (last invocation)
 include ${MAKEVARS}
+
+# dynamically create make variables
+include dynvars.tmp
 
 # remove files that cannot be precompiled
 SOURCES:=$(subst ${SRC}/boot.py,,${SOURCES})
@@ -69,7 +73,7 @@ endif
 # default target: pre-compile and compress files
 default: check_mpy_cross ${DEPLOY_TO} ${DEPLOY_TO}/sensors \
 	${DEPLOY_TO}/tasks ${DEPLOY_TO}/tools ${DEPLOY_TO}/www \
-        lib fonts ${ap_config} \
+        lib ${DEPLOY_TO}/fonts/${FONT} ${ap_config} \
 	${DEPLOY_TO}/pins.mpy \
 	$(SOURCES:${SRC}/%.py=${DEPLOY_TO}/%.mpy) \
 	$(SPECIAL:${SRC}/%.py=${DEPLOY_TO}/%.py) \
@@ -110,17 +114,23 @@ ${DEPLOY_TO} ${DEPLOY_TO}/sensors ${DEPLOY_TO}/tasks ${DEPLOY_TO}/tools ${DEPLOY
 # copy libs and fonts
 lib:
 	rsync -av --delete ${SRC}/lib ${DEPLOY_TO}
-fonts:
-	rsync -av --delete ${SRC}/fonts ${DEPLOY_TO}
+
+${DEPLOY_TO}/fonts/${FONT}: ${SRC}/fonts/${FONT}
+	mkdir -p ${DEPLOY_TO}/fonts
+	rsync -av ${SRC}/fonts/${FONT} ${DEPLOY_TO}/fonts/${FONT}
 
 # clean target-directory (only delete auto-created makevars.tmp)
 clean:
-	rm -fr makevars.tmp ${DEPLOY_TO}/*
+	rm -fr dynvars.tmp makevars.tmp ${DEPLOY_TO}/*
 
 # recreate makevars.tmp
 makevars.tmp:
 	@echo -e \
 	"PCB=${PCB}\nDEPLOY_TO=${DEPLOY_TO}\nCONFIG=${CONFIG}\nLOG_CONFIG=${LOG_CONFIG}\nAP_CONFIG=${AP_CONFIG}\nSECRETS=${SECRETS}" > $@
+
+dynvars.tmp:
+	sed -ne "/^FONT_DISPLAY/s/^FONT_DISPLAY *= *[\"']\([^\"']*\).*$$/FONT=\1.bdf/p" \
+        ${CONFIG} >> $@
 
 # rsync content of target-directory to pico
 # note: this needs a LABEL=CIRCUITPY entry in /etc/fstab and it only works
