@@ -168,7 +168,8 @@ class DataCollector():
       try:
         self.rtc = ExtRTC(self._i2c[rtc_bus],
           net_update=g_config.NET_UPDATE)         # also clears interrupts
-        self.rtc.rtc_ext.high_capacitance = True  # uses a 12.5pF capacitor
+        if pins.PCB_VERSION > 0:
+          self.rtc.rtc_ext.high_capacitance = True  # uses a 12.5pF capacitor
         if self.with_lipo:
           self.rtc.rtc_ext.power_managment = 0b001  # direct switchover Vdd<Vbat
         else:
