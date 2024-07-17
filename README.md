@@ -1,35 +1,65 @@
 Pico Datalogger with Integrated Power-Management
 ================================================
 
-This is a breakout supporting low-frequency data-logging with
-a Raspberry Pi Pico. 
+This is a hardware and software solution for low-frequency
+data-logging with a Raspberry Pi Pico (W). The project started as
+a hardware project, but the software runs independent of
+the special hardware (PCBs) provided in this repository. Nevertheless,
+the full function set of the software is not available with
+standard components.
 
-Core functions:
-  * log data to a XTSD-chip (emulates a micro-SD card)
-  * software-controlled power-control with very low standby current
-  * manual or interval-based wakeup (supporting a weekly time-table)
-  * supports running from a LiPo or two AA/AAA batteries 
+
+Core software functions
+-----------------------
+
+  * implemented in CircuitPython
+  * cyclical sensor readout for a wide range of environmental sensors
+    (currently 15 directly support including Open-Meteo weather data)
+  * supports I2C (two busses), UART-3V3 and UART-5V devices
+  * readout in intervals or using a time-table
+  * implementation of additional sensors only need a small wrapper class
+    (given a driver-library is available)
+  * logging of data to a micro-SD card or equivalent (e.g. XTSD-chip)
+  * configurable post-collection tasks (e.g. update of a display, sending
+    data using WLAN or LoRa)
+  * power-optimized programs
+  * web-interface for configuration and data download
+  * no programming required for standard setups
+  * support (almost) zero current sleep with specialized hardware
+
+
+Core hardware functions (PCBs)
+------------------------------
+
+  * power management for extremly low standby current (about 1µA)
+  * embedded XTSD-chip (emulates a micro-SD card)
+  * connectors (Pico, Stemma/Qt, UART)
+  * JST-PH2 connector for LiPo or battery pack (two AA/AAA)
+  * a sensor PCB with a number of standard sensors
+    (temperature, humidity, light, noise)
 
 The design has gone through multiple iterations, you
 can find images of these versions in the `docs` folder.
 
-Current PCB:
+Current base PCB:
 
 ![](docs/pcb-datalogger-v2-2.jpg)
 
-As a supplemental board we also have a sensor PCB with sensors for
-temperature/humidity (AHT20), light (BH1750) and noise (PDM-mic):
+Sensor PCB:
 
 ![](docs/pcb-sensor-2.jpg)
+
+For installation and operation, read the documents linked in the next
+section.
 
 
 Quick Links
 -----------
 
-  * [Basic Setup](docs/setup.md)
+  * [Hardware Setup](docs/hardware.md)
   * [Software](docs/software.md)
-  * [Software deployment](docs/deployment.md)
   * [Configuration](docs/configuration.md)
+  * [Software deployment](docs/deployment.md)
   * [Initial setup of the RTC](docs/rtc_setup.md)
   * [Administration mode](docs/admin_mode.md)
   * [Broadcast mode](docs/broadcast_mode.md)
