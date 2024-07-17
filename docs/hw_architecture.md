@@ -64,5 +64,5 @@ and the combination of reader+card is far more expensive than the chip.
 
 Drawbacks of the chip are its smaller size and the need for special software
 to download the data. The size of the smallest chip is 128MB which is sufficient
-for the purpose of data-logging. The readout is support by the
+for the purpose of data-logging. The readout is supported by the
 [administration mode](./admin_mode.md).
