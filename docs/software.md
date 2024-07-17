@@ -13,7 +13,7 @@ The program is a framework with these main blocks:
   - setup of the base hardware (including RTC, display, sd-card)
   - configuration of the sensors
   - data-collection
-  - execution of post-collection /tasks/ (e.g. save to sd, update display)
+  - execution of post-collection *tasks* (e.g. save to sd, update display)
   - configuration of next wake-up alarm
   - signal shutdown to the power management circuit
 
@@ -49,9 +49,15 @@ Tasks are similar. Every task needs a wrapper in `src/tasks`.
 Installation
 ------------
 
-You should install the version 8.0.5 of CircuitPython for your device.
-Downloads and instructions are available from the CircuitPython homepage
-<www.circuitpython.org>.
+First step is to install CircuitPython on the board. Be sure to select
+the version 8.0.5 (note that this is not the most current version!).
+
+Sources:
+
+  - If you have a Pico, install  
+    <https://circuitpython.org/board/raspberry_pi_pico/>
+  - If you have a Pico W, install  
+    <https://circuitpython.org/board/raspberry_pi_pico_w/>
 
 After installation of CP and a power-cycle, mount the device if not done
 automatically by your operating system. Then follow the instructions
@@ -75,8 +81,8 @@ If you are connected with a serial console (e.g. from Thonny) the system
 should now enter the REPL.
 
 
-Further Reading
----------------
+Next Reading
+------------
 
   - [Configuration](./configuration.md)
   - [Initial setup of the RTC](./rtc_setup.md) 
