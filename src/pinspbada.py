@@ -20,7 +20,7 @@ PCB_VERSION = 0          # PCB-version of datalogger (i.e. no datalogger-PCB)
 
 # --- pin-constants (don't change unless you know what you are doing)   ------
 
-PIN_DONE = board.GP6   # connect to DONE-pin of TPL5110/TPL5111
+PIN_DONE = board.GP22  # connect to DONE-pin of TPL5110/TPL5111
 PIN_SDA0 = board.GP4   # connects to sensors and RTC (alternative bus)
 PIN_SCL0 = board.GP5   # connects to sensors and RTC (alternative bus)
 PIN_SDA1 = board.GP2   # connect to sensors
@@ -33,7 +33,7 @@ PIN_SD_MOSI = board.GP19
 PIN_SD_MISO = board.GP16
 
 # display interface (SPI, e-inks, not Inky-Pack compatible)
-PIN_INKY_CS   = board.GP22    # use GP17 for Inky-Pack if the SD-card is unused
+PIN_INKY_CS   = board.GP27    # use GP17 for Inky-Pack if the SD-card is unused
 PIN_INKY_RST  = board.GP21
 PIN_INKY_DC   = board.GP20
 PIN_INKY_BUSY = board.GP26
@@ -54,7 +54,7 @@ PIN_RX = board.GP1
 PIN_TX = board.GP0
 
 # 1-wire
-PIN_ONE_WIRE = board.GP27
+PIN_ONE_WIRE = board.GP6
 
 # special pins:
 # v1-boards: connects SWA-SWC to the display
