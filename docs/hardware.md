@@ -63,4 +63,4 @@ To setup the PCBs of this repo:
 Software
 --------
 
-Head on to [Software](docs/software.md).
+Head on to [Software](./software.md).
