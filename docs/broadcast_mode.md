@@ -6,7 +6,7 @@ Overview
 
 Broadcast mode supports the initial deployment of a datalogger. This
 mode sends messages to the gateway using LoRa. The gateway echos these
-messages with added information regarding the signal threngh, thus
+messages with added information regarding the signal strength, thus
 enabling an optimized orientation of the datalogger and it's antenna.
 
 
