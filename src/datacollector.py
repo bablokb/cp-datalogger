@@ -55,7 +55,7 @@ except:
 g_ts.append((time.monotonic(),"log-config"))
 
 # imports for rtc
-from rtc_ext.pcf8523 import ExtPCF8523 as ExtRTC
+from rtc_ext.ext_base import ExtBase
 
 # pin definitions
 import pins
@@ -167,10 +167,17 @@ class DataCollector():
 
     # Initialise RTC if configured.
     if g_config.HAVE_RTC:
-      rtc_bus = int(g_config.HAVE_RTC.split('(')[1][0])
-      try:
-        self.rtc = ExtRTC(self._i2c[rtc_bus],
-          net_update=g_config.NET_UPDATE)         # also clears interrupts
+      rtc_spec = g_config.HAVE_RTC.split('(')
+      rtc_name = rtc_spec[0]
+      rtc_bus  = int(rtc_spec[1][0])
+    else:
+      rtc_name = None
+      rtc_bus  = 0
+
+    try:
+      self.rtc = ExtBase.create(rtc_name,self._i2c[rtc_bus],
+                                net_update=g_config.NET_UPDATE)
+      if rtc_name == "PCF8523":
         if pins.PCB_VERSION > 0:
           self.rtc.rtc_ext.high_capacitance = True  # uses a 12.5pF capacitor
         if self.with_lipo:
@@ -178,23 +185,23 @@ class DataCollector():
         else:
           self.rtc.rtc_ext.power_managment = 0b000  # Vdd<Vbat and Vdd < Vth
 
-        # update RTC, fallback to wakeup time on SD if necessary
-        rc = self.rtc.update()                 # (time-server->)ext-rtc->int-rtc
-        if not rc and g_config.HAVE_SD and getattr(g_config,'SAVE_WAKEUP',False):
-          try:
-            with open("/sd/next_wakeup", "rt") as f:
-              wakeup = f.readline()
-              self.rtc.update(int(wakeup))
-            g_logger.print("restored RTC from wakeup-time on SD")
-          except:
-            g_logger.print("could not restore RTC from SD")
+      # update RTC, fallback to wakeup time on SD if necessary
+      rc = self.rtc.update()                 # (time-server->)ext-rtc->int-rtc
+      if not rc and g_config.HAVE_SD and getattr(g_config,'SAVE_WAKEUP',False):
+        try:
+          with open("/sd/next_wakeup", "rt") as f:
+            wakeup = f.readline()
+            self.rtc.update(int(wakeup))
+          g_logger.print("restored RTC from wakeup-time on SD")
+        except:
+          g_logger.print("could not restore RTC from SD")
 
-        if g_config.TEST_MODE:
-          g_logger.print(f"setup: free memory after rtc-update: {gc.mem_free()}")
-      except Exception as ex:
-        # could not detect or configure RTC
-        g_logger.print(f"error while configuring RTC: {ex}")
-        g_config.HAVE_RTC = None
+      if g_config.TEST_MODE:
+        g_logger.print(f"setup: free memory after rtc-update: {gc.mem_free()}")
+    except Exception as ex:
+      # could not detect or configure RTC
+      g_logger.print(f"error while configuring RTC: {ex}")
+      g_config.HAVE_RTC = None
 
     self.done           = DigitalInOut(pins.PIN_DONE)
     self.done.switch_to_output(value=not g_config.SHUTDOWN_HIGH)
@@ -393,15 +400,14 @@ class DataCollector():
       return
 
     if g_config.TIME_TABLE:
-      self.wakeup = self.rtc.get_table_alarm(g_config.TIME_TABLE)
+      self.wakeup = ExtBase.get_table_alarm(g_config.TIME_TABLE)
     else:
-      self.wakeup = ExtRTC.get_alarm_time(s=g_config.INTERVAL)
+      self.wakeup = ExtBase.get_alarm_time(s=g_config.INTERVAL)
 
     if not g_config.STROBE_MODE:  # only calculate wakeup, don't set alarm
       return
 
-    if g_config.HAVE_RTC:
-      self.rtc.set_alarm(self.wakeup)
+    self.rtc.set_alarm(self.wakeup)   # might be a noop
 
     # save alarm time to SD
     if g_config.HAVE_SD and getattr(g_config,'SAVE_WAKEUP',False):
@@ -480,7 +486,7 @@ class DataCollector():
       if not g_config.STROBE_MODE:
         g_logger.print(
           f"continuous mode: next measurement " +
-          f"at {ExtRTC.print_ts(None,self.wakeup)}")
+          f"at {ExtBase.print_ts(None,self.wakeup)}")
         if g_config.INTERVAL < 61:
           TimeSleep.light_sleep(until=self.wakeup)
         else:
@@ -496,5 +502,5 @@ class DataCollector():
     # - we are running on a v2-PCB or without PCB
     # Switch to deep-sleep (better than nothing)
     g_logger.print(
-      f"wakeup from deep-sleep at {ExtRTC.print_ts(None,self.wakeup)}")
+      f"wakeup from deep-sleep at {ExtBase.print_ts(None,self.wakeup)}")
     TimeSleep.deep_sleep(until=self.wakeup)

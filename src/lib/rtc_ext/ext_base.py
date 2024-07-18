@@ -6,6 +6,7 @@
 # Website: https://github.com/pcb-pico-datalogger
 #-----------------------------------------------------------------------------
 
+import builtins
 import rtc
 import time
 from log_writer import Logger
@@ -20,6 +21,22 @@ class ExtBase:
   TIME_SOURCE_EXT  = 2       # external RTC
   TIME_SOURCE_NET  = 3       # RTCs updated from network
   TIME_SOURCE_SET  = 4       # explicitly set time
+
+  # --- factory for supported external RTCs   --------------------------------
+
+  @classmethod
+  def create(cls,rtc_classname,bus,wifi=None,net_update=False):
+    """ create ExtRTC-object for given classname """
+    if not rtc_classname:
+      rtc_classfile = "nortc"
+      rtc_classname = "NoRTC"
+    else:
+      rtc_classfile = rtc_classname.lower()
+      rtc_classname = f"Ext{rtc_classname}"
+    the_module = builtins.__import__(f"rtc_ext.{rtc_classfile}",
+                                     None,None,[],0)
+    rtc_class = getattr(the_module,rtc_classname)
+    return rtc_class(bus,wifi,net_update)
 
   # --- print struct_time   --------------------------------------------------
 
@@ -154,7 +171,7 @@ class ExtBase:
   # --- check power-state   --------------------------------------------------
 
   def _lost_power(self):
-    """ check for power-loss, must be plemented by subclass """
+    """ check for power-loss, must be implemented by subclass """
     pass
 
   # --- update rtc   ---------------------------------------------------------
