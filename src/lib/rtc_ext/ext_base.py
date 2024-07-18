@@ -25,14 +25,14 @@ class ExtBase:
   # --- factory for supported external RTCs   --------------------------------
 
   @classmethod
-  def create(cls,rtc_classname,bus,wifi=None,net_update=False):
-    """ create ExtRTC-object for given classname """
-    if not rtc_classname:
+  def create(cls,rtc_name,bus,wifi=None,net_update=False):
+    """ create ExtRTC-object for given RTC-name """
+    if not rtc_name:
       rtc_classfile = "nortc"
       rtc_classname = "NoRTC"
     else:
-      rtc_classfile = rtc_classname.lower()
-      rtc_classname = f"Ext{rtc_classname}"
+      rtc_classfile = rtc_name.lower()
+      rtc_classname = f"Ext{rtc_name}"
     the_module = builtins.__import__(f"rtc_ext.{rtc_classfile}",
                                      None,None,[],0)
     rtc_class = getattr(the_module,rtc_classname)
