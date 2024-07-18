@@ -30,6 +30,11 @@ class Display:
     self._spi    = spi
     self._view   = None
 
+    if type(config.HAVE_DISPLAY) != str:      # assume it is a display-object
+      self._display = config.HAVE_DISPLAY
+      self._display.auto_refresh = False
+      return
+      
     # spi - if not already created
     if not self._spi:
       import busio
@@ -52,7 +57,6 @@ class Display:
     else:
       g_logger.print(f"unsupported display: {config.HAVE_DISPLAY}")
       config.HAVE_DISPLAY = None
-    self._view = None
 
   # --- return display-object   -----------------------------------------------
 
