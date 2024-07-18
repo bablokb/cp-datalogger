@@ -108,6 +108,9 @@ class Settings:
         g_logger.print(f"{var}={getattr(config,var)}")
         setattr(self,var,getattr(config,var))
     config = None
+    if not hasattr(self,"LOGGER_TITLE"):
+      self.LOGGER_TITLE = f"{LOGGER_ID}: {LOGGER_NAME}"
+
     if hasattr(self,"HAVE_PCB"):   # compatibility to old configurations
       self.HAVE_PM = self.HAVE_PCB
       if not self.HAVE_PCB and not hasattr(config,"HAVE_RTC"):
