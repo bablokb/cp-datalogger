@@ -54,6 +54,11 @@ PIN_ONE_WIRE = board.GP27
 # special pins:
 # v1-boards: connects SWA-SWC to the display
 PIN_SWA = board.GP12
+PIN_SWA_ACTIVE_LOW = True
 PIN_SWB = board.GP13
+PIN_SWB_ACTIVE_LOW = True
 PIN_SWC = board.GP14
-PIN_SWD = board.GP6
+PIN_SWC_ACTIVE_LOW = True
+
+# connected with LRCL, but unused
+#PIN_SWD = board.GP6

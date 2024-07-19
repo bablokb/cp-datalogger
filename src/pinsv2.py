@@ -53,8 +53,12 @@ PIN_ONE_WIRE = board.GP27
 
 # special pins:
 # v2-boards: connect SWA-SWC to buttons on the sensor-pcb
-#            connects SWD to the LED on the sensor-pcb
 PIN_SWA = board.GP7
+PIN_SWA_ACTIVE_LOW = True
 PIN_SWB = board.GP9
+PIN_SWB_ACTIVE_LOW = True
 PIN_SWC = board.GP14
+PIN_SWC_ACTIVE_LOW = True
+
+# LED on the sensor-board
 PIN_SWD = board.GP6
