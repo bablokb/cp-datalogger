@@ -32,7 +32,8 @@ class Display:
 
     if type(config.HAVE_DISPLAY) != str:      # assume it is a display-object
       self._display = config.HAVE_DISPLAY
-      self._display.auto_refresh = False
+      if hasattr(self._display,"auto_refresh"):
+        self._display.auto_refresh = False
       return
       
     # spi - if not already created
