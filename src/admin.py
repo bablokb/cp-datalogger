@@ -34,9 +34,10 @@ except:
 
 # --- turn on LED on sensor-pcb   --------------------------------------------
 
-switch_d = DigitalInOut(pins.PIN_SWD)
-switch_d.direction = Direction.OUTPUT
-switch_d.value = True
+if hasattr(pins,"PIN_SWD"):
+  switch_d = DigitalInOut(pins.PIN_SWD)
+  switch_d.direction = Direction.OUTPUT
+  switch_d.value = True
 
 # --- init environment   -----------------------------------------------------
 
@@ -46,7 +47,7 @@ if g_config.TEST_MODE:
 
 # --- set CS of display to high   --------------------------------------------
 
-if g_config.HAVE_DISPLAY:
+if g_config.HAVE_DISPLAY and hasattr(pins,"PIN_INKY_CS"):
   cs_display = DigitalInOut(pins.PIN_INKY_CS)
   cs_display.switch_to_output(value=True)
 
@@ -69,13 +70,15 @@ if g_config.HAVE_RTC:
 
 # --- mount sd-card if available   -------------------------------------------
 
-spi = busio.SPI(pins.PIN_SD_SCK,pins.PIN_SD_MOSI,pins.PIN_SD_MISO)
 if g_config.HAVE_SD:
+  spi = busio.SPI(pins.PIN_SD_SCK,pins.PIN_SD_MOSI,pins.PIN_SD_MISO)
   import storage
   import sdcardio
   sdcard = sdcardio.SDCard(spi,pins.PIN_SD_CS,1_000_000)
   vfs    = storage.VfsFat(sdcard)
   storage.mount(vfs, "/sd")
+else:
+  spi = None
 
 # --- put info on display if available   -------------------------------------
 
@@ -87,7 +90,10 @@ if g_config.HAVE_DISPLAY:
   from display import Display
 
   g_logger.print("starting display update")
-  cs_display.deinit()
+  if hasattr(pins,"PIN_INKY_CS"):
+    cs_display.deinit()
+  if not spi and hasattr(pins,"PIN_SD_SCK"):
+    spi = busio.SPI(pins.PIN_SD_SCK,pins.PIN_SD_MOSI,pins.PIN_SD_MISO)
   display = Display(g_config,spi).get_display()
 
   font = bitmap_font.load_font(f"fonts/{g_config.FONT_DISPLAY}.bdf")
