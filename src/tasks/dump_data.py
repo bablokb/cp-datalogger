@@ -10,10 +10,10 @@ from log_writer import Logger
 g_logger = Logger()
 
 def run(config,app):
-  """ dump data to log """
+  """ dump data to console/log """
 
   if not config.SHOW_UNITS:
-    g_logger.print(app.record)
+    print(app.record)               # print to console (!), not g_logger
     return
 
   columns = app.csv_header.split('#')[-1].split(',')
