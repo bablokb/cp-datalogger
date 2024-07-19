@@ -138,8 +138,9 @@ class DataCollector():
     self.with_lipo = g_config.HAVE_LIPO
 
     # pull CS of display high to prevent it from floating
-    self._cs_display = DigitalInOut(pins.PIN_INKY_CS)
-    self._cs_display.switch_to_output(value=True)
+    if hasattr(pins,"PIN_INKY_CS"):
+      self._cs_display = DigitalInOut(pins.PIN_INKY_CS)
+      self._cs_display.switch_to_output(value=True)
 
     # early setup of SD-card (in case we send debug-logs to sd-card)
     self._spi = None
@@ -203,7 +204,10 @@ class DataCollector():
       g_logger.print(f"error while configuring RTC: {ex}")
       g_config.HAVE_RTC = None
 
-    self.done           = DigitalInOut(pins.PIN_DONE)
+    if type(pins.PIN_DONE) == DigitalInOut:
+      self.done           = pins.PIN_DONE
+    else:
+      self.done           = DigitalInOut(pins.PIN_DONE)
     self.done.switch_to_output(value=not g_config.SHUTDOWN_HIGH)
 
     self.vbus_sense           = DigitalInOut(board.VBUS_SENSE)
@@ -212,7 +216,8 @@ class DataCollector():
     g_ts.append((time.monotonic(),"rtc-update"))
 
     # display
-    self._cs_display.deinit()
+    if hasattr(pins,"PIN_INKY_CS"):
+      self._cs_display.deinit()
     if g_config.HAVE_DISPLAY:
       from display import Display
       self.display = Display(g_config,self._spi)
