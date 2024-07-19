@@ -10,6 +10,7 @@ import wifi
 import time
 import busio
 import gc
+import board
 from digitalio import DigitalInOut, Pull, Direction
 
 import pins
@@ -36,6 +37,10 @@ except:
 
 if hasattr(pins,"PIN_SWD"):
   switch_d = DigitalInOut(pins.PIN_SWD)
+  switch_d.direction = Direction.OUTPUT
+  switch_d.value = True
+elif hasattr(board,'LED'):
+  switch_d = DigitalInOut(board.LED)
   switch_d.direction = Direction.OUTPUT
   switch_d.value = True
 
