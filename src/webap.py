@@ -288,6 +288,7 @@ class WebAP(Server):
           self._model[var] = value
     except Exception as ex:
       g_logger.print(f"exception: {ex}")
+      g_logger.print(f"line: {line}")
       g_logger.print("could not read config.py")
     gc.collect()
     self._dump_model()
