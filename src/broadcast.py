@@ -32,9 +32,10 @@ from sleep import TimeSleep
 
 # --- init environment   -----------------------------------------------------
 
-switch_d = DigitalInOut(pins.PIN_SWD)
-switch_d.direction = Direction.OUTPUT
-switch_d.value = True
+if hasattr(pins,"PIN_SWD"):
+  switch_d = DigitalInOut(pins.PIN_SWD)
+  switch_d.direction = Direction.OUTPUT
+  switch_d.value = True
 
 g_logger = Logger()
 if g_config.TEST_MODE:
