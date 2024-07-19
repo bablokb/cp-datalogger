@@ -6,6 +6,7 @@
 # Website: https://github.com/pcb-pico-datalogger
 #-----------------------------------------------------------------------------
 
+import board
 import pins
 from log_writer import Logger
 
@@ -30,12 +31,13 @@ class Display:
     self._spi    = spi
     self._view   = None
 
-    if type(config.HAVE_DISPLAY) != str:      # assume it is a display-object
-      self._display = config.HAVE_DISPLAY
+    # maybe use builtin display?
+    if config.HAVE_DISPLAY == "internal":
+      self._display = board.DISPLAY
       if hasattr(self._display,"auto_refresh"):
         self._display.auto_refresh = False
       return
-      
+
     # spi - if not already created
     if not self._spi:
       import busio
