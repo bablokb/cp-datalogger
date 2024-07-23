@@ -31,13 +31,7 @@ No additional hardware-setup is necessary for productive use.
 Configuration
 -------------
 
-A number of configuration constants are necessary to operate the gateway.
-Copy the file `src.blues_gateway/config_template.py` and adapt the
-config-variables for your setup.
-
-The configuration of the logger is identical to the way this is implemented
-for the data-loggers. I.e. you should copy the file `src/log_config_template.py`
-and choose the logger you need.
+See [gateway configuration](./gateway_config.md).
 
 
 Deployment

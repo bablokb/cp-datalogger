@@ -21,11 +21,12 @@ Generic Hardware
 ----------------
 
 The simplest hardware-setup would be a standalone Pico-W. The device
-could read it's builtin sensors or data from the internet. More realistically,
-you would add some I2C-sensors, a SD-card breakout for data-storage
-and a RTC (currently only the PCF8523 is supported). As a quick-start,
-the Adafruit PiCowbell Datalogger (<https://www.adafruit.com/product/5703>)
-will provide the SD-card slot and the RTC.
+could read it's builtin sensors or data from the internet. More
+realistically, you would add some I2C-sensors, a SD-card breakout for
+data-storage and a RTC (currently the PCF8523, PCF8563 and PCF85063(A)
+are supported). As a quick-start, the Adafruit PiCowbell Datalogger
+(<https://www.adafruit.com/product/5703>) will provide the SD-card
+slot and the RTC.
 
 For low-power operation, add a TPL5110 (<https://www.adafruit.com/product/3435>)
 or a TPL5111 (<https://www.adafruit.com/product/3573>). The first one
