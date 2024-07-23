@@ -18,7 +18,7 @@
 import microcontroller
 
 class CPUTEMP:
-  formats = []             # empty: don't show on display
+  formats = ["T/CPU:", "{0:.1f}°C"]
   headers = 'CPU temp °C'
 
   def __init__(self,config,i2c,addr=None,spi=None):
@@ -30,4 +30,5 @@ class CPUTEMP:
 
     temp = microcontroller.cpu.temperature
     data["cputemp"] = temp
+    values.extend([None,temp])
     return f"{temp}"
