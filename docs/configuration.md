@@ -13,7 +13,7 @@ of four files, mainly to separate things and to allow reuse:
   - Log configuration: [`log_config.py`](./log_config.md)
   - Core configuration: [`config.py`](./core_config.md)
   - Access-Point configuration: [`ap_config.py`](./ap_config.md)
-  - Optional [gateway configuration](./gateway_config.md)
+  - When running a gateway: [gateway configuration](./gateway_config.md)
 
 All configuration files are listed in `.gitignore` and are *not*
 synchronized with Github to protect credentials. Therefore, you can

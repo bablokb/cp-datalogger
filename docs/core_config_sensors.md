@@ -73,9 +73,6 @@ CSV regardless of the value of `SCD4X_PROPERTIES`.
 Open-Meteo
 ----------
 
-METEO_LATITUDE
-METEO_LONGITUDE
-
 | Name              | Type | O/M | Description                 |
 |-------------------|------|-----|-----------------------------|
 | METEO_LATITUDE    |float |  O  | Default: 48.6967            |

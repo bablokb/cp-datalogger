@@ -87,7 +87,7 @@ Time Updates
 
 | Name                | Type | O/M | Description                 |
 |---------------------|------|-----|-----------------------------|
-| NET_UPDATE          | bool |  O    update time from time-server|
+| NET_UPDATE          | bool |  O  | update time from time-server|
 | SAVE_WAKEUP         | bool |  O  | save/restore wakeup time    |
 
 `SAVE_WAKEUP` is a workaround for buggy batteries. The system
@@ -149,8 +149,8 @@ Hardware Setup
 | HAVE_SD             | bool |  O  | support SD (True)                    |
 | HAVE_I2C0           | bool |  O  | also use I2C0 (False)                |
 | HAVE_LIPO           | bool |  O  | use LiPo (False)                     |
-| HAVE_DISPLAY        | str  |  O  | display-name                         |
-| FONT_DISPLAY        | str  |  O  | font-name                            |
+| HAVE_DISPLAY        | str  |  O  | name of the display (see below)      |
+| FONT_DISPLAY        | str  |  O  | font for the display (see below)     |
 | HAVE_LORA           | bool |  O  | support LoRa (RFM9x)                 |
 | HAVE_OLED           | str  |  O  | support I2C-OLED                     |
 
