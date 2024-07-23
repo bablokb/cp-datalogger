@@ -30,4 +30,4 @@ def run(config,app):
   g_logger.print("finished refreshing display")
 
   if config.STROBE_MODE:
-    time.sleep(3)              # refresh returns before it is finished
+    time.sleep(app.display.strobe_wait) # refresh returns before it is finished

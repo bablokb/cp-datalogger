@@ -23,6 +23,7 @@ update_display
 | HAVE_DISPLAY        | str  |  O  | display-name (see below)  |
 | FONT_DISPLAY        | str  |  O  | font-name (see below)     |
 | SIMPLE_UI           | bool |  O  | show simple UI (False)    |
+| DISPLAY_STROBE_WAIT | int  |  O  | extra update time (3)     |
 
 Valid values for `HAVE_DISPLAY`:
 
@@ -43,6 +44,9 @@ Valid values for `FONT_DISPLAY`:
 
 If `SIMPLE_UI` is true, only a minimalistic (label-based) UI is shown.
 This is much faster than the default tabular UI.
+
+`DISPLAY_STROBE_WAIT` will give the e-ink some extra time for updates
+before the power-management cuts power in strobe-mode.
 
 
 send_lora

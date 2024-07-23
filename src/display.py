@@ -30,6 +30,7 @@ class Display:
     self._config = config
     self._spi    = spi
     self._view   = None
+    self.strobe_wait = getattr(config,"DISPLAY_STROBE_WAIT",3)
 
     # maybe use builtin display?
     if config.HAVE_DISPLAY == "internal":
@@ -46,6 +47,12 @@ class Display:
     displayio.release_displays()
     if config.HAVE_DISPLAY == "Inky-Pack":
       self._display = DisplayFactory.inky_pack(self._spi)
+    elif config.HAVE_DISPLAY == "Inky-pHat":
+      self._display = DisplayFactory.inky_phat(
+        pin_dc=pins.PIN_INKY_DC,pin_cs=pins.PIN_INKY_CS,
+        pin_rst=pins.PIN_INKY_RST,pin_busy=pins.PIN_INKY_BUSY,spi=self._spi)
+      if not hasattr(config,"DISPLAY_STROBE_WAIT"):
+        self.strobe_wait = 6
     elif config.HAVE_DISPLAY == "Ada-2.13-Mono":
       self._display = DisplayFactory.ada_2_13_mono(
         pin_dc=pins.PIN_INKY_DC,pin_cs=pins.PIN_INKY_CS,
