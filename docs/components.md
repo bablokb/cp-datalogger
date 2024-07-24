@@ -5,7 +5,7 @@ Overview
 --------
 
 Currently, two iterations of the datalogger (v1, v2) exist. The v2 has
-been produced in two sub-versions with slightly different pcb-sizes and
+been produced in two sub-versions with slightly different PCB-sizes and
 differences in connectors.
 
 In addition to the dataloggers ("base-PCBs"), there is a sensor-PCB
@@ -45,9 +45,9 @@ For details, see [Hardware Architecture](./hw_architecture.md).
 Storage
 -------
 
-For data storage, the v1-pcb uses a micro-sd card socket. The v2-pcb has
+For data storage, the v1-PCB uses a micro-sd card socket. The v2-PCB has
 an integrated flash chip emulating a micro-sd card (XTSD). This chip is
-available in 1,2, 4 and 8GBit versions. The v2-pcb uses the 1GBit version,
+available in 1,2, 4 and 8GBit versions. The v2-PCB uses the 1GBit version,
 since 128MB of storage are sufficient.
 
 The XTSD-chip is more expensive than the card socket, but cheaper than
@@ -86,7 +86,7 @@ Adapters
 --------
 
 The datalogger v1 connects directly to a display (back to back with
-stacking headers). Also, there are THT-connectors for then LoRa-breakout
+stacking headers). Also, there are THT-connectors for the LoRa-breakout
 from Adafruit.
 
 The datalogger v2 has cable connectors (8-pin JST-SURS) instead. They
@@ -100,14 +100,14 @@ LoRa
 Dataloggers optionally connect to a central gateway using LoRa.
 Currently, the software supports the LoRa-RFM9x breakout from
 Adafruit. A special PCB with SURS-connector and builtin
-RFM9x-chip is in preparation.
+RFM9x-chip is available.
 
 
 Datasheets
 ----------
 
 Note: some of the components can be replaced with similar components
-but this might need some rework on the pcb.
+but this might need some rework on the PCB.
 
 - PCF8523: <https://www.nxp.com/docs/en/data-sheet/PCF8523.pdf>
 - SN74HC74: <https://www.ti.com/lit/ds/symlink/sn74hc74.pdf>

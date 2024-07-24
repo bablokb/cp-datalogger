@@ -18,7 +18,7 @@ a displays or a LoRa-breakout.
 Power Management
 ----------------
 
-Power management uses a D-type flip-flop. In the v1-pcb, the flip-flop
+Power management uses a D-type flip-flop. In the v1-PCB, the flip-flop
 directly drives the enable pin of the Pico-(W). State changes of the flip-flop
 are initiated either by a button, by the interrupt of the RTC or by the
 Pico itself. The first two will turn power on, the last one will turn
@@ -30,7 +30,7 @@ CLK-pin of the flip-flop. A rising edge will toggle the enable pin, thus
 turning the system off. The application firmware is in charge of toggling
 the "done"-pin after finishing the current measurement cycle.
 
-The v2-pcb does not drive the enable pin of the Pico, but a mosfet that
+The v2-PCB does not drive the enable pin of the Pico, but a mosfet that
 controls VSYS of the Pico. This is more efficient, since the Pico still
 draws current even when the enable pin is pulled low.
 
@@ -56,7 +56,7 @@ long as VSYS is above 2V.
 SD-Card / Chip
 --------------
 
-The v1-pcb has an onboard micro-sd card reader. The v2-pcb uses an XTX-SD
+The v1-PCB has an onboard micro-sd card reader. The v2-PCB uses an XTX-SD
 chip which emulates a micro-SD card directly.
 
 The advantage of the chip is that there is no mechanical part involved
