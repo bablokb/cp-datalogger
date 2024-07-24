@@ -11,9 +11,10 @@ The sources are in the subdirectory `src` and below.
 The program is a framework with these main blocks:
 
   - setup of the base hardware (including RTC, display, sd-card)
-  - configuration of the sensors
+  - configuration of the [sensors](./sensors.md)
   - data-collection
-  - execution of post-collection *tasks* (e.g. save to sd, update display)
+  - execution of post-collection [*tasks*](./tasks.md)
+    (e.g. save to sd, update display)
   - configuration of next wake-up alarm
   - signal shutdown to the power management circuit
 
@@ -32,18 +33,19 @@ Architecture
 
 Besides the basic setup of the hardware, the program runs in two phases:
 
-  - collect data from every configured sensor
+  - collect data from every configured [sensor](./sensors.md)
   - execution of post-collection tasks
 
 The configuration file `config.py` will drive these phases. See
 [configuration](./configuration.md) for details on configuration.
 
-Every sensor needs a simple wrapper that interfaces to the respective
-driver-library, reads the values and updates the data. Adding new
-sensors is simple, just add a python-file for the sensor in the directory
-`src/sensors`. One of the existing files can be used as a blueprint.
+Every [sensor](./sensors.md) needs a simple wrapper that interfaces to
+the respective driver-library, reads the values and updates the
+data. Adding new sensors is simple, just add a python-file for the
+sensor in the directory `src/sensors`. One of the existing files can
+be used as a blueprint.
 
-Tasks are similar. Every task needs a wrapper in `src/tasks`.
+[Tasks](./tasks.md) are similar. Every task needs a wrapper in `src/tasks`.
 
 
 Installation
