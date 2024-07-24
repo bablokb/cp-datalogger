@@ -234,7 +234,7 @@ class Gateway:
 
       # check for packet
       data, self._snr, self._rssi = self._lora.receive(
-        with_ack=True,timeout=g_config.RECEIVE_TIMEOUT)
+        with_ack=True,timeout=getattr(g_config,"RECEIVE_TIMEOUT",1.0))
       if data is None:
         # check active time period
         if (self._rtc.datetime.tm_hour >= self._end_h and
