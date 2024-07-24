@@ -1,7 +1,7 @@
 Sensor Specific Configuration
 =============================
 
-Most sensors will will not need any sensor-specific configuration.
+Most [sensors](./sensors.md) will will not need any specific configuration.
 There are a few exceptions.
 
 BME280, BMP280
