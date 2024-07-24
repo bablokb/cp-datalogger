@@ -51,7 +51,8 @@ Sensors
 | SENSORS_CSV_ONLY    | str  |  O  | sensors not for the display |
 
 `SENSORS` is a blank delimted string with sensor specifications.
-Each An entry must be any of (no spaces allowed!):
+Each entry must be in **lowercase** and in any of the
+following formats (no spaces allowed!):
 
   - sensor
   - sensor(bus)  
@@ -60,9 +61,12 @@ Each An entry must be any of (no spaces allowed!):
     addr = 0x..
   - sensor(addr,bus)
 
-When no bus is provided, busses are probed in the order i2c1,i2c0.
-When no address is provided, the default address as configured in
-the driver is used. `addr` **must** have a leading `0x`.
+For a list of available sensors, see [sensors](./sensors.md).
+
+When no bus is provided, busses are probed in the order i2c0,i2c1
+(i2c0 only if `HAVE_I2C0=True` below).  When no address is provided,
+the default address as configured in the driver is used. `addr`
+**must** have a leading `0x`.
 
 Since the display can only show 6 values, you can exclude sensors
 from the display. The data is still recorded in the CSV.
@@ -77,8 +81,8 @@ Tasks
 | TASKS               | str  |  M  | List of tasks               |
 
 List of tasks to execute. This is a blank delimeted list. See
-[tasks](./tasks.md) for a list of available tasks and task-specific
-configuration.
+[tasks](./tasks.md) for a list of available tasks and also check
+[task-specific configuration](./core_config_tasks.md).
 
 
 Time Updates
