@@ -33,10 +33,10 @@ If running , keep holding SW-B and shortly press the reset-button.
 
 Keep pressing the SW-B button until broadcast-mode is up and running. In
 this state, you can see the state on the OLED-display. On a v2-system with
-sensor-pcb, the red-LED is full on.
+sensor-PCB, the red-LED is full on.
 
-For the v1 datalogger-pcb, the SW-B button is available from the display.
-For the v2-pcb, the SW-B button is on the sensor-pcb.
+For the v1 datalogger-PCB, the SW-B button is available from the display.
+For the v2-PCB, the SW-B button is on the sensor-PCB.
 
 
 Using Broadcast Mode

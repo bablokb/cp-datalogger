@@ -33,10 +33,10 @@ the reset-button.
 
 Keep pressing the SW-A button until admin-mode is up and running. In
 this state, you can see the state on the display. On a v2-system with
-sensor-pcb, the red-LED is full on.
+sensor-PCB, the red-LED is full on.
 
-For the v1 datalogger-pcb, the SW-A button is available from the display.
-For the v2-pcb, the SW-A button is on the sensor-pcb.
+For the v1 datalogger-PCB, the SW-A button is available from the display.
+For the v2-PCB, the SW-A button is on the sensor-PCB.
 
 
 Using the Admin-Mode
