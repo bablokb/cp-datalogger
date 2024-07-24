@@ -21,8 +21,8 @@ LORA_NODE_ADDR  = 0         # gateway node-address
 LORA_ACK_DELAY  = 0.1       # delay time before sending ACK
 LORA_TX_POWER   = 23        # transmit power (max: 23)
 
-ACTIVE_WINDOW_START = 7:00  # active (online) window start time
-ACTIVE_WINDOW_END   = 17:00 # active (online) window end time
+ACTIVE_WINDOW_START = "7:00"  # active (online) window start time
+ACTIVE_WINDOW_END   = "17:00" # active (online) window end time
 
 # ----------------------------------------------------------------------------
 # technical constants, don't change unless you know why
