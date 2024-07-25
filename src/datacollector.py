@@ -155,12 +155,12 @@ class DataCollector():
 
     # Initialse i2c busses for use by sensors and RTC
     try:
-      self._i2c = [None,busio.I2C(pins.PIN_SCL1,pins.PIN_SDA1)]
+      self.i2c = [None,busio.I2C(pins.PIN_SCL1,pins.PIN_SDA1)]
     except:
-      self._i2c = [None,None]
+      self.i2c = [None,None]
     if g_config.HAVE_I2C0:
       try:
-        self._i2c[0] = busio.I2C(pins.PIN_SCL0,pins.PIN_SDA0)
+        self.i2c[0] = busio.I2C(pins.PIN_SCL0,pins.PIN_SDA0)
       except:
         g_logger.print("could not create i2c0, check wiring!")
     if g_config.TEST_MODE:
@@ -176,7 +176,7 @@ class DataCollector():
       rtc_bus  = 0
 
     try:
-      self.rtc = ExtBase.create(rtc_name,self._i2c[rtc_bus],
+      self.rtc = ExtBase.create(rtc_name,self.i2c[rtc_bus],
                                 net_update=g_config.NET_UPDATE)
       if rtc_name == "PCF8523":
         if pins.PCB_VERSION > 0:
@@ -265,7 +265,7 @@ class DataCollector():
       spec   = spec.split('(')
       sensor = spec[0]
       addr   = None
-      i2c    = list(self._i2c)
+      i2c    = list(self.i2c)
       # check for parameters
       if len(spec) > 1:
         spec = spec[1][:-1].split(',')   # remove trailing ) and split
