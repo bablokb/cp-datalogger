@@ -75,10 +75,10 @@ update_oled
 | OLED_TIME    | int  |  O  | show OLED at least the given time (3) |
 | OLED_VALUES  | str  |  O  | see below                             |
 
-Valid values for `HAVE_OLED` is `None` or `"width,height,addr"`, e.g.:
+Valid values for `HAVE_OLED` is `None` or `"bus,width,height,addr"`, e.g.:
 
-  - `"128,32,0x3c"` or `"128,32,0x3d"`
-  - `"128,64,0x3c"` or `"128,64,0x3d"`
+  - `"0,128,32,0x3c"` or `"0,128,32,0x3d"`
+  - `"0,128,64,0x3c"` or `"1,128,64,0x3d"`
 
 `OLED_TIME` is the minimal on-time of the display. Only relevant in
 strobe mode (which will cut power).
