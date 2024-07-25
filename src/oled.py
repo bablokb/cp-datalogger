@@ -19,19 +19,12 @@ class OLED:
 
   # --- constructor   --------------------------------------------------------
 
-  def __init__(self,config,i2c1,i2c0):
+  def __init__(self,config,i2c):
     """ constructor """
 
-    width,height,address = config.HAVE_OLED.split(',')
-    if not i2c1:
-      i2c1 = busio.I2C(pins.PIN_SCL1,pins.PIN_SDA1)
-    try:
-      display_bus = displayio.I2CDisplay(i2c1,device_address=int(address,16))
-    except:
-      # try ic20
-      if not i2c0:
-        i2c0 = busio.I2C(pins.PIN_SCL0,pins.PIN_SDA0)
-      display_bus = displayio.I2CDisplay(i2c0,device_address=int(address,16))
+    bus,width,height,address = config.HAVE_OLED.split(',')
+    display_bus = displayio.I2CDisplay(i2c[int(bus)],
+                                       device_address=int(address,16))
     self._display = SSD1306(display_bus,width=int(width),height=int(height))
 
     group = displayio.Group()
