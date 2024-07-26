@@ -22,9 +22,24 @@ class OLED:
   def __init__(self,config,i2c):
     """ constructor """
 
-    bus,width,height,address = config.HAVE_OLED.split(',')
-    display_bus = displayio.I2CDisplay(i2c[int(bus)],
+    bus,address,width,height = config.HAVE_OLED.split(',')
+    if bus != '*':
+      display_bus = displayio.I2CDisplay(i2c[int(bus)],
                                        device_address=int(address,16))
+    else:
+      display_bus = None
+      for bus in i2c:
+        if not bus:
+          continue
+        try:
+          display_bus = displayio.I2CDisplay(bus,
+                                             device_address=int(address,16))
+          break
+        except:
+          pass
+      if not display_bus:
+        raise Exception("no OLED found after probing all I2C-busses")
+
     self._display = SSD1306(display_bus,width=int(width),height=int(height))
 
     group = displayio.Group()
