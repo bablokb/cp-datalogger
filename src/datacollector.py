@@ -157,12 +157,13 @@ class DataCollector():
     try:
       self.i2c = [None,busio.I2C(pins.PIN_SCL1,pins.PIN_SDA1)]
     except:
+      g_logger.print("could not create i2c1")
       self.i2c = [None,None]
     if g_config.HAVE_I2C0:
       try:
         self.i2c[0] = busio.I2C(pins.PIN_SCL0,pins.PIN_SDA0)
       except:
-        g_logger.print("could not create i2c0, check wiring!")
+        g_logger.print("could not create i2c0 although configured, check wiring!")
     if g_config.TEST_MODE:
       g_logger.print(f"setup: free memory after create i2c-busses: {gc.mem_free()}")
 
@@ -264,16 +265,19 @@ class DataCollector():
       if len(spec) > 1:
         spec = spec[1][:-1].split(',')   # remove trailing ) and split
         # parse parameters: can be (addr), (bus), (addr,bus) or (bus,addr)
-        para1 = int(spec[0],16)
-        spec.pop(0)
-        if para1 < 2:                    # first parameter is a bus
-          i2c[1-para1] = None            # don't search the other one
+        para1 = spec.pop(0).upper()
+        if not 'X' in para1:             # first parameter is a bus
+          bus = int(para1)
+          i2c = [None]*len(self.i2c)     # don't search the other busses
+          i2c[bus] = self.i2c[bus]
           addr = None                    # init address as None
         else:                            # first parameter is an address
-          addr = para1                   # init address with para1 value
+          addr = int(para1,16)
         if len(spec):                    # we have a second parameter
-          if addr:                       # second parameter must be bus
-            i2c[1-int(spec[0])] = None   # don't search the other one
+          if addr:                       # we already have an address, so
+            bus = int(spec[0])           # this must be a bus
+            i2c = [None]*len(self.i2c)   # don't search the other busses
+            i2c[bus] = self.i2c[bus]
           else:                          # first parameter was bus, so
             addr = int(spec[0],16)       # second parameter is address
 
