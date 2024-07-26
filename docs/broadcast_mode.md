@@ -19,8 +19,8 @@ To fully utilize the broadcast-mode, you should
 
   - plug in an OLED-display (SSD1306 128x64 or 128x32) into one
     of the free I2C-ports
-  - add `HAVE_OLED=128,64,0x3c` to `config.py` (adapt the size
-    and the I2C-address as needed. The latter could also be `0x3d`).
+  - add `HAVE_OLED=xxx` to `config.py` (see task "update_oled" in
+[task-configuration](./core_config_tasks.md for details).
 
 
 

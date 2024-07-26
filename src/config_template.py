@@ -83,7 +83,7 @@ TASKS = "save_data update_display"
 #HAVE_LIPO    = False         # True, False
 #HAVE_DISPLAY = None          # 'Inky-Pack', 'Display-Pack' or None
 #HAVE_LORA    = False         # True, False
-#HAVE_OLED    = None          # "128,64,0x3c" or "128,32,0x3c" (alt: 0x3d)
+#HAVE_OLED    = None          # (bus,addr,width,height), e.g. "0,0x3c,128,64"
 
 # --- LoRa configuration (in case LoRa is available)   -----------------------
 

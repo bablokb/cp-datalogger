@@ -75,10 +75,16 @@ update_oled
 | OLED_TIME    | int  |  O  | show OLED at least the given time (3) |
 | OLED_VALUES  | str  |  O  | see below                             |
 
-Valid values for `HAVE_OLED` is `None` or `"bus,width,height,addr"`, e.g.:
+Valid values for `HAVE_OLED` is `None` or `"bus,addr,width,height"`.
+`bus` can be either `*`, which will probe all available busses, or an
+integer bus number. Providing an explicit bus-number is more
+efficient.
 
-  - `"0,128,32,0x3c"` or `"0,128,32,0x3d"`
-  - `"0,128,64,0x3c"` or `"1,128,64,0x3d"`
+Some examples:
+
+  - `"0,0x3c,128,32"` (small display on bus 0)
+  - `"1,0x3d,128,64"` (large display on bus 1 with alternate address)
+  - `"*,0x3c,128,64"` (large display, probe busses)
 
 `OLED_TIME` is the minimal on-time of the display. Only relevant in
 strobe mode (which will cut power).
