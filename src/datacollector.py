@@ -204,12 +204,6 @@ class DataCollector():
       g_logger.print(f"error while configuring RTC: {ex}")
       g_config.HAVE_RTC = None
 
-    if type(pins.PIN_DONE) == DigitalInOut:
-      self.done           = pins.PIN_DONE
-    else:
-      self.done           = DigitalInOut(pins.PIN_DONE)
-    self.done.switch_to_output(value=not g_config.SHUTDOWN_HIGH)
-
     self.vbus_sense           = DigitalInOut(board.VBUS_SENSE)
     self.vbus_sense.direction = Direction.INPUT
 
@@ -428,14 +422,25 @@ class DataCollector():
   def shutdown(self):
     """ tell the power-controller to cut power """
 
-    if g_config.HAVE_PM:
+    if g_config.HAVE_PM and hasattr(pins,"PIN_DONE"):
       g_logger.print("signal power-off")
+
+      if type(pins.PIN_DONE) == DigitalInOut:
+        self.done           = pins.PIN_DONE
+      else:
+        self.done           = DigitalInOut(pins.PIN_DONE)
+
+      # The following statement is not reliable: even if value is False
+      # it might create a short High while switching. This does not
+      # matter, "worst case" would be that it already turns of power.
+      self.done.switch_to_output(value=not g_config.SHUTDOWN_HIGH)
+
       self.done.value = g_config.SHUTDOWN_HIGH
       time.sleep(0.001)
       self.done.value = not g_config.SHUTDOWN_HIGH
       time.sleep(2)
     else:
-      g_logger.print("ignoring shutdown (don't have PCB)")
+      g_logger.print("ignoring shutdown (don't have PM or PIN_DONE undefined)")
 
   # --- cleanup   ------------------------------------------------------------
 
