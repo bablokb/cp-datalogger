@@ -24,11 +24,13 @@ from adafruit_bitmap_font import bitmap_font
 from adafruit_display_text import label as label
 from vectorio import Rectangle
 
+from log_writer import Logger
+g_logger.print("!!! Starting in Broadcast-Mode !!!")
+
 import pins
 from datacollector import g_config
 from lora import LORA
-from log_writer import Logger
-from rtc_ext.pcf8523 import ExtPCF8523 as ExtRTC
+from rtc_ext.ext_base import ExtBase
 from sleep import TimeSleep
 
 # --- init environment   -----------------------------------------------------
@@ -45,7 +47,6 @@ elif hasattr(board,'LED'):
 g_logger = Logger()
 if g_config.TEST_MODE:
   TimeSleep.light_sleep(duration=5)
-g_logger.print("!!! Starting in Broadcast-Mode !!!")
 
 # --- application class for broadcast-mode   ---------------------------------
 
@@ -62,6 +63,7 @@ class Broadcast:
     self._pok     = 0
     self._lora    = LORA(g_config)
 
+    self._init_i2c()
     self._init_rtc()
     self._init_display()
     self._have_oled = self._init_oled()
@@ -72,24 +74,43 @@ class Broadcast:
       self.interval = max(getattr(g_config,'BROADCAST_INT',10),60)
       self._last_ref = 0
 
+  # --- create I2C-busses   --------------------------------------------------
+
+  def _init_i2c(self):
+    """ create available I2C-busses """
+
+    try:
+      self.i2c = [None,busio.I2C(pins.PIN_SCL1,pins.PIN_SDA1)]
+    except:
+      self.i2c = [None,None]
+    if g_config.HAVE_I2C0:
+      try:
+        self.i2c[0] = busio.I2C(pins.PIN_SCL0,pins.PIN_SDA0)
+      except:
+        g_logger.print("could not create i2c0, check wiring!")
+
   # --- read rtc   -----------------------------------------------------------
 
   def _init_rtc(self):
     """ initialize RTC """
-    self._i2c1 = None
+
     if g_config.HAVE_RTC:
-      rtc_bus = int(g_config.HAVE_RTC.split('(')[1][0])
-      try:
-        if rtc_bus == 1:
-          i2c = busio.I2C(pins.PIN_SCL1,pins.PIN_SDA1)
-        else:
-          i2c = busio.I2C(pins.PIN_SCL0,pins.PIN_SDA0)
-        self._rtc = ExtRTC(i2c)
-        self._rtc.rtc_ext.high_capacitance = True
-        self._rtc.update()
-      except Exception as ex:
-        g_logger.print(f"could not read RTC: {ex}")
-        self._rtc = None
+      rtc_spec = g_config.HAVE_RTC.split('(')
+      rtc_name = rtc_spec[0]
+      rtc_bus  = int(rtc_spec[1][0])
+    else:
+      rtc_name = None
+      rtc_bus  = 0
+
+    try:
+      self.rtc = ExtBase.create(rtc_name,self.i2c[rtc_bus],
+                                net_update=g_config.NET_UPDATE)
+      if rtc_name == "PCF8523" and pins.PCB_VERSION > 0:
+          self.rtc.rtc_ext.high_capacitance = True  # uses a 12.5pF capacitor
+    except Exception as ex:
+      # could not detect or configure RTC
+      g_logger.print(f"error while configuring RTC: {ex}")
+      g_config.HAVE_RTC = None
 
   # --- standard display   -------------------------------------------------
 
@@ -138,7 +159,7 @@ class Broadcast:
       try:
         from oled import OLED
         displayio.release_displays()
-        oled_display    = OLED(g_config,self._i2c1,None)
+        oled_display    = OLED(g_config,self.i2c)
         self._display   = oled_display.get_display()
         self._textlabel = oled_display.get_textlabel()
         g_logger.print(
