@@ -2,17 +2,18 @@ Pico Datalogger with Integrated Power-Management
 ================================================
 
 This is a hardware and software solution for low-frequency
-data-logging with a Raspberry Pi Pico (W). The project started as
-a hardware project, but the software runs independent of
-the special hardware (PCBs) provided in this repository. Nevertheless,
-the full function set of the software is not available with
-standard components.
+data-logging with a Raspberry Pi Pico (W). The project started as a
+hardware project, but the software runs independently of the special
+hardware (PCBs) provided in this repository (see some example setups
+as provided in the `examples` folder). Nevertheless, the full function
+set of the software is not available with standard components.
 
 
 Core software functions
 -----------------------
 
   * implemented in CircuitPython
+  * support for an external RTC for exact time keeping
   * cyclical sensor readout for a wide range of environmental
     [sensors](docs/sensors.md) (currently 15 directly support
     including Open-Meteo weather data)
@@ -22,10 +23,9 @@ Core software functions
     (given a driver-library is available)
   * logging of data to a micro-SD card or equivalent (e.g. XTSD-chip)
   * configurable post-collection [tasks](docs/tasks.md)
-    (e.g. update of a display, sending
-    data using WLAN or LoRa)
+    (e.g. update of a display, sending data using WLAN or LoRa)
   * power-optimized programs
-  * web-interface for configuration and data download
+  * [web-interface](docs/admin_mode.md) for configuration and data download
   * no programming required for standard setups
   * support (almost) zero current sleep with specialized hardware
 
@@ -71,7 +71,7 @@ Quick Links
 Background
 ----------
 
-For background on / motivation for this project, please see
+For background on and motivation for this project, please see
 <https://opendeved.net/programmes/ilce-in-tanzania/>.
 
 
@@ -79,6 +79,7 @@ Additional resources
 --------------------
 
   * [Sensors](docs/sensors.md)
+  * [Tasks](docs/tasks.md)
   * [Components](docs/components.md)
   * [Hardware Architecture](docs/hw_architecture.md)
   * [Power](docs/power.md)
