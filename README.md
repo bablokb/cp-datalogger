@@ -13,14 +13,16 @@ Core software functions
 -----------------------
 
   * implemented in CircuitPython
-  * cyclical sensor readout for a wide range of environmental sensors
-    (currently 15 directly support including Open-Meteo weather data)
+  * cyclical sensor readout for a wide range of environmental
+    [sensors](docs/sensors.md) (currently 15 directly support
+    including Open-Meteo weather data)
   * supports I2C (two busses), UART-3V3 and UART-5V devices
   * readout in intervals or using a time-table
   * implementation of additional sensors only need a small wrapper class
     (given a driver-library is available)
   * logging of data to a micro-SD card or equivalent (e.g. XTSD-chip)
-  * configurable post-collection tasks (e.g. update of a display, sending
+  * configurable post-collection [tasks](docs/tasks.md)
+    (e.g. update of a display, sending
     data using WLAN or LoRa)
   * power-optimized programs
   * web-interface for configuration and data download
