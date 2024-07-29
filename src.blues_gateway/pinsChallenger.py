@@ -9,6 +9,14 @@
 #-----------------------------------------------------------------------------
 import board
 
+# --- standard pins RP2040   -------------------------------------------------
+
+PIN_LED             = board.LED
+#PIN_VBUS_SENSE      = board.VBUS_SENSE         # not defined
+#PIN_VOLTAGE_MONITOR = board.VOLTAGE_MONITOR    # not defined
+
+# --- pins needed for gateway-operation   ------------------------------------
+
 PIN_SDA  = board.SDA
 PIN_SCL  = board.SCL
 

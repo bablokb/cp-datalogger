@@ -13,6 +13,12 @@ import board
 
 PCB_VERSION = 1          # PCB-version of datalogger
 
+# --- standard pins RP2040   -------------------------------------------------
+
+PIN_LED             = board.LED
+PIN_VBUS_SENSE      = board.VBUS_SENSE
+PIN_VOLTAGE_MONITOR = board.VOLTAGE_MONITOR
+
 # --- pin-constants (don't change unless you know what you are doing)   ------
 
 PIN_DONE = board.GP4   # connect to 74HC74 CLK
