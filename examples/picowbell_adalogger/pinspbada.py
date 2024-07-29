@@ -57,11 +57,12 @@ PIN_TX = board.GP0
 PIN_ONE_WIRE = board.GP6
 
 # special pins:
-#PIN_SWA = board.GP12
-#PIN_SWA_ACTIVE_LOW = True
+PIN_SWA = board.GP12
+PIN_SWA_ACTIVE_LOW = True
 #PIN_SWB = board.GP13
 #PIN_SWB_ACTIVE_LOW = True
 #PIN_SWC = board.GP14
 #PIN_SWC_ACTIVE_LOW = True
 
-#PIN_SWD = board.GP6
+# LED
+PIN_SWD = board.GP6
