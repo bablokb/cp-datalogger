@@ -27,6 +27,9 @@ save_data
 --------- 
 
 This task writes the collected sensor data to the configured CSV-file.
+Downloading of CSV-files is possible using [administration
+mode](./admin_mode.md) or with a [script](./tools.md) started from the
+REPL.
 
 
 update_display
@@ -66,7 +69,8 @@ send_udp
 Same as "send_lora", but send data via UDP to a configured target
 host/port.
 
-A sample implementation of an UDP gateway is in `tools/udp_gateway.py`.
+A sample implementation of an UDP gateway is available in
+`tools/udp_gateway.py`.
 
 
 send_ble_nus

@@ -271,6 +271,7 @@ SCD40/SCD41
   - CircuitPython-driver: <https://github.com/adafruit/Adafruit_CircuitPython_SCD4x>
   - [datasheet](https://www.sensirion.com/media/documents/48C4B7FB/64C134E7/Sensirion_SCD4x_Datasheet.pdf)
   - Note: This sensor supports [sensor-specific configuration](./core_config_sensors.md)
+  - Note: See [tools](./tools.md) for a manual calibration-tool.
 
 
 SHT45

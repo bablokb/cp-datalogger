@@ -63,6 +63,7 @@ Quick Links
   * [Configuration](docs/configuration.md)
   * [Software deployment](docs/deployment.md)
   * [Initial setup of the RTC](docs/rtc_setup.md)
+  * [Tools and Scripts](docs/tools.md)
   * [Administration mode](docs/admin_mode.md)
   * [Broadcast mode](docs/broadcast_mode.md)
   * [Setup of Blues-Gateway](docs/blues-gateway.md)
