@@ -16,9 +16,24 @@ from digitalio import DigitalInOut, Pull, Direction
 
 import pins
 try:
-  from config import TEST_MODE
+  import config
+  TEST_MODE = config.TEST_MODE
 except:
   TEST_MODE = False
+
+# set defaults
+btn_opts = {
+  'BTN_A_CODEFILE': 'admin.py',
+  'BTN_A_FLASH_RW': True,
+  'BTN_B_CODEFILE': 'broadcast.py',
+  'BTN_B_FLASH_RW': False,
+  'BTN_C_CODEFILE': None,
+  'BTN_C_FLASH_RW': False
+  }
+
+for attrib in btn_opts:
+  if hasattr(config,attrib):
+    btn_opts[attrib] = getattr(config,attrib)
 
 # --- configure hardware   ---------------------------------------------------
 
@@ -66,14 +81,24 @@ if led_d and (TEST_MODE or a_pressed() or b_pressed() or c_pressed()):
 
 # --- check if switch A is pressed and if so, enter admin-mode   -------------
 
-if a_pressed():
-  # make flash writable
-  storage.remount("/",False)
-  supervisor.set_next_code_file("admin.py",sticky_on_reload=True)
+if a_pressed() and btn_opts['BTN_A_CODEFILE']:
+  if btn_opts['BTN_A_FLASH_RW']:       # make flash writable
+    storage.remount("/",False)
+  supervisor.set_next_code_file(btn_opts['BTN_A_CODEFILE'],sticky_on_reload=True)
   supervisor.reload()
 
 # --- check if switch B is pressed and if so, enter broadcast-mode   ---------
 
-if b_pressed():
-  supervisor.set_next_code_file("broadcast.py",sticky_on_reload=True)
+if b_pressed() and btn_opts['BTN_B_CODEFILE']:
+  if btn_opts['BTN_B_FLASH_RW']:       # make flash writable
+    storage.remount("/",False)
+  supervisor.set_next_code_file(btn_opts['BTN_B_CODEFILE'],sticky_on_reload=True)
+  supervisor.reload()
+
+# --- check if switch C is pressed and if so, enter broadcast-mode   ---------
+
+if c_pressed() and btn_opts['BTN_C_CODEFILE']:
+  if btn_opts['BTN_C_FLASH_RW']:       # make flash writable
+    storage.remount("/",False)
+  supervisor.set_next_code_file(btn_opts['BTN_C_CODEFILE'],sticky_on_reload=True)
   supervisor.reload()
