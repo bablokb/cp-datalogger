@@ -13,7 +13,9 @@ from terminalio import FONT
 from adafruit_display_text import label
 
 import pins
+from singleton import singleton
 
+@singleton
 class OLED:
   """ Wrapper for SSD1306 I2C-OLED-display """
 
@@ -22,6 +24,7 @@ class OLED:
   def __init__(self,config,i2c):
     """ constructor """
 
+    displayio.release_displays()
     bus,address,width,height = config.HAVE_OLED.split(',')
     if bus != '*':
       display_bus = displayio.I2CDisplay(i2c[int(bus)],

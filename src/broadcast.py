@@ -18,7 +18,6 @@ import busio
 from digitalio import DigitalInOut, Pull, Direction
 
 import displayio
-displayio.release_displays()
 
 from adafruit_bitmap_font import bitmap_font
 from adafruit_display_text import label as label
@@ -161,7 +160,6 @@ class Broadcast:
     if getattr(g_config,'HAVE_OLED',None):
       try:
         from oled import OLED
-        displayio.release_displays()
         oled_display    = OLED(g_config,self.i2c)
         self._display   = oled_display.get_display()
         self._textlabel = oled_display.get_textlabel()

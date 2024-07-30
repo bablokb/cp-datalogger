@@ -16,7 +16,6 @@ g_logger = Logger()
 def init_oled(config,app):
   try:
     from oled import OLED
-    displayio.release_displays()
     oled_display = OLED(config,app.i2c)
     display = oled_display.get_display()
     label   = oled_display.get_textlabel()
