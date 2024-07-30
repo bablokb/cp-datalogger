@@ -18,7 +18,7 @@
 SAMPLES = 2
 TIMEOUT = 10                  # data should be ready every 5 seconds
 DISCARD = True                # only keep last reading
-PROPERTIES = "CO2 T H"        # properties for the display
+PROPERTIES = "C T H"          # properties for the display
 FORMATS = {
   "C":   ["C/SCD:", "{0}ppm"],
   "T":   ["T/SCD:", "{0:.1f}°C"],
@@ -109,7 +109,7 @@ class SCD4X:
     data[self.product] = {
       "T": temp,
       "H":  hum,
-      "CO2":  co2
+      "C":  co2
     }
     if not self.ignore:
       for p in self.PROPERTIES:
