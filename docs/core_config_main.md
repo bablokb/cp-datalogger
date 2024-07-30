@@ -157,6 +157,12 @@ Hardware Setup
 | FONT_DISPLAY        | str  |  O  | font for the display (see below)     |
 | HAVE_LORA           | bool |  O  | support LoRa (RFM9x)                 |
 | HAVE_OLED           | str  |  O  | support I2C-OLED                     |
+| BTN_A_CODEFILE      | str  |  O  | run-file for button A (admin.py)     |
+| BTN_A_FLASH_RW      | bool |  O  | remount flash rw (True)              |
+| BTN_B_CODEFILE      | str  |  O  | run-file for button B (broadcast.py) |
+| BTN_B_FLASH_RW      | bool |  O  | remount flash rw (False)             |
+| BTN_C_CODEFILE      | str  |  O  | run-file for button C (None)         |
+| BTN_C_FLASH_RW      | bool |  O  | remount flash rw (False)             |
 
 Valid values for `HAVE_RTC` (`bus`: `0` or `1`):
 
