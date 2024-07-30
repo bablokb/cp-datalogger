@@ -17,8 +17,8 @@ From the REPL, run:
 
 and follow the instructions. Basically, you can run the following functions:
 
-  - dump_file(filename)
-  - del_file(filename)
+  - show_sd.dump_file(filename)
+  - show_sd.del_file(filename)
 
 
 scd4x_config.py
@@ -33,11 +33,11 @@ From the REPL, run:
 and follow the instructions. The import configures I2C and defines the
 function
 
-    config_scd4x(altitude=None,persist=False,duration=10,ppm=418,temp_offset=4)
+    scd4x_config.run(altitude=None,persist=False,duration=10,ppm=418,temp_offset=4)
 
 Running this function, e.g. with
 
-    config_scd4x(altitude=525,persist=True,temp_offset=8)
+    scd4x_config.run(altitude=525,persist=True,temp_offset=8)
 
 will set the altitude and the temperature offset. The latter has to be
 determined emperically (the sensor default builtin value is 4).
