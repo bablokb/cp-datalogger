@@ -204,10 +204,6 @@ class DataCollector():
       # could not detect or configure RTC
       g_logger.print(f"error while configuring RTC: {ex}")
       g_config.HAVE_RTC = None
-
-    self.vbus_sense           = DigitalInOut(board.VBUS_SENSE)
-    self.vbus_sense.direction = Direction.INPUT
-
     g_ts.append((time.monotonic(),"rtc-update"))
 
     # display
@@ -222,8 +218,8 @@ class DataCollector():
     g_ts.append((time.monotonic(),"display-config"))
 
     # just for testing
-    if g_config.TEST_MODE:
-      self._led            = DigitalInOut(board.LED)
+    if g_config.TEST_MODE and hasattr(pins,"PIN_LED"):
+      self._led            = DigitalInOut(pins.PIN_LED)
       self._led.direction  = Direction.OUTPUT
 
     self.sd_status = "_"
@@ -472,7 +468,9 @@ class DataCollector():
 
     while True:
       if g_config.TEST_MODE:
-        self.blink(count=g_config.BLINK_START, blink_time=g_config.BLINK_TIME_START)
+        if hasattr(pins,"PIN_LED"):
+          self.blink(count=g_config.BLINK_START,
+                     blink_time=g_config.BLINK_TIME_START)
         # reset timings
         g_ts = []
         g_ts.append((time.monotonic(),None))
@@ -482,7 +480,7 @@ class DataCollector():
       # always read battery (if not yet done as part of sensors)
       self.read_battery()
 
-      if g_config.TEST_MODE:
+      if g_config.TEST_MODE and hasattr(pins,"PIN_LED"):
         self.blink(count=g_config.BLINK_END, blink_time=g_config.BLINK_TIME_END)
 
       # run tasks after data-collection

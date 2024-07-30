@@ -17,6 +17,8 @@
 import board
 from analogio import AnalogIn
 
+import pins
+
 class BATTERY:
   formats = ["Bat:","{0:0.2f}V"]
   headers = 'Bat V'
@@ -27,12 +29,12 @@ class BATTERY:
   def read(self,data,values):
     """ read voltage monitor """
 
-    if hasattr(board,"VOLTAGE_MONITOR"):
-      adc = AnalogIn(board.VOLTAGE_MONITOR)
+    if hasattr(pins,"PIN_VOLTAGE_MONITOR"):
+      adc = AnalogIn(pins.PIN_VOLTAGE_MONITOR)
       level = round(adc.value *  3 * 3.3 / 65535,2)
       adc.deinit()
       if level < 1.8 or level > 5.5:
-        # this happens only if the voltage-monitor is external and not connected
+        # this happens only if the voltage-monitor is external and floating
         # in this case, fake the level to prevent triggering level-based logic
         level = 3.5
     else:

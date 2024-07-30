@@ -16,8 +16,8 @@ if hasattr(pins,"PIN_SWD"):
   switch_d = DigitalInOut(pins.PIN_SWD)
   switch_d.direction = Direction.OUTPUT
   switch_d.value = True
-elif hasattr(board,'LED'):
-  switch_d = DigitalInOut(board.LED)
+elif hasattr(pins,'PIN_LED'):
+  switch_d = DigitalInOut(pins.PIN_LED)
   switch_d.direction = Direction.OUTPUT
   switch_d.value = True
 
