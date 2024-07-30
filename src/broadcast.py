@@ -24,7 +24,11 @@ from adafruit_bitmap_font import bitmap_font
 from adafruit_display_text import label as label
 from vectorio import Rectangle
 
-from log_writer import Logger
+try:
+  from log_config import g_logger
+except:
+  from log_writer import Logger
+  g_logger = Logger('console')
 g_logger.print("!!! Starting in Broadcast-Mode !!!")
 
 import pins
@@ -44,7 +48,6 @@ elif hasattr(board,'LED'):
   switch_d.direction = Direction.OUTPUT
   switch_d.value = True
 
-g_logger = Logger()
 if g_config.TEST_MODE:
   TimeSleep.light_sleep(duration=5)
 
