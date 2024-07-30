@@ -54,7 +54,7 @@ SCD40, SCD41
 | SCD4X_SAMPLES     | int  |  O  | number of samples (2)              |
 | SCD4X_TIMEOUT     | int  |  O  | timeout waiting for data (10)      |
 | SCD4X_DISCARD     | bool |  O  | only keep last readout (True)      |
-| SCD4X_PROPERTIES  | str  |  O  | properties for display ("CO2 T H") |
+| SCD4X_PROPERTIES  | str  |  O  | properties for display ("C T H")   |
 
 The SCD4x-sensors give better results with multiple samples. Normally,
 only the last sample is saved to CSV, the others are discarded. For

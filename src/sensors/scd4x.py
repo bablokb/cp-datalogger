@@ -20,7 +20,7 @@ TIMEOUT = 10                  # data should be ready every 5 seconds
 DISCARD = True                # only keep last reading
 PROPERTIES = "CO2 T H"        # properties for the display
 FORMATS = {
-  "CO2": ["CO2:", "{0}"],
+  "C":   ["C/SCD:", "{0}ppm"],
   "T":   ["T/SCD:", "{0:.1f}°C"],
   "H":   ["H/SCD:", "{0:.0f}%rH"]
   }
@@ -33,7 +33,7 @@ import adafruit_scd4x
 
 class SCD4X:
   # we don't use timestamps on the display ...
-  headers = 'CO2 ppm,T/SCD °C,H/SCD %rH'
+  headers = 'C/SCD ppm,T/SCD °C,H/SCD %rH'
 
   def __init__(self,config,i2c,addr=None,spi=None):
     """ constructor """
