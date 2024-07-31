@@ -44,7 +44,7 @@ class BH1750:
   def read(self,data,values):
     lux = round(self.bh1750.lux,0)
     data["bh1750"] = {
-      "lux": lux
+      "l": lux
     }
     if not self.ignore:
       values.extend([None,lux])

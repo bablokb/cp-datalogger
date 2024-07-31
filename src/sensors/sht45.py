@@ -46,8 +46,8 @@ class SHT45:
     t = round(self.sht45.temperature,1)
     h = round(self.sht45.relative_humidity,0)
     data["sht45"] = {
-      "temp": t,
-      "hum":  h
+      "t": t,
+      "h":  h
     }
     if not self.ignore:
       values.extend([None,t])

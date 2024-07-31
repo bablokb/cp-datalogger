@@ -64,9 +64,9 @@ class BME280:
     p = round(self.bme280.pressure/self.alt_factor,0)
     h = round(self.bme280.humidity,0)
     data["bme280"] = {
-      "temp": t,
-      "hum":  h,
-      "pressure": p
+      "t": t,
+      "h":  h,
+      "ps": p
     }
     if not self.ignore:
       values.extend([None,t])

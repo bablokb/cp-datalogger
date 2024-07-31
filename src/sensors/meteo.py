@@ -73,13 +73,13 @@ class METEO:
     r    = response["hourly"]["precipitation"][hour]
 
     data["meteo"] =  {
-      "temp":     t,
-      "hum":      h,
-      "pressure": p,
-      "code":     c,
+      "t":     t,
+      "h":     h,
+      "ps":    p,
+      "code":  c,
       "w_speed":  ws,
       "w_dir":    wd,
-      "precip":   r
+      "r":     r
       }
 
     # fill in subset of data for display

@@ -46,8 +46,8 @@ class HTU31D:
     t = round(t,1)
     h = round(h,0)
     data["htu31d"] = {
-      "temp": t,
-      "hum":  h
+      "t": t,
+      "h":  h
     }
     if not self.ignore:
       values.extend([None,t])

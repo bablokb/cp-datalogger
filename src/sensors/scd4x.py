@@ -18,11 +18,11 @@
 SAMPLES = 2
 TIMEOUT = 10                  # data should be ready every 5 seconds
 DISCARD = True                # only keep last reading
-PROPERTIES = "C T H"          # properties for the display
+PROPERTIES = "c t h"          # properties for the display
 FORMATS = {
-  "C":   ["C/SCD:", "{0}ppm"],
-  "T":   ["T/SCD:", "{0:.1f}°C"],
-  "H":   ["H/SCD:", "{0:.0f}%rH"]
+  "c":   ["C/SCD:", "{0}ppm"],
+  "t":   ["T/SCD:", "{0:.1f}°C"],
+  "h":   ["H/SCD:", "{0:.0f}%rH"]
   }
 
 from log_writer import Logger
@@ -107,9 +107,9 @@ class SCD4X:
     
     # only show last reading on display
     data[self.product] = {
-      "T": temp,
-      "H":  hum,
-      "C":  co2
+      "t": temp,
+      "h":  hum,
+      "c":  co2
     }
     if not self.ignore:
       for p in self.PROPERTIES:

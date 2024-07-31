@@ -25,7 +25,7 @@ ENS160
 | ENS160_DISCARD    | bool |  O  | only keep last readout (True)            |
 | ENS160_INTERVALS  | list |  O  | list of sampling intervals ([0,5])       |
 | ENS160_WARMUP     | int  |  O  | wait-time when status==1 (190)           |
-| ENS160_PROPERTIES | str  |  O  | properties for display ("AQI TVOC eCO2") |
+| ENS160_PROPERTIES | str  |  O  | properties for display ("aqi tvoc eco2") |
 
 The ENS160 gives better results with multiple samples. Normally, only the
 last sample is saved to CSV, the others are discarded. For testing purposes,
@@ -54,7 +54,7 @@ SCD40, SCD41
 | SCD4X_SAMPLES     | int  |  O  | number of samples (2)              |
 | SCD4X_TIMEOUT     | int  |  O  | timeout waiting for data (10)      |
 | SCD4X_DISCARD     | bool |  O  | only keep last readout (True)      |
-| SCD4X_PROPERTIES  | str  |  O  | properties for display ("C T H")   |
+| SCD4X_PROPERTIES  | str  |  O  | properties for display ("c t h")   |
 
 The SCD4x-sensors give better results with multiple samples. Normally,
 only the last sample is saved to CSV, the others are discarded. For

@@ -47,7 +47,7 @@ def run(config,app):
           f"Bat: {bat_level:0.1f}V")
 
   if height > 32:
-    specs = getattr(config,"OLED_VALUES","aht20(temp) aht20(hum)").split()
+    specs = getattr(config,"OLED_VALUES","aht20(t) aht20(h)").split()
     for spec in specs:
       text += f"\n{spec}: "
       spec = spec.split('(')

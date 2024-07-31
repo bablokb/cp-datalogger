@@ -40,7 +40,7 @@
 INTERVALS  = [0,5]             # interval between readings
 DISCARD    = True              # only keep last reading
 WARMUP     = 190               # warmup time in seconds (for status==1)
-PROPERTIES = "AQI TVOC eCO2"   # properties for the display
+PROPERTIES = "aqi tvoc eco2"   # properties for the display
 
 from log_writer import Logger
 g_logger = Logger()
@@ -119,8 +119,8 @@ class ENS160:
     if status == 0:
       g_logger.print("ens160: normal operation")
       if "aht20" in data:
-        self.ens160.temperature_compensation = data["aht20"]["temp"]
-        self.ens160.humidity_compensation    = data["aht20"]["hum"]
+        self.ens160.temperature_compensation = data["aht20"]["t"]
+        self.ens160.humidity_compensation    = data["aht20"]["h"]
 
       # take multiple readings
       csv_results = f"{status}"

@@ -46,8 +46,8 @@ class AM2320:
     t = round(self.am2320.temperature,1)
     h = round(self.am2320.relative_humidity,0)
     data["am2320"] = {
-      "temp": t,
-      "hum":  h
+      "t": t,
+      "h":  h
     }
     if not self.ignore:
       values.extend([None,t])

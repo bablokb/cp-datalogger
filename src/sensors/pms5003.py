@@ -71,7 +71,11 @@ class PMS5003:
     pm10 = pms5003_data["particles 10um"]
     pm25 = pms5003_data["particles 25um"]
 
-    data["pms5003"] = pms5003_data
+    data["pms5003"] = {
+      "p03": pm03,
+      "p10": pm10,
+      "p25": pm25
+      }
     if not self.ignore:
       values.extend([None,pm03])
       values.extend([None,pm10])

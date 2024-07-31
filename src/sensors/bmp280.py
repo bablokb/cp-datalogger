@@ -61,8 +61,8 @@ class BMP280:
     t = round(self.bmp280.temperature,1)
     p = round(self.bmp280.pressure/self.alt_factor,0)
     data["bmp280"] = {
-      "temp": t,
-      "pressure": p
+      "t": t,
+      "ps": p
     }
     if not self.ignore:
       values.extend([None,t])
