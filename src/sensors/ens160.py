@@ -40,7 +40,7 @@
 INTERVALS  = [0,5]             # interval between readings
 DISCARD    = True              # only keep last reading
 WARMUP     = 190               # warmup time in seconds (for status==1)
-PROPERTIES = "aqi tvoc eco2"   # properties for the display
+PROPERTIES = "AQI TVOC eCO2"   # properties for the display
 
 from log_writer import Logger
 g_logger = Logger()
