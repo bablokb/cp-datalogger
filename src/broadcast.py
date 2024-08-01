@@ -105,10 +105,10 @@ class Broadcast:
       rtc_bus  = 0
 
     try:
-      self.rtc = ExtBase.create(rtc_name,self.i2c[rtc_bus],
+      self._rtc = ExtBase.create(rtc_name,self.i2c[rtc_bus],
                                 net_update=g_config.NET_UPDATE)
       if rtc_name == "PCF8523" and pins.PCB_VERSION > 0:
-          self.rtc.rtc_ext.high_capacitance = True  # uses a 12.5pF capacitor
+          self._rtc.rtc_ext.high_capacitance = True  # uses a 12.5pF capacitor
     except Exception as ex:
       # could not detect or configure RTC
       g_logger.print(f"error while configuring RTC: {ex}")
@@ -218,7 +218,7 @@ class Broadcast:
     if new_time:
       g_logger.print(f"Broadcast: updating device-time from gateway-time")
       self._rtc.update(new_time)
-      self.update_info(["... ok!",ExtRTC.print_ts(None,new_time)],
+      self.update_info(["... ok!",self._rtc.print_ts(None,new_time)],
                        row=1)
     else:
       self.update_info(["... failed!"],row=1)
@@ -232,13 +232,16 @@ class Broadcast:
     self._pnr += 1
 
     # update time on display (will not show on 128x32)
-    self.update_info([ExtRTC.print_ts(None,time.localtime())],row=4)
+    self.update_info([self._rtc.print_ts(None,time.localtime())],row=4)
 
     # send packet and receive response
     start = time.monotonic()
     packet = self._lora.broadcast(self._pnr,timeout=self.interval)
     duration = time.monotonic()-start
     if not packet:
+      self.update_info([f"packet {self._pnr} failed!",
+                        f"count: {self._pok}/{self._pnr} ok",
+                        f"RTT: {duration}s"],row=1)
       return
 
     # try to decode packet
