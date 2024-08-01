@@ -24,9 +24,13 @@ from singleton import singleton
 class Logger():
   def __init__(self,target=None):
     """ constructor: save debug-target """
+    self.set_target(target)
+
+  def set_target(self,target=None):
+    """ set target """
     self._target = target
     if target is None:
-      self.print = lambda x: None
+      self._print = lambda x: None
     elif isinstance(target,str):
       if target == 'console':
         self._print = self._print_to_console
