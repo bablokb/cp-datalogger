@@ -29,7 +29,8 @@ def run(duration=60,altitude=None,ppm=418,temp_offset=None,persist=False):
     return
 
   # operate for 10 minutes in clean air
-  print(f"operating for {duration} minutes...")
+  g_logger.print(f"operating for {duration} minutes...")
+  g_logger.set_target(None)
   sensor.scd4x.start_periodic_measurement()
   print(sensor.headers)
   time_left = duration*60
@@ -48,6 +49,7 @@ def run(duration=60,altitude=None,ppm=418,temp_offset=None,persist=False):
       print(f"time left: {mins} minutes")
 
   # perform configuration
+  g_logger.set_target('console')
   sensor.scd4x.stop_periodic_measurement()
   sensor.scd4x.self_calibration_enabled = False
   if altitude:
