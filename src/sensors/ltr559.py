@@ -44,7 +44,8 @@ class LTR559:
   def read(self,data,values):
     lux = round(self.ltr559.lux,0)
     data["ltr559"] = {
-      "l": lux
+      "l": lux,
+      self.formats[0]: self.formats[1].format(lux)
     }
     if not self.ignore:
       values.extend([None,lux])

@@ -47,13 +47,10 @@ def run(config,app):
           f"Bat: {bat_level:0.1f}V")
 
   if height > 32:
-    specs = getattr(config,"OLED_VALUES","aht20(t) aht20(h)").split()
+    specs = getattr(config,"OLED_VALUES","aht20(T/AHT:) aht20(H/AHT:)").split()
     for spec in specs:
-      text += f"\n{spec}: "
-      spec = spec.split('(')
-      sensor = spec[0]
-      value  = spec[1][:-1]
-      text += f"{app.data[sensor][value]}"
+      sensor,key = spec.rstrip(')').split('(')
+      text += f"\n{key} {app.data[sensor][key]}"
   textlabel.text = text
 
   if config.STROBE_MODE:

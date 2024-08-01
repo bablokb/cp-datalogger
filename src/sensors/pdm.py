@@ -43,7 +43,8 @@ class PDM:
     )
     mag = round(math.sqrt(sum2_samples / len(samples)),0)
     data["pdm"] = {
-      "m": mag
+      "m": mag,
+      self.formats[0]: self.formats[1].format(mag)
     }
     if not self.ignore:
       values.extend([None,mag])

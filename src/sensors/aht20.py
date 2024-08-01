@@ -46,7 +46,9 @@ class AHT20:
     h = round(self.aht20.relative_humidity,0)
     data["aht20"] = {
       "t": t,
-      "h":  h
+      "h":  h,
+      self.formats[0]: self.formats[1].format(t),
+      self.formats[2]: self.formats[3].format(h)
     }
     if not self.ignore:
       values.extend([None,t])

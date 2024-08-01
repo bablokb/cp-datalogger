@@ -47,7 +47,9 @@ class SHT45:
     h = round(self.sht45.relative_humidity,0)
     data["sht45"] = {
       "t": t,
-      "h":  h
+      "h":  h,
+      self.formats[0]: self.formats[1].format(t),
+      self.formats[2]: self.formats[3].format(h)
     }
     if not self.ignore:
       values.extend([None,t])

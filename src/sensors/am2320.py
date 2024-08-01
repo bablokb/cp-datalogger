@@ -47,7 +47,9 @@ class AM2320:
     h = round(self.am2320.relative_humidity,0)
     data["am2320"] = {
       "t": t,
-      "h":  h
+      "h":  h,
+      self.formats[0]: self.formats[1].format(t),
+      self.formats[2]: self.formats[3].format(h)
     }
     if not self.ignore:
       values.extend([None,t])

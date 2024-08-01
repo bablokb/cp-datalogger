@@ -92,11 +92,14 @@ strobe mode (which will cut power).
 On the larger 128x64 display, there is room to display two additional
 sensor values in addition to basic status information. The format is
 
-    OLED_VALUES = "sensor1(property1) sensor2(property2)"
+    OLED_VALUES = "sensor1(label1) sensor2(label2)"
 
-with default
+The sensor is the same as in `SENSORS`, the label is the same as
+during display on a normal (e-ink) screen.
 
-    OLED_VALUES = "aht20(temp) aht20(hum)"
+The default is:
+
+    OLED_VALUES = "aht20(T/AHT:) aht20(H/AHT:)"
 
 
 send_udp

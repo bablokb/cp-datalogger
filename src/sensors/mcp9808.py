@@ -44,7 +44,8 @@ class MCP9808:
   def read(self,data,values):
     t = round(self.mcp9808.temperature,1)
     data["mcp9808"] = {
-      "t": t
+      "t": t,
+      self.formats[0]: self.formats[1].format(t)
     }
     if not self.ignore:
       values.extend([None,t])

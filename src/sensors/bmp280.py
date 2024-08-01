@@ -62,7 +62,9 @@ class BMP280:
     p = round(self.bmp280.pressure/self.alt_factor,0)
     data["bmp280"] = {
       "t": t,
-      "ps": p
+      "ps": p,
+      self.formats[0]: self.formats[1].format(t),
+      self.formats[2]: self.formats[3].format(p)
     }
     if not self.ignore:
       values.extend([None,t])

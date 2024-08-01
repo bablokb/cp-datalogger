@@ -66,7 +66,10 @@ class BME280:
     data["bme280"] = {
       "t": t,
       "h":  h,
-      "ps": p
+      "ps": p,
+      self.formats[0]: self.formats[1].format(t),
+      self.formats[2]: self.formats[3].format(h),
+      self.formats[4]: self.formats[5].format(p)
     }
     if not self.ignore:
       values.extend([None,t])

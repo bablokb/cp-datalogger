@@ -74,7 +74,10 @@ class PMS5003:
     data["pms5003"] = {
       "p03": pm03,
       "p10": pm10,
-      "p25": pm25
+      "p25": pm25,
+      self.formats[0]: self.formats[1].format(pm03),
+      self.formats[2]: self.formats[3].format(pm10),
+      self.formats[4]: self.formats[5].format(pm25)
       }
     if not self.ignore:
       values.extend([None,pm03])
