@@ -56,7 +56,7 @@ following formats (no spaces allowed!):
 
   - sensor
   - sensor(bus)  
-    bus = 0|1
+    bus = 0, 1, ... (higher numbers with I2C-multiplexers)
   - sensor(addr) 
     addr = 0x..
   - sensor(addr,bus)
@@ -152,6 +152,7 @@ Hardware Setup
 | HAVE_RTC            | str  |  O  | type and bus (def: PCF8523(1))       |
 | HAVE_SD             | bool |  O  | support SD (True)                    |
 | HAVE_I2C0           | bool |  O  | also use I2C0 (False)                |
+| HAVE_I2C_MP         | str  |  O  | I2C-multiplexer definition (None)    |
 | HAVE_LIPO           | bool |  O  | use LiPo (False)                     |
 | HAVE_DISPLAY        | str  |  O  | name of the display (see below)      |
 | FONT_DISPLAY        | str  |  O  | font for the display (see below)     |
@@ -164,11 +165,27 @@ Hardware Setup
 | BTN_C_CODEFILE      | str  |  O  | run-file for button C (None)         |
 | BTN_C_FLASH_RW      | bool |  O  | remount flash rw (False)             |
 
-Valid values for `HAVE_RTC` (`bus`: `0` or `1`):
+Valid values for `HAVE_RTC`:
 
   - "PCF8523(bus)"
   - "PCF8563(bus)"
   - "PCF85063(bus)"
+
+`bus` must be a valid bus-number, usually `0` or `1` except if you
+attach the RTC to an IC2-multiplexer (see below).
+
+I2C-multiplexers are supported using `HAVE_I2C_MP`. The format is
+
+    HAVE_I2C_MP = "spec1 spec2 ..."
+
+With each specification as `chip(bus,addr)`. Currently, only chips
+that are implemented by the TCA9548A-library are supported, i.e.
+PCA9546, PCA9548, TCA9546 and TCA9548 (don't use the trailing 'A').
+
+Every multiplexer will add 4 or 8 I2C-channels. When defining
+sensors, the bus-number will start at 2 and then increment according
+to the multiplexer used. E.g. when adding a 4 channel and an 8 channel
+multiplexer, the bus-numbers will be 2-5 and 6-13.
 
 See [task configuration](./core_config_tasks.md) for details about
 `HAVE_DISPLAY`, `FONT_DISPLAY`, `HAVE_LORA` and `HAVE_OLED`. 
