@@ -18,6 +18,7 @@ Core software functions
     [sensors](docs/sensors.md) (currently 15 directly support
     including Open-Meteo weather data)
   * supports I2C (two busses), UART-3V3 and UART-5V devices
+  * support I2C-multiplexers (PCA954xA, TCA954xA)
   * readout in intervals or using a time-table
   * implementation of additional sensors only need a small wrapper class
     (given a driver-library is available)
