@@ -315,7 +315,10 @@ class DataCollector():
     # wait globally for the request init-time, instead of multiple sleeps
     # within the sensor-wrapper
     if self._sensor_init_time:
+      g_logger.print(f"sensor initialization time: {self._sensor_init_time}s ...")
       TimeSleep.light_sleep(duration=self._sensor_init_time)
+      g_logger.print("...done")
+      self._sensor_init_time = 0
 
     ts = time.localtime()
     ts_str = f"{ts.tm_year}-{ts.tm_mon:02d}-{ts.tm_mday:02d}T{ts.tm_hour:02d}:{ts.tm_min:02d}:{ts.tm_sec:02d}"
