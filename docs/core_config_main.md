@@ -178,13 +178,18 @@ I2C-multiplexers are supported using `HAVE_I2C_MP`. The format is
 
     HAVE_I2C_MP = "spec1 spec2 ..."
 
-With each specification as `chip(bus,addr)`. Currently, only chips
+where each specification is `chip(bus[,addr])`. Currently, only chips
 that are implemented by the TCA9548A-library are supported, i.e.
-PCA9546, PCA9548, TCA9546 and TCA9548 (don't use the trailing 'A').
+PCA9546A, PCA9548A, TCA9546A and TCA9548A (you can ommit the trailing
+'A').
 
-Every multiplexer will add 4 or 8 I2C-channels. When defining
-sensors, the bus-number will start at 2 and then increment according
-to the multiplexer used. E.g. when adding a 4 channel and an 8 channel
+The `bus`-parameter *must* be `0` or `1`. The optional address
+defaults to `0x70` and must be specified in hex-notation if not
+omitted.
+
+Every multiplexer will add 4 or 8 I2C-channels. When defining sensors,
+the bus-number will start at 2 and will then increment according to
+the multiplexer used. E.g. when adding a 4 channel and an 8 channel
 multiplexer, the bus-numbers will be 2-5 and 6-13.
 
 See [task configuration](./core_config_tasks.md) for details about
