@@ -130,6 +130,46 @@ g_ts.append((time.monotonic(),"settings"))
 class DataCollector():
   """ main application class """
 
+  # --- initialize I2C-busses   ----------------------------------------------
+
+  def _init_i2c(self):
+    """ create list of I2C-busses """
+
+    # Standard busses 0 and 1. Bus 0 is shared with UART, so we check
+    # the configuration before creating it.
+    try:
+      self.i2c = [None,busio.I2C(pins.PIN_SCL1,pins.PIN_SDA1)]
+    except:
+      g_logger.print("could not create i2c1")
+      self.i2c = [None,None]
+    if g_config.HAVE_I2C0:
+      try:
+        self.i2c[0] = busio.I2C(pins.PIN_SCL0,pins.PIN_SDA0)
+      except:
+        g_logger.print("could not create i2c0 although configured, check wiring!")
+
+    # create busses behind a multiplexer
+    if g_config.HAVE_I2C_MP:
+      import adafruit_tca9548a
+      for spec in g_config.HAVE_I2C_MP.split():
+        name,loc = spec.rstrip(')').split('(')
+        try:
+          bus,addr = loc.split(',')
+        except:
+          bus = loc
+          addr = '0x70'
+        bus = self.i2c[int(bus)]
+        addr = int(addr,16)
+        if name[-2:] == '46' or name[-3:] == '46A':
+          i2c_mp = adafruit_tca9548a.PCA9546A(bus,addr)
+        else:
+          i2c_mp = adafruit_tca9548a.TCA9548A(bus,addr)
+        g_logger.print(f"adding {len(i2c_mp)} I2C-busses from {name}")
+        for i2cbus in i2c_mp:
+          self.i2c.append(i2cbus)
+    if g_config.TEST_MODE:
+      g_logger.print(f"setup: free memory after create i2c-busses: {gc.mem_free()}")
+
   # --- hardware-setup   -----------------------------------------------------
 
   def setup(self):
@@ -154,19 +194,8 @@ class DataCollector():
       if g_config.TEST_MODE:
         g_logger.print(f"setup: free memory after sd-mount: {gc.mem_free()}")
 
-    # Initialse i2c busses for use by sensors and RTC
-    try:
-      self.i2c = [None,busio.I2C(pins.PIN_SCL1,pins.PIN_SDA1)]
-    except:
-      g_logger.print("could not create i2c1")
-      self.i2c = [None,None]
-    if g_config.HAVE_I2C0:
-      try:
-        self.i2c[0] = busio.I2C(pins.PIN_SCL0,pins.PIN_SDA0)
-      except:
-        g_logger.print("could not create i2c0 although configured, check wiring!")
-    if g_config.TEST_MODE:
-      g_logger.print(f"setup: free memory after create i2c-busses: {gc.mem_free()}")
+    # create self.i2c (list of I2C-busses)
+    self._init_i2c()
 
     # Initialise RTC if configured.
     if g_config.HAVE_RTC:
