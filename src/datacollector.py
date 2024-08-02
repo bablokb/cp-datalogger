@@ -73,6 +73,7 @@ class Settings:
     self.HAVE_RTC      = "PCF8523(1)"
     self.HAVE_SD       = True
     self.HAVE_I2C0     = False
+    self.HAVE_I2C_MP   = None
     self.HAVE_LIPO     = False
     self.HAVE_DISPLAY  = None
     self.HAVE_LORA     = False
