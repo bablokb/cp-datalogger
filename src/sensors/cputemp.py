@@ -24,11 +24,13 @@ class CPUTEMP:
   def __init__(self,config,i2c,addr=None,spi=None):
     """ constructor """
     self._config = config
+    self.ignore  = False
 
   def read(self,data,values):
     """ read cputemp """
 
     temp = microcontroller.cpu.temperature
     data["cputemp"] = temp
-    values.extend([None,temp])
+    if not self.ignore:
+      values.extend([None,temp])
     return f"{temp}"

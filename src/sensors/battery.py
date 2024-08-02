@@ -25,6 +25,7 @@ class BATTERY:
 
   def __init__(self,config,i2c,addr=None,spi=None):
     """ constructor """
+    self.ignore = False
 
   def read(self,data,values):
     """ read voltage monitor """
@@ -40,5 +41,6 @@ class BATTERY:
     else:
       level = 3.5
     data["battery"] = level
-    values.extend([None,level])
+    if not self.ignore:
+      values.extend([None,level])
     return f"{level:0.2f}"
