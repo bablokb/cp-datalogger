@@ -248,6 +248,7 @@ class DataCollector():
 
     # parse sensor specification. Will fail if i2c0 is requested, but not
     # configured
+    self._sensor_init_time = 0
     for spec in g_config.SENSORS.split(' '):
       # ignore fully qualified spec for display
       csv_only = True if spec in sensors_ignore else False
@@ -286,6 +287,8 @@ class DataCollector():
       if not csv_only:
         self.formats.extend(_sensor.formats)
       column_headings += f",{_sensor.headers}"
+      self._sensor_init_time = max(self._sensor_init_time,
+                                   getattr(_sensor,"init_time",0))
 
     # insert extended header
     if g_config.CSV_HEADER_EXTENDED:
@@ -308,6 +311,11 @@ class DataCollector():
 
   def collect_data(self):
     """ collect sensor data """
+
+    # wait globally for the request init-time, instead of multiple sleeps
+    # within the sensor-wrapper
+    if self._sensor_init_time:
+      TimeSleep.light_sleep(duration=self._sensor_init_time)
 
     ts = time.localtime()
     ts_str = f"{ts.tm_year}-{ts.tm_mon:02d}-{ts.tm_mday:02d}T{ts.tm_hour:02d}:{ts.tm_min:02d}:{ts.tm_sec:02d}"

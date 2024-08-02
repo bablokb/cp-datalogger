@@ -34,6 +34,7 @@ class PMS5003:
     """ constructor """
     self.ignore = False
     self.pms5003 = None
+    self.init_time = 30
     for nr,bus in enumerate(i2c):
       if not bus:
         continue

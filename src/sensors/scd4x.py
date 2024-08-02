@@ -39,6 +39,7 @@ class SCD4X:
     """ constructor """
 
     self.ignore = False
+    self.init_time = 5
     self.scd4x = None
     for nr,bus in enumerate(i2c):
       if not bus:
