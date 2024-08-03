@@ -172,6 +172,7 @@ Hardware Setup
 
 Valid values for `HAVE_RTC`:
 
+  - None
   - "PCF8523(bus)"
   - "PCF8563(bus)"
   - "PCF85063(bus)"
