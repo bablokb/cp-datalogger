@@ -116,8 +116,8 @@ intervals shorter than 60 seconds). Without available power-management
 (see `HAVE_PM` below), the system uses deep-sleep as a fallback even
 in strobe-mode.
 
-`INTERVAL` is the time-period between samples. `INTERVAL` is ignored
-if you define a time-table. The default value for `INTERVAL` is
+`INTERVAL` is the time-period between samples. **`INTERVAL` is ignored
+if you define a time-table**. The default value for `INTERVAL` is
 900 seconds (i.e. 15 minutes).
 
 A time-table is a list with one entry per day, starting with Monday.
@@ -140,6 +140,11 @@ Start and end values are inclusive. The time-table
     ]
 
 will wake up the system Mo-Fr from 07:00-18:45 every 15 minutes.
+
+Note that time-table based wakeup will only work if either the
+PM-circuitry supports wake by RTC-alarm, or in continuous-mode
+(i.e. `STROBE_MODE=False`).  In the latter case, the behaviour depends
+on the precision of the internal RTC, which is usually not great.
 
 
 Hardware Setup
