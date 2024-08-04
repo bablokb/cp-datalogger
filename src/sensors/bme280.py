@@ -14,15 +14,19 @@
 # Website: https://github.com/pcb-pico-datalogger
 #-----------------------------------------------------------------------------
 
+PROPERTIES = "t h ps"          # properties for the display
+FORMATS = {
+  "t": ["T/BME:", "{0:.1f}°C"],
+  "h": ["H/BME:", "{0:.0f}%rH"],
+  "ps" ["P/BME:", "{0:.0f}hPa"]
+  }
+
 from log_writer import Logger
 g_logger = Logger()
 
 from adafruit_bme280 import advanced as adafruit_bme280
 
 class BME280:
-  formats = ["T/BME:", "{0:.1f}°C",
-             "H/BME:", "{0:.0f}%rH",
-             "P/BME:", "{0:.0f}hPa"]
   headers = 'T/BME °C,H/BME %rH,P/BME'
 
   def __init__(self,config,i2c,addr=None,spi=None):
@@ -45,6 +49,12 @@ class BME280:
     if not self.bme280:
       raise Exception("no bme280 detected. Check config/cabling!")
 
+    # dynamically create formats for display...
+    self.PROPERTIES = getattr(config,"BME280_PROPERTIES",PROPERTIES).split()
+    self.formats = []
+    for p in self.PROPERTIES:
+      self.formats.extend(FORMATS[p])
+
     self.bme280.mode                 = adafruit_bme280.MODE_SLEEP
     self.bme280.iir_filter           = adafruit_bme280.IIR_FILTER_DISABLE
     self.bme280.overscan_pressure    = adafruit_bme280.OVERSCAN_X1
@@ -60,19 +70,18 @@ class BME280:
   def read(self,data,values):
     """ read sensor """
     self.bme280.mode = adafruit_bme280.MODE_FORCE
-    t = round(self.bme280.temperature,1)
-    p = round(self.bme280.pressure/self.alt_factor,0)
-    h = round(self.bme280.humidity,0)
+    t  = round(self.bme280.temperature,1)
+    h  = round(self.bme280.humidity,0)
+    ps = round(self.bme280.pressure/self.alt_factor,0)
     data["bme280"] = {
       "t": t,
       "h":  h,
-      "ps": p,
-      self.formats[0]: self.formats[1].format(t),
-      self.formats[2]: self.formats[3].format(h),
-      self.formats[4]: self.formats[5].format(p)
+      "ps": ps,
+      FORMATS['t'][0]: FORMATS['t'][1].format(t),
+      FORMATS['h'][0]: FORMATS['h'][1].format(h),
+      FORMATS['ps'][0]: FORMATS['ps'][1].format(ps)
     }
     if not self.ignore:
-      values.extend([None,t])
-      values.extend([None,h])
-      values.extend([None,p])
-    return f"{t:0.1f},{h:0.0f},{p:0.0f}"
+      for p in self.PROPERTIES:
+        values.extend([None,data["bme280"][p]])
+    return f"{t:0.1f},{h:0.0f},{ps:0.0f}"

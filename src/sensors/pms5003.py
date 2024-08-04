@@ -15,6 +15,13 @@
 # Website: https://github.com/pcb-pico-datalogger
 #-----------------------------------------------------------------------------
 
+PROPERTIES = "p03 p10 p25"          # properties for the display
+FORMATS = {
+  "p03": {0},
+  "p10": {0},
+  "p25": {0}
+}
+
 from log_writer import Logger
 g_logger = Logger()
 
@@ -27,7 +34,6 @@ from adafruit_pm25.i2c  import PM25_I2C
 from sleep import TimeSleep
 
 class PMS5003:
-  formats = ["PM0.3:", "{0}","PM1.0:", "{0}","PM2.5:", "{0}"]
   headers = 'PM0.3,PM1.0,PM2.5'
 
   def __init__(self,config,i2c,addr=None,spi=None):
@@ -49,6 +55,12 @@ class PMS5003:
       g_logger.print("no pms5003 on I2C detected. Falling back to UART")
       uart = busio.UART(pins.PIN_TX, pins.PIN_RX, baudrate=9600)
       self.pms5003 = PM25_UART(uart,None)
+
+    # dynamically create formats for display...
+    self.PROPERTIES = getattr(config,"PMS5003_PROPERTIES",PROPERTIES).split()
+    self.formats = []
+    for p in self.PROPERTIES:
+      self.formats.extend(FORMATS[p])
 
   def read(self,data,values):
     """ read sensor """
@@ -81,7 +93,6 @@ class PMS5003:
       self.formats[4]: self.formats[5].format(pm25)
       }
     if not self.ignore:
-      values.extend([None,pm03])
-      values.extend([None,pm10])
-      values.extend([None,pm25])
+      for p in self.PROPERTIES:
+        values.extend([None,data["pms5003"][p]])
     return f"{pm03},{pm10},{pm25}"

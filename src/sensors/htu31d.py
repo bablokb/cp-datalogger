@@ -14,13 +14,18 @@
 # Website: https://github.com/pcb-pico-datalogger
 #-----------------------------------------------------------------------------
 
+PROPERTIES = "t h"          # properties for the display
+FORMATS = {
+  "t":   ["T/HTU:", "{0:.1f}°C"],
+  "h":   ["H/HTU:", "{0:.0f}%rH"]
+  }
+
 from log_writer import Logger
 g_logger = Logger()
 
 import adafruit_htu31d
 
 class HTU31D:
-  formats = ["T/HTU:", "{0:.1f}°C","H/HTU:", "{0:.0f}%rH"]
   headers = 'T/HTU °C,H/HTU %rH'
 
   def __init__(self,config,i2c,addr=None,spi=None):
@@ -40,6 +45,12 @@ class HTU31D:
     if not self.htu31d:
       raise Exception("no htu31d detected. Check config/cabling!")
 
+    # dynamically create formats for display...
+    self.PROPERTIES = getattr(config,"HTU31D_PROPERTIES",PROPERTIES).split()
+    self.formats = []
+    for p in self.PROPERTIES:
+      self.formats.extend(FORMATS[p])
+
   def read(self,data,values):
     """ read sensor """
     t,h = self.htu31d.measurements
@@ -48,10 +59,10 @@ class HTU31D:
     data["htu31d"] = {
       "t": t,
       "h":  h,
-      self.formats[0]: self.formats[1].format(t),
-      self.formats[2]: self.formats[3].format(h)
+      FORMATS['t'][0]: FORMATS['t'][1].format(t),
+      FORMATS['h'][0]: FORMATS['h'][1].format(h)
     }
     if not self.ignore:
-      values.extend([None,t])
-      values.extend([None,h])
+      for p in self.PROPERTIES:
+        values.extend([None,data["htu31d"][p]])
     return f"{t:0.1f},{h:0.0f}"

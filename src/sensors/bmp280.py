@@ -14,14 +14,18 @@
 # Website: https://github.com/pcb-pico-datalogger
 #-----------------------------------------------------------------------------
 
+PROPERTIES = "t ps"          # properties for the display
+FORMATS = {
+  "t": ["T/BMP:", "{0:.1f}°C"],
+  "ps" ["P/BMP:", "{0:.0f}hPa"]
+  }
+
 from log_writer import Logger
 g_logger = Logger()
 
 import adafruit_bmp280
 
 class BMP280:
-  formats = ["T/BMP:", "{0:.1f}°C",
-             "P/BMP:", "{0:.0f}hPa"]
   headers = 'T/BMP °C,P/BMP'
 
   def __init__(self,config,i2c,addr=None,spi=None):
@@ -49,6 +53,12 @@ class BMP280:
     self.bmp280.overscan_pressure    = adafruit_bmp280.OVERSCAN_X1
     self.bmp280.overscan_temperature = adafruit_bmp280.OVERSCAN_X1
 
+    # dynamically create formats for display...
+    self.PROPERTIES = getattr(config,"BMP280_PROPERTIES",PROPERTIES).split()
+    self.formats = []
+    for p in self.PROPERTIES:
+      self.formats.extend(FORMATS[p])
+
     if hasattr(config,"BMx280_ALTITUDE_AT_LOCATION"):
       altitude = config.BMx280_ALTITUDE_AT_LOCATION
     else:
@@ -58,15 +68,15 @@ class BMP280:
   def read(self,data,values):
     """ read sensor """
     self.bmp280.mode = adafruit_bmp280.MODE_FORCE
-    t = round(self.bmp280.temperature,1)
-    p = round(self.bmp280.pressure/self.alt_factor,0)
+    t  = round(self.bmp280.temperature,1)
+    ps = round(self.bmp280.pressure/self.alt_factor,0)
     data["bmp280"] = {
       "t": t,
-      "ps": p,
-      self.formats[0]: self.formats[1].format(t),
-      self.formats[2]: self.formats[3].format(p)
+      "ps": ps,
+      FORMATS['t'][0]: FORMATS['t'][1].format(t),
+      FORMATS['ps'][0]: FORMATS['ps'][1].format(ps)
     }
     if not self.ignore:
-      values.extend([None,t])
-      values.extend([None,p])
-    return f"{t:0.1f},{p:0.0f}"
+      for p in self.PROPERTIES:
+        values.extend([None,data["bmp280"][p]])
+    return f"{t:0.1f},{ps:0.0f}"

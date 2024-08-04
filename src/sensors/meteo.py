@@ -20,27 +20,35 @@
 # Website: https://github.com/pcb-pico-datalogger
 #-----------------------------------------------------------------------------
 
+PROPERTIES = "t h ps code w_speed w_dir r"     # properties for the display
+FORMATS = {
+  "t":       ["T/met:", "{0:.1f}°C"],
+  "h":       ["H/met:", "{0:.0f}%rH"],
+  "ps":      ["P/met:", "{0:.0f}hPa"],
+  "code":    ["wc/met:", "{0}"],
+  "w_speed": ["ws/met:", "{0:.1f}km/s"],
+  "w_dir":   ["wd/met:", "{0:.0f}°"],
+  "r":       ["r/met:", "{0}mm"]
+  }
+
 from singleton import singleton
 from wifi_impl_builtin import WifiImpl
 
 @singleton
 class METEO:
-  formats = ["T/met:", "{0:.1f}°C",
-             "H/met:", "{0:.0f}%rH",
-             "P/met:", "{0:.0f}hPa"]
   headers = 'T/met °C,H/met %rH,P/met hPa,WMO,Wspd km/s,Wdir °,mm'
 
   def __init__(self,config,i2c,addr=None,spi=None):
     """ constructor """
     self.ignore = False
-    if hasattr(config,"METEO_LATITUDE"):
-      METEO_LATITUDE=config.METEO_LATITUDE
-    else:
-      METEO_LATITUDE=48.6967
-    if hasattr(config,"METEO_LONGITUDE"):
-      METEO_LONGITUDE=config.METEO_LONGITUDE
-    else:
-      METEO_LONGITUDE=13.4631
+    METEO_LATITUDE  = getattr(config,"METEO_LATITUDE",48.6967)
+    METEO_LONGITUDE = getattr(config,"METEO_LONGITUDE",13.4631)
+
+    # dynamically create formats for display...
+    self.PROPERTIES = getattr(config,"METEO_PROPERTIES",PROPERTIES).split()
+    self.formats = []
+    for p in self.PROPERTIES:
+      self.formats.extend(FORMATS[p])
 
     self._url = "".join([
       "https://api.open-meteo.com/v1/forecast?",
@@ -84,9 +92,8 @@ class METEO:
 
     # fill in subset of data for display
     if not self.ignore:
-      values.extend([None,t])
-      values.extend([None,h])
-      values.extend([None,p])
+      for p in self.PROPERTIES:
+        values.extend([None,data["meteo"][p]])
 
     # return all data for csv
     return f"{t:0.1f},{h:0.0f},{p:0.0f},{c:d},{ws:0.1f},{wd:0.0f},{r:0.1f}"

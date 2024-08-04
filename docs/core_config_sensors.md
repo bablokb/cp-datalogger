@@ -4,14 +4,53 @@ Sensor Specific Configuration
 Most [sensors](./sensors.md) will will not need any specific configuration.
 There are a few exceptions.
 
-BME280, BMP280
---------------
+Some sensors will report multiple properties, e.g. temperature,
+humidity and pressure. The value of `xxxx_PROPERTIES` will configure
+which of them (and in which order) are shown on the display. Note that
+all values will be recorded in the CSV regardless of the value of
+`xxxx_PROPERTIES`. it is also possible to exclude all sensor
+properties from the display by adding them to `SENSORS_CSV_ONLY`.
 
-BMx280_ALTITUDE_AT_LOCATION
+
+AHT20
+-----
+
+| Name                        | Type | O/M | Description               |
+|-----------------------------|------|-----|---------------------------|
+| AHT20_PROPERTIES            | str  |  O  | properties for display    |
+|                             |      |     | ("t h")                   |
+
+
+AM2320
+-----
+
+| Name                        | Type | O/M | Description               |
+|-----------------------------|------|-----|---------------------------|
+| AM2320_PROPERTIES           | str  |  O  | properties for display    |
+|                             |      |     | ("t h")                   |
+
+
+BME280
+------
 
 | Name                        | Type | O/M | Description               |
 |-----------------------------|------|-----|---------------------------|
 | BMx280_ALTITUDE_AT_LOCATION | int  |  O  | altitude in meters (525)  |
+| BME280_PROPERTIES           | str  |  O  | properties for display    |
+|                             |      |     | ("t h ps")                |
+
+The altitude is necessary to convert pressure readings to sea-level
+pressure. Default is 525m.
+
+
+BMP280
+------
+
+| Name                        | Type | O/M | Description               |
+|-----------------------------|------|-----|---------------------------|
+| BMx280_ALTITUDE_AT_LOCATION | int  |  O  | altitude in meters (525)  |
+| BMP280_PROPERTIES           | str  |  O  | properties for display    |
+|                             |      |     | ("t ps")                  |
 
 The altitude is necessary to convert pressure readings to sea-level
 pressure. Default is 525m.
@@ -46,6 +85,41 @@ only a subset of the properties can be displayed on the display. The
 CSV will always record all properties (including status).
 
 
+HTU31D
+-----
+
+| Name                        | Type | O/M | Description               |
+|-----------------------------|------|-----|---------------------------|
+| HTU31D_PROPERTIES           | str  |  O  | properties for display    |
+|                             |      |     | ("t h")                   |
+
+
+Open-Meteo
+----------
+
+| Name              | Type | O/M | Description                          |
+|-------------------|------|-----|--------------------------------------|
+| METEO_LATITUDE    |float |  O  | Default: 48.6967                     |
+| METEO_LONGITUDE   |float |  O  | Default: 13.4631                     |
+| METEO_PROPERTIES  | str  |  O  | properties for display               |
+|                   |      |     | ("t h ps code w_speed w_dir r")      |
+
+
+Data provided by <https://open-meteo.com> ("current weather").
+Note that the default latitude/longitude are just somewhere, so
+these values are technically optional, but should be treated as
+mandatory nevertheless.
+
+
+PMS5003
+-----
+
+| Name                        | Type | O/M | Description               |
+|-----------------------------|------|-----|---------------------------|
+| PMS5003_PROPERTIES          | str  |  O  | properties for display    |
+|                             |      |     | ("p03 p10 p25")           |
+
+
 SCD40, SCD41
 ------------
 
@@ -64,22 +138,11 @@ Periodic measurement on SCD4x should return data every five seconds.
 After `SDC4X_TIMEOUT` seconds the sensor-wrapper will give up. The
 default should be ok.
 
-The sensors will report three properties: CO2, temperature and humidity.
-The value of `SCD4X_PROPERTIES` configures which of them (and in which
-order) are displayed. Note that all values will be recorded in the
-CSV regardless of the value of `SCD4X_PROPERTIES`.
 
+SHT45
+-----
 
-Open-Meteo
-----------
-
-| Name              | Type | O/M | Description                 |
-|-------------------|------|-----|-----------------------------|
-| METEO_LATITUDE    |float |  O  | Default: 48.6967            |
-| METEO_LONGITUDE   |float |  O  | Default: 13.4631            |
-| METEO_PROPERTIES  | str  |  O  | TBD                         |
-
-Data provided by <https://open-meteo.com> ("current weather").
-Note that the default latitude/longitude are just somewhere, so
-these values are technically optional, but should be treated as
-mandatory nevertheless.
+| Name                        | Type | O/M | Description               |
+|-----------------------------|------|-----|---------------------------|
+| SHT45_PROPERTIES            | str  |  O  | properties for display    |
+|                             |      |     | ("t h")                   |

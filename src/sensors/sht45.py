@@ -14,13 +14,18 @@
 # Website: https://github.com/pcb-pico-datalogger
 #-----------------------------------------------------------------------------
 
+PROPERTIES = "t h"          # properties for the display
+FORMATS = {
+  "t":   ["T/SHT:", "{0:.1f}°C"],
+  "h":   ["H/SHT:", "{0:.0f}%rH"]
+  }
+
 from log_writer import Logger
 g_logger = Logger()
 
 import adafruit_sht4x
 
 class SHT45:
-  formats = ["T/SHT:", "{0:.1f}°C","H/SHT:", "{0:.0f}%rH"]
   headers = 'T/SHT °C,H/SHT %rH'
 
   def __init__(self,config,i2c,addr=None,spi=None):
@@ -41,6 +46,12 @@ class SHT45:
     if not self.sht45:
       raise Exception("no sht45 detected. Check config/cabling!")
 
+    # dynamically create formats for display...
+    self.PROPERTIES = getattr(config,"SHT45_PROPERTIES",PROPERTIES).split()
+    self.formats = []
+    for p in self.PROPERTIES:
+      self.formats.extend(FORMATS[p])
+
   def read(self,data,values):
     """ read sensor """
     t = round(self.sht45.temperature,1)
@@ -48,10 +59,10 @@ class SHT45:
     data["sht45"] = {
       "t": t,
       "h":  h,
-      self.formats[0]: self.formats[1].format(t),
-      self.formats[2]: self.formats[3].format(h)
+      FORMATS['t'][0]: FORMATS['t'][1].format(t),
+      FORMATS['h'][0]: FORMATS['h'][1].format(h)
     }
     if not self.ignore:
-      values.extend([None,t])
-      values.extend([None,h])
+      for p in self.PROPERTIES:
+        values.extend([None,data["sht45"][p]])
     return f"{t:0.1f},{h:0.0f}"
