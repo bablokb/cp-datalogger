@@ -61,9 +61,8 @@ class SCD4X:
 
     # dynamically create formats for display...
     self.formats = []
-    if not self.ignore:
-      for p in self.PROPERTIES:
-        self.formats.extend(FORMATS[p])
+    for p in self.PROPERTIES:
+      self.formats.extend(FORMATS[p])
 
     # ... and header for csv
     if not self.DISCARD:

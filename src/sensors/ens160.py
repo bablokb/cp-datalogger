@@ -78,9 +78,8 @@ class ENS160:
 
     # dynamically create formats for display...
     self.formats = []
-    if not self.ignore:
-      for p in self.PROPERTIES:
-        self.formats.extend([f"{p}:","{0}"])
+    for p in self.PROPERTIES:
+      self.formats.extend([f"{p}:","{0}"])
 
     # ... and header for csv
     self.headers = 'status'
