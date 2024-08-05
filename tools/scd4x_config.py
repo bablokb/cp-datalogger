@@ -16,13 +16,17 @@ from log_writer import Logger
 g_logger = Logger('console')
 
 from sensors.scd40 import SCD40
+from sensors.aht20 import AHT20
 from datacollector import g_config
 import pins
+from oled import OLED
 
 # --- configuration function   -----------------------------------------------
 
 def run(duration=60,altitude=None,ppm=418,temp_offset=None,persist=False):
   """ configure scd4x """
+
+  global textlabel
 
   if not have_i2c:
     g_logger.print("error: no i2c-bus configured")
@@ -31,36 +35,54 @@ def run(duration=60,altitude=None,ppm=418,temp_offset=None,persist=False):
   # operate for 10 minutes in clean air
   g_logger.print(f"operating for {duration} minutes...")
   g_logger.set_target(None)
-  sensor.scd4x.start_periodic_measurement()
-  print(sensor.headers)
+  c_sensor.scd4x.start_periodic_measurement()
+  if t_sensor:
+    print(f"{c_sensor.headers},{t_sensor.headers},t_diff")
+  else:
+    print(c_sensor.headers)
+
   time_left = duration*60
   while time_left > 0:
-    time.sleep(5)
-    time_left -= 5
+    time.sleep(10)
+    time_left -= 10
 
-    ts = time.localtime()
-    data = f"{ts.tm_year}-{ts.tm_mon:02d}-{ts.tm_mday:02d}T{ts.tm_hour:02d}:{ts.tm_min:02d}:{ts.tm_sec:02d},"
+    ts  = time.localtime()
+    ts  = f"{ts.tm_hour:02d}:{ts.tm_min:02d}:{ts.tm_sec:02d}"
+    csv = f"{ts},"
 
-    data += sensor.read({},[])
-    print(data)
+    data = {}
+    csv += c_sensor.read(data,[])
+    if t_sensor:
+      csv += f",{t_sensor.read(data,[])}"
+      t_off = round(data["scd40"]["t"] - data["aht20"]["t"],1)
+      print(f"{csv},{t_off}")
+    else:
+      print(csv)
 
     mins,secs = divmod(time_left,60)
     if not secs:
       print(f"time left: {mins} minutes")
 
+    # update OLED if connected
+    if textlabel:
+      t_left = f"{mins:02d}:{secs:02d}"
+      textlabel.text = f"Rest:  {t_left}\nC/SCD: {data["scd40"]["C/SCD:"]}"
+      if t_sensor:
+        textlabel.text += f"\nT-off: {t_off:0.1f}°C"
+
   # perform configuration
   g_logger.set_target('console')
-  sensor.scd4x.stop_periodic_measurement()
-  sensor.scd4x.self_calibration_enabled = False
+  c_sensor.scd4x.stop_periodic_measurement()
+  c_sensor.scd4x.self_calibration_enabled = False
   if altitude:
-    sensor.scd4x.altitude = altitude
+    c_sensor.scd4x.altitude = altitude
   if temp_offset:
-    sensor.scd4x.temperature_offset = temp_offset
+    c_sensor.scd4x.temperature_offset = temp_offset
   if ppm:
-    sensor.scd4x.force_calibration(ppm)
+    c_sensor.scd4x.force_calibration(ppm)
   if persist:
     g_logger.print("persisting settings")
-    sensor.scd4x.persist_settings()
+    c_sensor.scd4x.persist_settings()
   else:
     g_logger.print("settings unchanged")
 
@@ -93,26 +115,46 @@ have_i2c = False
 try:
   i2c_busses = [None,busio.I2C(pins.PIN_SCL1,pins.PIN_SDA1)]
   have_i2c = True
-except Exception as ex1:
-  g_logger.print(f"exception trying to create I2C1: {ex1}")
+except Exception as ex0:
+  g_logger.print(f"exception trying to create I2C1: {ex0}")
   i2c_busses = [None,None]
 
 if g_config.HAVE_I2C0:
   try:
     i2c_busses[0] = busio.I2C(pins.PIN_SCL0,pins.PIN_SDA0)
     have_i2c = True
-  except Exception as ex0:
-    g_logger.print(f"exception trying to create I2C0: {ex0}")
+  except Exception as ex1:
+    g_logger.print(f"exception trying to create I2C0: {ex1}")
     g_logger.print("warning: could not create i2c0, check wiring!")
 
 if not have_i2c:
   g_logger.print("error: no i2c-bus detected. Config not possible!!!")
+
 else:
+  # use OLED if available
+  try:
+    oled_display = OLED(g_config,i2c_busses)
+    textlabel    = oled_display.get_textlabel()
+    display      = oled_display.get_display()
+    g_logger.print(
+      f"detected OLED with size {display.width}x{display.height}")
+  except Exception as ex3:
+    g_logger.print(f"no OLED? Exception: {ex3}")
+    display = None
+    textlabel = None
+
+  # use AHT20 if available
+  try:
+    t_sensor = AHT20(g_config,i2c_busses)
+  except Exception as ex4:
+    g_logger.print(f"no AHT20 detected. Exception: {ex4}")
+    t_sensor = None
+
   g_config.SCD4X_SAMPLES = 1
-  sensor = SCD40(g_config,i2c_busses)
-  sensor.scd4x.stop_periodic_measurement()
-  print(f"current altitude:    {sensor.scd4x.altitude}")
-  print(f"current temp-offset: {sensor.scd4x.temperature_offset}")
+  c_sensor = SCD40(g_config,i2c_busses)
+  c_sensor.scd4x.stop_periodic_measurement()
+  print(f"current altitude:    {c_sensor.scd4x.altitude}")
+  print(f"current temp-offset: {c_sensor.scd4x.temperature_offset}")
   print("example usage (see docs for details):\n")
   print("  scd4x_config.run()                      # run for 60 minutes")
   print("  scd4x_config.run(altitude=520,")
