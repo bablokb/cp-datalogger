@@ -34,6 +34,9 @@ drives power (i.e. connect to VSYS of the Pico), the second one
 drives the enable pin (e.g. connect to EN). Both solutions support
 sampling intervals up to two hours, but no time-table operation.
 
+You can find some example setups with generic hardware in the
+[examples](../examples/README.md) directory.
+
 Additional steps:
 
   - create a file `pins<name>.py` with the correct pin-mapping. Use one

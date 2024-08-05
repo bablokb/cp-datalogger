@@ -63,6 +63,7 @@ Quick Links
   * [Software](docs/software.md)
   * [Configuration](docs/configuration.md)
   * [Software deployment](docs/deployment.md)
+  * [Examples](examples/README.md)
   * [Initial setup of the RTC](docs/rtc_setup.md)
   * [Tools and Scripts](docs/tools.md)
   * [Administration mode](docs/admin_mode.md)
