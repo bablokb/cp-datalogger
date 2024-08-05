@@ -144,7 +144,8 @@ will wake up the system Mo-Fr from 07:00-18:45 every 15 minutes.
 Note that time-table based wakeup will only work if either the
 PM-circuitry supports wake by RTC-alarm, or in continuous-mode
 (i.e. `STROBE_MODE=False`).  In the latter case, the behaviour depends
-on the precision of the internal RTC, which is usually not great.
+on the precision of the internal RTC, which is usually not great
+(the internal RTC of the RP2040 is off by about 8s per day).
 
 
 Hardware Setup
