@@ -55,9 +55,9 @@ Picow-Solo
 ----------
 
 This example is a standalone configuration for a Pico-W. It reads data
-from <open-meteo.com> and prints the data to the console. The sampling
-interval is 15 minutes, since the data-source does not provide new
-data at a higher rate.
+from <https://open-meteo.com> and prints the data to the console. The
+sampling interval is 15 minutes, since the data-source does not
+provide new data at a higher rate.
 
 You should update the latitude and longitude in `config.py` to your
 location (Open-Meteo provides a search function for this). Once up and
