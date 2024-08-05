@@ -18,7 +18,7 @@ PROPERTIES = "t h ps"          # properties for the display
 FORMATS = {
   "t": ["T/BME:", "{0:.1f}°C"],
   "h": ["H/BME:", "{0:.0f}%rH"],
-  "ps" ["P/BME:", "{0:.0f}hPa"]
+  "ps": ["P/BME:", "{0:.0f}hPa"]
   }
 
 from log_writer import Logger

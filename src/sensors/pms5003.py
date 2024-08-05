@@ -17,9 +17,9 @@
 
 PROPERTIES = "p03 p10 p25"          # properties for the display
 FORMATS = {
-  "p03": {0},
-  "p10": {0},
-  "p25": {0}
+  "p03": ["PM0.3:","{0}"],
+  "p10": ["PM1.0:","{0}"],
+  "p25": ["PM2.5:","{0}"]
 }
 
 from log_writer import Logger
@@ -80,19 +80,19 @@ class PMS5003:
         g_logger.print("pms5003: read failed with exception")
         time.sleep(0.1)
 
-    pm03 = pms5003_data["particles 03um"]
-    pm10 = pms5003_data["particles 10um"]
-    pm25 = pms5003_data["particles 25um"]
+    p03 = pms5003_data["particles 03um"]
+    p10 = pms5003_data["particles 10um"]
+    p25 = pms5003_data["particles 25um"]
 
     data["pms5003"] = {
-      "p03": pm03,
-      "p10": pm10,
-      "p25": pm25,
-      self.formats[0]: self.formats[1].format(pm03),
-      self.formats[2]: self.formats[3].format(pm10),
-      self.formats[4]: self.formats[5].format(pm25)
+      "p03": p03,
+      "p10": p10,
+      "p25": p25,
+      FORMATS['p03'][0]: FORMATS['p03'][1].format(p03),
+      FORMATS['p10'][0]: FORMATS['p10'][1].format(p10),
+      FORMATS['p25'][0]: FORMATS['p25'][1].format(p25),
       }
     if not self.ignore:
       for p in self.PROPERTIES:
         values.extend([None,data["pms5003"][p]])
-    return f"{pm03},{pm10},{pm25}"
+    return f"{p03},{p10},{p25}"

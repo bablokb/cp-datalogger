@@ -77,13 +77,13 @@ class METEO:
     wd   = response["current_weather"]["winddirection"]
     hour = int(response["current_weather"]["time"][11:13])   # 2022-01-01T12:00
     h    = response["hourly"]["relativehumidity_2m"][hour]
-    p    = response["hourly"]["pressure_msl"][hour]
+    ps   = response["hourly"]["pressure_msl"][hour]
     r    = response["hourly"]["precipitation"][hour]
 
     data["meteo"] =  {
       "t":     t,
       "h":     h,
-      "ps":    p,
+      "ps":    ps,
       "code":  c,
       "w_speed":  ws,
       "w_dir":    wd,
@@ -96,4 +96,4 @@ class METEO:
         values.extend([None,data["meteo"][p]])
 
     # return all data for csv
-    return f"{t:0.1f},{h:0.0f},{p:0.0f},{c:d},{ws:0.1f},{wd:0.0f},{r:0.1f}"
+    return f"{t:0.1f},{h:0.0f},{ps:0.0f},{c:d},{ws:0.1f},{wd:0.0f},{r:0.1f}"

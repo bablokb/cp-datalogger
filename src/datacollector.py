@@ -110,7 +110,7 @@ class Settings:
         setattr(self,var,getattr(config,var))
     config = None
     if not hasattr(self,"LOGGER_TITLE"):
-      self.LOGGER_TITLE = f"{LOGGER_ID}: {LOGGER_NAME}"
+      self.LOGGER_TITLE = f"{self.LOGGER_ID}: {self.LOGGER_NAME}"
 
     if hasattr(self,"HAVE_PCB"):   # compatibility to old configurations
       self.HAVE_PM = self.HAVE_PCB
