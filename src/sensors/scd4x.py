@@ -67,10 +67,19 @@ class SCD4X:
 
     # ... and header for csv
     if not self.DISCARD:
-      self.headers = 't (1),CO2 ppm (1)'
+      self.headers = (f't (1),' +
+                      f'C/SCD ppm (1),' +
+                      f'T/SCD °C (1),' +
+                      f'H/SCD %rH (1)')
       for i in range(1,self.SAMPLES):
-        self.headers += f",t ({i+1}),CO2 ppm ({i+1})"
-      self.headers += ',T/SCD °C,H/SCD %rH'
+        self.headers += (f',t ({i+1}),' +
+                         f'C/SCD ppm ({i+1}),' +
+                         f'T/SCD °C ({i+1}),' +
+                         f'H/SCD %rH ({i+1})')
+
+    # start sampling
+    self.scd4x.start_periodic_measurement()
+    self._t0 = time.monotonic()
 
   def read_sensor(self):
     """ dummy method, must be implemented by subclass if necessary """
@@ -79,9 +88,7 @@ class SCD4X:
   def read(self,data,values):
     # take multiple readings
     csv_results = ""
-    t0 = time.monotonic()
     for i in range(self.SAMPLES):
-      g_logger.print(f"{self.product}: waiting for data...")
       t_rel = 0
       co2   = 0
       temp  = 0
@@ -90,13 +97,12 @@ class SCD4X:
       while time.monotonic()-start < self.TIMEOUT:
         self.read_sensor()
         if self.scd4x.data_ready:
-          t_rel = time.monotonic() - t0
+          t_rel = time.monotonic() - self._t0
           co2   = self.scd4x.CO2
           temp  = round(self.scd4x.temperature,1)
           hum   = round(self.scd4x.relative_humidity,0)
-          g_logger.print(f"{self.product}: CO2 at {t_rel:.2f}: {co2}")
           if not self.DISCARD:
-            csv_results += f",{t_rel:.2f},{co2}"
+            csv_results += f",{t_rel:.2f},{co2},{temp:.1f},{hum:.0f}"
           break
         else:
           time.sleep(0.2)
@@ -107,8 +113,7 @@ class SCD4X:
 
     # only keep last reading for CSV if DISCARD is active
     if self.DISCARD:
-      csv_results = f",{co2}"
-    csv_results += f",{temp:.1f},{hum:.0f}"
+      csv_results = f",{co2},{temp:.1f},{hum:.0f}"
 
     # in any case, only show last reading on display
     data[self.product] = {

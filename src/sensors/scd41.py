@@ -29,4 +29,3 @@ class SCD41(SCD4X):
 
     self.product = "scd41"
     super().__init__(config,i2c,addr,spi)
-    self.scd4x.start_periodic_measurement()
