@@ -9,6 +9,7 @@
 # Website: https://github.com/pcb-pico-datalogger
 #-----------------------------------------------------------------------------
 
+SAMPLE_INTERVAL = 5
 import time
 import busio
 
@@ -43,8 +44,8 @@ def run(duration=60,altitude=None,ppm=418,temp_offset=None,persist=False):
 
   time_left = duration*60
   while time_left > 0:
-    time.sleep(10)
-    time_left -= 10
+    time.sleep(SAMPLE_INTERVAL)
+    time_left -= SAMPLE_INTERVAL
 
     ts  = time.localtime()
     ts  = f"{ts.tm_hour:02d}:{ts.tm_min:02d}:{ts.tm_sec:02d}"
@@ -150,7 +151,11 @@ else:
     g_logger.print(f"no AHT20 detected. Exception: {ex4}")
     t_sensor = None
 
+  # override some settings for this use case
   g_config.SCD4X_SAMPLES = 1
+  g_config.STROB_MODE = False
+  g_config.INTERVAL = SAMPLE_INTERVAL
+
   c_sensor = SCD40(g_config,i2c_busses)
   c_sensor.scd4x.stop_periodic_measurement()
   print(f"current altitude:    {c_sensor.scd4x.altitude}")
