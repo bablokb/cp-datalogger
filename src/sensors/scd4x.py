@@ -38,6 +38,7 @@ class SCD4X:
   def __init__(self,config,i2c,addr=None,spi=None):
     """ constructor """
 
+    self._config = config
     self.ignore = False
     self.init_time = 5
     self.scd4x = None
@@ -100,12 +101,16 @@ class SCD4X:
         else:
           time.sleep(0.2)
 
+    # switch sensor off in strobe mode (or cont. mode with deep-sleep)
+    if self._config.STROBE_MODE or self._config.INTERVAL > 60:
+      self.scd4x.stop_periodic_measurement()
+
+    # only keep last reading for CSV if DISCARD is active
     if self.DISCARD:
-      # keep last reading
       csv_results = f",{co2}"
     csv_results += f",{temp:.1f},{hum:.0f}"
-    
-    # only show last reading on display
+
+    # in any case, only show last reading on display
     data[self.product] = {
       "t": temp,
       "h":  hum,
