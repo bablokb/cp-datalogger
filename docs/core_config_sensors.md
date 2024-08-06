@@ -35,12 +35,12 @@ BME280
 
 | Name                        | Type | O/M | Description               |
 |-----------------------------|------|-----|---------------------------|
-| BMx280_ALTITUDE_AT_LOCATION | int  |  O  | altitude in meters (525)  |
+| BMx280_ALTITUDE_AT_LOCATION | int  |  O  | altitude in meters (540)  |
 | BME280_PROPERTIES           | str  |  O  | properties for display    |
 |                             |      |     | ("t h ps")                |
 
 The altitude is necessary to convert pressure readings to sea-level
-pressure. Default is 525m.
+pressure. Default is 540m.
 
 
 BMP280
@@ -48,12 +48,12 @@ BMP280
 
 | Name                        | Type | O/M | Description               |
 |-----------------------------|------|-----|---------------------------|
-| BMx280_ALTITUDE_AT_LOCATION | int  |  O  | altitude in meters (525)  |
+| BMx280_ALTITUDE_AT_LOCATION | int  |  O  | altitude in meters (540)  |
 | BMP280_PROPERTIES           | str  |  O  | properties for display    |
 |                             |      |     | ("t ps")                  |
 
 The altitude is necessary to convert pressure readings to sea-level
-pressure. Default is 525m.
+pressure. Default is 540m.
 
 
 ENS160

@@ -157,7 +157,7 @@ else:
   print(f"current temp-offset: {c_sensor.scd4x.temperature_offset}")
   print("example usage (see docs for details):\n")
   print("  scd4x_config.run()                      # run for 60 minutes")
-  print("  scd4x_config.run(altitude=520,")
+  print("  scd4x_config.run(altitude=540,")
   print("                   temp_offset=4,")
   print("                   ppm=418,")
   print("                   persist=True)          # dito, but save config")

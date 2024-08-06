@@ -64,7 +64,7 @@ class BME280:
     if hasattr(config,"BMx280_ALTITUDE_AT_LOCATION"):
       altitude = config.BMx280_ALTITUDE_AT_LOCATION
     else:
-      altitude = 525
+      altitude = 540
     self.alt_factor = pow(1.0-altitude/44330.0, 5.255)
 
   def read(self,data,values):
