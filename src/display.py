@@ -34,7 +34,10 @@ class Display:
 
     # maybe use builtin display?
     if config.HAVE_DISPLAY == "internal":
-      self._display = board.DISPLAY
+      if hasattr(pins,"DISPLAY"):
+        self._display = pins.DISPLAY()    # MUST be a method
+      else:
+        self._display = board.DISPLAY     # no method
       if hasattr(self._display,"auto_refresh"):
         self._display.auto_refresh = False
       return
