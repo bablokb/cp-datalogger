@@ -24,7 +24,7 @@ from oled import OLED
 
 # --- configuration function   -----------------------------------------------
 
-def run(duration=60,altitude=None,ppm=418,temp_offset=None,persist=False):
+def run(duration=60,altitude=None,ppm=None,temp_offset=None,persist=False):
   """ configure scd4x """
 
   global textlabel
@@ -74,14 +74,15 @@ def run(duration=60,altitude=None,ppm=418,temp_offset=None,persist=False):
   # perform configuration
   g_logger.set_target('console')
   c_sensor.scd4x.stop_periodic_measurement()
-  c_sensor.scd4x.self_calibration_enabled = False
-  if altitude:
-    c_sensor.scd4x.altitude = altitude
-  if temp_offset:
-    c_sensor.scd4x.temperature_offset = temp_offset
-  if ppm:
-    c_sensor.scd4x.force_calibration(ppm)
+
   if persist:
+    c_sensor.scd4x.self_calibration_enabled = False
+    if not altitude is None:
+      c_sensor.scd4x.altitude = altitude
+    if not temp_offset is None:
+      c_sensor.scd4x.temperature_offset = temp_offset
+    if not ppm is None:
+      c_sensor.scd4x.force_calibration(ppm)
     g_logger.print("persisting settings")
     c_sensor.scd4x.persist_settings()
   else:
@@ -95,7 +96,7 @@ def autorun():
   duration = getattr(g_config,"SCD4X_CONFIG_DURATION",60)
   ppm      = getattr(g_config,"SCD4X_CONFIG_PPM_MIN",418)
   t_off    = getattr(g_config,"SCD4X_CONFIG_T_OFF",None)
-  altitude = getattr(g_config,"BMx280_ALTITUDE_AT_LOCATION",None)
+  altitude = getattr(g_config,"BMx280_ALTITUDE_AT_LOCATION",540)
   
   g_logger.print(f"starting: run(duration={duration},")
   g_logger.print(f"              altitude={altitude},")
