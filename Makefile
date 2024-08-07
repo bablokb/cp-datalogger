@@ -115,6 +115,9 @@ ${DEPLOY_TO} ${DEPLOY_TO}/sensors ${DEPLOY_TO}/tasks ${DEPLOY_TO}/tools ${DEPLOY
 # copy libs and fonts
 lib:
 	rsync -av --delete ${SRC}/lib ${DEPLOY_TO}
+ifneq ($(strip ${USER_LIBS}),)
+	rsync -av ${USER_LIBS} ${DEPLOY_TO}/lib
+endif
 
 ${DEPLOY_TO}/fonts/${FONT}: ${SRC}/fonts/${FONT}
 	mkdir -p ${DEPLOY_TO}/fonts
