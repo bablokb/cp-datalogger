@@ -126,6 +126,7 @@ SCD40, SCD41
 | Name              | Type | O/M | Description                        |
 |-------------------|------|-----|------------------------------------|
 | SCD4X_SAMPLES     | int  |  O  | number of samples (2)              |
+| SCD4X_INTERVAL    | int  |  O  | sampling-interval (5)              |
 | SCD4X_TIMEOUT     | int  |  O  | timeout waiting for data (10)      |
 | SCD4X_DISCARD     | bool |  O  | only keep last readout (True)      |
 | SCD4X_PROPERTIES  | str  |  O  | properties for display ("c t h")   |
