@@ -173,7 +173,7 @@ ${DEPLOY_TO}/commit.py: ${SRC}/../.commit.py.local
 	cp -a $< $@
 
 ${SRC}/../.commit.py.local:
-	@git log --format="commit='%H'" -n 1 > $@
+	git log --format="commit='%H'" -n 1 > $@
 
 $(SPECIAL:${SRC}/%.py=${DEPLOY_TO}/%.py): ${DEPLOY_TO}/%.py: ${SRC}/%.py
 	cp -a $< $@
