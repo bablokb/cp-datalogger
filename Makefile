@@ -84,8 +84,8 @@ default: check_mpy_cross ${DEPLOY_TO} ${DEPLOY_TO}/sensors \
 	${DEPLOY_TO}/config.py \
 	${DEPLOY_TO}/log_config.py \
 	${DEPLOY_TO}/secrets.mpy \
-	$(WWW:${SRC}/www/%=${DEPLOY_TO}/www/%.gz)
-	@git log --format="commit='%H'" -n 1 > ${DEPLOY_TO}/commit.py
+	$(WWW:${SRC}/www/%=${DEPLOY_TO}/www/%.gz) \
+	${DEPLOY_TO}/commit.py
 	@rm -f makevars.tmp
 	@make makevars.tmp PCB=${PCB} DEPLOY_TO=${DEPLOY_TO} \
 		CONFIG=${CONFIG} AP_CONFIG=${AP_CONFIG} \
@@ -125,7 +125,8 @@ ${DEPLOY_TO}/fonts/${FONT}: ${SRC}/fonts/${FONT}
 
 # clean target-directory (only delete auto-created makevars.tmp)
 clean:
-	rm -fr dynvars.tmp makevars.tmp ${DEPLOY_TO}/*
+	rm -fr dynvars.tmp makevars.tmp ${DEPLOY_TO}/* \
+	${SRC}/../.commit.py.local
 
 # recreate makevars.tmp
 makevars.tmp:
@@ -168,6 +169,11 @@ ${DEPLOY_TO}/pins.mpy: ${PCB}
 endif
 	mpy-cross $< -o $@
 
+${DEPLOY_TO}/commit.py: ${SRC}/../.commit.py.local
+	cp -a $< $@
+
+${SRC}/../.commit.py.local:
+	@git log --format="commit='%H'" -n 1 > $@
 
 $(SPECIAL:${SRC}/%.py=${DEPLOY_TO}/%.py): ${DEPLOY_TO}/%.py: ${SRC}/%.py
 	cp -a $< $@
