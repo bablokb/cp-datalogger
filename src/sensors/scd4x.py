@@ -16,6 +16,7 @@
 #-----------------------------------------------------------------------------
 
 SAMPLES = 2
+INTERVAL = 5
 TIMEOUT = 10                  # data should be ready every 5 seconds
 DISCARD = True                # only keep last reading
 PROPERTIES = "c t h"          # properties for the display
@@ -27,6 +28,7 @@ FORMATS = {
 
 from log_writer import Logger
 g_logger = Logger()
+from sleep import TimeSleep
 
 import time
 import adafruit_scd4x
@@ -55,9 +57,10 @@ class SCD4X:
     if not self.scd4x:
       raise Exception(f"no {self.product} detected. Check config/cabling!")
 
-    self.SAMPLES = getattr(config,"SCD4X_SAMPLES",SAMPLES)
-    self.TIMEOUT = getattr(config,"SCD4X_TIMEOUT",TIMEOUT)
-    self.DISCARD = getattr(config,"SCD4X_DISCARD",DISCARD)
+    self.SAMPLES  = getattr(config,"SCD4X_SAMPLES",SAMPLES)
+    self.INTERVAL = getattr(config,"SCD4X_INTERVAL",INTERVAL)
+    self.TIMEOUT  = getattr(config,"SCD4X_TIMEOUT",TIMEOUT)
+    self.DISCARD  = getattr(config,"SCD4X_DISCARD",DISCARD)
     self.PROPERTIES = getattr(config,"SCD4X_PROPERTIES",PROPERTIES).split()
 
     # dynamically create formats for display...
@@ -87,6 +90,9 @@ class SCD4X:
 
   def read(self,data,values):
     # take multiple readings
+    if self.SAMPLES > 2 or self.INTERVAL > 5:
+      g_logger.print(f"SCD4x: taking {self.SAMPLES} " +
+                     f"samples with interval {self.INTERVAL}s")
     csv_results = ""
     for i in range(self.SAMPLES):
       t_rel = 0
@@ -101,11 +107,18 @@ class SCD4X:
           co2   = self.scd4x.CO2
           temp  = round(self.scd4x.temperature,1)
           hum   = round(self.scd4x.relative_humidity,0)
-          if not self.DISCARD:
-            csv_results += f",{t_rel:.2f},{co2},{temp:.1f},{hum:.0f}"
           break
         else:
           time.sleep(0.2)
+
+      # add data to csv-record
+      if not self.DISCARD:
+        csv_results += f",{t_rel:.2f},{co2},{temp:.1f},{hum:.0f}"
+
+      # sleep the given time for the next sensor-readout
+      if i < self.SAMPLES-1:
+        TimeSleep.light_sleep(
+          duration=max(0,self.INTERVAL-(time.monotonic()-start)))
 
     # switch sensor off in strobe mode (or cont. mode with deep-sleep)
     if self._config.STROBE_MODE or self._config.INTERVAL > 60:
