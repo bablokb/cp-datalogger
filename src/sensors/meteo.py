@@ -28,7 +28,7 @@ FORMATS = {
   "code":    ["wc/met:", "{0}"],
   "w_speed": ["ws/met:", "{0:.1f}km/s"],
   "w_dir":   ["wd/met:", "{0:.0f}°"],
-  "r":       ["r/met:", "{0}mm"]
+  "r":       ["R/met:", "{0}mm"]
   }
 
 from singleton import singleton
@@ -36,7 +36,7 @@ from wifi_impl_builtin import WifiImpl
 
 @singleton
 class METEO:
-  headers = 'T/met °C,H/met %rH,P/met hPa,WMO,Wspd km/s,Wdir °,mm'
+  headers = 'T/met °C,H/met %rH,P/met hPa,WMO,Wspd km/s,Wdir °,R mm'
 
   def __init__(self,config,i2c,addr=None,spi=None):
     """ constructor """
