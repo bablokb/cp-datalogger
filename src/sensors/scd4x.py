@@ -62,6 +62,8 @@ class SCD4X:
     self.TIMEOUT  = getattr(config,"SCD4X_TIMEOUT",TIMEOUT)
     self.DISCARD  = getattr(config,"SCD4X_DISCARD",DISCARD)
     self.PROPERTIES = getattr(config,"SCD4X_PROPERTIES",PROPERTIES).split()
+    if self.SAMPLES == 1:
+      self.DISCARD = True
 
     # dynamically create formats for display...
     self.formats = []
