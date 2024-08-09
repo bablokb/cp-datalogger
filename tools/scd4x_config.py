@@ -37,10 +37,10 @@ def run(duration=60,altitude=None,ppm=None,temp_offset=None,persist=False):
   g_logger.print(f"operating for {duration} minutes...")
   g_logger.set_target(None)
   c_sensor.scd4x.start_periodic_measurement()
+  header = f"ts,{c_sensor.headers}"
   if t_sensor:
-    print(f"{c_sensor.headers},{t_sensor.headers},t_diff")
-  else:
-    print(c_sensor.headers)
+    header += f",{t_sensor.headers},t_diff"
+  print(header)
 
   time_left = duration*60
   while time_left > 0:
