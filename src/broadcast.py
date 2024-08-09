@@ -63,11 +63,12 @@ class Broadcast:
     self._lines   = [""]*5
     self._pnr     = 0
     self._pok     = 0
-    self._lora    = LORA(g_config)
 
     self._init_i2c()
+    self._init_spi()
     self._init_rtc()
     self._init_display()
+    self._lora    = LORA(g_config,self.spi1)
     self._have_oled = self._init_oled()
     if self._have_oled or not self._display:
       self.interval = getattr(g_config,'BROADCAST_INT',10)
@@ -90,6 +91,22 @@ class Broadcast:
         self.i2c[0] = busio.I2C(pins.PIN_SCL0,pins.PIN_SDA0)
       except:
         g_logger.print("could not create i2c0, check wiring!")
+
+  # --- create SPI   ---------------------------------------------------------
+
+  def _init_spi(self):
+    if hasattr(pins,"PIN_SD_SCK"):
+      self.spi = busio.SPI(pins.PIN_SD_SCK,pins.PIN_SD_MOSI,pins.PIN_SD_MISO)
+    if pins.PIN_SD_SCK == pins.PIN_LORA_SCK:
+      if hasattr(self,"spi"):
+        self.spi1 = self.spi
+      else:
+        self.spi1 = busio.SPI(pins.PIN_LORA_SCK,pins.PIN_LORA_MOSI,
+                              pins.PIN_LORA_MISO)
+
+    else:
+      self.spi1 = busio.SPI(pins.PIN_LORA_SCK,pins.PIN_LORA_MOSI,
+                            pins.PIN_LORA_MISO)
 
   # --- read rtc   -----------------------------------------------------------
 
@@ -123,8 +140,7 @@ class Broadcast:
       from display import Display
 
       g_logger.print("starting display update")
-      spi = busio.SPI(pins.PIN_SD_SCK,pins.PIN_SD_MOSI,pins.PIN_SD_MISO)
-      self._display = Display(g_config,spi).get_display()
+      self._display = Display(g_config,self.spi).get_display()
 
       font = bitmap_font.load_font(f"fonts/{g_config.FONT_DISPLAY}.bdf")
       group = displayio.Group()

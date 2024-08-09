@@ -48,7 +48,9 @@ class Gateway:
 
     g_logger.print(f"initializing gateway")
     self._i2c  = busio.I2C(sda=pins.PIN_SDA,scl=pins.PIN_SCL)
-    self._lora = LORA(g_config)
+    self.spi1 = busio.SPI(pins.PIN_LORA_SCK,pins.PIN_LORA_MOSI,
+                          pins.PIN_LORA_MISO)
+    self._lora = LORA(g_config,self.spi1)
     self._init_notecard()
     self._init_rtc()
 

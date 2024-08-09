@@ -184,10 +184,10 @@ class DataCollector():
       self._cs_display.switch_to_output(value=True)
 
     # early setup of SD-card (in case we send debug-logs to sd-card)
-    self._spi = None
+    self.spi = None
     if g_config.HAVE_SD:
-      self._spi = busio.SPI(pins.PIN_SD_SCK,pins.PIN_SD_MOSI,pins.PIN_SD_MISO)
-      sdcard     = sdcardio.SDCard(self._spi,pins.PIN_SD_CS,1_000_000)
+      self.spi = busio.SPI(pins.PIN_SD_SCK,pins.PIN_SD_MOSI,pins.PIN_SD_MISO)
+      sdcard     = sdcardio.SDCard(self.spi,pins.PIN_SD_CS,1_000_000)
       self.vfs   = storage.VfsFat(sdcard)
       storage.mount(self.vfs, "/sd")
       g_ts.append((time.monotonic(),"sd-mount"))
@@ -241,7 +241,7 @@ class DataCollector():
       self._cs_display.deinit()
     if g_config.HAVE_DISPLAY:
       from display import Display
-      self.display = Display(g_config,self._spi)
+      self.display = Display(g_config,self.spi)
       if g_config.TEST_MODE:
         g_logger.print(f"setup: free memory after create display: {gc.mem_free()}")
 
@@ -489,7 +489,7 @@ class DataCollector():
     """ cleanup ressources """
 
     self._cs_display.deinit()
-    self._spi.deinit()
+    self.spi.deinit()
 
   # --- run datacollector   ------------------------------------------------
 

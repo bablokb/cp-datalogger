@@ -13,7 +13,6 @@ g_logger = Logger()
 from singleton import singleton
 
 from digitalio import DigitalInOut, Direction, Pull
-import busio
 import time
 import adafruit_rfm9x
 import pins
@@ -22,7 +21,7 @@ import pins
 
 @singleton
 class LORA:
-  def __init__(self,config):
+  def __init__(self,config,spi):
     """ constructor """
 
     self._config = config
@@ -30,10 +29,6 @@ class LORA:
 
     # don't catch exceptions, main.py will handle that
 
-    g_logger.print("LoRa: setting up SPI")
-    spi1 = busio.SPI(pins.PIN_LORA_SCK,pins.PIN_LORA_MOSI,pins.PIN_LORA_MISO)
-    pin_cs                = DigitalInOut(pins.PIN_LORA_CS)
-    pin_reset             = DigitalInOut(pins.PIN_LORA_RST)
 
     if hasattr(pins,'PIN_LORA_EN'):
       g_logger.print("LoRa: enabling rfm9x")
@@ -43,8 +38,10 @@ class LORA:
       time.sleep(getattr(config,'LORA_ENABLE_TIME',0))
 
     g_logger.print("LoRa: initializing rfm9x")
+    pin_cs     = DigitalInOut(pins.PIN_LORA_CS)
+    pin_reset  = DigitalInOut(pins.PIN_LORA_RST)
     self.rfm9x = adafruit_rfm9x.RFM9x(
-      spi1, pin_cs,pin_reset,config.LORA_FREQ,baudrate=100000)
+      spi, pin_cs,pin_reset,config.LORA_FREQ,baudrate=100000)
 
     g_logger.print("LoRa: configuring rfm9x")
     self.rfm9x.enable_crc = True
