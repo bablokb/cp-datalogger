@@ -1,8 +1,6 @@
 #-----------------------------------------------------------------------------
 # Makefile: compress files for deployment
 #
-# This makefile requires mpy-cross to create pre-compiled *.mpy files.
-#
 # Author: Bernhard Bablok
 #
 # Website: https://github.com/pcb-pico-datalogger
@@ -10,6 +8,7 @@
 SHELL=/bin/bash
 
 # options: override on the command-line
+CP_VERSION=8
 PCB=v2
 DEPLOY_TO=deploy
 AP_CONFIG=
@@ -69,10 +68,10 @@ else
 ap_config=
 endif
 
-.PHONY: check_mpy_cross clean copy2pico copy2gateway
+.PHONY: clean copy2pico copy2gateway
 
 # default target: pre-compile and compress files
-default: check_mpy_cross ${DEPLOY_TO} ${DEPLOY_TO}/sensors \
+default: ${DEPLOY_TO} ${DEPLOY_TO}/sensors \
 	${DEPLOY_TO}/tasks ${DEPLOY_TO}/tools ${DEPLOY_TO}/www \
         lib ${DEPLOY_TO}/fonts/${FONT} ${ap_config} \
 	${DEPLOY_TO}/pins.mpy \
@@ -89,9 +88,9 @@ default: check_mpy_cross ${DEPLOY_TO} ${DEPLOY_TO}/sensors \
 	@rm -f makevars.tmp
 	@make makevars.tmp PCB=${PCB} DEPLOY_TO=${DEPLOY_TO} \
 		CONFIG=${CONFIG} AP_CONFIG=${AP_CONFIG} \
-		LOG_CONFIG=${LOG_CONFIG}
+		LOG_CONFIG=${LOG_CONFIG} CP_VERSION=${CP_VERSION}
 
-gateway: check_mpy_cross ${DEPLOY_TO} lib \
+gateway: ${DEPLOY_TO} lib \
 	${DEPLOY_TO}/pins.mpy \
 	$(SOURCES:${SRC}/%.py=${DEPLOY_TO}/%.mpy) \
 	$(SOURCES2:src/%.py=${DEPLOY_TO}/%.mpy) \
@@ -101,12 +100,7 @@ gateway: check_mpy_cross ${DEPLOY_TO} lib \
 	@rm -f makevars.tmp
 	@make makevars.tmp PCB=${PCB} DEPLOY_TO=${DEPLOY_TO} \
 		CONFIG=${CONFIG} AP_CONFIG=${AP_CONFIG} \
-		LOG_CONFIG=${LOG_CONFIG}
-
-# check for mpy-cross pre-compiler
-check_mpy_cross:
-	@type -p mpy-cross > /dev/null || \
-	  (echo "please install mpy-cross from https://adafruit-circuit-python.s3.amazonaws.com/index.html?prefix=bin/mpy-cross/" && false)
+		LOG_CONFIG=${LOG_CONFIG} CP_VERSION=${CP_VERSION}
 
 # create target-directory
 ${DEPLOY_TO} ${DEPLOY_TO}/sensors ${DEPLOY_TO}/tasks ${DEPLOY_TO}/tools ${DEPLOY_TO}/www:
@@ -114,7 +108,8 @@ ${DEPLOY_TO} ${DEPLOY_TO}/sensors ${DEPLOY_TO}/tasks ${DEPLOY_TO}/tools ${DEPLOY
 
 # copy libs and fonts
 lib:
-	rsync -av --delete ${SRC}/lib ${DEPLOY_TO}
+	mkdir -p ${DEPLOY_TO}/lib
+	rsync -av --delete ${SRC}/lib${CP_VERSION}/ ${DEPLOY_TO}/lib/
 ifneq ($(strip ${USER_LIBS}),)
 	rsync -av ${USER_LIBS} ${DEPLOY_TO}/lib
 endif
@@ -131,7 +126,7 @@ clean:
 # recreate makevars.tmp
 makevars.tmp:
 	@echo -e \
-	"PCB=${PCB}\nDEPLOY_TO=${DEPLOY_TO}\nCONFIG=${CONFIG}\nLOG_CONFIG=${LOG_CONFIG}\nAP_CONFIG=${AP_CONFIG}\nSECRETS=${SECRETS}" > $@
+	"PCB=${PCB}\nDEPLOY_TO=${DEPLOY_TO}\nCONFIG=${CONFIG}\nLOG_CONFIG=${LOG_CONFIG}\nAP_CONFIG=${AP_CONFIG}\nSECRETS=${SECRETS}\nCP_VERSION=${CP_VERSION}" > $@
 
 dynvars.tmp:
 	sed -ne "/^FONT_DISPLAY/s/^FONT_DISPLAY *= *[\"']\([^\"']*\).*$$/FONT=\1.bdf/p" \
@@ -157,17 +152,17 @@ ${DEPLOY_TO}/log_config.py: ${LOG_CONFIG}
 	cp -a $< $@
 
 ${DEPLOY_TO}/ap_config.mpy: ${AP_CONFIG}
-	mpy-cross $< -o $@
+	bin/mpy-cross${CP_VERSION} $< -o $@
 
 ${DEPLOY_TO}/secrets.mpy: ${SECRETS}
-	mpy-cross $< -o $@
+	bin/mpy-cross${CP_VERSION} $< -o $@
 
 ifeq (,$(findstring /,${PCB}))
 ${DEPLOY_TO}/pins.mpy: ${SRC}/pins${PCB}.py
 else
 ${DEPLOY_TO}/pins.mpy: ${PCB}
 endif
-	mpy-cross $< -o $@
+	bin/mpy-cross${CP_VERSION} $< -o $@
 
 ${DEPLOY_TO}/commit.py: ${SRC}/../.commit.py.local
 	cp -a $< $@
@@ -179,18 +174,18 @@ $(SPECIAL:${SRC}/%.py=${DEPLOY_TO}/%.py): ${DEPLOY_TO}/%.py: ${SRC}/%.py
 	cp -a $< $@
 
 $(SOURCES:${SRC}/%.py=${DEPLOY_TO}/%.mpy): ${DEPLOY_TO}/%.mpy: ${SRC}/%.py
-	mpy-cross $< -o $@
+	bin/mpy-cross${CP_VERSION} $< -o $@
 
 $(SOURCES2:src/%.py=${DEPLOY_TO}/%.mpy): ${DEPLOY_TO}/%.mpy: src/%.py
-	mpy-cross $< -o $@
+	bin/mpy-cross${CP_VERSION} $< -o $@
 
 $(SENSORS:${SRC}/sensors/%.py=${DEPLOY_TO}/sensors/%.mpy): \
 	${DEPLOY_TO}/sensors/%.mpy: ${SRC}/sensors/%.py
-	mpy-cross $< -o $@
+	bin/mpy-cross${CP_VERSION} $< -o $@
 
 $(TASKS:${SRC}/tasks/%.py=${DEPLOY_TO}/tasks/%.mpy): \
 	${DEPLOY_TO}/tasks/%.mpy: ${SRC}/tasks/%.py
-	mpy-cross $< -o $@
+	bin/mpy-cross${CP_VERSION} $< -o $@
 
 $(WWW:${SRC}/www/%=${DEPLOY_TO}/www/%.gz): ${DEPLOY_TO}/www/%.gz: ${SRC}/www/%
 	gzip -9c $< > $@
