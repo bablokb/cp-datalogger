@@ -6,6 +6,7 @@
 # Website: https://github.com/pcb-pico-datalogger
 #-----------------------------------------------------------------------------
 SHELL=/bin/bash
+export PATH := ${PATH}:bin
 
 # options: override on the command-line
 CP_VERSION=8
@@ -152,10 +153,10 @@ ${DEPLOY_TO}/log_config.py: ${LOG_CONFIG}
 	cp -a $< $@
 
 ${DEPLOY_TO}/ap_config.mpy: ${AP_CONFIG}
-	bin/mpy-cross${CP_VERSION} $< -o $@
+	mpy-cross${CP_VERSION} $< -o $@
 
 ${DEPLOY_TO}/secrets.mpy: ${SECRETS}
-	bin/mpy-cross${CP_VERSION} $< -o $@
+	mpy-cross${CP_VERSION} $< -o $@
 
 ifeq (,$(findstring /,${PCB}))
 ${DEPLOY_TO}/pins.mpy: ${SRC}/pins${PCB}.py
