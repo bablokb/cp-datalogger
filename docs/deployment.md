@@ -23,6 +23,11 @@ host. See
 <https://adafruit-circuit-python.s3.amazonaws.com/index.html?prefix=bin/mpy-cross/>.
 for other versions.
 
+**Note: if the versions of mpy-cross provided in `bin/` are not
+correct for your OS-environment, download the correct versions and put
+them somewhere in your `PATH`. Be sure to name them `mpy-cross8` and
+`mpy-cross9`.**
+
 
 Simple Usage
 ------------
