@@ -11,7 +11,7 @@
 
 import board
 
-PCB_VERSION = 1          # PCB-version of datalogger
+PCB_VERSION = 1       # version of special PCB of datalogger (use 0 otherwise)
 
 # --- standard pins RP2040   -------------------------------------------------
 
