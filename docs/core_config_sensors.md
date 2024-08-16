@@ -37,7 +37,14 @@ BME280
 |-----------------------------|------|-----|---------------------------|
 | BMx280_ALTITUDE_AT_LOCATION | int  |  O  | altitude in meters (540)  |
 | BME280_PROPERTIES           | str  |  O  | properties for display    |
-|                             |      |     | ("t h ps")                |
+|                             |      |     | ("t h pl ps")             |
+
+Properties:
+
+  - t: temperature
+  - h: humidity
+  - pl: pressure at location
+  - ps: pressure at sea-level (converted)
 
 The altitude is necessary to convert pressure readings to sea-level
 pressure. Default is 540m.
@@ -50,7 +57,13 @@ BMP280
 |-----------------------------|------|-----|---------------------------|
 | BMx280_ALTITUDE_AT_LOCATION | int  |  O  | altitude in meters (540)  |
 | BMP280_PROPERTIES           | str  |  O  | properties for display    |
-|                             |      |     | ("t ps")                  |
+|                             |      |     | ("t pl ps")               |
+
+Properties:
+
+  - t: temperature
+  - pl: pressure at location
+  - ps: pressure at sea-level (converted)
 
 The altitude is necessary to convert pressure readings to sea-level
 pressure. Default is 540m.
@@ -116,6 +129,7 @@ PMS5003
 
 | Name                        | Type | O/M | Description               |
 |-----------------------------|------|-----|---------------------------|
+| PMS5003_RETRIES             | int  |  O  | retry reads (3)           |
 | PMS5003_PROPERTIES          | str  |  O  | properties for display    |
 |                             |      |     | ("p03 p10 p25")           |
 
@@ -139,6 +153,10 @@ Periodic measurement on SCD4x should return data every five seconds.
 After `SDC4X_TIMEOUT` seconds the sensor-wrapper will give up. The
 default should be ok.
 
+If a measurement from a BME280 or BMP280 is available, the pressure
+value is used to configure the ambient pressure of the SCD4x. The
+sensors within the `SENSORS`-configuration variable should therefore
+be ordered correctly, i.e. first the BMx280, then the SCD4x.
 
 SHT45
 -----
