@@ -94,26 +94,29 @@ class Display:
     # guess best dimension
     n_formats = len(formats)
     if n_formats < 5:
-      dim = (2,2)
+      self._dim = (2,2)
     elif n_formats < 7:
-      dim = (3,2)
+      self._dim = (3,2)
     else:
-      dim = (3,4)
+      self._dim = (3,4)
 
-    if n_formats < dim[0]*dim[1]:
+    if n_formats < self._dim[0]*self._dim[1]:
       formats.extend(
-        ["" for _ in range(dim[0]*dim[1] - n_formats)])
-    elif n_formats > dim[0]*dim[1]:
-      g_logger.print(f"only displaying first {dim[0]*dim[1]/2:.0f} sensor-values")
-      del formats[dim[0]*dim[1]:]
+        ["" for _ in range(self._dim[0]*self._dim[1] - n_formats)])
+    elif n_formats > self._dim[0]*self._dim[1]:
+      g_logger.print(f"only displaying first {self._dim[0]*self._dim[1]/2:.0f} sensor-values")
+      del formats[self._dim[0]*self._dim[1]:]
+
+    if not getattr(self._config,"DISPLAY_LAYOUT_RC",True):
+      formats = self._reorder(formats)
 
     border  = 1
     offset  = 1    # keep away from border-pixels
     divider = 1
     padding = 5
     self._view = DataView(
-      dim=dim,
-      width=self._display.width-2*(border+padding+offset)-(dim[1]-1)*divider,
+      dim=self._dim,
+      width=self._display.width-2*(border+padding+offset)-(self._dim[1]-1)*divider,
       height=int(0.6*self._display.height),
       justify=Justify.LEFT,
       fontname=f"fonts/{self._config.FONT_DISPLAY}.bdf",
@@ -124,7 +127,7 @@ class Display:
       bg_color=Color.WHITE
     )
 
-    for i in range(0,dim[0]*dim[1],2):
+    for i in range(0,self._dim[0]*self._dim[1],2):
       self._view.justify(Justify.LEFT,index=i)
       self._view.justify(Justify.RIGHT,index=i+1)
 
@@ -173,6 +176,21 @@ class Display:
 
     return f"at {dt} {ts} {app.sd_status}{app.lora_status} {bat_status}"
 
+  # --- reorder values for col-row order   -----------------------------------
+
+  def _reorder(self,list_in):
+    """ reorder values for col-row order of fields """
+
+    list_out = []
+    rows    = self._dim[0]
+    cols    = self._dim[1]
+    for r in range(rows):
+      for c in range(0,cols,2):
+        i = 2*r + c*rows
+        list_out.append(list_in[i])
+        list_out.append(list_in[i+1])
+    return list_out
+
   # --- set values for ui   --------------------------------------------------
 
   def set_values(self,app):
@@ -186,10 +204,15 @@ class Display:
       # remove extra values
       del app.values[len(app.formats):]
 
+    if getattr(self._config,"DISPLAY_LAYOUT_RC",True):
+      vals = app.values
+    else:
+      vals = self._reorder(app.values)
+
     # set footer
     self._footer.text = self._get_status(app)
     # set values
-    self._view.set_values(app.values)
+    self._view.set_values(vals)
 
   # --- refresh the display   ------------------------------------------------
 

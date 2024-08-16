@@ -18,12 +18,13 @@ in pseudo-tabular form with units.
 update_display
 --------------
 
-| Name                | Type | O/M | Description               |
-|---------------------|------|-----|---------------------------|
-| HAVE_DISPLAY        | str  |  O  | display-name (see below)  |
-| FONT_DISPLAY        | str  |  O  | font-name (see below)     |
-| SIMPLE_UI           | bool |  O  | show simple UI (False)    |
-| DISPLAY_STROBE_WAIT | int  |  O  | extra update time (3)     |
+| Name                | Type | O/M | Description                       |
+|---------------------|------|-----|-----------------------------------|
+| HAVE_DISPLAY        | str  |  O  | display-name (see below)          |
+| FONT_DISPLAY        | str  |  O  | font-name (see below)             |
+| SIMPLE_UI           | bool |  O  | show simple UI (False)            |
+| DISPLAY_STROBE_WAIT | int  |  O  | extra update time (3)             |
+| DISPLAY_LAYOUT_RC   | bool |  O  | layout is row-column order (True) |
 
 Valid values for `HAVE_DISPLAY`:
 
