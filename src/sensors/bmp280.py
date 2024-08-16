@@ -14,10 +14,11 @@
 # Website: https://github.com/pcb-pico-datalogger
 #-----------------------------------------------------------------------------
 
-PROPERTIES = "t ps"          # properties for the display
+PROPERTIES = "t pl ps"          # properties for the display
 FORMATS = {
-  "t": ["T/BMP:", "{0:.1f}°C"],
-  "ps": ["P/BMP:", "{0:.0f}hPa"]
+  "t":  ["T/BMP:",  "{0:.1f}°C"],   # temperature
+  "pl": ["Pl/BMP:", "{0:.0f}hPa"],  # pressure at location
+  "ps": ["Ps/BMP:", "{0:.0f}hPa"]   # pressure at sea-level
   }
 
 from log_writer import Logger
@@ -26,7 +27,7 @@ g_logger = Logger()
 import adafruit_bmp280
 
 class BMP280:
-  headers = 'T/BMP °C,P/BMP'
+  headers = 'T/BMP °C,Pl/BMP,Ps/BMP'
 
   def __init__(self,config,i2c,addr=None,spi=None):
     """ constructor """
@@ -69,14 +70,18 @@ class BMP280:
     """ read sensor """
     self.bmp280.mode = adafruit_bmp280.MODE_FORCE
     t  = round(self.bmp280.temperature,1)
-    ps = round(self.bmp280.pressure/self.alt_factor,0)
+    pl = self.bmp280.pressure
+    ps = round(pl/self.alt_factor,0)
+    pl = round(pl,0)
     data["bmp280"] = {
       "t": t,
+      "pl": pl,
       "ps": ps,
       FORMATS['t'][0]: FORMATS['t'][1].format(t),
+      FORMATS['pl'][0]: FORMATS['pl'][1].format(pl),
       FORMATS['ps'][0]: FORMATS['ps'][1].format(ps)
     }
     if not self.ignore:
       for p in self.PROPERTIES:
         values.extend([None,data["bmp280"][p]])
-    return f"{t:0.1f},{ps:0.0f}"
+    return f"{t:0.1f},{pl:0.0f},{ps:0.0f}"
