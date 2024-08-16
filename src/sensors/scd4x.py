@@ -91,6 +91,18 @@ class SCD4X:
     pass
 
   def read(self,data,values):
+    """ read sensor values """
+
+    # compensate for pressure. Requires a BME280/BMP280 sensor
+    if "bme280" in data:
+      p_comp = data["bme280"]["pl"]
+    elif "bmp280" in data:
+      p_comp = data["bmp280"]["pl"]
+    else:
+      p_comp = None
+    if p_comp:
+      self.scd4x.set_ambient_pressure(int(p_comp))
+
     # take multiple readings
     if self.SAMPLES > 2 or self.INTERVAL > 5:
       g_logger.print(f"SCD4x: taking {self.SAMPLES} " +
