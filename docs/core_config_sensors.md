@@ -107,6 +107,16 @@ HTU31D
 |                             |      |     | ("t h")                   |
 
 
+MHZ19
+-------
+
+| Name                        | Type | O/M | Description                    |
+|-----------------------------|------|-----|--------------------------------|
+| MHZ19_RETRIES               | int  |  O  | retry reads (3)                |
+| MHZ19_PROPERTIES            | str  |  O  | properties for display ("c t") |
+| MHZ19_INIT_TIME             | int  |  0  | initialization time (60)       |
+
+
 Open-Meteo
 ----------
 
@@ -125,7 +135,7 @@ mandatory nevertheless.
 
 
 PMS5003
------
+-------
 
 | Name                        | Type | O/M | Description               |
 |-----------------------------|------|-----|---------------------------|

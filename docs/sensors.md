@@ -224,6 +224,19 @@ METEO
   - [API-Documentation](https://open-meteo.com/en/docs) 
 
 
+MHZ19
+-----
+
+  - Low-cost IR based CO2 sensor
+  - Status: implemented
+  - dcode: `L`
+  - Uses UART
+  - CircuitPython-driver: <https://github.com/bablokb/circuitpython-mhz19>
+  - [datasheet](https://https://www.winsen-sensor.com/d/files/manual/mh-z19c.pdf)
+  - Note: the device needs very stable Vdd in the range 4.9-5.1V
+  - Note: UART-level is 3V3
+
+
 PDM-Micro
 ---------
 
