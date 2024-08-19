@@ -47,7 +47,8 @@ SENSOR_MAP = {
   "sht45":   "H",
   "meteo":   "I",
   "location": "J",
-  "cputemp": "K"
+  "cputemp": "K",
+  "mhz19":   "L"
   }
 
 class DCODE:
