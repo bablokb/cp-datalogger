@@ -18,17 +18,18 @@ in pseudo-tabular form with units.
 update_display
 --------------
 
-| Name                | Type | O/M | Description                       |
-|---------------------|------|-----|-----------------------------------|
-| HAVE_DISPLAY        | str  |  O  | display-name (see below)          |
-| FONT_DISPLAY        | str  |  O  | font-name (see below)             |
-| SIMPLE_UI           | bool |  O  | show simple UI (False)            |
-| DISPLAY_STROBE_WAIT | int  |  O  | extra update time (3)             |
-| DISPLAY_LAYOUT_RC   | bool |  O  | layout is row-column order (True) |
+| Name                  | Type | O/M | Description                       |
+|-----------------------|------|-----|-----------------------------------|
+| HAVE_DISPLAY          | str  |  O  | display-name (see below)          |
+| FONT_DISPLAY          | str  |  O  | font-name (see below)             |
+| SIMPLE_UI             | bool |  O  | show simple UI (False)            |
+| DISPLAY_STROBE_WAIT   | int  |  O  | extra update time (3)             |
+| DISPLAY_LAYOUT_RC     | bool |  O  | layout is row-column order (True) |
+| DISPLAY_LAYOUT_MAXDIM | str  |  O  | max layout dimensions (RxC = 3x4) |
 
 Valid values for `HAVE_DISPLAY`:
 
-  - None
+  - None (default)
   - "internal" (uses `board.DISPLAY`)
   - "Inky-Pack" (Pimoroni Inky-Pack e-Ink display)
   - "Inky-pHat" (Pimoroni Inky-pHat e-Ink display)
@@ -41,10 +42,16 @@ Valid values for `FONT_DISPLAY`:
   - DejaVuSans-16-subset
   - DejaVuSansMono-12-subset
   - DejaVuSansMono-Bold-16-subset
-  - DejaVuSansMono-Bold-18-subset
+  - DejaVuSansMono-Bold-18-subset (default)
 
 If `SIMPLE_UI` is true, only a minimalistic (label-based) UI is shown.
 This is much faster than the default tabular UI.
+
+The layout of the tabular UI is dynamic with at most three rows and
+four columns. Use `DISPLAY_LAYOUT_MAXDIM` to change the default.  Note
+that larger layouts use more memory. Values that don't fit into the
+layout will still be written to the CSV-file. Most sensors allow the
+configuration of properties that are displayed.
 
 `DISPLAY_STROBE_WAIT` will give the e-ink some extra time for updates
 before the power-management cuts power in strobe-mode.

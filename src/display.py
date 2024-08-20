@@ -91,14 +91,25 @@ class Display:
     from dataviews.DataView  import DataView
     from dataviews.DataPanel import DataPanel, PanelText
 
-    # guess best dimension
+    # guess best dimension (column-count must be even)
+    rmax, cmax = getattr(self._config,"DISPLAY_LAYOUT_MAXDIM","3x4").split("x")
+    rmax = int(rmax)
+    cmax = int(cmax)
     n_formats = len(formats)
-    if n_formats < 5:
+    if n_formats < 3:
+      self._dim = (1,2)
+    elif n_formats < 5:
       self._dim = (2,2)
     elif n_formats < 7:
       self._dim = (3,2)
-    else:
+    elif n_formats < 9:
+      self._dim = (2,4)
+    elif n_formats < 13:
       self._dim = (3,4)
+    else:
+      self._dim = (rmax,cmax)
+    if self._dim[0] > rmax or self._dim[1] > cmax:
+      self._dim = (rmax,cmax)
 
     if n_formats < self._dim[0]*self._dim[1]:
       formats.extend(
