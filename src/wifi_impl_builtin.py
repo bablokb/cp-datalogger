@@ -47,6 +47,11 @@ class WifiImpl:
     if not self._radio:
       import wifi
       self._radio = wifi.radio
+    if not self._radio.enabled:
+      self._radio.enabled = True
+      self._pool = None
+      self._requests = None
+
     if self._pool:
       return
 
@@ -54,7 +59,7 @@ class WifiImpl:
     retries = secrets.retry
     while True:
       try:
-        wifi.radio.connect(secrets.ssid,
+        self._radio.connect(secrets.ssid,
                            secrets.password,
                            channel = secrets.channel,
                            timeout = secrets.timeout
@@ -68,7 +73,7 @@ class WifiImpl:
         time.sleep(1)
         continue
     self.logger.print("connected to %s" % secrets.ssid)
-    self._pool = socketpool.SocketPool(wifi.radio)
+    self._pool = socketpool.SocketPool(self._radio)
     self._requests = None
 
   # --- return requests-object   --------------------------------------------
