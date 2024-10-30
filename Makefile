@@ -7,6 +7,7 @@
 #-----------------------------------------------------------------------------
 SHELL=/bin/bash
 export PATH := ${PATH}:bin
+export
 
 # options: override on the command-line
 CP_VERSION=8
@@ -87,9 +88,7 @@ default: ${DEPLOY_TO} ${DEPLOY_TO}/sensors \
 	$(WWW:${SRC}/www/%=${DEPLOY_TO}/www/%.gz) \
 	${DEPLOY_TO}/commit.py
 	@rm -f makevars.tmp
-	@make makevars.tmp PCB=${PCB} DEPLOY_TO=${DEPLOY_TO} \
-		CONFIG=${CONFIG} AP_CONFIG=${AP_CONFIG} \
-		LOG_CONFIG=${LOG_CONFIG} CP_VERSION=${CP_VERSION}
+	@make -e makevars.tmp
 
 gateway: ${DEPLOY_TO} lib \
 	${DEPLOY_TO}/pins.mpy \
@@ -99,9 +98,7 @@ gateway: ${DEPLOY_TO} lib \
 	${DEPLOY_TO}/config.py \
 	${DEPLOY_TO}/log_config.py
 	@rm -f makevars.tmp
-	@make makevars.tmp PCB=${PCB} DEPLOY_TO=${DEPLOY_TO} \
-		CONFIG=${CONFIG} AP_CONFIG=${AP_CONFIG} \
-		LOG_CONFIG=${LOG_CONFIG} CP_VERSION=${CP_VERSION}
+	@make -e makevars.tmp
 
 # create target-directory
 ${DEPLOY_TO} ${DEPLOY_TO}/sensors ${DEPLOY_TO}/tasks ${DEPLOY_TO}/tools ${DEPLOY_TO}/www:
@@ -126,8 +123,14 @@ clean:
 
 # recreate makevars.tmp
 makevars.tmp:
-	@echo -e \
-	"PCB=${PCB}\nDEPLOY_TO=${DEPLOY_TO}\nCONFIG=${CONFIG}\nLOG_CONFIG=${LOG_CONFIG}\nAP_CONFIG=${AP_CONFIG}\nSECRETS=${SECRETS}\nCP_VERSION=${CP_VERSION}" > $@
+	@echo -e "PCB=${PCB}" > $@
+	@echo -e "DEPLOY_TO=${DEPLOY_TO}" >> $@
+	@echo -e "CONFIG=${CONFIG}" >> $@
+	@echo -e "LOG_CONFIG=${LOG_CONFIG}" >> $@
+	@echo -e "AP_CONFIG=${AP_CONFIG}" >> $@
+	@echo -e "SECRETS=${SECRETS}" >> $@
+	@echo -e "CP_VERSION=${CP_VERSION}" >> $@
+	@echo -e "USER_LIBS=${USER_LIBS}" >> $@
 
 dynvars.tmp:
 	sed -ne "/^FONT_DISPLAY/s/^FONT_DISPLAY *= *[\"']\([^\"']*\).*$$/FONT=\1.bdf/p" \
