@@ -40,6 +40,7 @@ class METEO:
 
   def __init__(self,config,i2c,addr=None,spi=None):
     """ constructor """
+    self._config = config
     self.ignore = False
     METEO_LATITUDE  = getattr(config,"METEO_LATITUDE",48.6967)
     METEO_LONGITUDE = getattr(config,"METEO_LONGITUDE",13.4631)
@@ -67,6 +68,8 @@ class METEO:
 
     # query api
     response = self._wifi.get(self._url).json()
+    if self._config.STROBE_MODE or self._config.INTERVAL > 60:
+      self._wifi.radio.enabled = False
     if not response:
       return
 
