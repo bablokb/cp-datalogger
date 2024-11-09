@@ -53,6 +53,6 @@ def run(config,app):
       text += f"\n{key} {app.data[sensor][key]}"
   textlabel.text = text
 
-  if config.STROBE_MODE:
+  if config.STROBE_MODE or config.INTERVAL > 60:
     display_time = getattr(config,"OLED_TIME",3)
     time.sleep(display_time)
