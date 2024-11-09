@@ -115,6 +115,7 @@ MHZ19
 | MHZ19_RETRIES               | int  |  O  | retry reads (3)                |
 | MHZ19_PROPERTIES            | str  |  O  | properties for display ("c t") |
 | MHZ19_INIT_TIME             | int  |  0  | initialization time (60)       |
+| MHZ19_AUTO_CALIB            | bool |  0  | set auto-calibration (False)   |
 
 
 Open-Meteo
