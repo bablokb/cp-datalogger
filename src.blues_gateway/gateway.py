@@ -9,7 +9,6 @@
 import time
 import busio
 import board
-import busio
 import rtc
 from digitalio import DigitalInOut, Direction, Pull
 
@@ -23,12 +22,26 @@ except:
   g_logger = Logger('console')
 
 import config as g_config
-from lora import LORA
 import pins
 
-# --- imports for Notecard
-import notecard
-from notecard import hub, card, note, file
+# --- small helper functions to create RX and TX classes   -------------------
+
+def get_rx_lora():
+  """ import and return LoraReceiver class """
+  from gw_rx_lora import LoraReceiver
+  return LoraReceiver
+
+def get_tx_blues():
+  """ import and return BluesSender class """
+  from gw_tx_blues import BluesSender
+  return BluesSender
+
+RX_MAP = {
+  'Lora': get_rx_lora
+  }
+TX_MAP = {
+  'Blues': get_tx_blues
+  }
 
 # --- Gateway application class   --------------------------------------------
 
@@ -39,7 +52,21 @@ class Gateway:
 
   def __init__(self):
     """ constructor """
-    pass
+
+    gw_rx_type = getattr(g_config,'GW_RX_TYPE',"Lora")
+    gw_tx_type = getattr(g_config,'GW_TX_TYPE',"Blues")
+
+    try:
+      rx_klass = RX_MAP[gw_rx_type]()
+    except:
+      raise ValueError(f"rx-type '{gw_rx_type}' not implemented!")
+    try:
+      tx_klass = TX_MAP[gw_tx_type]()
+    except:
+      raise ValueError(f"tx-type '{gw_tx_type}' not implemented!")
+
+    self._receiver = rx_klass(g_config)
+    self._sender   = tx_klass(g_config)
 
   # --- hardware-setup   -----------------------------------------------------
 
@@ -47,11 +74,8 @@ class Gateway:
     """ initialize hardware """
 
     g_logger.print(f"initializing gateway")
-    self._i2c  = busio.I2C(sda=pins.PIN_SDA,scl=pins.PIN_SCL)
-    self.spi1 = busio.SPI(pins.PIN_LORA_SCK,pins.PIN_LORA_MOSI,
-                          pins.PIN_LORA_MISO)
-    self._lora = LORA(g_config,self.spi1)
-    self._init_notecard()
+    self._receiver.setup()
+    self._sender.setup()
     self._init_rtc()
 
     start = getattr(g_config,'ACTIVE_WINDOW_START',"7:00").split(':')
@@ -68,79 +92,19 @@ class Gateway:
       self._startup = time.monotonic()
     g_logger.print(f"gateway initialized")
 
-  # --- Notecard   -----------------------------------------------------------
-
-  def _init_notecard(self):
-    """ initialize Notecard """
-
-    self._card = notecard.OpenI2C(self._i2c,0,0,debug=False)
-    hub.set(self._card,mode="minimum")
-
-    # query start-mode (timer or manual)
-    resp = card.attn(self._card,mode="")
-    self._is_timer_start = 'files' in resp and 'timeout' in resp['files']
-    g_logger.print(f"start in timer-mode: {self._is_timer_start}")
-    # disarm attn
-    resp = card.attn(self._card,mode="disarm")
-
   # --- initialize on-board RTC   --------------------------------------------
 
   def _init_rtc(self):
     """ initialize RTC """
 
     self._rtc = rtc.RTC()
-    i = 0
-    while i < 2:
-      i += 1
-      g_logger.print("trying to set time from notecard...")
-      resp = card.time(self._card)
-      if 'time' in resp:
-        ts = time.localtime(resp['time'] + 60*resp['minutes'])
-        self._rtc.datetime = ts
-        return True
-      else:
-        g_logger.print(f"time not available, wating for sync")
-        if not self._sync_notecard():
-          g_logger.print("could not set time")
-          return False
-
-  # --- sync notecard   ------------------------------------------------------
-
-  def _sync_notecard(self,wait=True):
-    """ sync notecard """
-
-    resp = hub.sync(self._card)
-    if not wait:
-      return False
-    max_sync_time = getattr(g_config,'MAX_SYNC_TIME',300)
-    resp = hub.syncStatus(self._card)
-    while "requested" in resp:
-      requested = resp['requested']
-      g_logger.print(f"sync request in progress since {requested}s")
-      if requested > max_sync_time:
-        g_logger.print(f"could not sync within {max_sync_time}s")
-        return False
-      time.sleep(10)
-      resp = hub.syncStatus(self._card)
-    return True
-
-  # --- process data   -------------------------------------------------------
-
-  def _process_data(self,values):
-    """ process data  """
-
-    g_logger.print("processing sensor-data...")
-    start = time.monotonic()
-    if g_config.SYNC_BLUES_ACTION is not None:
-      resp = note.add(self._card,
-                      file=f"dl_data.qo",
-                      body={"data":','.join(values)},
-                      sync=g_config.SYNC_BLUES_ACTION)
+    ts = self._sender.get_time()
+    if ts:
+      self._rtc.datetime = ts
+      return True
     else:
-      resp = "action: noop"
-    duration = time.monotonic()-start
-    g_logger.print(f"action: {g_config.SYNC_BLUES_ACTION}, {resp=}")
-    g_logger.print(f"duration: {duration}s")
+      g_logger.print("could not set time")
+      return False
 
   # --- reply to broadcast-messages   ----------------------------------------
 
@@ -149,11 +113,7 @@ class Gateway:
 
     g_logger.print("processing broadcast-data...")
     start = time.monotonic()
-
-    resp = f"{values[2]},{self._snr},{self._rssi}"        # 2: packet-nr
-    self._lora.set_destination(int(values[3]))            # 3: LoRa-node
-    g_logger.print(f"sending '{resp}' to {self._lora.rfm9x.destination}...")
-    rc = self._lora.transmit(resp,ack=False,keep_listening=True)
+    rc = self._receiver.handle_broadcast(values)
     duration = time.monotonic()-start
     if rc:
       g_logger.print(f"retransmit successful. Duration: {duration}s")
@@ -167,12 +127,7 @@ class Gateway:
 
     g_logger.print("processing time-request...")
     start = time.monotonic()
-
-    self._lora.set_destination(int(values[0]))
-    resp = f"{time.time()}"
-    g_logger.print(f"sending time ({resp}) to node {self._lora.rfm9x.destination}...")
-    rc = self._lora.transmit(resp,
-                             ack=False,keep_listening=True)
+    rc = self._receiver.handle_time_request(values)
     duration = time.monotonic()-start
     if rc:
       g_logger.print(f"transmit successful. Duration: {duration}s")
@@ -188,7 +143,9 @@ class Gateway:
   # --- shutdown   -----------------------------------------------------------
 
   def _shutdown(self):
-    """ signal attn to notecard to cut power and set wakeup """
+    """ Shutdown system. Shutdown can be controlled by sender, receiver or
+    internally.
+    """
 
     # get start of next active window (tomorrow)
     g_logger.print(
@@ -214,11 +171,45 @@ class Gateway:
         s_time = getattr(g_config,'DEV_SLEEP',60)
         g_logger.print(f"DEV_MODE: change sleep-duration to: {s_time}s")
 
-    # notify card to disable power until sleep-time expires
-    g_logger.print(f"executing card.attn() with seconds={s_time}s")
-    card.attn(self._card,mode="sleep",seconds=s_time)
-    time.sleep(10)
+    # notify sender/receiver to disable power until sleep-time expires
+    if not (self._sender.shutdown(s_time) or self._receiver.shutdown(s_time)):
+      self._set_wakeup(s_time)
+      return self._power_off()
     return True
+
+  # --- set next wakeup   ----------------------------------------------------
+
+  def _set_wakeup(self,s_time):
+    """ set wakeup time """
+    # TODO: implement
+
+  # --- power off   ----------------------------------------------------------
+
+  def _power_off(self):
+    """ tell the power-controller to cut power """
+
+    if getattr(g_config,"HAVE_PM",False) and hasattr(pins,"PIN_DONE"):
+      g_logger.print("signal power-off")
+
+      if type(pins.PIN_DONE) == DigitalInOut:
+        self.done           = pins.PIN_DONE
+      else:
+        self.done           = DigitalInOut(pins.PIN_DONE)
+
+      # The following statement is not reliable: even if value is False
+      # it might create a short High while switching. This does not
+      # matter, "worst case" would be that it already turns of power.
+      shutdown_value = getattr(g_config,"SHUTDOWN_HIGH",True)
+      self.done.switch_to_output(value=not shutdown_value)
+
+      self.done.value = shutdown_value
+      time.sleep(0.001)
+      self.done.value = not shutdown_value
+      time.sleep(2)
+      return True
+    else:
+      g_logger.print("ignoring shutdown (don't have PM or PIN_DONE undefined)")
+      return False
 
   # --- main-loop   ----------------------------------------------------------
 
@@ -235,15 +226,11 @@ class Gateway:
       data = None
 
       # check for packet
-      data, self._snr, self._rssi = self._lora.receive(
-        with_ack=True,timeout=getattr(g_config,"RECEIVE_TIMEOUT",1.0))
+      data = self._receiver.receive_data()
       if data is None:
         # check active time period
         if (self._rtc.datetime.tm_hour >= self._end_h and
             self._rtc.datetime.tm_min  >= self._end_m):
-          # if necessary, sync notes before shutdown
-          if g_config.SYNC_BLUES_ACTION == False:
-            self._sync_notecard(wait=False)
           if self._shutdown():
             break
         continue
@@ -263,7 +250,6 @@ class Gateway:
         elif mode == 'T':
           self._handle_time_request(values)
         else:
-          self._process_data(values)
+          self._sender.process_data(values)
       except Exception as ex:
         g_logger.print(f"could not process data: {ex}")
-
