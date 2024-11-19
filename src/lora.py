@@ -24,6 +24,11 @@ class LORA:
   def __init__(self,config,spi):
     """ constructor """
 
+    # Calling the constructor with None will return the singleton, if it
+    # exists. If not, bail out: the app has to retry and provide all arguments.
+    if config is None:
+      raise ValueError("config is None")
+
     self._config = config
     self._trace = getattr(self._config,'LORA_TRACE',False)
 
