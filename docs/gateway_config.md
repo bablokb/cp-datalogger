@@ -16,11 +16,29 @@ Application
 
 | Name                | Type | O/M | Description                           |
 |---------------------|------|-----|---------------------------------------|
-| ACTIVE_WINDOW_START | str  |  O  | Active window start-time (07:00)      |
-| ACTIVE_WINDOW_END   | str  |  O  | Active window end-time (17:00)        |
+| ACTIVE_WINDOW_START | str  |  O  | Active window start-time ('07:00')    |
+| ACTIVE_WINDOW_END   | str  |  O  | Active window end-time ('17:00')      |
+| GW_RX_TYPE          | str  |  O  | 'Lora' |'Udp'¹|'Ble'¹ ('Lora')        |
+| GW_TX_TYPE          | str  |  O  | 'Blues'|'Udp'¹|'Ble'¹ ('Blues')       |
+
+¹not implemented
+
+
+LoraReceiver
+------------
+
+| Name                | Type | O/M | Description                           |
+|---------------------|------|-----|---------------------------------------|
+| RECEIVE_TIMEOUT     | float|  O  | LoRa receive timeout (1.0)            |
+
+
+BluesSender
+-----------
+
+| Name                | Type | O/M | Description                           |
+|---------------------|------|-----|---------------------------------------|
 | SYNC_BLUES_ACTION   | bool |  M  | see below                             |
 | MAX_SYNC_TIME       | int  |  O  | wait for time-sync on cold-boot (300) |
-| RECEIVE_TIMEOUT     | float|  O  | LoRa receive timeout (1.0)            |
 
 
 `SYNC_BLUES_ACTION` configures the action to perform when receiving data:
