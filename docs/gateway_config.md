@@ -2,7 +2,7 @@ Gateway Configuration
 =====================
 
 A number of configuration constants are necessary to operate the gateway.
-Copy the file `src.blues_gateway/config_template.py` and adapt the
+Copy the file `src.gateway/config_template.py` and adapt the
 config-variables for your setup.
 
 The configuration of the logger is identical to the way this is

@@ -21,12 +21,12 @@ LOG_CONFIG=src/log_config.py
 FONT=DejaVuSansMono-Bold-18-subset.bdf
 
 ifeq (gateway,$(findstring gateway,${MAKECMDGOALS}))
-SRC=src.blues_gateway
-SOURCES=$(wildcard src.blues_gateway/*.py)
+SRC=src.gateway
+SOURCES=$(wildcard src.gateway/*.py)
 SOURCES2=src/lora.py src/log_writer.py src/singleton.py
-SPECIAL=src.blues_gateway/main.py
-CONFIG=src.blues_gateway/config.py
-LOG_CONFIG=src.blues_gateway/log_config.py
+SPECIAL=src.gateway/main.py
+CONFIG=src.gateway/config.py
+LOG_CONFIG=src.gateway/log_config.py
 COPY_PREREQ=gateway
 else
 SRC=src

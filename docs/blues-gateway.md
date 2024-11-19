@@ -37,7 +37,7 @@ See [gateway configuration](./gateway_config.md).
 Deployment
 ----------
 
-The source of the software is in `src.blues_gateway`. It is complete
+The source of the software is in `src.gateway`. It is complete
 with the exception of two configuration files: `config.py` and
 `log_config.py`. The recommended way of building and installing the
 software is to use the Makefile in the toplevel directory:
