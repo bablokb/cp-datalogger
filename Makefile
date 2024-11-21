@@ -23,7 +23,7 @@ FONT=DejaVuSansMono-Bold-18-subset.bdf
 ifeq (gateway,$(findstring gateway,${MAKECMDGOALS}))
 SRC=src.gateway
 SOURCES=$(wildcard src.gateway/*.py)
-SOURCES2=src/lora.py src/log_writer.py src/singleton.py
+SOURCES2=src/lora.py src/log_writer.py src/singleton.py src/hw_helper.py
 SPECIAL=src.gateway/main.py
 CONFIG=src.gateway/config.py
 LOG_CONFIG=src.gateway/log_config.py
