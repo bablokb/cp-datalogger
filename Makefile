@@ -23,7 +23,8 @@ FONT=DejaVuSansMono-Bold-18-subset.bdf
 ifeq (gateway,$(findstring gateway,${MAKECMDGOALS}))
 SRC=src.gateway
 SOURCES=$(wildcard src.gateway/*.py)
-SOURCES2=src/lora.py src/log_writer.py src/singleton.py src/hw_helper.py
+SOURCES2=src/lora.py src/log_writer.py src/singleton.py src/hw_helper.py \
+         src/wifi_impl_builtin.py src/oled.py
 SPECIAL=src.gateway/main.py
 CONFIG=src.gateway/config.py
 LOG_CONFIG=src.gateway/log_config.py
@@ -92,6 +93,7 @@ default: ${DEPLOY_TO} ${DEPLOY_TO}/sensors \
 
 gateway: ${DEPLOY_TO} lib \
 	${DEPLOY_TO}/pins.mpy \
+	${DEPLOY_TO}/secrets.mpy \
 	$(SOURCES:${SRC}/%.py=${DEPLOY_TO}/%.mpy) \
 	$(SOURCES2:src/%.py=${DEPLOY_TO}/%.mpy) \
 	$(SPECIAL:${SRC}/%.py=${DEPLOY_TO}/%.py) \
