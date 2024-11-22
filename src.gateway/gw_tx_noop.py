@@ -6,6 +6,8 @@
 # Website: https://github.com/pcb-pico-datalogger
 #-----------------------------------------------------------------------------
 
+import time
+
 # --- early configuration of the log-destination   ---------------------------
 
 from log_writer import Logger
