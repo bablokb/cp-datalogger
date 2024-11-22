@@ -23,6 +23,7 @@ except:
 
 import config as g_config
 import pins
+import hw_helper
 
 # --- small helper functions to create RX and TX classes   -------------------
 
@@ -36,10 +37,16 @@ def get_tx_blues():
   from gw_tx_blues import BluesSender
   return BluesSender
 
+def get_tx_noop():
+  """ import and return NoopSender class """
+  from gw_tx_noop import NoopSender
+  return NoopSender
+
 RX_MAP = {
   'Lora': get_rx_lora
   }
 TX_MAP = {
+  'Noop':  get_tx_noop,
   'Blues': get_tx_blues
   }
 
@@ -73,10 +80,24 @@ class Gateway:
   def _setup(self):
     """ initialize hardware """
 
-    g_logger.print(f"initializing gateway")
-    self._receiver.setup()
-    self._sender.setup()
-    self._init_rtc()
+    g_logger.print(f"gateway: initializing")
+    self._i2c  = None
+    self._spi  = None
+    self._oled = None
+    try:
+      self._i2c  = hw_helper.init_i2c(pins,g_config,g_logger)
+      self._spi  = hw_helper.init_sd(pins,g_config)
+      self._oled = hw_helper.init_oled(g_config,g_logger,self._i2c)
+    except Exception as ex:
+      # ignore exceptions, all hw-components are optional
+      g_logger.print(f"exception during setup: {ex}")
+
+    # rtc object is mandatory, don't catch exception
+    self._rtc  = hw_helper.init_rtc(g_config,self._i2c)
+
+    self._receiver.setup(self._i2c,self._spi)
+    self._sender.setup(self._i2c,self._spi)
+    self._update_time()
 
     start = getattr(g_config,'ACTIVE_WINDOW_START',"7:00").split(':')
     self._start_h = int(start[0])
@@ -90,49 +111,68 @@ class Gateway:
     self._dev_mode = getattr(g_config,'DEV_MODE',False)
     if self._dev_mode:
       self._startup = time.monotonic()
-    g_logger.print(f"gateway initialized")
+    g_logger.print(f"gateway: initialized")
 
-  # --- initialize on-board RTC   --------------------------------------------
+  # --- query time (internal or from upstream)   -----------------------------
 
-  def _init_rtc(self):
-    """ initialize RTC """
+  def _update_time(self):
+    """ query time: try internal RTC, then upstream """
 
-    self._rtc = rtc.RTC()
+    if self._rtc.update():     # (time-server->)ext-rtc->int-rtc
+      return
+
+    # try to fetch time from upstream
     ts = self._sender.get_time()
     if ts:
-      self._rtc.datetime = ts
-      return True
+      g_logger.print("gateway: updated time from upstream")
+      self._rtc.rtc_ext.datetime = ts
     else:
-      g_logger.print("could not set time")
-      return False
+      g_logger.print("gateway: could not set time")
 
   # --- reply to broadcast-messages   ----------------------------------------
 
   def _handle_broadcast(self,values):
     """ echo data to sender """
 
-    g_logger.print("processing broadcast-data...")
+    g_logger.print("gateway: processing broadcast-data...")
     start = time.monotonic()
     rc = self._receiver.handle_broadcast(values)
     duration = time.monotonic()-start
     if rc:
-      g_logger.print(f"retransmit successful. Duration: {duration}s")
+      g_logger.print(f"gateway: retransmit successful. Duration: {duration}s")
     else:
-      g_logger.print(f"retransmit failed. Duration: {duration}s")
+      g_logger.print(f"gateway: retransmit failed. Duration: {duration}s")
 
   # --- reply to query-time-messages   ---------------------------------------
 
   def _handle_time_request(self,values):
     """ echo data to sender """
 
-    g_logger.print("processing time-request...")
+    g_logger.print("gateway: processing time-request...")
     start = time.monotonic()
     rc = self._receiver.handle_time_request(values)
     duration = time.monotonic()-start
     if rc:
-      g_logger.print(f"transmit successful. Duration: {duration}s")
+      g_logger.print(f"gateway: transmit successful. Duration: {duration}s")
     else:
-      g_logger.print(f"transmit failed. Duration: {duration}s")
+      g_logger.print(f"gateway: transmit failed. Duration: {duration}s")
+
+  # --- process data   -------------------------------------------------------
+
+  def _process_data(self,values):
+    """ process data """
+
+    # local processing
+
+    # ...save to SD
+    if g_config.HAVE_SD:
+      g_logger.print("gateway: saving data to SD...")
+    # ...show on display
+    if g_config.HAVE_OLED:
+      g_logger.print("gateway: updating OLED...")
+
+    # remote processing
+    self._sender.process_data(values)
 
   # --- cleanup   ------------------------------------------------------------
 
@@ -149,7 +189,7 @@ class Gateway:
 
     # get start of next active window (tomorrow)
     g_logger.print(
-      f"shutdown until tomorrow, {self._start_h:02}:{self._start_m:02}")
+      f"gateway: shutdown until tomorrow, {self._start_h:02}:{self._start_m:02}")
 
     # calculate sleep-time
     tm = self._rtc.datetime
@@ -157,7 +197,7 @@ class Gateway:
               (59-tm.tm_min)*60 +
               (59-tm.tm_sec) +
               3600*self._start_h + 60*self._start_m)
-    g_logger.print(f"sleep-duration: {s_time}s")
+    g_logger.print(f"gateway: sleep-duration: {s_time}s")
 
     # in DEV_MODE, only sleep for a short time
     if self._dev_mode:
@@ -165,11 +205,11 @@ class Gateway:
         time.monotonic()-self._startup)
       if uptime_left > 0:
         # ignore to guarantee a minum uptime
-        g_logger.print(f"DEV_MODE: ignoring shutdown for {uptime_left}s")
+        g_logger.print(f"gateway: DEV_MODE: ignoring shutdown for {uptime_left}s")
         return False
       else:
         s_time = getattr(g_config,'DEV_SLEEP',60)
-        g_logger.print(f"DEV_MODE: change sleep-duration to: {s_time}s")
+        g_logger.print(f"gateway: DEV_MODE: change sleep-duration to: {s_time}s")
 
     # notify sender/receiver to disable power until sleep-time expires
     if not (self._sender.shutdown(s_time) or self._receiver.shutdown(s_time)):
@@ -189,7 +229,7 @@ class Gateway:
     """ tell the power-controller to cut power """
 
     if getattr(g_config,"HAVE_PM",False) and hasattr(pins,"PIN_DONE"):
-      g_logger.print("signal power-off")
+      g_logger.print("gateway: signal power-off")
 
       if type(pins.PIN_DONE) == DigitalInOut:
         self.done           = pins.PIN_DONE
@@ -208,7 +248,8 @@ class Gateway:
       time.sleep(2)
       return True
     else:
-      g_logger.print("ignoring shutdown (don't have PM or PIN_DONE undefined)")
+      g_logger.print(
+        "gateway: ignoring shutdown (don't have PM or PIN_DONE undefined)")
       return False
 
   # --- main-loop   ----------------------------------------------------------
@@ -216,12 +257,12 @@ class Gateway:
   def run(self):
     """ application loop """
 
-    g_logger.print("gateway program start")
+    g_logger.print("gateway: program start")
 
     # initialize hardware
     self._setup()
 
-    g_logger.print(f"waiting for incoming transmissions ...")
+    g_logger.print(f"gateway: waiting for incoming transmissions ...")
     while True:
       data = None
 
@@ -229,15 +270,15 @@ class Gateway:
       data = self._receiver.receive_data()
       if data is None:
         # check active time period
-        if (self._rtc.datetime.tm_hour >= self._end_h and
-            self._rtc.datetime.tm_min  >= self._end_m):
+        ts = time.localtime()
+        if ts.tm_hour >= self._end_h and ts.tm_min  >= self._end_m:
           if self._shutdown():
             break
         continue
 
       # Decode packet: expect csv data
       try:
-        g_logger.print(f"data: {data}")
+        g_logger.print(f"gateway: data: {data}")
         values = data.split(',')
         if values[0] in ['B', 'T']:
           mode = values[0]
@@ -250,6 +291,6 @@ class Gateway:
         elif mode == 'T':
           self._handle_time_request(values)
         else:
-          self._sender.process_data(values)
+          self._process_data(values)
       except Exception as ex:
-        g_logger.print(f"could not process data: {ex}")
+        g_logger.print(f"gateway: could not process data: {ex}")
