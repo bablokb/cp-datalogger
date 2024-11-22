@@ -29,13 +29,6 @@ import builtins
 
 from digitalio import DigitalInOut, Direction, Pull
 
-# import for SD-card
-import sdcardio
-import storage
-
-# imports for i2c and rtc
-import busio
-
 # sleep-helper
 from sleep import TimeSleep
 
@@ -53,6 +46,9 @@ except:
   g_logger = Logger('console')
 
 g_ts.append((time.monotonic(),"log-config"))
+
+# hw_helper utilities
+import hw_helper
 
 # imports for rtc
 from rtc_ext.ext_base import ExtBase
@@ -130,46 +126,6 @@ g_ts.append((time.monotonic(),"settings"))
 class DataCollector():
   """ main application class """
 
-  # --- initialize I2C-busses   ----------------------------------------------
-
-  def _init_i2c(self):
-    """ create list of I2C-busses """
-
-    # Standard busses 0 and 1. Bus 0 is shared with UART, so we check
-    # the configuration before creating it.
-    try:
-      self.i2c = [None,busio.I2C(pins.PIN_SCL1,pins.PIN_SDA1)]
-    except:
-      g_logger.print("could not create i2c1")
-      self.i2c = [None,None]
-    if g_config.HAVE_I2C0:
-      try:
-        self.i2c[0] = busio.I2C(pins.PIN_SCL0,pins.PIN_SDA0)
-      except:
-        g_logger.print("could not create i2c0 although configured, check wiring!")
-
-    # create busses behind a multiplexer
-    if g_config.HAVE_I2C_MP:
-      import adafruit_tca9548a
-      for spec in g_config.HAVE_I2C_MP.split():
-        name,loc = spec.rstrip(')').split('(')
-        try:
-          bus,addr = loc.split(',')
-        except:
-          bus = loc
-          addr = '0x70'
-        bus = self.i2c[int(bus)]
-        addr = int(addr,16)
-        if name[-2:] == '46' or name[-3:] == '46A':
-          i2c_mp = adafruit_tca9548a.PCA9546A(bus,addr)
-        else:
-          i2c_mp = adafruit_tca9548a.TCA9548A(bus,addr)
-        g_logger.print(f"adding {len(i2c_mp)} I2C-busses from {name}")
-        for i2cbus in i2c_mp:
-          self.i2c.append(i2cbus)
-    if g_config.TEST_MODE:
-      g_logger.print(f"setup: free memory after create i2c-busses: {gc.mem_free()}")
-
   # --- hardware-setup   -----------------------------------------------------
 
   def setup(self):
@@ -184,38 +140,20 @@ class DataCollector():
       self._cs_display.switch_to_output(value=True)
 
     # early setup of SD-card (in case we send debug-logs to sd-card)
-    self.spi = None
+    self.spi = hw_helper.init_sd(pins,g_config)
     if g_config.HAVE_SD:
-      self.spi = busio.SPI(pins.PIN_SD_SCK,pins.PIN_SD_MOSI,pins.PIN_SD_MISO)
-      sdcard     = sdcardio.SDCard(self.spi,pins.PIN_SD_CS,1_000_000)
-      self.vfs   = storage.VfsFat(sdcard)
-      storage.mount(self.vfs, "/sd")
       g_ts.append((time.monotonic(),"sd-mount"))
       if g_config.TEST_MODE:
         g_logger.print(f"setup: free memory after sd-mount: {gc.mem_free()}")
 
     # create self.i2c (list of I2C-busses)
-    self._init_i2c()
+    self.i2c = hw_helper.init_i2c(pins,g_config,g_logger)
+    if g_config.TEST_MODE:
+      g_logger.print(f"setup: free memory after create i2c-busses: {gc.mem_free()}")
 
-    # Initialise RTC if configured.
-    if g_config.HAVE_RTC:
-      rtc_spec = g_config.HAVE_RTC.split('(')
-      rtc_name = rtc_spec[0]
-      rtc_bus  = int(rtc_spec[1][0])
-    else:
-      rtc_name = None
-      rtc_bus  = 0
-
+    # create and update rtc
     try:
-      self.rtc = ExtBase.create(rtc_name,self.i2c[rtc_bus],
-                                net_update=g_config.NET_UPDATE)
-      if rtc_name == "PCF8523":
-        if pins.PCB_VERSION > 0:
-          self.rtc.rtc_ext.high_capacitance = True  # uses a 12.5pF capacitor
-        if self.with_lipo:
-          self.rtc.rtc_ext.power_managment = 0b001  # direct switchover Vdd<Vbat
-        else:
-          self.rtc.rtc_ext.power_managment = 0b000  # Vdd<Vbat and Vdd < Vth
+      self.rtc = hw_helper.init_rtc(g_config,self.i2c)
 
       # update RTC, fallback to wakeup time on SD if necessary
       rc = self.rtc.update()                 # (time-server->)ext-rtc->int-rtc
