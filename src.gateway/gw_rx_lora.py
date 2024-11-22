@@ -30,13 +30,14 @@ class LoraReceiver:
 
   # --- hardware-setup   -----------------------------------------------------
 
-  def setup(self):
+  def setup(self,i2c,spi):
     """ initialize hardware """
 
     g_logger.print(f"LoraReceiver: initializing hardware")
-    self.spi1 = busio.SPI(pins.PIN_LORA_SCK,pins.PIN_LORA_MOSI,
-                          pins.PIN_LORA_MISO)
-    self._lora = LORA(self._config,self.spi1)
+    if not spi:
+      spi = busio.SPI(pins.PIN_LORA_SCK,pins.PIN_LORA_MOSI,
+                      pins.PIN_LORA_MISO)
+    self._lora = LORA(self._config,spi)
 
   # --- receive data   -------------------------------------------------------
 
