@@ -32,11 +32,14 @@ class BluesSender:
 
   # --- hardware-setup   -----------------------------------------------------
 
-  def setup(self):
+  def setup(self,i2c,spi):
     """ initialize hardware """
 
     g_logger.print(f"initializing BluesSender")
-    self._i2c  = busio.I2C(sda=pins.PIN_SDA,scl=pins.PIN_SCL)
+    if not i2c:
+      self._i2c = busio.I2C(sda=pins.PIN_SDA,scl=pins.PIN_SCL)
+    else:
+      self._i2c = i2c
     self._init_notecard()
 
   # --- Notecard   -----------------------------------------------------------
