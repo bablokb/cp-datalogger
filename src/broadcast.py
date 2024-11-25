@@ -31,7 +31,7 @@ except:
 g_logger.print("!!! Starting in Broadcast-Mode !!!")
 
 from settings import Settings
-g_config = Settings()
+g_config = Settings(g_logger)
 g_config.import_config()
 
 import pins
