@@ -15,7 +15,10 @@ from digitalio import DigitalInOut, Pull, Direction
 
 import pins
 import webap
-from datacollector import g_config
+
+from settings import Settings
+g_config = Settings()
+g_config.import_config()
 
 from log_writer import Logger
 from rtc_ext.pcf8523 import ExtPCF8523 as ExtRTC

@@ -30,8 +30,11 @@ except:
   g_logger = Logger('console')
 g_logger.print("!!! Starting in Broadcast-Mode !!!")
 
+from settings import Settings
+g_config = Settings()
+g_config.import_config()
+
 import pins
-from datacollector import g_config
 from lora import LORA
 from rtc_ext.ext_base import ExtBase
 from sleep import TimeSleep
