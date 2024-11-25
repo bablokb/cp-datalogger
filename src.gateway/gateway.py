@@ -9,7 +9,6 @@
 import time
 import busio
 import board
-import rtc
 from digitalio import DigitalInOut, Direction, Pull
 
 # --- early configuration of the log-destination   ---------------------------
@@ -17,13 +16,15 @@ from digitalio import DigitalInOut, Direction, Pull
 try:
   from log_config import g_logger
 except:
-  raise
   from log_writer import Logger
   g_logger = Logger('console')
 
-import config as g_config
 import pins
 import hw_helper
+
+from settings import Settings
+g_config = Settings(g_logger)
+g_config.import_config()
 
 # --- small helper functions to create RX and TX classes   -------------------
 
@@ -99,6 +100,7 @@ class Gateway:
     self._sender.setup(self._i2c,self._spi)
     self._update_time()
 
+    # configure active window
     start = getattr(g_config,'ACTIVE_WINDOW_START',"7:00").split(':')
     self._start_h = int(start[0])
     self._start_m = int(start[1])
@@ -111,6 +113,15 @@ class Gateway:
     self._dev_mode = getattr(g_config,'DEV_MODE',False)
     if self._dev_mode:
       self._startup = time.monotonic()
+
+    # query SD-card filename
+    if g_config.HAVE_SD:
+      ts = time.localtime()
+      ymd = f"{ts.tm_year}-{ts.tm_mon:02d}-{ts.tm_mday:02d}"
+      y,m,d = ymd.split("-")
+      self._csv_file = g_config.CSV_FILENAME.format(ID=g_config.LOGGER_ID,
+                                           YMD=ymd,Y=y,M=m,D=d)
+
     g_logger.print(f"gateway: initialized")
 
   # --- query time (internal or from upstream)   -----------------------------
@@ -138,6 +149,12 @@ class Gateway:
     start = time.monotonic()
     rc = self._receiver.handle_broadcast(values)
     duration = time.monotonic()-start
+
+    if getattr(g_config,"HAVE_OLED",False) and self._oled:
+      # values is: TS,ID,pnr,node -> fit to max three lines
+      self._update_oled([values[0],
+                         f"ID/N:{values[1]}/{values[3]}: {values[2]}",
+                         "OK" if rc else "FAILED"])
     if rc:
       g_logger.print(f"gateway: retransmit successful. Duration: {duration}s")
     else:
@@ -165,14 +182,39 @@ class Gateway:
     # local processing
 
     # ...save to SD
-    if g_config.HAVE_SD:
-      g_logger.print("gateway: saving data to SD...")
+    if getattr(g_config,"HAVE_SD",False):
+      self._save_data(values)
     # ...show on display
-    if g_config.HAVE_OLED:
-      g_logger.print("gateway: updating OLED...")
+    if getattr(g_config,"HAVE_OLED",False) and self._oled:
+      self._update_oled(values)
 
     # remote processing
     self._sender.process_data(values)
+
+  # --- save data to SD-card   -----------------------------------------------
+
+  def _save_data(self,values):
+    """ save data to a SD-card """
+
+    g_logger.print(f"gateway: saving data to {self._csv_file}...")
+    with open(self._csv_file, "a") as f:
+      f.write(f"{values}\n")
+
+  # --- update OLED   --------------------------------------------------------
+
+  def _update_oled(self,values):
+    """ update OLED """
+
+    display = self._oled.get_display()
+    label   = self._oled.get_textlabel()
+    lines = 5 if display.height > 32 else 3
+
+    text = ""
+    for i in range(min(lines,len(values))):
+      text += f"{values[i]}\n"
+
+    g_logger.print("gateway: updating OLED...")
+    label.text = text
 
   # --- cleanup   ------------------------------------------------------------
 
