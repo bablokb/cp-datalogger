@@ -82,8 +82,9 @@ class DataCollector():
       self._cs_display.switch_to_output(value=True)
 
     # early setup of SD-card (in case we send debug-logs to sd-card)
-    self.spi = hw_helper.init_sd(pins,g_config)
+    self.spi = None
     if g_config.HAVE_SD:
+      self.spi = hw_helper.init_sd(pins,g_config,g_logger)
       g_ts.append((time.monotonic(),"sd-mount"))
       if g_config.TEST_MODE:
         g_logger.print(f"setup: free memory after sd-mount: {gc.mem_free()}")
