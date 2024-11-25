@@ -70,7 +70,7 @@ def init_sd(pins,config,logger):
     except Exception as ex:
       if spi:
         spi.deinit()
-      raise from ex
+      raise
   return spi
 
 # --- initialize RTC   -------------------------------------------------------
@@ -113,5 +113,5 @@ def init_oled(i2c,config,logger):
       return odisp
     except Exception as ex:
       logger.print(f"could not initialize OLED: {ex}")
-      raise from ex
+      raise
   return None
