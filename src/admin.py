@@ -16,12 +16,17 @@ from digitalio import DigitalInOut, Pull, Direction
 import pins
 import webap
 
-from settings import Settings
-g_config = Settings()
-g_config.import_config()
+try:
+  from log_config import g_logger
+except:
+  from log_writer import Logger
+  g_logger = Logger('console')
 
-from log_writer import Logger
-from rtc_ext.pcf8523 import ExtPCF8523 as ExtRTC
+import hw_helper
+
+from settings import Settings
+g_config = Settings(g_logger)
+g_config.import_config()
 
 # access point settings
 try:
@@ -49,7 +54,6 @@ elif hasattr(pins,'PIN_LED'):
 
 # --- init environment   -----------------------------------------------------
 
-g_logger = Logger()
 if g_config.TEST_MODE:
   time.sleep(5)
 
@@ -62,29 +66,14 @@ if g_config.HAVE_DISPLAY and hasattr(pins,"PIN_INKY_CS"):
 # --- read rtc   -------------------------------------------------------------
 
 if g_config.HAVE_RTC:
-  rtc_bus = int(g_config.HAVE_RTC.split('(')[1][0])
-  try:
-    if rtc_bus == 1:
-      i2c = busio.I2C(pins.PIN_SCL1,pins.PIN_SDA1)
-    else:
-      i2c = busio.I2C(pins.PIN_SCL0,pins.PIN_SDA0)
-    rtc = ExtRTC(i2c)
-    rtc.rtc_ext.high_capacitance = True
-    rtc.update()
-  except Exception as ex:
-    g_logger.print(f"could not read RTC: {ex}")
-    rtc = None
+  i2c  = hw_helper.init_i2c(pins,g_config,g_logger)
+  rtc  = hw_helper.init_rtc(g_config,i2c)
   ap_config["rtc"] = rtc  # pass to webap for later use
 
 # --- mount sd-card if available   -------------------------------------------
 
 if g_config.HAVE_SD:
-  spi = busio.SPI(pins.PIN_SD_SCK,pins.PIN_SD_MOSI,pins.PIN_SD_MISO)
-  import storage
-  import sdcardio
-  sdcard = sdcardio.SDCard(spi,pins.PIN_SD_CS,1_000_000)
-  vfs    = storage.VfsFat(sdcard)
-  storage.mount(vfs, "/sd")
+  spi = hw_helper.init_sd(pins,g_config,g_logger)
 else:
   spi = None
 
