@@ -81,19 +81,11 @@ class Gateway:
   def _setup(self):
     """ initialize hardware """
 
+    # hw_helper won't throw an exception, if hardware is not in config
     g_logger.print(f"gateway: initializing")
-    self._i2c  = None
-    self._spi  = None
-    self._oled = None
-    try:
-      self._i2c  = hw_helper.init_i2c(pins,g_config,g_logger)
-      self._spi  = hw_helper.init_sd(pins,g_config)
-      self._oled = hw_helper.init_oled(g_config,g_logger,self._i2c)
-    except Exception as ex:
-      # ignore exceptions, all hw-components are optional
-      g_logger.print(f"exception during setup: {ex}")
-
-    # rtc object is mandatory, don't catch exception
+    self._i2c  = hw_helper.init_i2c(pins,g_config,g_logger)
+    self._oled = hw_helper.init_oled(self._i2c,g_config,g_logger)
+    self._spi  = hw_helper.init_sd(pins,g_config,g_logger)
     self._rtc  = hw_helper.init_rtc(g_config,self._i2c)
 
     self._receiver.setup(self._i2c,self._spi)
