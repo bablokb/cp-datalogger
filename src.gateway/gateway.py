@@ -201,10 +201,13 @@ class Gateway:
     label   = self._oled.get_textlabel()
     lines = 5 if display.height > 32 else 3
 
-    text = ""
-    for i in range(min(lines,len(values))):
-      text += f"{values[i]}\n"
-
+    text = "\n".join(values[:min(lines,len(values))])
+    if len(values) > lines:
+      len_free = 21 - len(values[lines-1]) - 1   # OLED is 21 chars wide
+      for i in range(lines,len(values)):
+        if len(values[i])+1 > len_free:
+          break
+        text += f" {values[i]}"
     g_logger.print("gateway: updating OLED...")
     label.text = text
 
