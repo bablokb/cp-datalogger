@@ -18,7 +18,10 @@
 #-----------------------------------------------------------------------------
 
 import time
+import supervisor
 from singleton import singleton
+
+MAX_CONSOLE_WAIT = 5
 
 @singleton
 class Logger():
@@ -34,6 +37,10 @@ class Logger():
     elif isinstance(target,str):
       if target == 'console':
         self._print = self._print_to_console
+        start = time.monotonic()
+        while not (supervisor.runtime.serial_connected or
+                   time.monotonic()-start > MAX_CONSOLE_WAIT):
+          time.sleep(0.1)
       else:
         self._print = self._log_to_sd
     else:
