@@ -379,10 +379,6 @@ class DataCollector():
     global g_logger, g_config, g_ts
 
     g_logger.print("main program start")
-    if g_config.TEST_MODE:
-      TimeSleep.light_sleep(duration=5)       # give console some time to initialize
-      g_ts.append((time.monotonic(),"delay test-mode"))
-
     g_logger.print("setup of hardware")
     g_ts.append((time.monotonic(),"DataCollector()"))
     self.setup()

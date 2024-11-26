@@ -50,9 +50,6 @@ elif hasattr(pins,'PIN_LED'):
   switch_d.direction = Direction.OUTPUT
   switch_d.value = True
 
-if g_config.TEST_MODE:
-  TimeSleep.light_sleep(duration=5)
-
 # --- application class for broadcast-mode   ---------------------------------
 
 class Broadcast:

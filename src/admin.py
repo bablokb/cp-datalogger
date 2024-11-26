@@ -52,11 +52,6 @@ elif hasattr(pins,'PIN_LED'):
   switch_d.direction = Direction.OUTPUT
   switch_d.value = True
 
-# --- init environment   -----------------------------------------------------
-
-if g_config.TEST_MODE:
-  time.sleep(5)
-
 # --- set CS of display to high   --------------------------------------------
 
 if g_config.HAVE_DISPLAY and hasattr(pins,"PIN_INKY_CS"):
