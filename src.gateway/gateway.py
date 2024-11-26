@@ -142,7 +142,7 @@ class Gateway:
     rc = self._receiver.handle_broadcast(values)
     duration = time.monotonic()-start
 
-    if getattr(g_config,"HAVE_OLED",False) and self._oled:
+    if self._oled:
       # values is: TS,ID,pnr,node -> fit to max three lines
       self._update_oled([values[0],
                          f"ID/N:{values[1]}/{values[3]}: {values[2]}",
@@ -296,7 +296,11 @@ class Gateway:
     # initialize hardware
     self._setup()
 
-    g_logger.print(f"gateway: waiting for incoming transmissions ...")
+    if self._oled:
+      self._update_oled([f"{self._rtc.print_ts(None,time.localtime())}",
+                         "Waiting for data..."])
+    g_logger.print(f"gateway: waiting for incoming data ...")
+
     while True:
       data = None
 
@@ -312,7 +316,7 @@ class Gateway:
 
       # Decode packet: expect csv data
       try:
-        g_logger.print(f"gateway: data: {data}")
+        g_logger.print(f"gateway: data received: {data}")
         values = data.split(',')
         if values[0] in ['B', 'T']:
           mode = values[0]
