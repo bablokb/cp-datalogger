@@ -32,9 +32,6 @@ from digitalio import DigitalInOut, Direction, Pull
 # sleep-helper
 from sleep import TimeSleep
 
-# pin definitions
-import pins
-
 g_ts.append((time.monotonic(),"import"))
 
 # --- early configuration of the log-destination   ---------------------------
@@ -96,7 +93,7 @@ class DataCollector():
 
     # create and update rtc
     try:
-      self.rtc = hw_helper.init_rtc(g_config,self.i2c)
+      self.rtc = hw_helper.init_rtc(pins,g_config,self.i2c)
 
       # update RTC, fallback to wakeup time on SD if necessary
       rc = self.rtc.update()                 # (time-server->)ext-rtc->int-rtc

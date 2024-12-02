@@ -62,7 +62,7 @@ if g_config.HAVE_DISPLAY and hasattr(pins,"PIN_INKY_CS"):
 
 if g_config.HAVE_RTC:
   i2c  = hw_helper.init_i2c(pins,g_config,g_logger)
-  rtc  = hw_helper.init_rtc(g_config,i2c)
+  rtc  = hw_helper.init_rtc(pins,g_config,i2c)
   ap_config["rtc"] = rtc  # pass to webap for later use
 
 # --- mount sd-card if available   -------------------------------------------

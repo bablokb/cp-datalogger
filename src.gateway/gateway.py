@@ -86,7 +86,7 @@ class Gateway:
     self._i2c  = hw_helper.init_i2c(pins,g_config,g_logger)
     self._oled = hw_helper.init_oled(self._i2c,g_config,g_logger)
     self._spi  = hw_helper.init_sd(pins,g_config,g_logger)
-    self._rtc  = hw_helper.init_rtc(g_config,self._i2c)
+    self._rtc  = hw_helper.init_rtc(pins,g_config,self._i2c)
 
     self._receiver.setup(self._i2c,self._spi)
     self._sender.setup(self._i2c,self._spi)

@@ -75,7 +75,7 @@ def init_sd(pins,config,logger):
 
 # --- initialize RTC   -------------------------------------------------------
 
-def init_rtc(config,i2c):
+def init_rtc(pins,config,i2c):
   """ initialize RTC and return RTC-object """
 
   if getattr(config,"HAVE_RTC",None):
