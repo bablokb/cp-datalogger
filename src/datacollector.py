@@ -23,7 +23,6 @@ g_ts.append((time.monotonic(),None))
 
 import gc
 import board
-import alarm
 import os
 import builtins
 
