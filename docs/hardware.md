@@ -67,4 +67,7 @@ To setup the PCBs of this repo:
 Software
 --------
 
-Head on to [Software](./software.md).
+Head on to
+
+  - [Software (Datalogger)](./software_datalogger.md)
+  - [Software (Gateway)](./software_gateway.md)

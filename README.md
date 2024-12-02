@@ -60,7 +60,8 @@ Quick Links
 -----------
 
   * [Hardware Setup](docs/hardware.md)
-  * [Software](docs/software.md)
+  * [Software (Datalogger)](docs/software_datalogger.md)
+  * [Software (Gateway)](docs/software_gateway.md)
   * [Configuration](docs/configuration.md)
   * [Software deployment](docs/deployment.md)
   * [Examples](examples/README.md)
