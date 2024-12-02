@@ -13,18 +13,8 @@ import displayio
 from log_writer import Logger
 g_logger = Logger()
 
-def init_oled(config,app):
-  try:
-    from oled import OLED
-    oled_display = OLED(config,app.i2c)
-    display = oled_display.get_display()
-    label   = oled_display.get_textlabel()
-    g_logger.print(
-      f"OLED created with size {display.width}x{display.height}")
-    return label, display.height
-  except Exception as ex:
-    g_logger.print(f"could not initialize OLED: {ex}")
-  
+import hw_helper
+
 def run(config,app):
   """ update oled display """
 
@@ -33,7 +23,11 @@ def run(config,app):
 
   gc.collect()
   try:
-    textlabel,height = init_oled(config,app)
+    oled = hw_helper.init_oled(app.i2c,config,g_logger)
+    if not oled:
+      return
+    textlabel = oled.get_textlabel()
+    height   = oled.get_display().height
   except:
     return   # no OLED connected
   

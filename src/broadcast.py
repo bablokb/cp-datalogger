@@ -35,6 +35,8 @@ g_config = Settings(g_logger)
 g_config.import_config()
 
 import pins
+
+import hw_helper
 from lora import LORA
 from rtc_ext.ext_base import ExtBase
 from sleep import TimeSleep
@@ -64,33 +66,24 @@ class Broadcast:
     self._pnr     = 0
     self._pok     = 0
 
-    self._init_i2c()
     self._init_spi()
-    self._init_rtc()
     self._init_display()
-    self._lora    = LORA(g_config,self.spi1)
-    self._have_oled = self._init_oled()
-    if self._have_oled or not self._display:
+    self._lora = LORA(g_config,self.spi1)
+
+    self._i2c  = hw_helper.init_i2c(pins,g_config,g_logger)
+    self._rtc  = hw_helper.init_rtc(pins,g_config,self._i2c)
+
+    self._oled = hw_helper.init_oled(self._i2c,g_config,g_logger)
+    if self._oled:
+      self._display   = self._oled.get_display()
+      self._textlabel = self._oled.get_textlabel()
+
+    if self._oled or not self._display:
       self.interval = getattr(g_config,'BROADCAST_INT',10)
     else:
       # set update-interval to at least 60 seconds to protect display
       self.interval = max(getattr(g_config,'BROADCAST_INT',10),60)
       self._last_ref = 0
-
-  # --- create I2C-busses   --------------------------------------------------
-
-  def _init_i2c(self):
-    """ create available I2C-busses """
-
-    try:
-      self.i2c = [None,busio.I2C(pins.PIN_SCL1,pins.PIN_SDA1)]
-    except:
-      self.i2c = [None,None]
-    if g_config.HAVE_I2C0:
-      try:
-        self.i2c[0] = busio.I2C(pins.PIN_SCL0,pins.PIN_SDA0)
-      except:
-        g_logger.print("could not create i2c0, check wiring!")
 
   # --- create SPI   ---------------------------------------------------------
 
@@ -107,29 +100,6 @@ class Broadcast:
     else:
       self.spi1 = busio.SPI(pins.PIN_LORA_SCK,pins.PIN_LORA_MOSI,
                             pins.PIN_LORA_MISO)
-
-  # --- read rtc   -----------------------------------------------------------
-
-  def _init_rtc(self):
-    """ initialize RTC """
-
-    if g_config.HAVE_RTC:
-      rtc_spec = g_config.HAVE_RTC.split('(')
-      rtc_name = rtc_spec[0]
-      rtc_bus  = int(rtc_spec[1][0])
-    else:
-      rtc_name = None
-      rtc_bus  = 0
-
-    try:
-      self._rtc = ExtBase.create(rtc_name,self.i2c[rtc_bus],
-                                net_update=g_config.NET_UPDATE)
-      if rtc_name == "PCF8523" and pins.PCB_VERSION > 0:
-          self._rtc.rtc_ext.high_capacitance = True  # uses a 12.5pF capacitor
-    except Exception as ex:
-      # could not detect or configure RTC
-      g_logger.print(f"error while configuring RTC: {ex}")
-      g_config.HAVE_RTC = None
 
   # --- standard display   -------------------------------------------------
 
@@ -167,25 +137,6 @@ class Broadcast:
       self._last_ref = time.monotonic()
       g_logger.print("finished display update")
 
-  # --- OLED display   -------------------------------------------------------
-  # NOTE: the main display will receive no more updates once this is setup
-
-  def _init_oled(self):
-    """ init OLED display """
-
-    if getattr(g_config,'HAVE_OLED',None):
-      try:
-        from oled import OLED
-        oled_display    = OLED(g_config,self.i2c)
-        self._display   = oled_display.get_display()
-        self._textlabel = oled_display.get_textlabel()
-        g_logger.print(
-          f"OLED created with size {self._display.width}x{self._display.height}")
-        return True
-      except Exception as ex:
-        g_logger.print(f"could not initialize OLED: {ex}")
-    return False
-
   # --- update info   --------------------------------------------------------
 
   def update_info(self,lines,row=0):
@@ -203,7 +154,7 @@ class Broadcast:
     """ update display """
     if self._display:
       self._textlabel.text = "\n".join(self._lines)
-      if not self._have_oled:
+      if not self._oled:
         # refresh only once per minute
         wait_for_ref = max(0,60-(time.monotonic()-self._last_ref))
         g_logger.print(f"waiting {wait_for_ref}s for display refresh")
@@ -211,7 +162,7 @@ class Broadcast:
         self._last_ref = time.monotonic()
       g_logger.print(f"refreshing display")
       self._display.refresh()
-      if not self._have_oled:
+      if not self._oled:
         time.sleep(3)             # e-ink needs some additional time
 
   # --- clear display   ------------------------------------------------------
@@ -221,7 +172,7 @@ class Broadcast:
     self._lines = [""]*len(self._lines)
     if self._display:
       self._textlabel.text = ""
-      if self._have_oled:
+      if self._oled:
         self._display.refresh()
 
   # --- update time   --------------------------------------------------------
