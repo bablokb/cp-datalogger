@@ -74,7 +74,7 @@ endif
 .PHONY: clean copy2pico copy2gateway
 
 # default target: pre-compile and compress files
-default: ${DEPLOY_TO} ${DEPLOY_TO}/sensors \
+default: ${DEPLOY_TO} ${DEPLOY_TO}/sd ${DEPLOY_TO}/sensors \
 	${DEPLOY_TO}/tasks ${DEPLOY_TO}/tools ${DEPLOY_TO}/www \
         lib ${DEPLOY_TO}/fonts/${FONT} ${ap_config} \
 	${DEPLOY_TO}/pins.mpy \
@@ -91,7 +91,7 @@ default: ${DEPLOY_TO} ${DEPLOY_TO}/sensors \
 	@rm -f makevars.tmp
 	@make -e makevars.tmp
 
-gateway: ${DEPLOY_TO} lib \
+gateway: ${DEPLOY_TO} ${DEPLOY_TO}/sd lib \
 	${DEPLOY_TO}/pins.mpy \
 	${DEPLOY_TO}/secrets.mpy \
 	$(SOURCES:${SRC}/%.py=${DEPLOY_TO}/%.mpy) \
@@ -103,7 +103,7 @@ gateway: ${DEPLOY_TO} lib \
 	@make -e makevars.tmp
 
 # create target-directory
-${DEPLOY_TO} ${DEPLOY_TO}/sensors ${DEPLOY_TO}/tasks ${DEPLOY_TO}/tools ${DEPLOY_TO}/www:
+${DEPLOY_TO} ${DEPLOY_TO}/sd ${DEPLOY_TO}/sensors ${DEPLOY_TO}/tasks ${DEPLOY_TO}/tools ${DEPLOY_TO}/www:
 	mkdir -p  $@
 
 # copy libs and fonts
