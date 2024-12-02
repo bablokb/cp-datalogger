@@ -1,9 +1,13 @@
 Gateway Configuration
 =====================
 
-A number of configuration constants are necessary to operate the gateway.
-Copy the file `src.gateway/config_template.py` and adapt the
-config-variables for your setup.
+A number of specifc configuration constants are necessary to operate
+the gateway.  Copy the file `src.gateway/config_template.py` and adapt
+the config-variables for your setup.
+
+Note that for the optional hardware-components RTC, SD and OLED-display
+you have to add the relevant configuration as described in
+[main configuration](./core_config_main.md).
 
 The configuration of the logger is identical to the way this is
 implemented for the data-loggers. I.e. you should copy the file
@@ -14,14 +18,14 @@ configuration](./log_config.md) for details.
 Application
 -----------
 
-| Name                | Type | O/M | Description                           |
-|---------------------|------|-----|---------------------------------------|
-| ACTIVE_WINDOW_START | str  |  O  | Active window start-time ('07:00')    |
-| ACTIVE_WINDOW_END   | str  |  O  | Active window end-time ('17:00')      |
-| GW_RX_TYPE          | str  |  O  | 'Lora' |'Udp'¹|'Ble'¹ ('Lora')        |
-| GW_TX_TYPE          | str  |  O  | 'Blues'|'Udp'¹|'Ble'¹ ('Blues')       |
+| Name                | Type | O/M | Description                            |
+|---------------------|------|-----|----------------------------------------|
+| ACTIVE_WINDOW_START | str  |  O  | Active window start-time ('07:00')     |
+| ACTIVE_WINDOW_END   | str  |  O  | Active window end-time ('17:00')       |
+| GW_RX_TYPE          | str  |  O  | 'Lora' |'Udp'¹|'Ble'¹ ('Lora')         |
+| GW_TX_TYPE          | str  |  O  | 'Noop'|'Blues'|'Udp'¹|'Ble'¹ ('Blues') |
 
-¹not implemented
+¹not implemented yet
 
 
 LoraReceiver
