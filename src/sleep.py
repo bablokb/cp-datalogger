@@ -34,23 +34,18 @@ class TimeSleep:
   cpu_freq_sleep = None
 
   @classmethod
+  def _get_alarm_since_epoch(cls,until=None):
+    """ convert until to seconds since epoch """
+
+    if until is None:
+      return None
+    if isinstance(until,int):
+      return until
+    return time.mktime(until)
+
+  @classmethod
   def _sleep_impl(cls,duration=0,until=None,sleep_func=None):
     """ implement sleep """
-
-    # convert until to seconds since epoch
-    if until:
-      if isinstance(until,int):
-        ep_alarm = until
-      else:
-        ep_alarm = time.mktime(until)
-
-    if not HAVE_ALARM:
-      # fallback to time.sleep
-      if until:
-        time.sleep(ep_alarm-time.time())
-      else:
-        time.sleep(duration)
-      return
 
     if until:
       time_alarm = alarm.time.TimeAlarm(epoch_time=ep_alarm)
@@ -83,7 +78,16 @@ class TimeSleep:
   def light_sleep(cls,duration=0,until=None):
 
     """ sleep the given duration or until given time-point """
-    TimeSleep._sleep_impl(duration=duration,until=until,
+    ep_alarm = TimeSleep._get_alarm_since_epoch(until)
+    if not HAVE_ALARM:
+      # fallback to time.sleep
+      if ep_alarm:
+        time.sleep(ep_alarm-time.time())
+      else:
+        time.sleep(duration)
+      return
+
+    TimeSleep._sleep_impl(duration=duration,until=ep_alarm,
                       sleep_func=alarm.light_sleep_until_alarms)
 
   # --- deep sleep   ----------------------------------------------------------
@@ -92,5 +96,14 @@ class TimeSleep:
   def deep_sleep(cls,duration=0,until=None):
 
     """ sleep the given duration or until given time-point """
-    TimeSleep._sleep_impl(duration=duration,until=until,
+    ep_alarm = TimeSleep._get_alarm_since_epoch(until)
+    if not HAVE_ALARM:
+      # fallback to time.sleep
+      if ep_alarm:
+        time.sleep(ep_alarm-time.time())
+      else:
+        time.sleep(duration)
+      return
+
+    TimeSleep._sleep_impl(duration=duration,until=ep_alarm,
                       sleep_func=alarm.exit_and_deep_sleep_until_alarms)
