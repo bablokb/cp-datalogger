@@ -71,7 +71,7 @@ else
 ap_config=
 endif
 
-.PHONY: clean copy2pico copy2gateway
+.PHONY: clean copy2pico copy2gateway ${DEPLOY_TO}/sd
 
 # default target: pre-compile and compress files
 default: ${DEPLOY_TO} ${DEPLOY_TO}/sd ${DEPLOY_TO}/sensors \
@@ -103,8 +103,17 @@ gateway: ${DEPLOY_TO} ${DEPLOY_TO}/sd lib \
 	@make -e makevars.tmp
 
 # create target-directory
-${DEPLOY_TO} ${DEPLOY_TO}/sd ${DEPLOY_TO}/sensors ${DEPLOY_TO}/tasks ${DEPLOY_TO}/tools ${DEPLOY_TO}/www:
+${DEPLOY_TO} ${DEPLOY_TO}/sensors ${DEPLOY_TO}/tasks ${DEPLOY_TO}/tools ${DEPLOY_TO}/www:
 	mkdir -p  $@
+
+# CP9 needs mountpoint, CP8 fails with mountpoint
+ifeq (${CP_VERSION}, 8)
+${DEPLOY_TO}/sd:
+	-rm -fr $@
+else
+${DEPLOY_TO}/sd:
+	mkdir -p  $@
+endif
 
 # copy libs and fonts
 lib:
