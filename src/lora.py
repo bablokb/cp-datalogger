@@ -94,10 +94,10 @@ class LORA:
     """ set destination for transmit """
     self.rfm9x.destination = dest
 
-  # --- broadcast a package and wait for response   --------------------------
+  # --- broadcast a packet and wait for response   ---------------------------
 
   def broadcast(self,nr,timeout=10):
-    """ send a broadcast package """
+    """ send a broadcast packet """
 
     ts = time.localtime()
     ts_str = f"{ts.tm_year}-{ts.tm_mon:02d}-{ts.tm_mday:02d}T{ts.tm_hour:02d}:{ts.tm_min:02d}:{ts.tm_sec:02d}"
@@ -121,11 +121,11 @@ class LORA:
   # --- query time   ---------------------------------------------------------
 
   def get_time(self,retries=3,timeout=10):
-    """ send a time-query package """
+    """ send a time-query packet """
 
     for i in range(retries):
        # send packet ("T",node)
-       g_logger.print(f"LoRa: sending time-query package, retry={i}")
+       g_logger.print(f"LoRa: sending time-query packet, retry={i}")
        start = time.monotonic()
        if self.transmit(f"T,{self.rfm9x.node}",ack=True):
          duration = time.monotonic()-start
