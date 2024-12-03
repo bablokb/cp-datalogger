@@ -109,7 +109,7 @@ class Broadcast:
     if g_config.HAVE_DISPLAY:
       from display import Display
 
-      g_logger.print("starting display update")
+      g_logger.print("initializing display...")
       self._display = Display(g_config,self.spi).get_display()
 
       font = bitmap_font.load_font(f"fonts/{g_config.FONT_DISPLAY}.bdf")
@@ -133,9 +133,7 @@ class Broadcast:
       group.append(self._textlabel)
 
       self._display.root_group = group
-      self._display.refresh()
-      self._last_ref = time.monotonic()
-      g_logger.print("finished display update")
+      g_logger.print("... finished")
 
   # --- update info   --------------------------------------------------------
 
