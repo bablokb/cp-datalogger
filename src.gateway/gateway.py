@@ -258,7 +258,9 @@ class Gateway:
 
   def _set_wakeup(self,s_time):
     """ set wakeup time """
-    # TODO: implement
+
+    wakeup = self._rtc.get_alarm_time(s=s_time)
+    self._rtc.set_alarm(wakeup)   # might be a noop
 
   # --- power off   ----------------------------------------------------------
 
