@@ -8,6 +8,11 @@ hardware (PCBs) provided in this repository (see some example setups
 as provided in the `examples` folder). Nevertheless, the full function
 set of the software is not available with standard components.
 
+Besides logging data to a SD-card, the dataloggers can send data to a
+central system (called "gateway"). Normally the gateway acts as a
+relay to upstream systems, but it could do anything with the data. See
+[Gateway Application Firmware](docs/software_gateway.md) for details.
+
 
 Core software functions
 -----------------------
@@ -15,7 +20,7 @@ Core software functions
   * implemented in CircuitPython
   * support for an external RTC for exact time keeping
   * cyclical sensor readout for a wide range of environmental
-    [sensors](docs/sensors.md) (currently 15 directly support
+    [sensors](docs/sensors.md) (currently 18 directly support
     including Open-Meteo weather data)
   * supports I2C (two busses), UART-3V3 and UART-5V devices
   * support I2C-multiplexers (PCA954xA, TCA954xA)
@@ -25,10 +30,11 @@ Core software functions
   * logging of data to a micro-SD card or equivalent (e.g. XTSD-chip)
   * configurable post-collection [tasks](docs/tasks.md)
     (e.g. update of a display, sending data using WLAN or LoRa)
+  * send data to a gateway (see below)
   * power-optimized programs
   * [web-interface](docs/admin_mode.md) for configuration and data download
   * no programming required for standard setups
-  * support (almost) zero current sleep with specialized hardware
+  * supports (almost) zero current sleep with specialized hardware
 
 
 Core hardware functions (PCBs)
