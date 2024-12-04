@@ -106,6 +106,17 @@ Again, make remembers all relevant variables (in the file `makevars.tmp`)
 and does not need the argument on subsequent runs.
 
 
+Building the Gateway-Firmware
+-----------------------------
+
+The buildsystem also supports the gateway. While the "default" target builds
+the datalogger-firmware, the target "gateway" builds the gateway software:
+
+    make gateway MAKEVARS=...
+
+Otherwise, the mechanisms are the same for both.
+
+
 Cleanup
 -------
 
