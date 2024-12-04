@@ -25,14 +25,14 @@ def init_i2c(pins,config,logger):
   except Exception as ex:
     logger.print(f"could not create i2c1: {ex}")
     i2c = [None,None]
-  if getattr(config,"HAVE_I2C0",False):
+  if config.HAVE_I2C0:
     try:
       i2c[0] = busio.I2C(pins.PIN_SCL0,pins.PIN_SDA0)
     except:
       logger.print("could not create i2c0 although configured, check wiring!")
 
   # create busses behind a multiplexer
-  if getattr(config,"HAVE_I2C_MP",False):
+  if config.HAVE_I2C_MP:
     import adafruit_tca9548a
     for spec in config.HAVE_I2C_MP.split():
       name,loc = spec.rstrip(')').split('(')
@@ -60,7 +60,7 @@ def init_sd(pins,config,logger):
   """ initialize SD-card and return SPI-object """
 
   spi = None
-  if getattr(config,"HAVE_SD",False):
+  if config.HAVE_SD:
     try:
       spi    = busio.SPI(pins.PIN_SD_SCK,pins.PIN_SD_MOSI,pins.PIN_SD_MISO)
       sdcard = sdcardio.SDCard(spi,pins.PIN_SD_CS,1_000_000)
@@ -78,7 +78,7 @@ def init_sd(pins,config,logger):
 def init_rtc(pins,config,i2c):
   """ initialize RTC and return RTC-object """
 
-  if getattr(config,"HAVE_RTC",None):
+  if config.HAVE_RTC:
     rtc_spec = config.HAVE_RTC.split('(')
     rtc_name = rtc_spec[0]
     rtc_bus  = int(rtc_spec[1][0])
@@ -87,8 +87,7 @@ def init_rtc(pins,config,i2c):
     rtc_bus  = 0
 
   # don't care about exceptions, must be handled by caller
-  rtc = ExtBase.create(rtc_name,i2c[rtc_bus],
-                                  net_update=getattr(config,"NET_UPDATE",True))
+  rtc = ExtBase.create(rtc_name,i2c[rtc_bus],net_update=config.NET_UPDATE)
   if rtc_name == "PCF8523":
     if pins.PCB_VERSION > 0:
       rtc.rtc_ext.high_capacitance = True  # uses a 12.5pF capacitor
@@ -103,7 +102,7 @@ def init_rtc(pins,config,i2c):
 def init_oled(i2c,config,logger):
   """ init OLED display """
 
-  if getattr(config,'HAVE_OLED',None):
+  if config.HAVE_OLED:
     try:
       from oled import OLED
       odisp = OLED(config,i2c)
