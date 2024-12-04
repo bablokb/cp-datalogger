@@ -5,9 +5,14 @@ A number of specifc configuration constants are necessary to operate
 the gateway.  Copy the file `src.gateway/config_template.py` and adapt
 the config-variables for your setup.
 
-Note that for the optional hardware-components RTC, SD and OLED-display
-you have to add the relevant configuration as described in
-[main configuration](./core_config_main.md).
+Note that for the optional hardware-components RTC, SD and
+OLED-display you have to add the relevant configuration as described
+in [main configuration](./core_config_main.md). **The normal defaults
+are not valid for a gateway, so you must usually add these lines to
+your configuration**:
+
+    HAVE_RTC  = None
+    HAVE_SD   = None
 
 The configuration of the logger is identical to the way this is
 implemented for the data-loggers. I.e. you should copy the file
