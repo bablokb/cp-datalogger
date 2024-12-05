@@ -233,8 +233,7 @@ class ExtBase:
       response = self._wifi.get(secrets.time_url).json()
       self._wifi.radio.enabled = False
     except Exception as ex:
-      import traceback
-      traceback.print_exception(ex)
+      g_logger.print(f"update from time-server failed (no wifi?): {ex}")
       return False
 
     if 'struct_time' in response:
