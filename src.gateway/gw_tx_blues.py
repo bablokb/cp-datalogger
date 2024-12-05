@@ -35,11 +35,10 @@ class BluesSender:
   def setup(self,i2c,spi):
     """ initialize hardware """
 
-    g_logger.print(f"initializing BluesSender")
-    if not i2c:
-      self._i2c = busio.I2C(sda=pins.PIN_SDA,scl=pins.PIN_SCL)
-    else:
-      self._i2c = i2c
+    g_logger.print(f"BluesSender: initializing hardware")
+    bus_id = 0 if i2c[0] is not None else 1
+    self._i2c = i2c[bus_id]
+    g_logger.print(f"BluesSender: using I2C{bus_id} for Blues")
     self._init_notecard()
 
   # --- Notecard   -----------------------------------------------------------
@@ -53,7 +52,7 @@ class BluesSender:
     # query start-mode (timer or manual)
     resp = card.attn(self._card,mode="")
     self._is_timer_start = 'files' in resp and 'timeout' in resp['files']
-    g_logger.print(f"start in timer-mode: {self._is_timer_start}")
+    g_logger.print(f"BluesSender: start in timer-mode?: {self._is_timer_start}")
     # disarm attn
     resp = card.attn(self._card,mode="disarm")
 
@@ -62,6 +61,7 @@ class BluesSender:
   def _sync_notecard(self,wait=True):
     """ sync notecard """
 
+    g_logger.print("BluesSender: syncing card")
     resp = hub.sync(self._card)
     if not wait:
       return False
@@ -69,9 +69,9 @@ class BluesSender:
     resp = hub.syncStatus(self._card)
     while "requested" in resp:
       requested = resp['requested']
-      g_logger.print(f"sync request in progress since {requested}s")
+      g_logger.print(f"BluesSender: sync request in progress since {requested}s")
       if requested > max_sync_time:
-        g_logger.print(f"could not sync within {max_sync_time}s")
+        g_logger.print(f"BluesSender: could not sync within {max_sync_time}s")
         return False
       time.sleep(10)
       resp = hub.syncStatus(self._card)
@@ -85,35 +85,15 @@ class BluesSender:
     i = 0
     while i < 2:
       i += 1
-      g_logger.print("trying to get time from notecard...")
+      g_logger.print("BluesSender: trying to get time from notecard...")
       resp = card.time(self._card)
       if 'time' in resp:
         return time.localtime(resp['time'] + 60*resp['minutes'])
       else:
-        g_logger.print(f"time not available, wating for sync")
+        g_logger.print(f"BluesSender: time not available, wating for sync")
         if not self._sync_notecard():
-          g_logger.print("could not set time")
+          g_logger.print("BluesSender: could not set time")
           return None
-
-  # --- sync notecard   ------------------------------------------------------
-
-  def sync_data(self,wait=True):
-    """ sync notecard """
-
-    resp = hub.sync(self._card)
-    if not wait:
-      return False
-    max_sync_time = getattr(self._config,'MAX_SYNC_TIME',300)
-    resp = hub.syncStatus(self._card)
-    while "requested" in resp:
-      requested = resp['requested']
-      g_logger.print(f"sync request in progress since {requested}s")
-      if requested > max_sync_time:
-        g_logger.print(f"could not sync within {max_sync_time}s")
-        return False
-      time.sleep(10)
-      resp = hub.syncStatus(self._card)
-    return True
 
   # --- process data   -------------------------------------------------------
 
@@ -130,8 +110,8 @@ class BluesSender:
     else:
       resp = "action: noop"
     duration = time.monotonic()-start
-    g_logger.print(f"action: {self._config.SYNC_BLUES_ACTION}, {resp=}")
-    g_logger.print(f"duration: {duration}s")
+    g_logger.print(f"BluesSender: action: {self._config.SYNC_BLUES_ACTION}, {resp=}")
+    g_logger.print(f"BluesSender: duration: {duration}s")
 
   # --- shutdown   -----------------------------------------------------------
 
@@ -140,8 +120,9 @@ class BluesSender:
 
     # if necessary, sync notes before shutdown
     if self._config.SYNC_BLUES_ACTION == False:
-      self._sync_notecard(wait=False)
-    g_logger.print(f"executing card.attn() with seconds={s_time}s")
+      g_logger.print("BluesSender: faking final sync")
+      #self._sync_notecard(wait=False)
+    g_logger.print(f"BluesSender: executing card.attn() with seconds={s_time}s")
     card.attn(self._card,mode="sleep",seconds=s_time)
     time.sleep(10)
     return True
