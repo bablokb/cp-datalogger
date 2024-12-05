@@ -22,12 +22,14 @@ def init_i2c(pins,config,logger):
   # the configuration before creating it.
   try:
     i2c = [None,busio.I2C(pins.PIN_SCL1,pins.PIN_SDA1)]
+    logger.print(f"created i2c1")
   except Exception as ex:
     logger.print(f"could not create i2c1: {ex}")
     i2c = [None,None]
   if config.HAVE_I2C0:
     try:
       i2c[0] = busio.I2C(pins.PIN_SCL0,pins.PIN_SDA0)
+      logger.print(f"created i2c0")
     except:
       logger.print("could not create i2c0 although configured, check wiring!")
 
