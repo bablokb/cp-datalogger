@@ -17,8 +17,8 @@ PIN_LED             = board.LED
 
 # --- pins needed for gateway-operation   ------------------------------------
 
-PIN_SDA  = board.SDA
-PIN_SCL  = board.SCL
+PIN_SDA1  = board.SDA
+PIN_SCL1  = board.SCL
 
 PIN_LORA_SCK  = board.SCK
 PIN_LORA_MISO = board.MISO
