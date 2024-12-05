@@ -156,7 +156,8 @@ class Broadcast:
         # refresh only once per minute
         wait_for_ref = max(0,60-(time.monotonic()-self._last_ref))
         g_logger.print(f"waiting {wait_for_ref}s for display refresh")
-        TimeSleep.light_sleep(duration=max(0,60-(time.monotonic()-self._last_ref)))
+        TimeSleep.light_sleep(
+          duration=max(0,self.interval-(time.monotonic()-self._last_ref)))
         self._last_ref = time.monotonic()
       g_logger.print(f"refreshing display")
       self._display.refresh()
@@ -253,10 +254,11 @@ TimeSleep.light_sleep(duration=5)
 app.clear()
 app.update_info([f"Node: {g_config.LORA_NODE_ADDR}, ID: {g_config.LOGGER_ID}"])
 
+start = time.monotonic()
 while True:
-  start = time.monotonic()
-  app.send_packet()
-  app.update_display()
   stime = max(0,app.interval - (time.monotonic()-start))
   g_logger.print(f"Broadcast: next cycle in  {stime}s...")
   TimeSleep.light_sleep(duration=stime)
+  app.send_packet()
+  app.update_display()
+  start = time.monotonic()
