@@ -25,3 +25,6 @@ PIN_LORA_MISO = board.RFM95W_SDI
 PIN_LORA_MOSI = board.RFM95W_SDO
 PIN_LORA_CS   = board.RFM95W_CS
 PIN_LORA_RST  = board.RFM95W_RST
+
+PIN_RX = board.RX
+PIN_TX = board.TX
