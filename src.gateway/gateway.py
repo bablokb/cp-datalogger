@@ -249,10 +249,17 @@ class Gateway:
         g_logger.print(f"gateway: DEV_MODE: change sleep-duration to: {s_time}s")
 
     # notify sender/receiver to disable power until sleep-time expires
-    if not (self._sender.shutdown(s_time) or self._receiver.shutdown(s_time)):
-      self._set_wakeup(s_time)
-      return self._power_off()
-    return True
+    # Note: calls to shutdown should not return if successful
+    try:
+      self._sender.shutdown(s_time)
+    except Exception as ex:
+      g_logger.print(f"gateway: sender.shutdown() failed: {ex}")
+    try:
+      self._receiver.shutdown(s_time)
+    except Exception as ex2:
+      g_logger.print(f"gateway: receiver.shutdown() failed: {ex2}")
+    self._set_wakeup(s_time)
+    return self._power_off()
 
   # --- set next wakeup   ----------------------------------------------------
 
