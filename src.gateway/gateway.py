@@ -93,18 +93,9 @@ class Gateway:
     self._update_time()
 
     # configure active window
-    start = getattr(g_config,'ACTIVE_WINDOW_START',"7:00").split(':')
-    self._start_h = int(start[0])
-    self._start_m = int(start[1])
-    end = getattr(g_config,'ACTIVE_WINDOW_END',"17:00").split(':')
-    self._end_h = int(end[0])
-    self._end_m = int(end[1])
+    self._active_until = time.time() + 60*g_config.ON_DURATION
     g_logger.print(
-      f"Active Window: {self._start_h:02}:{self._start_m:02}-{self._end_h:02}:{self._end_m:02}")
-
-    self._dev_mode = getattr(g_config,'DEV_MODE',False)
-    if self._dev_mode:
-      self._startup = time.monotonic()
+      f"gateway: active until: {self._rtc.print_ts(None,self._active_until)}")
 
     # query SD-card filename
     if g_config.HAVE_SD:
@@ -224,50 +215,23 @@ class Gateway:
     internally.
     """
 
-    # get start of next active window (tomorrow)
+    # get start of next active window
+    wakeup = self._rtc.get_table_alarm(g_config.TIME_TABLE)
     g_logger.print(
-      f"gateway: shutdown until tomorrow, {self._start_h:02}:{self._start_m:02}")
-
-    # calculate sleep-time
-    tm = self._rtc.datetime
-    s_time = ((23-tm.tm_hour)*3600 +
-              (59-tm.tm_min)*60 +
-              (59-tm.tm_sec) +
-              3600*self._start_h + 60*self._start_m)
-    g_logger.print(f"gateway: sleep-duration: {s_time}s")
-
-    # in DEV_MODE, only sleep for a short time
-    if self._dev_mode:
-      uptime_left = getattr(g_config,'DEV_UPTIME',300) - int(
-        time.monotonic()-self._startup)
-      if uptime_left > 0:
-        # ignore to guarantee a minum uptime
-        g_logger.print(f"gateway: DEV_MODE: ignoring shutdown for {uptime_left}s")
-        return False
-      else:
-        s_time = getattr(g_config,'DEV_SLEEP',60)
-        g_logger.print(f"gateway: DEV_MODE: change sleep-duration to: {s_time}s")
+      f"gateway: shutdown until {self._rtc.print_ts(None,wakeup)}")
 
     # notify sender/receiver to disable power until sleep-time expires
     # Note: calls to shutdown should not return if successful
     try:
-      self._sender.shutdown(s_time)
+      self._sender.shutdown(wakeup)
     except Exception as ex:
       g_logger.print(f"gateway: sender.shutdown() failed: {ex}")
     try:
-      self._receiver.shutdown(s_time)
+      self._receiver.shutdown(wakeup)
     except Exception as ex2:
       g_logger.print(f"gateway: receiver.shutdown() failed: {ex2}")
-    self._set_wakeup(s_time)
+    self._rtc.set_alarm(wakeup)
     return self._power_off()
-
-  # --- set next wakeup   ----------------------------------------------------
-
-  def _set_wakeup(self,s_time):
-    """ set wakeup time """
-
-    wakeup = self._rtc.get_alarm_time(s=s_time)
-    self._rtc.set_alarm(wakeup)   # might be a noop
 
   # --- power off   ----------------------------------------------------------
 
@@ -320,10 +284,16 @@ class Gateway:
       data = self._receiver.receive_data()
       if data is None:
         # check active time period
-        ts = time.localtime()
-        if ts.tm_hour >= self._end_h and ts.tm_min  >= self._end_m:
+        if time.time() > self._active_until:
+          g_logger.print("gateway: active time ended: starting shutdown")
           if self._shutdown():
             break
+          else:
+            g_logger.print("gateway: shutdown failed")
+            # try again after another cylce (should actually not happen)
+            self._active_until = time.time() + 60*g_config.ON_DURATION
+            g_logger.print("gateway: Active until: " +
+                           f"{self._rtc.print_ts(None,self._active_until)}")
         continue
 
       # Decode packet: expect csv data
