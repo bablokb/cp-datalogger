@@ -54,21 +54,34 @@ to the device.
 Operation
 ---------
 
-The current implementation will run the gateway every day during an
-*active window*. Both the start and end hour of the active window have to
-be defined in `config.py`. The active window should match the time-table
-of the dataloggers. The following setting will run the gateway from
-07:00 - 17:00 every day:
+The current implementation will run the gateway every day during a
+number of *active windows*. The start of each active window has to be
+defined in `config.py` using the `TIME_TABLE` configuration-variable
+(see [main configuration](./core_config_main.md)). The duration of the
+active windows must be configured with the variable `ON_DURATION` (in
+minutes).
 
-    ACTIVE_WINDOW_START = 7:00  # active (online) window start time
-    ACTIVE_WINDOW_END   = 17:00 # active (online) window end time
+The active windows should match the time-table of the dataloggers. The
+following setting will run the gateway from 07:00 - 17:00 every day
+(i.e.  using a single active window):
+
+    TIME_TABLE = [
+      ((7,7,1),(0,0,1)),
+      ((7,7,1),(0,0,1)),
+      ((7,7,1),(0,0,1)),
+      ((7,7,1),(0,0,1)),
+      ((7,7,1),(0,0,1)),
+      ((7,7,1),(0,0,1)),
+      ((7,7,1),(0,0,1))
+      ]
+    ON_DURATION = 600   # 600 = 10*60
 
 The very first startup of the gateway after a cold boot (i.e. after
 power loss) will take a few minutes (up to 2 minutes here, to be
 verified for Tanzania). Normal restarts are fast.
 
 The notecard is a very low power-device (8µA) and should run 7x24. It
-will wake up the Challenger on the F-carrierboard at the start of the
+will wake up the Challenger on the F-carrierboard at the start of each
 active window and will shutdown the device at the end of the active
 window.
 

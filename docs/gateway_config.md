@@ -25,12 +25,14 @@ Application
 
 | Name                | Type | O/M | Description                            |
 |---------------------|------|-----|----------------------------------------|
-| ACTIVE_WINDOW_START | str  |  O  | Active window start-time ('07:00')     |
-| ACTIVE_WINDOW_END   | str  |  O  | Active window end-time ('17:00')       |
+| TIME_TABLE          |      |  M  | time-table                             |
+| ON_DURATION         | int  |  M  | on-duration in minutes                 |
 | GW_RX_TYPE          | str  |  O  | 'Lora' |'Udp'¹|'Ble'¹ ('Lora')         |
 | GW_TX_TYPE          | str  |  O  | 'Noop'|'Blues'|'Udp'¹|'Ble'¹ ('Blues') |
 
 ¹not implemented yet
+
+For details about `TIME_TABLE` see [main configuration](./core_config_main.md).
 
 
 LoraReceiver

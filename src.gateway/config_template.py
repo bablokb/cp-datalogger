@@ -30,9 +30,21 @@ LORA_TX_POWER   = 23        # transmit power (max: 23)
 SYNC_BLUES_ACTION = True
 
 # ----------------------------------------------------------------------------
-# uptime configuration
-ACTIVE_WINDOW_START = "7:00"  # active (online) window start time
-ACTIVE_WINDOW_END   = "17:00" # active (online) window end time
+# uptime configuration. The template values configure a single active window
+# (from hours 7 to 7 at minutes 0 to 0 every day). On duration is 10 hours.
+#
+# To reduce the power consumption, the time-table and on-duration can be
+# fine tuned to match the uptime of the dataloggers.
+TIME_TABLE = [
+  ((7,7,1),(0,0,1)),
+  ((7,7,1),(0,0,1)),
+  ((7,7,1),(0,0,1)),
+  ((7,7,1),(0,0,1)),
+  ((7,7,1),(0,0,1)),
+  ((7,7,1),(0,0,1)),
+  ((7,7,1),(0,0,1))
+  ]
+ON_DURATION = 600   # 600 = 10*60
 
 # ----------------------------------------------------------------------------
 # technical constants, don't change unless you know why
