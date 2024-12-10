@@ -77,8 +77,8 @@ class LoraReceiver:
 
   # --- shutdown   -----------------------------------------------------------
 
-  def shutdown(self,s_time):
-    """ Shutdown system. In our case, ignore the rquest """
+  def shutdown(self,wakeup):
+    """ Shutdown system. In our case, ignore the request """
 
-    g_logger.print(f"LoraReceiver: shutdown not implemented")
+    g_logger.print(f"LoraReceiver: ignoring shutdown-request")
     return False

@@ -48,8 +48,8 @@ class NoopSender:
 
   # --- shutdown   -----------------------------------------------------------
 
-  def shutdown(self,s_time):
-    """ Shutdown system. In our case, send an attn-request to the notecard """
+  def shutdown(self,wakeup):
+    """ Shutdown system. Ignore request """
 
-    g_logger.print("NoopSender: shutdown...")
+    g_logger.print(f"NoopSender: ignoring shutdown-request")
     return False
