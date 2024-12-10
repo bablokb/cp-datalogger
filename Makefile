@@ -118,9 +118,9 @@ endif
 # copy libs and fonts
 lib:
 	mkdir -p ${DEPLOY_TO}/lib
-	rsync -av --delete ${SRC}/lib${CP_VERSION}/ ${DEPLOY_TO}/lib/
+	rsync -av --delete -L -k ${SRC}/lib${CP_VERSION}/ ${DEPLOY_TO}/lib/
 ifneq ($(strip ${USER_LIBS}),)
-	rsync -av ${USER_LIBS} ${DEPLOY_TO}/lib
+	rsync -av -L -k ${USER_LIBS} ${DEPLOY_TO}/lib
 endif
 
 ${DEPLOY_TO}/fonts/${FONT}: ${SRC}/fonts/${FONT}
