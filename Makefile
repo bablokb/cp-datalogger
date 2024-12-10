@@ -129,8 +129,12 @@ ${DEPLOY_TO}/fonts/${FONT}: ${SRC}/fonts/${FONT}
 
 # clean target-directory (only delete auto-created makevars.tmp)
 clean:
-	rm -fr dynvars.tmp makevars.tmp ${DEPLOY_TO}/* \
-	${SRC}/../.commit.py.local
+	rm -fr dynvars.tmp makevars.tmp  ${SRC}/../.commit.py.local
+ifeq ($(suffix ${DEPLOY_TO}),.local)
+	rm -fr ${DEPLOY_TO}
+else
+	rm -fr ${DEPLOY_TO}/*
+endif
 
 # recreate makevars.tmp
 makevars.tmp:
