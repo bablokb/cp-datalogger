@@ -115,13 +115,16 @@ class BluesSender:
 
   # --- shutdown   -----------------------------------------------------------
 
-  def shutdown(self,s_time):
+  def shutdown(self,wakeup):
     """ Shutdown system. In our case, send an attn-request to the notecard """
 
     # if necessary, sync notes before shutdown
     if self._config.SYNC_BLUES_ACTION == False:
       g_logger.print("BluesSender: faking final sync")
       #self._sync_notecard(wait=False)
+
+    #calculate sleep-time
+    s_time = time.mktime(wakeup) - time.time()
     g_logger.print(f"BluesSender: executing card.attn() with seconds={s_time}s")
     card.attn(self._card,mode="sleep",seconds=s_time)
     time.sleep(10)
