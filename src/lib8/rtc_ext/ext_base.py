@@ -75,7 +75,7 @@ class ExtBase:
     if sleep_time == 0:
       return
     alarm_time = time.localtime(time.time() + sleep_time)
-    ExtBase.print_ts("next wakeup",alarm_time)
+    ExtBase.print_ts("rtc: next wakeup",alarm_time)
     return alarm_time
 
   # --- get alarm from table   ---------------------------------------------
@@ -102,9 +102,9 @@ class ExtBase:
                              now_ts.tm_min*60 +
                              now_ts.tm_sec)
 
-    g_logger.print("looking up next boot from time-table")
-    ExtBase.print_ts("now",now_ts)
-    g_logger.print(f"weekday: {now_day}")
+    g_logger.print("rtc: looking up next boot from time-table")
+    ExtBase.print_ts("rtc: now",now_ts)
+    g_logger.print(f"rtc: weekday: {now_day}")
 
     # search table (wrap-around, starting from current weekday)
     for i in range(now_day,now_day+7,1):
@@ -122,7 +122,7 @@ class ExtBase:
           alarm_epoch = sod + h*3600 + m*60
           if alarm_epoch > now_epoch:
             next_alarm = time.localtime(alarm_epoch)
-            ExtBase.print_ts("next alarm",next_alarm)
+            ExtBase.print_ts("rtc: next alarm",next_alarm)
             return next_alarm
 
       # no suitable time-point today. Try next day
@@ -183,37 +183,37 @@ class ExtBase:
       # externally provided time
       if isinstance(new_time,int):
         new_time = time.localtime(new_time)
-      g_logger.print("updating RTCs from provided time")
+      g_logger.print("rtc: updating RTCs from provided time")
       self._rtc_ext.datetime = new_time
       self._rtc_int.datetime = new_time
-      ExtBase.print_ts("new time",new_time)
+      ExtBase.print_ts("rtc: new time",new_time)
       return ExtBase.TIME_SOURCE_SET
 
     # update internal rtc to valid date
-    ExtBase.print_ts("rtc int",self._rtc_int.datetime)
+    ExtBase.print_ts("rtc: int-rtc time",self._rtc_int.datetime)
     if self._check_rtc(self._rtc_int):
       if self._lost_power() or self._check_rtc(self._rtc_ext):
-        ExtBase.print_ts("rtc ext",self._rtc_ext.datetime)
+        ExtBase.print_ts("rtc: ext-rtc time",self._rtc_ext.datetime)
         if not self._fetch_time():
-          g_logger.print("rtc-ext not updated from time-server")
-          g_logger.print("setting rtc-ext to 2022-01-01 12:00:00")
+          g_logger.print("rtc: ext-rtc not updated from time-server")
+          g_logger.print("rtc: setting ext-rtc to 2022-01-01 12:00:00")
           self._rtc_ext.datetime = time.struct_time((2022,1,1,12,00,00,5,1,-1))
           rc = ExtBase.TIME_SOURCE_NONE
         else:
-          g_logger.print("rtc-ext updated from time-server")
+          g_logger.print("rtc: ext-rtc updated from time-server")
           rc = ExtBase.TIME_SOURCE_NET
       else:
         rc = ExtBase.TIME_SOURCE_EXT
-      g_logger.print("updating internal rtc from external rtc")
+      g_logger.print("rtc: updating internal rtc from external rtc")
       ext_ts = self._rtc_ext.datetime   # needs two statements!
       self._rtc_int.datetime = ext_ts
-      ExtBase.print_ts("new time",ext_ts)
+      ExtBase.print_ts("rtc: new time",ext_ts)
     else:
       # this will typically happen when starting from Thonny
-      g_logger.print("assuming valid rtc int")
+      g_logger.print("rtc: assuming valid rtc int")
       int_ts = self._rtc_int.datetime   # needs two statements!
       self._rtc_ext.datetime = int_ts
-      g_logger.print("updated external rtc from internal rtc")
+      g_logger.print("rtc: updated external rtc from internal rtc")
       rc = ExtBase.TIME_SOURCE_INT
     return rc
 
@@ -223,7 +223,7 @@ class ExtBase:
     """ update time from time-server """
 
     if not self._net_update:
-      g_logger.print("net_update not set")
+      g_logger.print("rtc: net_update not set")
       return False
 
     try:
@@ -233,7 +233,7 @@ class ExtBase:
       response = self._wifi.get(secrets.time_url).json()
       self._wifi.radio.enabled = False
     except Exception as ex:
-      g_logger.print(f"update from time-server failed (no wifi?): {ex}")
+      g_logger.print(f"rtc: update from time-server failed (no wifi?): {ex}")
       return False
 
     if 'struct_time' in response:
