@@ -13,7 +13,7 @@ import time
 from log_writer import Logger
 g_logger = Logger()
 
-# --- BluesSender class   ----------------------------------------------------
+# --- NoopSender class   -----------------------------------------------------
 
 class NoopSender:
   """ NoopSender class """
