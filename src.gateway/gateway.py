@@ -28,6 +28,11 @@ g_config.import_config()
 
 # --- small helper functions to create RX and TX classes   -------------------
 
+def get_rx_noop():
+  """ import and return NoopReceiver class """
+  from gw_rx_noop import NoopReceiver
+  return NoopReceiver
+
 def get_rx_lora():
   """ import and return LoraReceiver class """
   from gw_rx_lora import LoraReceiver
@@ -44,6 +49,7 @@ def get_tx_noop():
   return NoopSender
 
 RX_MAP = {
+  'Noop': get_rx_noop,
   'Lora': get_rx_lora
   }
 TX_MAP = {
