@@ -40,6 +40,17 @@ class BluesSender:
     self._i2c = i2c[bus_id]
     g_logger.print(f"BluesSender: using I2C{bus_id} for Blues")
     self._init_notecard()
+    if gettattr(self._config,"DEV_MODE",False):
+      self._config_notecard({
+        "io": {"req":"card.io","mode":"+busy"}, # LED on/off in wake/sleep state
+        })
+    else:
+      self._config_notecard({
+        "io": {"req":"card.io","mode":"+dark"}, # LED on/off in wake/sleep state
+        })
+    self._config_notecard({
+      "transport": {"req": "card.transport", "method": "cell"}, # cell only
+      })
 
   # --- Notecard   -----------------------------------------------------------
 
@@ -55,6 +66,18 @@ class BluesSender:
     g_logger.print(f"BluesSender: start in timer-mode?: {self._is_timer_start}")
     # disarm attn
     resp = card.attn(self._card,mode="disarm")
+
+  # --- configure notecard   -------------------------------------------------
+
+  def _config_notecard(self,settings):
+    """ execute configuration requests """
+
+    for req in settings.values():
+      try:
+        g_logger.print(f"BluesSender: changing setting: {req}")
+        self._card.Transaction(req)
+      except Exception as ex:
+        g_logger.print(f"BluesSender: request for {req} failed: {ex}")
 
   # --- sync notecard   ------------------------------------------------------
 
@@ -120,8 +143,17 @@ class BluesSender:
 
     # if necessary, sync notes before shutdown
     if self._config.SYNC_BLUES_ACTION == False:
-      g_logger.print("BluesSender: faking final sync")
-      #self._sync_notecard(wait=False)
+      self._sync_notecard(wait=False)
+
+    # turn off some settings
+    self._config_notecard({
+      "hub":      {"req":"hub.set","mode":"off"},
+      "motion":   {"req":"card.motion.mode","stop":True},
+      "location": {"req":"card.location.mode","mode":"off"},
+      # "aux": {"req":"card.aux","mode":"off"},     # no effect
+      # "sleep": {"req":"card.sleep","on":True},    # Notecard Wifi v2 only
+      "io": {"req":"card.io","mode":"+busy"},       # LED on/off in wake/sleep state
+      })
 
     #calculate sleep-time
     s_time = time.mktime(wakeup) - time.time()
