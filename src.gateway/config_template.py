@@ -57,5 +57,3 @@ MAX_SYNC_TIME    = 300      # number of seconds to wait for a sync
 # Development-mode (useful only for developers with a connected console)
 
 DEV_MODE   = False
-DEV_UPTIME = 300            # minimum uptime regardless of active window
-DEV_SLEEP  =  60            # max sleep-time in DEV_MODE
