@@ -42,11 +42,14 @@ Receivers
 Currently implemented receivers:
 
   - `LoraReceiver` (in `src.gateway/gw_rx_lora.py`)
+  - `NoopReceiver` (in `src.gateway/gw_rx_noop.py`)  
+    Does nothing, can be used as a template or for local operation, i.e.
+    if the core services are sufficient for operation
 
 Planned receivers:
 
-  - `UdpReceiver`
-  - `BleReceiver`
+  - `UDPReceiver`
+  - `BLEReceiver`
   - `HttpReceiver`
 
 
@@ -60,11 +63,12 @@ Currently implemented senders:
     if the core services are sufficient for operation
   - `BluesSender` (in `src.gateway/gw_tx_blues.py`)  
     Sends data to Blues.io via a Blues-notecard
+  - `UDPSender` (in `src.gateway/gw_tx_udp.py`)  
+    Sends data to a central receiver using UDP
 
 Planned senders:
 
-  - `UdpSender`
-  - `BleSender`
+  - `BLESender`
   - `HttpSender`
   - `MqttSender`
 
