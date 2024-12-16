@@ -23,12 +23,12 @@ configuration](./log_config.md) for details.
 Application
 -----------
 
-| Name                | Type | O/M | Description                            |
-|---------------------|------|-----|----------------------------------------|
-| TIME_TABLE          |      |  M  | time-table                             |
-| ON_DURATION         | int  |  M  | on-duration in minutes                 |
-| GW_RX_TYPE          | str  |  O  | 'Noop'|'Lora' |'UDP'¹|'BLE'¹ ('Lora')  |
-| GW_TX_TYPE          | str  |  O  | 'Noop'|'Blues'|'UDP'|'BLE'¹ ('Blues')  |
+| Name                | Type | O/M | Description                              |
+|---------------------|------|-----|------------------------------------------|
+| TIME_TABLE          |      |  M  | time-table                               |
+| ON_DURATION         | int  |  M  | on-duration in minutes                   |
+| GW_RX_TYPE          | str  |  O  | 'Noop', 'Lora', 'UDP'¹, 'BLE'¹ ('Lora')  |
+| GW_TX_TYPE          | str  |  O  | 'Noop', 'Blues', 'UDP', 'BLE'¹ ('Blues') |
 
 ¹not implemented yet
 
