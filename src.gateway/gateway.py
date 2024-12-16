@@ -43,6 +43,11 @@ def get_tx_blues():
   from gw_tx_blues import BluesSender
   return BluesSender
 
+def get_tx_udp():
+  """ import and return UDPSender class """
+  from gw_tx_udp import UDPSender
+  return UDPSender
+
 def get_tx_noop():
   """ import and return NoopSender class """
   from gw_tx_noop import NoopSender
@@ -54,7 +59,8 @@ RX_MAP = {
   }
 TX_MAP = {
   'Noop':  get_tx_noop,
-  'Blues': get_tx_blues
+  'Blues': get_tx_blues,
+  'UDP': get_tx_udp,
   }
 
 # --- Gateway application class   --------------------------------------------
