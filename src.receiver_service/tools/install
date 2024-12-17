@@ -1,0 +1,57 @@
+#!/bin/bash
+# --------------------------------------------------------------------------
+# This script installs files and services specific to this project.
+#
+# Author: Bernhard Bablok
+# License: GPL3
+#
+# Website: https://github.com/bablokb/pcb-pico-datalogger
+#
+# --------------------------------------------------------------------------
+
+PROJECT="datalogger_receiver"
+
+# --- install specific files   ----------------------------------------------
+
+install_files() {
+  echo -e "[INFO] installing project files" 2>&1
+
+  for f in `find $(dirname "$0")/../files/ -type f -not -name "*.pyc"`; do
+    target="${f#*files}"
+    target_dir="${target%/*}"
+    [ ! -d "$target_dir" ] && mkdir -p "$target_dir"
+    cp "$f" "$target"
+    chown root:root "$target"
+  done
+
+  chmod 755 "/usr/local/bin/$PROJECT.py"
+  chmod 644 "/etc/systemd/system/$PROJECT.service"
+}
+
+# --- configure system   ----------------------------------------------------
+
+configure_system() {
+  # create user
+  if ! grep -q "datalogger" /etc/passwd; then
+    echo -e "[INFO] create system-user datalogger:datalogger" 2>&1
+    groupadd -r datalogger
+    adduser --disabled-login --gecos "" --system --group \
+                                        --home /var/lib/datalogger datalogger
+    chown -R datalogger:datalogger /var/lib/datalogger
+  fi
+}
+
+# --- activate service   ----------------------------------------------------
+
+enable_services() {
+  echo -e "[INFO] enabeling $PROJECT.service" 2>&1
+  systemctl enable "$PROJECT.service"
+}
+
+# --- main program   --------------------------------------------------------
+
+install_files
+configure_system
+enable_services
+
+echo "run 'sudo systemctl start $PROJECT.service' to start the receiver"
