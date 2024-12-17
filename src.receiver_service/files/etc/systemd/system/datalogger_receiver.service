@@ -1,0 +1,26 @@
+# --------------------------------------------------------------------------
+# Systemd service Definition for datalogger_receiver.service.
+#
+# The service just starts the script /usr/local/bin/datalogger_receiver.py
+#
+# Prerequisites:
+#   - user 'datalogger' exists
+#   - /var/lib/datalogger exists and is writable for 'datalogger'
+#
+# Author: Bernhard Bablok
+# License: GPL3
+#
+# Website: https://github.com/bablokb/pcb-pico-datalogger
+#
+# --------------------------------------------------------------------------
+
+[Unit]
+Description=UDP/TCP-Receiver for Datalogger
+ 
+[Service]
+Type=simple
+User=datalogger
+ExecStart=/usr/local/bin/datalogger_receiver.py --outfile /var/lib/datalogger/datalogger.csv
+
+[Install]
+WantedBy=network.target
