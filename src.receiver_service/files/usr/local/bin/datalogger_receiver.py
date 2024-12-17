@@ -18,9 +18,10 @@ from socket import *
 from select import select
 
 class SocketReceiver:
-  def __init__(self,port=8888,backlog=5,filename="/dev/stdout"):
+  def __init__(self,port=8888,backlog=5,filename="/dev/stdout",debug=False):
     """ constructor """
     self._filename = filename
+    self._debug = debug
     self._data = bytearray(1024)
 
     # create tcp socket
@@ -51,7 +52,8 @@ class SocketReceiver:
 
   def print_err(self,*args):
     """ print to stderr """
-    print(*args,file=sys.stderr,flush=True)
+    if self._debug:
+      print(*args,file=sys.stderr,flush=True)
 
   # --- save data to output file   -------------------------------------------
 
@@ -111,18 +113,23 @@ class SocketReceiver:
 # --- main program   ---------------------------------------------------------
 
 if __name__ == '__main__':
-  parser = argparse.ArgumentParser(description="UDP Receiver")
-  parser.add_argument("--port", type=int, default=5005,
+  parser = argparse.ArgumentParser(description="UDP/TCP Receiver")
+  parser.add_argument("-p", "--port", type=int, default=5005,
                       help="UDP/TCP receiver port (default: 5005)")
-  parser.add_argument("--backlog", type=int, default=5,
+  parser.add_argument("-b", "--backlog", type=int, default=5,
                       help="TCP listen-backlog (default: 5)")
-  parser.add_argument("--outfile", type=str, default="/dev/stdout",
-                      help="Filename")
+  parser.add_argument("-o", "--outfile", type=str, default="/dev/stdout",
+                      help="output filename (written in append-mode)")
+  parser.add_argument('-d', '--debug', action='store_true',
+                      dest='debug', default=False,
+                      help="debug-mode (writes to stderr)")
+
   args = parser.parse_args()    
   try:
     receiver = SocketReceiver(port=args.port,
                               backlog=args.backlog,
-                              filename=args.outfile)
+                              filename=args.outfile,
+                              debug=args.debug)
     receiver.run()
   except BaseException as ex:
     receiver.print_err(f"exception: {ex}")
