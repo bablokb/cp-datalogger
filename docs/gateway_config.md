@@ -79,7 +79,11 @@ UDPSender
 | Name                | Type | O/M | Description                           |
 |---------------------|------|-----|---------------------------------------|
 | TX_UDP_HOST         | str  |  M  | Host or IP-address of UDP-receiver    |
-| TX_UDP_PORT         | int  |  M  | Port of UDP-receiver vvvvvv           |
+| TX_UDP_PORT         | int  |  M  | Port of UDP-receiver                  |
+
+
+See [datalogger receiver service](../src.receiver_service/Readme.md) for
+a simple implementation of a central receiver.
 
 
 Development Settings

@@ -18,7 +18,7 @@ The gateway uses the same [build system](./deployment.md) as the core
 datalogger (using targets `gateway` and `copy2gateway`).
 
 Configuration of the gateway is detailed in [Gateway
-Configuration](./gatway_config.md.).
+Configuration](./gatway_config.md).
 
 
 Architecture
@@ -64,7 +64,8 @@ Currently implemented senders:
   - `BluesSender` (in `src.gateway/gw_tx_blues.py`)  
     Sends data to Blues.io via a Blues-notecard
   - `UDPSender` (in `src.gateway/gw_tx_udp.py`)  
-    Sends data to a central receiver using UDP
+    Sends data to a [central receiver](../src.receiver_service/Readme.md)
+    using UDP
 
 Planned senders:
 
