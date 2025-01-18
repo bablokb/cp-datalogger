@@ -48,7 +48,7 @@ class TimeSleep:
     """ implement sleep """
 
     if until:
-      time_alarm = alarm.time.TimeAlarm(epoch_time=ep_alarm)
+      time_alarm = alarm.time.TimeAlarm(epoch_time=until)
     elif duration >= 2:
       time_alarm = alarm.time.TimeAlarm(
         monotonic_time=time.monotonic()+duration)
