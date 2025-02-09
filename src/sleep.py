@@ -2,13 +2,10 @@
 # Optimized sleep:
 #
 #   - use light-sleep/deep-sleep
-#   - reduce cpu-frequency
 #   - support duration and time-point
 #
 # Notes:
 #
-#   - changing CPU-frequency is not yet supported with 8.0.5 and only
-#     available on RP2040 boards
 #   - the alarm-module is currently not implemented for RP2350
 #
 # Author: Bernhard Bablok
@@ -29,9 +26,6 @@ import microcontroller
 
 class TimeSleep:
   """ minimal wrapper class for light and deep sleep """
-
-  CPU_FREQ_LOW   = 20000000
-  cpu_freq_sleep = None
 
   @classmethod
   def _get_alarm_since_epoch(cls,until=None):
@@ -56,21 +50,7 @@ class TimeSleep:
       time.sleep(duration)
       return
 
-    if TimeSleep.cpu_freq_sleep:
-      try:
-        old_freq = microcontroller.cpu.frequency
-        microcontroller.cpu.frequency = TimeSleep.cpu_freq_sleep
-        have_freq = True
-      except:
-        have_freq = False
-
     sleep_func(time_alarm)   # the code below won't execute with deep-sleep!
-
-    if TimeSleep.cpu_freq_sleep and have_freq:
-      try:
-        microcontroller.cpu.frequency = old_freq
-      except:
-        pass
 
   # --- light sleep   ----------------------------------------------------------
 
