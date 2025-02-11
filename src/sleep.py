@@ -13,6 +13,8 @@
 # Website: https://github.com/pcb-pico-datalogger
 #-----------------------------------------------------------------------------
 
+MIN_SLEEP_DURATION = 5
+
 import time
 
 try:
@@ -43,7 +45,7 @@ class TimeSleep:
 
     if until:
       time_alarm = alarm.time.TimeAlarm(epoch_time=until)
-    elif duration >= 2:
+    elif duration >= MIN_SLEEP_DURATION:
       time_alarm = alarm.time.TimeAlarm(
         monotonic_time=time.monotonic()+duration)
     else:
