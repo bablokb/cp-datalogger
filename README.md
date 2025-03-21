@@ -37,27 +37,6 @@ Core software functions
   * supports (almost) zero current sleep with specialized hardware
 
 
-Core hardware functions (PCBs)
-------------------------------
-
-  * power management for extremly low standby current (about 1µA)
-  * embedded XTSD-chip (emulates a micro-SD card)
-  * connectors (Pico, Stemma/Qt, UART)
-  * JST-PH2 connector for LiPo or battery pack (two AA/AAA)
-  * a sensor PCB with a number of standard sensors
-    (temperature, humidity, light, noise)
-
-The design has gone through multiple iterations, you
-can find images of these versions in the `docs` folder.
-
-Current base PCB:
-
-![](docs/pcb-datalogger-v2-2.jpg)
-
-Sensor PCB:
-
-![](docs/pcb-sensor-2.jpg)
-
 For installation and operation, read the documents linked in the next
 section.
 

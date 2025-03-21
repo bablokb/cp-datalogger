@@ -32,7 +32,8 @@ COPY_PREREQ=gateway
 else
 SRC=src
 SOURCES=$(wildcard src/*.py)
-SPECIAL=src/boot.py src/main.py src/admin.py src/broadcast.py src/scd4x_config.py
+SPECIAL=src/boot.py src/main.py src/admin.py src/broadcast.py \
+        src/bootloader.py src/scd4x_config.py
 COPY_PREREQ=default
 endif
 
@@ -47,6 +48,7 @@ SOURCES:=$(subst ${SRC}/boot.py,,${SOURCES})
 SOURCES:=$(subst ${SRC}/main.py,,${SOURCES})
 SOURCES:=$(subst ${SRC}/admin.py,,${SOURCES})
 SOURCES:=$(subst ${SRC}/broadcast.py,,${SOURCES})
+SOURCES:=$(subst ${SRC}/bootloader.py,,${SOURCES})
 SOURCES:=$(subst ${SRC}/scd4x_config.py,,${SOURCES})
 SOURCES:=$(subst ${SRC}/secrets.py,,${SOURCES})
 

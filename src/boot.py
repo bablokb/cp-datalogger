@@ -27,7 +27,7 @@ btn_opts = {
   'BTN_A_FLASH_RW': True,
   'BTN_B_CODEFILE': 'broadcast.py',
   'BTN_B_FLASH_RW': False,
-  'BTN_C_CODEFILE': None,
+  'BTN_C_CODEFILE': 'bootloader.py',
   'BTN_C_FLASH_RW': False
   }
 

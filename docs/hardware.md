@@ -46,9 +46,45 @@ Additional steps:
   - Connect other hardware components as needed (power, sensors and so on).
 
 
-
 Datalogger-PCBs
 ---------------
+
+The specialized datalogger PCBs support a number of important functions:
+
+  * power management for extremly low standby current (about 1µA)
+  * embedded XTSD-chip (emulates a micro-SD card)
+  * connectors (Pico, Stemma/Qt, UART)
+  * JST-PH2 connector for LiPo or battery pack (two AA/AAA)
+  * a sensor PCB with a number of standard sensors
+    (temperature, humidity, light, noise)
+
+The design has gone through multiple iterations, you can find images
+of these versions in the `docs` folder.
+
+Current base PCB:
+
+![](docs/pcb-datalogger-v2-2.jpg)
+
+
+Sensor PCB
+----------
+
+The sensor PCB provides a number of standard sensors (AHT20, BH1750
+and PDM-microphone), five buttons and one application LED.
+
+![](docs/pcb-sensor-2.jpg)
+
+The buttons support the following functions:
+
+  - ON: start the datalogger (e.g. for an on-demand measurement)
+  - RST: restart the datalogger
+  - A: hold during boot to start in [Administration mode](./admin_mode.md)
+  - B: hold during boot to start in [broadcast mode](./broadcast_mode.md)
+  - C: hold during boot to start in firmware update mode
+
+
+Setup Datalogger-PCBs
+---------------------
 
 To setup the PCBs of this repo:
 
