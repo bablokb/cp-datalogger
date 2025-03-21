@@ -10,7 +10,7 @@ export PATH := ${PATH}:bin
 export
 
 # options: override on the command-line
-CP_VERSION=8
+CP_VERSION=9
 PCB=v2
 DEPLOY_TO=deploy
 AP_CONFIG=
