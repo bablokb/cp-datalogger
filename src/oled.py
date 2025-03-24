@@ -12,6 +12,11 @@ from adafruit_displayio_ssd1306 import SSD1306
 from terminalio import FONT
 from adafruit_display_text import label
 
+try:
+  from i2cdisplaybus import I2CDisplayBus
+except:
+  I2CDisplayBus = displayio.I2CDisplay
+
 import pins
 from singleton import singleton
 
@@ -27,7 +32,7 @@ class OLED:
     displayio.release_displays()
     bus,address,width,height = config.HAVE_OLED.split(',')
     if bus != '*':
-      display_bus = displayio.I2CDisplay(i2c[int(bus)],
+      display_bus = I2CDisplayBus(i2c[int(bus)],
                                        device_address=int(address,16))
     else:
       display_bus = None
@@ -35,8 +40,7 @@ class OLED:
         if not bus:
           continue
         try:
-          display_bus = displayio.I2CDisplay(bus,
-                                             device_address=int(address,16))
+          display_bus = I2CDisplayBus(bus,device_address=int(address,16))
           break
         except:
           pass
