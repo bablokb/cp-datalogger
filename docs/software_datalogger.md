@@ -51,8 +51,9 @@ be used as a blueprint.
 Installation
 ------------
 
-First step is to install CircuitPython on the board. Be sure to select
-the version 8.0.5 (note that this is not the most current version!).
+First step is to install CircuitPython on the board. The currently tested
+and supported version is 9.2.6, but any later 9.2.x should probably
+also work (but is unsupported).
 
 Sources:
 
@@ -60,6 +61,12 @@ Sources:
     <https://circuitpython.org/board/raspberry_pi_pico/>
   - If you have a Pico W, install  
     <https://circuitpython.org/board/raspberry_pi_pico_w/>
+
+Notes:
+
+  - Newer boards (Pico2 and Pico2-W) should also work
+  - If you want to upgrade a system running CircuitPython 8.0.5,
+    please read the [firmware upgrade instructions](./firmware_upgrade.md).
 
 After installation of CP and a power-cycle, mount the device if not done
 automatically by your operating system. Then follow the instructions

@@ -40,7 +40,7 @@ in the root-directory of the project. This creates the subdirectory `deploy`.
 After that, you can manualy copy all files below `deploy` to your device.
 
 To select between CircuitPython 8.x and 9.x builds, pass `CP_VERSION=8|9`
-to `make`. The default is `CP_VERSION=8`.
+to `make`. The default is `CP_VERSION=9`.
 
 
 Select Datalogger-PCB version
