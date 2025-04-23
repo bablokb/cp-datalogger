@@ -31,11 +31,12 @@ Valid values for `HAVE_DISPLAY`:
 
   - None (default)
   - "internal" (uses `board.DISPLAY`)
-  - "Inky-Pack" (Pimoroni Inky-Pack e-Ink display)
+  - "Inky-Pack" (Pimoroni Inky-Pack 2.9" e-Ink display)
   - "Inky-pHat" (Pimoroni Inky-pHat e-Ink display)
   - "Display-Pack" (Pimoroni Display-Pack, needs `HAVE_SD=False`)
-  - "Ada-2.13-Mono" (Adafruit 2.13 Mono e-Ink display)
-  - "Ada-1.54-Mono" (Adafruit 1.54 Mono e-Ink display)
+  - "Ada-2.13-Mono" (Adafruit 2.13" Mono e-Ink display)
+  - "Ada-1.54-Mono" (Adafruit 1.54" Mono e-Ink display)
+  - "WeAct-2.9" (WeAct 2.9" Mono e-Ink display)
 
 Valid values for `FONT_DISPLAY`:
 

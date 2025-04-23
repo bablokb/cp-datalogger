@@ -64,6 +64,10 @@ class Display:
       self._display = DisplayFactory.ada_1_54_mono(
         pin_dc=pins.PIN_INKY_DC,pin_cs=pins.PIN_INKY_CS,
         pin_rst=pins.PIN_INKY_RST,pin_busy=pins.PIN_INKY_BUSY,spi=self._spi)
+    elif config.HAVE_DISPLAY == "WeAct-2.9":
+      self._display = DisplayFactory.weact_2_9(
+        pin_dc=pins.PIN_INKY_DC,pin_cs=pins.PIN_INKY_CS,
+        pin_rst=pins.PIN_INKY_RST,pin_busy=pins.PIN_INKY_BUSY,spi=self._spi)
     elif config.HAVE_DISPLAY == "Display-Pack":
       self._display = DisplayFactory.display_pack(self._spi)
       self._display.auto_refresh = False
