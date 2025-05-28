@@ -48,7 +48,8 @@ SENSOR_MAP = {
   "meteo":   "I",
   "location": "J",
   "cputemp": "K",
-  "mhz19":   "L"
+  "mhz19":   "L",
+  "hdc302x": "M",
   }
 
 class DCODE:

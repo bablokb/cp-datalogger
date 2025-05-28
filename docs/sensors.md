@@ -157,6 +157,19 @@ ENS160
   - Note: This sensor supports [sensor-specific configuration](./core_config_sensors.md)
 
 
+HDC302x
+-------
+
+  - Measures temperature and humidity.
+  - Status: implemented
+  - dcode: `M`
+  - I2C-Breakout: [Adafruit  5989](https://adafru.it/5989)
+  - Address: 0x44 (or 0x45-0x47)
+  - Guide: <https://learn.adafruit.com/adafruit-hdc3021-precision-temperature-humidity-sensor>
+  - CircuitPython-driver: <https://github.com/adafruit/Adafruit_CircuitPython_HDC302x>
+  - [datasheet](https://cdn-learn.adafruit.com/assets/assets/000/131/097/original/hdc3021-q1.pdf?1720448563)
+
+
 HTU31D
 ------
 

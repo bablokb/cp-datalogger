@@ -11,6 +11,7 @@ adafruit_display_shapes
 adafruit_display_text
 adafruit_ds18x20
 adafruit_ens160
+adafruit_hdc302x
 adafruit_htu31d
 adafruit_mcp9808
 adafruit_onewire
