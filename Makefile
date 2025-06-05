@@ -173,10 +173,10 @@ ${DEPLOY_TO}/log_config.py: ${LOG_CONFIG}
 	cp -a $< $@
 
 ${DEPLOY_TO}/ap_config.mpy: ${AP_CONFIG}
-	mpy-cross${CP_VERSION} $< -o $@
+	bin/mpy-cross${CP_VERSION} $< -o $@
 
 ${DEPLOY_TO}/secrets.mpy: ${SECRETS}
-	mpy-cross${CP_VERSION} $< -o $@
+	bin/mpy-cross${CP_VERSION} $< -o $@
 
 ifeq (,$(findstring /,${PCB}))
 ${DEPLOY_TO}/pins.mpy: ${SRC}/pins${PCB}.py
