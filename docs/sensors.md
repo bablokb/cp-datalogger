@@ -300,6 +300,21 @@ SCD40/SCD41
   - Note: See [tools](./tools.md) for a manual calibration-tool.
 
 
+SEN66
+-----
+
+  - Measures temperature, humidity, CO2, NOx, VOC, PM
+  - Status: implemented
+  - dcode: `N`
+  - Sensor: <https://www.digikey.de/de/products/detail/sensirion-ag/SEN66-SIN-T/25700945>
+  - Address: 0x6B
+  - Guide: n.a.
+  - CircuitPython-driver: <https://github.com/adafruit/Adafruit_CircuitPython_SEN6x/>
+  - [datasheet](https://sensirion.com/media/documents/FAFC548D/6731FFFA/Sensirion_Datasheet_SEN6x.pdf)
+  - Note: This sensor supports [sensor-specific configuration](./core_config_sensors.md)
+  - Note: See [tools](./tools.md) for a manual calibration-tool.
+
+
 SHT45
 -----
 

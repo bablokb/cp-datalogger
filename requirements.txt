@@ -22,6 +22,7 @@ adafruit_register
 adafruit_requests
 adafruit_rfm9x
 adafruit_scd4x
+adafruit_sen6x
 adafruit_sht4x
 adafruit_ssd1608
 adafruit_ssd1675

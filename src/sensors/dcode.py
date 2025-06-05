@@ -50,6 +50,7 @@ SENSOR_MAP = {
   "cputemp": "K",
   "mhz19":   "L",
   "hdc302x": "M",
+  "sen6x":   "N",
   }
 
 class DCODE:
