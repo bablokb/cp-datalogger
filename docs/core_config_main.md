@@ -112,7 +112,7 @@ Sample-Mode and Intervals
 
 In `STROBE_MODE`, the system cuts power after data
 collection. Otherwise, the system will use deep-sleep (light-sleep for
-intervals shorter than 60 seconds). Without available power-management
+intervals shorter than 61 seconds). Without available power-management
 (see `HAVE_PM` below), the system uses deep-sleep as a fallback even
 in strobe-mode.
 
