@@ -161,13 +161,55 @@ only the last sample is saved to CSV, the others are discarded. For
 testing purposes, this behaviour can be change with `SCD4X_DISCARD`.
 
 Periodic measurement on SCD4x should return data every five seconds.
-After `SDC4X_TIMEOUT` seconds the sensor-wrapper will give up. The
+After `SCD4X_TIMEOUT` seconds the sensor-wrapper will give up. The
 default should be ok.
 
 If a measurement from a BME280 or BMP280 is available, the pressure
 value is used to configure the ambient pressure of the SCD4x. The
 sensors within the `SENSORS`-configuration variable should therefore
 be ordered correctly, i.e. first the BMx280, then the SCD4x.
+
+
+SEN6X
+-----
+
+| Name              | Type | O/M | Description                        |
+|-------------------|------|-----|------------------------------------|
+| SEN6X_SAMPLES     | int  |  O  | number of samples (2)              |
+| SEN6X_INTERVAL    | int  |  O  | sampling-interval (5)              |
+| SEN6X_TIMEOUT     | int  |  O  | timeout waiting for data (5)       |
+| SEN6X_DISCARD     | bool |  O  | only keep last readout (True)      |
+| SEN6X_PROPERTIES  | str  |  O  | properties for display (c t h)     |
+
+Sensirion's SEN6x sensors are a family of compound sensors for
+temperature, humidity, particle and various gases. Currently, the
+SEN66 is the only available and supported sensor.
+
+Available properties:
+
+  - `t`: temperature
+  - `h`: humidity
+  - `c`: CO2
+  - `voc`: volatile organic compount index
+  - `nox`: NO index
+  - `pm`: mass concentration of particles, measured in µg/m³
+  - `pn`: number concentration of particles measured in particles/cm³
+
+`pm` and `pn` give values for PM0.5, PM1.0, PM2.5, PM4.0 and PM10.0.
+
+The Sen6x-sensors give better results with multiple samples. Normally,
+only the last sample is saved to CSV, the others are discarded. For
+testing purposes, this behaviour can be change with `SEN6X_DISCARD`.
+
+Periodic measurements on Sen6x should return data every second.
+After `SEN6X_TIMEOUT` seconds the sensor-wrapper will give up. The
+default should be ok.
+
+If a measurement from a BME280 or BMP280 is available, the pressure
+value is used to configure the ambient pressure of the Sen6x. The
+sensors within the `SENSORS`-configuration variable should therefore
+be ordered correctly, i.e. first the BMx280, then the Sen6x.
+
 
 SHT45
 -----
