@@ -18,19 +18,26 @@
 
 SAMPLES = 2
 INTERVAL = 5
-TIMEOUT = 10                  # data should be ready every 5 seconds
+TIMEOUT = 5                   # data should be ready every 5 seconds
 DISCARD = True                # only keep last reading
-PROPERTIES = "c t h voc nox"  # properties for the display
+PROPERTIES = "c t h"          # properties for the display
 FORMATS = {
   "c":    ["C/SE6:", "{0}p"],          # 0 - 40000
   "t":    ["T/SE6:", "{0:.1f}°C"],
   "h":    ["H/SE6:", "{0:.0f}%rH"],
-  "p10":  ["PM1.0/SE6:","{0}"],        # 0 - 1000
-  "p25":  ["PM2.5/SE6:","{0}"],        # 0 - 1000
-  "p40":  ["PM4.0/SE6:","{0}"],        # 0 - 1000
-  "p100": ["PM10/SE6:","{0}"],         # 0 - 1000
+
   "voc":  ["VOC/SE6:","{0}"],          # 1 - 500
   "nox":  ["NOX/SE6:","{0}"],          # 1 - 500
+
+  "pm10":  ["PM1.0/SE6:","{0}"],        # 0 - 1000 µg/m³
+  "pm25":  ["PM2.5/SE6:","{0}"],        # 0 - 1000 µg/m³
+  "pm40":  ["PM4.0/SE6:","{0}"],        # 0 - 1000 µg/m³
+  "pm100": ["PM10/SE6:","{0}"],         # 0 - 1000
+
+  "pn10":  ["PN1.0/SE6:","{0}"],        # 0 - 6554 particles/cm³
+  "pn25":  ["PN2.5/SE6:","{0}"],        # 0 - 6554 particles/cm³
+  "pn40":  ["PN4.0/SE6:","{0}"],        # 0 - 6554 particles/cm³
+  "pn100": ["PN10/SE6:","{0}"],         # 0 - 6554 particles/cm³
   }
 
 from log_writer import Logger
@@ -42,8 +49,11 @@ import adafruit_sen6x
 
 class SEN6X:
   # we don't use timestamps on the display ...
-  headers = ('C/SE6 ppm,T/SE6 °C,H/SE6 %rH,' +
-             'PM1.0,PM2.5,PM4.0,PM10,VOC,NOX' )
+  HEADERS_BASE = 'C/SE6 ppm,T/SE6 °C,H/SE6 %rH'
+  HEADERS_GAS  = 'VOC,NOX'
+  HEADERS_PM   = 'PM1.0,PM2.5,PM4.0,PM10'
+  HEADERS_PN   = 'PN1.0,PN2.5,PN4.0,PN10'
+  HEADERS      = ','.join([HEADERS_BASE,HEADERS_GAS,HEADERS_PM,HEADERS_PN])
 
   def __init__(self,config,i2c,addr=None,spi=None):
     """ constructor """
@@ -80,24 +90,15 @@ class SEN6X:
       self.formats.extend(FORMATS[p])
 
     # ... and header for csv
-    if not self.DISCARD:
-      self.headers = (
-        f't (1),' +
-        f'C/SE6 ppm (1),' +
-        f'T/SE6 °C (1),' +
-        f'H/SE6 %rH (1),' +
-        'PM1.0 (1),PM2.5 (1),PM4.0 (1),PM10 (1),' +
-        'VOC (1),NOX (1)'
-        )
-      for i in range(1,self.SAMPLES):
-        self.headers += (
-          f',t ({i+1}),' +
-          f'C/SE6 ppm ({i+1}),' +
-          f'T/SE6 °C ({i+1}),' +
-          f'H/SE6 %rH ({i+1}),' +
-          f'PM1.0 ({i+1}),PM2.5 ({i+1}),PM4.0 ({i+1}),PM10 ({i+1}),' +
-          f'VOC ({i+1}),NOX ({i+1})'
-          )
+    if self.DISCARD:
+      self.headers = SEN6X.HEADERS
+    else:
+      # multiple samples: add column for time
+      cols = ['t'].extend(SEN6X.HEADERS.split(','))
+      self.headers = ''
+      for i in range(self.SAMPLES):
+        for col in cols:
+          self.headers += f"{col} ({i+1})"
 
     # start sampling
     self.sen6x.start_measurement()
@@ -126,24 +127,30 @@ class SEN6X:
                      f"samples with interval {self.INTERVAL}s")
     csv_results = ""
     for i in range(self.SAMPLES):
-      t_rel = 0;  co2 = 0;  temp = 0;  hum  = 0
-      p10   = -1; p25 = -1; p40  = -1; p100 = -1
-      voc   = -1; nox = -1
+      t_rel = 0;  co2  = 0;  temp = 0;  hum   = 0
+      pm10  = -1; pm25 = -1; pm40 = -1; pm100 = -1
+      pn10  = -1; pn25 = -1; pn40 = -1; pn100 = -1
+      voc   = -1; nox  = -1
       start = time.monotonic()
       while time.monotonic()-start < self.TIMEOUT:
         if self.sen6x.data_ready:
-          sen6_data = self.sen6x.all_measurements()
           t_rel = time.monotonic() - self._t0
+          sen6x_std = self.sen6x.all_measurements()
+          sen6x_pc  = self.sen6x.number_concentration()
 
-          co2   = sen6_data["co2"]
-          temp  = round(sen6_data["temperature"],1)
-          hum   = round(sen6_data["humidity"],0)
-          p10   = sen6_data["pm1_0"]
-          p25   = sen6_data["pm2_5"]
-          p40   = sen6_data["pm4_0"]
-          p100  = sen6_data["pm10"]
-          voc   = sen6_data["voc_index"]
-          nox   = sen6_data["nox_index"]
+          co2   = sen6x_std["co2"]
+          temp  = round(sen6x_std["temperature"],1)
+          hum   = round(sen6x_std["humidity"],0)
+          voc   = sen6x_std["voc_index"]
+          nox   = sen6x_std["nox_index"]
+          pm10  = sen6x_std["pm1_0"]
+          pm25  = sen6x_std["pm2_5"]
+          pm40  = sen6x_std["pm4_0"]
+          pm100 = sen6x_std["pm10"]
+          pn10  = sen6x_pc["nc_pm1_0"]
+          pn25  = sen6x_pc["nc_pm2_5"]
+          pn40  = sen6x_pc["nc_pm4_0"]
+          pn100 = sen6x_pc["nc_pm10"]
           break
         else:
           time.sleep(0.2)
@@ -151,8 +158,9 @@ class SEN6X:
       # add data to csv-record
       if not self.DISCARD and self.SAMPLES > 1:
         csv_results += f",{t_rel:.2f},{co2},{temp:.1f},{hum:.0f}"
-        csv_results += f",{p10},{p25},{p40},{p100}"
         csv_results += f",{voc},{nox}"
+        csv_results += f",{pm10},{pm25},{pm40},{pm100}"
+        csv_results += f",{pn10},{pn25},{pn40},{pn100}"
 
       # sleep the given time for the next sensor-readout
       if i < self.SAMPLES-1:
@@ -166,29 +174,42 @@ class SEN6X:
     # only keep last reading for CSV if DISCARD is active
     if self.DISCARD:
       csv_results = f",{co2},{temp:.1f},{hum:.0f}"
-      csv_results += f",{p10},{p25},{p40},{p100}"
       csv_results += f",{voc},{nox}"
+      csv_results += f",{pm10},{pm25},{pm40},{pm100}"
+      csv_results += f",{pn10},{pn25},{pn40},{pn100}"
 
     # in any case, only save and show last reading
     data[self.product] = {
       "t": temp,
       "h":  hum,
       "c":  co2,
-      "p10": p10,
-      "p25": p25,
-      "p40": p40,
-      "p100": p100,
       "voc": voc,
       "nox": nox,
+      "pm10": pm10,
+      "pm25": pm25,
+      "pm40": pm40,
+      "pm100": pm100,
+      "pn10": pn10,
+      "pn25": pn25,
+      "pn40": pn40,
+      "pn100": pn100,
+
       FORMATS['t'][0]: FORMATS['t'][1].format(temp),
       FORMATS['h'][0]: FORMATS['h'][1].format(hum),
       FORMATS['c'][0]: FORMATS['c'][1].format(co2),
-      FORMATS['p10'][0]: FORMATS['p10'][1].format(p10),
-      FORMATS['p25'][0]: FORMATS['p25'][1].format(p25),
-      FORMATS['p40'][0]: FORMATS['p40'][1].format(p40),
-      FORMATS['p100'][0]: FORMATS['p100'][1].format(p100),
+
       FORMATS['voc'][0]: FORMATS['voc'][1].format(voc),
       FORMATS['nox'][0]: FORMATS['nox'][1].format(nox),
+
+      FORMATS['pm10'][0]: FORMATS['pm10'][1].format(pm10),
+      FORMATS['pm25'][0]: FORMATS['pm25'][1].format(pm25),
+      FORMATS['pm40'][0]: FORMATS['pm40'][1].format(pm40),
+      FORMATS['pm100'][0]: FORMATS['pm100'][1].format(pm100),
+
+      FORMATS['pn10'][0]: FORMATS['pn10'][1].format(pn10),
+      FORMATS['pn25'][0]: FORMATS['pn25'][1].format(pn25),
+      FORMATS['pn40'][0]: FORMATS['pn40'][1].format(pn40),
+      FORMATS['pn100'][0]: FORMATS['pn100'][1].format(pn100),
     }
     if not self.ignore:
       for p in self.PROPERTIES:
