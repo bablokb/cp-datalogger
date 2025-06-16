@@ -66,11 +66,6 @@ class PMS5003:
 
   def read(self,data,values):
     """ read sensor """
-    # take first measurement at least 30s after power-up
-    wtime = max(30-int(time.monotonic()),0)
-    if wtime > 0:
-      g_logger.print(f"pms5003: waiting {wtime}s for first measurement")
-      TimeSleep.light_sleep(wtime)
 
     # retry until read does not throw an exception
     # TODO: limit retries
