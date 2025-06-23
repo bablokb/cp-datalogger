@@ -15,12 +15,20 @@
 # Website: https://github.com/pcb-pico-datalogger
 #-----------------------------------------------------------------------------
 
-PROPERTIES = "p03 p10 p25"          # properties for the display
+PROPERTIES = "pn03 pn10 pn25"       # properties for the display
+PN_FACTOR  = 0.01                   # conversion factor for particles
 RETRIES = 3                         # retries for data readout
 FORMATS = {
-  "p03": ["PM0.3:","{0}"],
-  "p10": ["PM1.0:","{0}"],
-  "p25": ["PM2.5:","{0}"]
+  "pm10": ["PM1.0/PMS:","{0}"],         # 0-500 µg/m³ effective range
+  "pm25": ["PM2.5/PMS:","{0}"],         # 0-500 µg/m³ effective range
+  "pm100": ["PM10/PMS:","{0}"],         # 0-500 µg/m³ effective range (estimated)
+
+  "pn03": ["PN0.3/PMS:","{0}"],         # particles/100cm³
+  "pn05": ["PN0.5/PMS:","{0}"],         # particles/100cm³
+  "pn10": ["PN1.0/PMS:","{0}"],         # particles/100cm³
+  "pn25": ["PN2.5/PMS:","{0}"],         # particles/100cm³
+  "pn50": ["PN5.0/PMS:","{0}"],         # particles/100cm³ (estimated)
+  "pn100": ["PN10/PMS:","{0}"]          # particles/100cm³ (estimated)
 }
 
 from log_writer import Logger
@@ -35,13 +43,16 @@ from adafruit_pm25.i2c  import PM25_I2C
 from sleep import TimeSleep
 
 class PMS5003:
-  headers = 'PM0.3,PM1.0,PM2.5'
+  HEADERS_PM   = 'PM1.0,PM2.5,PM10'
+  HEADERS_PN   = 'PN0.3,PN0.5,PN1.0,PN2.5,PN5.0,PN10'
+  HEADERS      = ','.join([HEADERS_PM,HEADERS_PN])
 
   def __init__(self,config,i2c,addr=None,spi=None):
     """ constructor """
     self.ignore = False
     self.pms5003 = None
     self.init_time = 30
+    self.headers = PMS5003.HEADERS
     for nr,bus in enumerate(i2c):
       if not bus:
         continue
@@ -60,6 +71,7 @@ class PMS5003:
     # dynamically create formats for display...
     self.PROPERTIES = getattr(config,"PMS5003_PROPERTIES",PROPERTIES).split()
     self.RETRIES    = getattr(config,"PMS5003_RETRIES",RETRIES)
+    self.PN_FACTOR  = getattr(config,"PMS5003_PN_FACTOR",PN_FACTOR)
     self.formats = []
     for p in self.PROPERTIES:
       self.formats.extend(FORMATS[p])
@@ -80,23 +92,43 @@ class PMS5003:
         time.sleep(0.1)
 
     if i == self.RETRIES:
-      p03 = -1
-      p10 = -1
-      p25 = -1
+      pm10 = -1; pm25 = -1; pm100 = -1
+      pn03 = -1; pn05 = -1; pn10 = -1; pn25 = -1; pn50 = -1; pn100 = -1
     else:
-      p03 = pms5003_data["particles 03um"]
-      p10 = pms5003_data["particles 10um"]
-      p25 = pms5003_data["particles 25um"]
+      pm10  = pms5003_data["pm10 env"]
+      pm25  = pms5003_data["pm25 env"]
+      pm100 = pms5003_data["pm100 env"]
+
+      pn03  = pms5003_data["particles 03um"] * self.PN_FACTOR
+      pn05  = pms5003_data["particles 05um"] * self.PN_FACTOR
+      pn10  = pms5003_data["particles 10um"] * self.PN_FACTOR
+      pn25  = pms5003_data["particles 25um"] * self.PN_FACTOR
+      pn50  = pms5003_data["particles 50um"] * self.PN_FACTOR
+      pn100 = pms5003_data["particles 100um"] * self.PN_FACTOR
 
     data["pms5003"] = {
-      "p03": p03,
-      "p10": p10,
-      "p25": p25,
-      FORMATS['p03'][0]: FORMATS['p03'][1].format(p03),
-      FORMATS['p10'][0]: FORMATS['p10'][1].format(p10),
-      FORMATS['p25'][0]: FORMATS['p25'][1].format(p25),
+      "pm10": pm10,
+      "pm25": pm25,
+      "pm100": pm100,
+
+      "pn03": pn03,
+      "pn05": pn05,
+      "pn10": pn10,
+      "pn25": pn25,
+      "pn50": pn50,
+      "pn100": pn100,
+      FORMATS['pm10'][0]: FORMATS['pm10'][1].format(pm10),
+      FORMATS['pm25'][0]: FORMATS['pm25'][1].format(pm25),
+      FORMATS['pm100'][0]: FORMATS['pm100'][1].format(pm100),
+
+      FORMATS['pn03'][0]: FORMATS['pn03'][1].format(pn03),
+      FORMATS['pn05'][0]: FORMATS['pn05'][1].format(pn05),
+      FORMATS['pn10'][0]: FORMATS['pn10'][1].format(pn10),
+      FORMATS['pn25'][0]: FORMATS['pn25'][1].format(pn25),
+      FORMATS['pn50'][0]: FORMATS['pn50'][1].format(pn50),
+      FORMATS['pn100'][0]: FORMATS['pn100'][1].format(pn100),
       }
     if not self.ignore:
       for p in self.PROPERTIES:
         values.extend([None,data["pms5003"][p]])
-    return f"{p03},{p10},{p25}"
+    return f"{pm10},{pm25},{pm100},{pn03},{pn05},{pn10},{pn25},{pn50},{pn100}"
