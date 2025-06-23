@@ -76,6 +76,20 @@ class SEN6X:
     if not self.sen6x:
       raise Exception(f"no {self.product} detected. Check config/cabling!")
 
+    # configure sensor
+    if not getattr(config,"SEN6X_AUTO_CALIBRATE",False):
+      g_logger.print(f"deactivating {self.product} auto-calibration")
+      self.sen6x.co2_automatic_self_calibration = False
+    offset, slope = getattr(config,"SEN6X_TEMP_OFFSET",[0,0])
+    if offset or slope:
+      g_logger.print(f"configuring temperature-offset to [{offset},{slope}]")
+      # implicitly use time-constant=0 and slot=0
+      self.sen6x.temperature_offset(offset,slope)
+    altitude = getattr(config,"BMx280_ALTITUDE_AT_LOCATION",None)
+    if not altitude is None:
+      g_logger.print(f"setting altitude to {altitude}m above sea-level")
+      self.sen6x.sensor_altitude = altitude
+
     self.SAMPLES  = getattr(config,"SEN6X_SAMPLES",SAMPLES)
     self.INTERVAL = getattr(config,"SEN6X_INTERVAL",INTERVAL)
     self.TIMEOUT  = getattr(config,"SEN6X_TIMEOUT",TIMEOUT)
