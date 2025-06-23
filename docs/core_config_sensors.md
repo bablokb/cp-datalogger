@@ -143,6 +143,22 @@ PMS5003
 | PMS5003_RETRIES             | int  |  O  | retry reads (3)           |
 | PMS5003_PROPERTIES          | str  |  O  | properties for display    |
 |                             |      |     | ("p03 p10 p25")           |
+| PMS5003_PN_FACTOR           | float|  O  | factor for particle count |
+|                             |      |     | (0.01)                    |
+
+Available properties:
+
+  - `pm<x>`: mass concentration of particles, measured in µg/m³ 
+     x = 10, 25, 100 (pm10: mass concentration PM1.0 etc.)
+  - `pn<x>`: number concentration of particles measured in particles/cm³ 
+     x = 03, 05, 10, 25, 50, 100
+
+The default value of `PMS5003_PN_FACTOR` converts the raw count per 0.1L
+to particles per cm³.
+
+Note that particles larger than 2.5µm are *estimated* and not measured.
+The device will therefore not necessarely detect the correct concentrations
+of certain pollutants, e.g. pollen or heavy dust.
 
 
 SCD40, SCD41
@@ -173,13 +189,15 @@ be ordered correctly, i.e. first the BMx280, then the SCD4x.
 SEN6X
 -----
 
-| Name              | Type | O/M | Description                        |
-|-------------------|------|-----|------------------------------------|
-| SEN6X_SAMPLES     | int  |  O  | number of samples (2)              |
-| SEN6X_INTERVAL    | int  |  O  | sampling-interval (5)              |
-| SEN6X_TIMEOUT     | int  |  O  | timeout waiting for data (5)       |
-| SEN6X_DISCARD     | bool |  O  | only keep last readout (True)      |
-| SEN6X_PROPERTIES  | str  |  O  | properties for display (c t h)     |
+| Name                 | Type | O/M | Description                        |
+|----------------------|------|-----|------------------------------------|
+| SEN6X_SAMPLES        | int  |  O  | number of samples (2)              |
+| SEN6X_INTERVAL       | int  |  O  | sampling-interval (5)              |
+| SEN6X_TIMEOUT        | int  |  O  | timeout waiting for data (5)       |
+| SEN6X_DISCARD        | bool |  O  | only keep last readout (True)      |
+| SEN6X_PROPERTIES     | str  |  O  | properties for display (c t h)     |
+| SEN6X_AUTO_CALIBRATE | bool |  O  | auto-calibrate CO2 (False)         |
+| SEN6X_TEMP_OFFSET    | [f,f]|  O  | offset and slope (see datasheet)   |
 
 Sensirion's SEN6x sensors are a family of compound sensors for
 temperature, humidity, particle and various gases. Currently, the
@@ -192,10 +210,10 @@ Available properties:
   - `c`: CO2
   - `voc`: volatile organic compount index
   - `nox`: NO index
-  - `pm`: mass concentration of particles, measured in µg/m³
-  - `pn`: number concentration of particles measured in particles/cm³
-
-`pm` and `pn` give values for PM0.5, PM1.0, PM2.5, PM4.0 and PM10.0.
+  - `pm<x>`: mass concentration of particles, measured in µg/m³ 
+     x = 10, 25, 40, 100 (pm10: mass concentration PM1.0 etc.)
+  - `pn<x>`: number concentration of particles measured in particles/cm³ 
+     x = 10, 25, 40, 100
 
 The Sen6x-sensors give better results with multiple samples. Normally,
 only the last sample is saved to CSV, the others are discarded. For
