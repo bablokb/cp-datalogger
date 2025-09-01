@@ -380,6 +380,11 @@ class DataCollector():
     self.setup()
     self.print_timings()
 
+    # force reset (only relevant for continuous mode)
+    force_reset = getattr(g_config,"FORCE_RESET",0)
+    if force_reset:
+      reset_in = time.monotonic() + force_reset
+
     while True:
       if g_config.TEST_MODE:
         if hasattr(pins,"PIN_LED"):
@@ -413,7 +418,8 @@ class DataCollector():
         g_logger.print(
           f"continuous mode: next measurement " +
           f"at {ExtBase.print_ts(None,self.wakeup)}")
-        if g_config.INTERVAL < 61:
+        if g_config.INTERVAL < 61 and (
+          not force_reset or time.monotonic() < reset_in):
           TimeSleep.light_sleep(until=self.wakeup)
         else:
           TimeSleep.deep_sleep(until=self.wakeup)
