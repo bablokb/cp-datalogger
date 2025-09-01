@@ -29,15 +29,15 @@ FORMATS = {
   "voc":  ["VOC/SE6:","{0}"],          # 1 - 500
   "nox":  ["NOX/SE6:","{0}"],          # 1 - 500
 
-  "pm10":  ["PM1.0/SE6:","{0}"],        # 0 - 1000 µg/m³
-  "pm25":  ["PM2.5/SE6:","{0}"],        # 0 - 1000 µg/m³
-  "pm40":  ["PM4.0/SE6:","{0}"],        # 0 - 1000 µg/m³
-  "pm100": ["PM10/SE6:","{0}"],         # 0 - 1000
+  "pm10":  ["PM1.0/SE6:","{0}"],       # 0 - 1000 µg/m³
+  "pm25":  ["PM2.5/SE6:","{0}"],       # 0 - 1000 µg/m³
+  "pm40":  ["PM4.0/SE6:","{0}"],       # 0 - 1000 µg/m³
+  "pm100": ["PM10/SE6:","{0}"],        # 0 - 1000
 
-  "pn10":  ["PN1.0/SE6:","{0}"],        # 0 - 6554 particles/cm³
-  "pn25":  ["PN2.5/SE6:","{0}"],        # 0 - 6554 particles/cm³
-  "pn40":  ["PN4.0/SE6:","{0}"],        # 0 - 6554 particles/cm³
-  "pn100": ["PN10/SE6:","{0}"],         # 0 - 6554 particles/cm³
+  "pn10":  ["PN1.0/SE6:","{0:0.1f}"],  # 0 - 6554 particles/cm³
+  "pn25":  ["PN2.5/SE6:","{0:0.1f}"],  # 0 - 6554 particles/cm³
+  "pn40":  ["PN4.0/SE6:","{0:0.1f}"],  # 0 - 6554 particles/cm³
+  "pn100": ["PN10/SE6:","{0:0.1f}"],   # 0 - 6554 particles/cm³
   }
 
 from log_writer import Logger
@@ -152,19 +152,19 @@ class SEN6X:
           sen6x_std = self.sen6x.all_measurements()
           sen6x_pc  = self.sen6x.number_concentration()
 
-          co2   = sen6x_std["co2"]
+          co2   = int(sen6x_std["co2"])
           temp  = round(sen6x_std["temperature"],1)
           hum   = round(sen6x_std["humidity"],0)
-          voc   = sen6x_std["voc_index"]
-          nox   = sen6x_std["nox_index"]
-          pm10  = sen6x_std["pm1_0"]
-          pm25  = sen6x_std["pm2_5"]
-          pm40  = sen6x_std["pm4_0"]
-          pm100 = sen6x_std["pm10"]
-          pn10  = sen6x_pc["nc_pm1_0"]
-          pn25  = sen6x_pc["nc_pm2_5"]
-          pn40  = sen6x_pc["nc_pm4_0"]
-          pn100 = sen6x_pc["nc_pm10"]
+          voc   = int(sen6x_std["voc_index"])
+          nox   = int(sen6x_std["nox_index"])
+          pm10  = int(sen6x_std["pm1_0"])
+          pm25  = int(sen6x_std["pm2_5"])
+          pm40  = int(sen6x_std["pm4_0"])
+          pm100 = int(sen6x_std["pm10"])
+          pn10  = round(sen6x_pc["nc_pm1_0"],1)
+          pn25  = round(sen6x_pc["nc_pm2_5"],1)
+          pn40  = round(sen6x_pc["nc_pm4_0"],1)
+          pn100 = round(sen6x_pc["nc_pm10"],1)
           break
         else:
           time.sleep(0.2)
@@ -174,7 +174,7 @@ class SEN6X:
         csv_results += f",{t_rel:.2f},{co2},{temp:.1f},{hum:.0f}"
         csv_results += f",{voc},{nox}"
         csv_results += f",{pm10},{pm25},{pm40},{pm100}"
-        csv_results += f",{pn10},{pn25},{pn40},{pn100}"
+        csv_results += f",{pn10:.1f},{pn25:.1f},{pn40:.1f},{pn100:.1f}"
 
       # sleep the given time for the next sensor-readout
       if i < self.SAMPLES-1:
@@ -190,7 +190,7 @@ class SEN6X:
       csv_results = f",{co2},{temp:.1f},{hum:.0f}"
       csv_results += f",{voc},{nox}"
       csv_results += f",{pm10},{pm25},{pm40},{pm100}"
-      csv_results += f",{pn10},{pn25},{pn40},{pn100}"
+      csv_results += f",{pn10:.1f},{pn25:.1f},{pn40:.1f},{pn100:.1f}"
 
     # in any case, only save and show last reading
     data[self.product] = {

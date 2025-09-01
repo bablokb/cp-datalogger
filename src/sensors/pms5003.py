@@ -23,12 +23,12 @@ FORMATS = {
   "pm25": ["PM2.5/PMS:","{0}"],         # 0-500 µg/m³ effective range
   "pm100": ["PM10/PMS:","{0}"],         # 0-500 µg/m³ effective range (estimated)
 
-  "pn03": ["PN0.3/PMS:","{0}"],         # particles/100cm³
-  "pn05": ["PN0.5/PMS:","{0}"],         # particles/100cm³
-  "pn10": ["PN1.0/PMS:","{0}"],         # particles/100cm³
-  "pn25": ["PN2.5/PMS:","{0}"],         # particles/100cm³
-  "pn50": ["PN5.0/PMS:","{0}"],         # particles/100cm³ (estimated)
-  "pn100": ["PN10/PMS:","{0}"]          # particles/100cm³ (estimated)
+  "pn03": ["PN0.3/PMS:","{0:0.1f}"],    # particles/100cm³
+  "pn05": ["PN0.5/PMS:","{0:0.1f}"],    # particles/100cm³
+  "pn10": ["PN1.0/PMS:","{0:0.1f}"],    # particles/100cm³
+  "pn25": ["PN2.5/PMS:","{0:0.1f}"],    # particles/100cm³
+  "pn50": ["PN5.0/PMS:","{0:0.1f}"],    # particles/100cm³ (estimated)
+  "pn100": ["PN10/PMS:","{0:0.1f}"]     # particles/100cm³ (estimated)
 }
 
 from log_writer import Logger
@@ -99,12 +99,12 @@ class PMS5003:
       pm25  = pms5003_data["pm25 env"]
       pm100 = pms5003_data["pm100 env"]
 
-      pn03  = pms5003_data["particles 03um"] * self.PN_FACTOR
-      pn05  = pms5003_data["particles 05um"] * self.PN_FACTOR
-      pn10  = pms5003_data["particles 10um"] * self.PN_FACTOR
-      pn25  = pms5003_data["particles 25um"] * self.PN_FACTOR
-      pn50  = pms5003_data["particles 50um"] * self.PN_FACTOR
-      pn100 = pms5003_data["particles 100um"] * self.PN_FACTOR
+      pn03  = round(pms5003_data["particles 03um"] * self.PN_FACTOR,1)
+      pn05  = round(pms5003_data["particles 05um"] * self.PN_FACTOR,1)
+      pn10  = round(pms5003_data["particles 10um"] * self.PN_FACTOR,1)
+      pn25  = round(pms5003_data["particles 25um"] * self.PN_FACTOR,1)
+      pn50  = round(pms5003_data["particles 50um"] * self.PN_FACTOR,1)
+      pn100 = round(pms5003_data["particles 100um"] * self.PN_FACTOR,1)
 
     data["pms5003"] = {
       "pm10": pm10,
@@ -131,4 +131,5 @@ class PMS5003:
     if not self.ignore:
       for p in self.PROPERTIES:
         values.extend([None,data["pms5003"][p]])
-    return f"{pm10},{pm25},{pm100},{pn03},{pn05},{pn10},{pn25},{pn50},{pn100}"
+    return (f"{pm10},{pm25},{pm100},{pn03:0.1f},{pn05:0.1f}," +
+            f"{pn10:0.1f},{pn25:0.1f},{pn50:0.1f},{pn100:0.1f}")
