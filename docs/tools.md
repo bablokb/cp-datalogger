@@ -41,12 +41,3 @@ Running this function, e.g. with
 
 will set the altitude and the temperature offset. The latter has to be
 determined emperically (the sensor default builtin value is 4).
-
-
-udp_gateway.py
---------------
-
-This is a sample implementation of an UDP gateway. It can be used
-on a computer together with the task "send_udp". For a real life gateway,
-the processing of the data (e.g. writing to a database) has to be
-implemented.
