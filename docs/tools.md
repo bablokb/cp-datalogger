@@ -41,3 +41,25 @@ Running this function, e.g. with
 
 will set the altitude and the temperature offset. The latter has to be
 determined emperically (the sensor default builtin value is 4).
+
+
+sen6x_config.py
+---------------
+
+This is a configuration tool for the SEN66 sensor.
+
+From the REPL, run:
+
+    from tools import sen6x_config
+
+and follow the instructions. The import configures I2C and defines the
+function
+
+    sen6x_config.run(duration=60,ppm=None,persist=False)
+
+Running this function, e.g. with
+
+    sen6x_config.run(ppm=418,persist=True)
+
+will set the baseline co2 concentration to 418ppm.
+
