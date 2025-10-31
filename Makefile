@@ -108,14 +108,9 @@ gateway: ${DEPLOY_TO} ${DEPLOY_TO}/sd lib \
 ${DEPLOY_TO} ${DEPLOY_TO}/sensors ${DEPLOY_TO}/tasks ${DEPLOY_TO}/tools ${DEPLOY_TO}/www:
 	mkdir -p  $@
 
-# CP9 needs mountpoint, CP8 fails with mountpoint
-ifeq (${CP_VERSION}, 8)
-${DEPLOY_TO}/sd:
-	-rm -fr $@
-else
+# create mountpoint for SD-card
 ${DEPLOY_TO}/sd:
 	mkdir -p  $@
-endif
 
 # copy libs and fonts
 lib:
