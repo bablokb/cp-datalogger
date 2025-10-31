@@ -35,7 +35,7 @@ BME280
 
 | Name                        | Type | O/M | Description               |
 |-----------------------------|------|-----|---------------------------|
-| BMx280_ALTITUDE_AT_LOCATION | int  |  O  | altitude in meters (540)  |
+| ALTITUDE_AT_LOCATION        | int  |  O  | altitude in meters (540)  |
 | BME280_PROPERTIES           | str  |  O  | properties for display    |
 |                             |      |     | ("t h pl ps")             |
 
@@ -55,7 +55,7 @@ BMP280
 
 | Name                        | Type | O/M | Description               |
 |-----------------------------|------|-----|---------------------------|
-| BMx280_ALTITUDE_AT_LOCATION | int  |  O  | altitude in meters (540)  |
+| ALTITUDE_AT_LOCATION        | int  |  O  | altitude in meters (540)  |
 | BMP280_PROPERTIES           | str  |  O  | properties for display    |
 |                             |      |     | ("t pl ps")               |
 
@@ -198,6 +198,7 @@ SEN6X
 | SEN6X_PROPERTIES     | str  |  O  | properties for display (c t h)     |
 | SEN6X_AUTO_CALIBRATE | bool |  O  | auto-calibrate CO2 (False)         |
 | SEN6X_TEMP_OFFSET    | [f,f]|  O  | offset and slope (see datasheet)   |
+| ALTITUDE_AT_LOCATION | int  |  O  | altitude in meters (540)           |
 
 Sensirion's SEN6x sensors are a family of compound sensors for
 temperature, humidity, particle and various gases. Currently, the

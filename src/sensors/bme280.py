@@ -62,8 +62,8 @@ class BME280:
     self.bme280.overscan_humidity    = adafruit_bme280.OVERSCAN_X1
     self.bme280.overscan_temperature = adafruit_bme280.OVERSCAN_X1
 
-    if hasattr(config,"BMx280_ALTITUDE_AT_LOCATION"):
-      altitude = config.BMx280_ALTITUDE_AT_LOCATION
+    if hasattr(config,"ALTITUDE_AT_LOCATION"):
+      altitude = config.ALTITUDE_AT_LOCATION
     else:
       altitude = 540
     self.alt_factor = pow(1.0-altitude/44330.0, 5.255)

@@ -85,7 +85,7 @@ class SEN6X:
       g_logger.print(f"configuring temperature-offset to [{offset},{slope}]")
       # implicitly use time-constant=0 and slot=0
       self.sen6x.temperature_offset(offset,slope)
-    altitude = getattr(config,"BMx280_ALTITUDE_AT_LOCATION",None)
+    altitude = getattr(config,"ALTITUDE_AT_LOCATION",None)
     if not altitude is None:
       g_logger.print(f"setting altitude to {altitude}m above sea-level")
       self.sen6x.sensor_altitude = altitude

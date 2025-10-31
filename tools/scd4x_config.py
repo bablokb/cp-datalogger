@@ -96,7 +96,7 @@ def autorun():
   duration = getattr(g_config,"SCD4X_CONFIG_DURATION",60)
   ppm      = getattr(g_config,"SCD4X_CONFIG_PPM_MIN",418)
   t_off    = getattr(g_config,"SCD4X_CONFIG_T_OFF",None)
-  altitude = getattr(g_config,"BMx280_ALTITUDE_AT_LOCATION",540)
+  altitude = getattr(g_config,"ALTITUDE_AT_LOCATION",540)
   
   g_logger.print(f"starting: run(duration={duration},")
   g_logger.print(f"              altitude={altitude},")

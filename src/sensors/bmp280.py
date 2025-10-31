@@ -60,8 +60,8 @@ class BMP280:
     for p in self.PROPERTIES:
       self.formats.extend(FORMATS[p])
 
-    if hasattr(config,"BMx280_ALTITUDE_AT_LOCATION"):
-      altitude = config.BMx280_ALTITUDE_AT_LOCATION
+    if hasattr(config,"ALTITUDE_AT_LOCATION"):
+      altitude = config.ALTITUDE_AT_LOCATION
     else:
       altitude = 540
     self.alt_factor = pow(1.0-altitude/44330.0, 5.255)
