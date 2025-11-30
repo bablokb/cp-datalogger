@@ -7,11 +7,19 @@
 # Website: https://github.com/pcb-pico-datalogger
 #-----------------------------------------------------------------------------
 
+import atexit
 import busio
 import sdcardio
 import storage
 
 from rtc_ext.ext_base import ExtBase
+
+# --- atexit processing   ----------------------------------------------------
+
+def at_exit(spi,logger):
+  """ release spi """
+  logger.print(f"releasing {spi}")
+  spi.deinit()
 
 # --- initialize I2C-busses   ----------------------------------------------
 
@@ -69,6 +77,7 @@ def init_sd(pins,config,logger):
       vfs    = storage.VfsFat(sdcard)
       storage.mount(vfs, "/sd")
       logger.print("SD-card mounted on /sd")
+      atexit.register(at_exit,spi,logger)
     except Exception as ex:
       if spi:
         spi.deinit()
