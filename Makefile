@@ -73,7 +73,8 @@ else
 ap_config=
 endif
 
-.PHONY: clean copy2pico copy2gateway ${DEPLOY_TO}/sd
+.PHONY: clean copy2pico copy2gateway ${DEPLOY_TO}/sd \
+        ${DEPLOY_TO}/log_config.py ${DEPLOY_TO}/config.py
 
 # default target: pre-compile and compress files
 default: ${DEPLOY_TO} ${DEPLOY_TO}/sd ${DEPLOY_TO}/sensors \
@@ -161,11 +162,13 @@ copy2pico copy2gateway: ${COPY_PREREQ}
 	sync
 	umount $$(findmnt -S LABEL=CIRCUITPY -no TARGET)
 
+# don't copy with -a to pick up any change in MAKEVARS
 ${DEPLOY_TO}/config.py: ${CONFIG}
-	cp -a $< $@
+	cp $< $@
 
+# don't copy with -a to pick up any change in MAKEVARS
 ${DEPLOY_TO}/log_config.py: ${LOG_CONFIG}
-	cp -a $< $@
+	cp $< $@
 
 ${DEPLOY_TO}/ap_config.mpy: ${AP_CONFIG}
 	bin/mpy-cross${CP_VERSION} $< -o $@
