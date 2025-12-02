@@ -18,7 +18,11 @@ from rtc_ext.ext_base import ExtBase
 
 def at_exit(spi,logger):
   """ release spi """
-  logger.print(f"releasing {spi}")
+  try:
+    # may fail if we want to log to SD
+    logger.print(f"releasing {spi}")
+  except:
+    print(f"releasing {spi}")
   spi.deinit()
 
 # --- initialize I2C-busses   ----------------------------------------------

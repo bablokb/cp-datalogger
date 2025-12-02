@@ -9,11 +9,21 @@
 # Website: https://github.com/pcb-pico-datalogger
 #-----------------------------------------------------------------------------
 
+import atexit
 import busio
 import pins
 import storage
 import sdcardio
 import os
+
+# --- atexit processing   ----------------------------------------------------
+
+def at_exit(spi):
+  """ release spi """
+  print(f"releasing {spi}")
+  spi.deinit()
+
+# --- helper methods   -------------------------------------------------------
 
 def dump_file(name):
   with open(f"/sd/{name}","rt") as file:
@@ -22,10 +32,14 @@ def dump_file(name):
 def del_file(name):
   os.remove(f"/sd/{name}")
 
+# --- main program   ---------------------------------------------------------
+
 spi = busio.SPI(pins.PIN_SD_SCK,pins.PIN_SD_MOSI,pins.PIN_SD_MISO)
 sdcard = sdcardio.SDCard(spi,pins.PIN_SD_CS)
 vfs    = storage.VfsFat(sdcard)
 storage.mount(vfs, "/sd")
+print("SD-card mounted on /sd")
+atexit.register(at_exit,spi)
 
 csv = os.listdir("/sd")
 
