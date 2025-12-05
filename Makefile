@@ -77,7 +77,7 @@ endif
         ${DEPLOY_TO}/log_config.py ${DEPLOY_TO}/config.py
 
 # default target: pre-compile and compress files
-default: ${DEPLOY_TO} ${DEPLOY_TO}/sd ${DEPLOY_TO}/sensors \
+default: makevars.tmp ${DEPLOY_TO} ${DEPLOY_TO}/sd ${DEPLOY_TO}/sensors \
 	${DEPLOY_TO}/tasks ${DEPLOY_TO}/tools ${DEPLOY_TO}/www \
         lib ${DEPLOY_TO}/fonts/${FONT} ${ap_config} \
 	${DEPLOY_TO}/pins.mpy \
@@ -91,10 +91,8 @@ default: ${DEPLOY_TO} ${DEPLOY_TO}/sd ${DEPLOY_TO}/sensors \
 	${DEPLOY_TO}/secrets.mpy \
 	$(WWW:${SRC}/www/%=${DEPLOY_TO}/www/%.gz) \
 	${DEPLOY_TO}/commit.py
-	@rm -f makevars.tmp
-	@make -e makevars.tmp
 
-gateway: ${DEPLOY_TO} ${DEPLOY_TO}/sd lib \
+gateway: makevars.tmp ${DEPLOY_TO} ${DEPLOY_TO}/sd lib \
 	${DEPLOY_TO}/pins.mpy \
 	${DEPLOY_TO}/secrets.mpy \
 	$(SOURCES:${SRC}/%.py=${DEPLOY_TO}/%.mpy) \
@@ -102,8 +100,6 @@ gateway: ${DEPLOY_TO} ${DEPLOY_TO}/sd lib \
 	$(SPECIAL:${SRC}/%.py=${DEPLOY_TO}/%.py) \
 	${DEPLOY_TO}/config.py \
 	${DEPLOY_TO}/log_config.py
-	@rm -f makevars.tmp
-	@make -e makevars.tmp
 
 # create target-directory
 ${DEPLOY_TO} ${DEPLOY_TO}/sensors ${DEPLOY_TO}/tasks ${DEPLOY_TO}/tools ${DEPLOY_TO}/www:
@@ -134,8 +130,9 @@ else
 	rm -fr ${DEPLOY_TO}/*
 endif
 
-# recreate makevars.tmp
-makevars.tmp:
+# recreate makevars.tmp with an optional (custom) MAKEVARS-file as prereq
+makevars.tmp: $(filter-out makevars.tmp,${MAKEVARS})
+	@echo "(re) creating makevars.tmp"
 	@echo -e "PCB=${PCB}" > $@
 	@echo -e "DEPLOY_TO=${DEPLOY_TO}" >> $@
 	@echo -e "CONFIG=${CONFIG}" >> $@
@@ -162,15 +159,15 @@ copy2pico copy2gateway: ${COPY_PREREQ}
 	sync
 	umount $$(findmnt -S LABEL=CIRCUITPY -no TARGET)
 
-# don't copy with -a to pick up any change in MAKEVARS
-${DEPLOY_TO}/config.py: ${CONFIG}
+# don't copy with -a so that copy2xxx picks up any changed config-file in MAKEVARS
+${DEPLOY_TO}/config.py: ${CONFIG} $(filter-out makevars.tmp,${MAKEVARS})
 	cp $< $@
 
-# don't copy with -a to pick up any change in MAKEVARS
-${DEPLOY_TO}/log_config.py: ${LOG_CONFIG}
+# don't copy with -a so that copy2xxx picks up any changed config-file in MAKEVARS
+${DEPLOY_TO}/log_config.py: ${LOG_CONFIG} $(filter-out makevars.tmp,${MAKEVARS})
 	cp $< $@
 
-${DEPLOY_TO}/ap_config.mpy: ${AP_CONFIG}
+${DEPLOY_TO}/ap_config.mpy: ${AP_CONFIG} $(filter-out makevars.tmp,${MAKEVARS})
 	bin/mpy-cross${CP_VERSION} $< -o $@
 
 ${DEPLOY_TO}/secrets.mpy: ${SECRETS}
