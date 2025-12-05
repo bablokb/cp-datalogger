@@ -51,9 +51,9 @@ be used as a blueprint.
 Installation
 ------------
 
-First step is to install CircuitPython on the board. The currently tested
-and supported version is 9.2.6, but any later 9.2.x should probably
-also work (but is unsupported).
+First step is to install CircuitPython on the board. The currently
+tested and supported version is 9.2.9. **Although CircuitPython 10.0.x
+and later works, it is not recommended** due to performance reasons.
 
 Sources:
 
@@ -65,7 +65,7 @@ Sources:
 Notes:
 
   - Newer boards (Pico2 and Pico2-W) should also work
-  - If you want to upgrade a system running CircuitPython 8.0.5,
+  - If you want to upgrade the CircuitPython software,
     please read the [firmware upgrade instructions](./firmware_upgrade.md).
 
 After installation of CP and a power-cycle, mount the device if not done

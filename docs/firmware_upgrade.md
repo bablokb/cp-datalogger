@@ -26,14 +26,18 @@ Procedure for Assembled Dataloggers
 Assembled dataloggers don't expose the boot-button. To enter firmware
 upgrade mode, use the following steps:
 
-  - if the device is still running CircuitPython 8.0.5:
-    switch to the branch 8.0.5 of the datalogger repository
+If the device is still running CircuitPython 8.0.5:
+
+  - switch to the branch 8.0.5 of the datalogger repository
     (`git switch 8.0.5`)
   - build and deploy the newest version of the datalogger software. This
     version is still for 8.0.5-systems.
   - update the datalogger software on the device
-  - restart the device while keeping button C pressed
-  - the device will boot into firmware update mode
+
+When done:
+
+  - **restart the device while keeping button C pressed**
+  - the device will boot into (C=CircuitPython) firmware update mode
   - once in firmware update mode, follow the standard procedure to
     update the firmware
   - switch back to the main branch of the datalogger repository
