@@ -85,8 +85,8 @@ class Gateway:
     except:
       raise ValueError(f"tx-type '{gw_tx_type}' not implemented!")
 
-    self._receiver = rx_klass(g_config)
-    self._sender   = tx_klass(g_config)
+    self._receiver    = rx_klass(g_config)
+    self._transmitter = tx_klass(g_config)
 
   # --- hardware-setup   -----------------------------------------------------
 
@@ -101,7 +101,7 @@ class Gateway:
     self._rtc  = hw_helper.init_rtc(pins,g_config,self._i2c)
 
     self._receiver.setup(self._i2c,self._spi)
-    self._sender.setup(self._i2c,self._spi)
+    self._transmitter.setup(self._i2c,self._spi)
     self._update_time()
 
     # configure active window
@@ -128,7 +128,7 @@ class Gateway:
       return
 
     # try to fetch time from upstream
-    ts = self._sender.get_time()
+    ts = self._transmitter.get_time()
     if ts:
       g_logger.print("gateway: updated time from upstream")
       self._rtc.rtc_ext.datetime = ts
@@ -184,7 +184,7 @@ class Gateway:
       self._update_oled(values)
 
     # remote processing
-    self._sender.process_data(values)
+    self._transmitter.process_data(values)
 
   # --- save data to SD-card   -----------------------------------------------
 
@@ -235,7 +235,7 @@ class Gateway:
     # notify sender/receiver to disable power until sleep-time expires
     # Note: calls to shutdown should not return if successful
     try:
-      self._sender.shutdown(wakeup)
+      self._transmitter.shutdown(wakeup)
     except Exception as ex:
       g_logger.print(f"gateway: sender.shutdown() failed: {ex}")
     try:
