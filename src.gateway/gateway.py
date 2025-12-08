@@ -85,8 +85,8 @@ class Gateway:
     except:
       raise ValueError(f"tx-type '{gw_tx_type}' not implemented!")
 
-    self._receiver    = rx_klass(g_config)
-    self._transmitter = tx_klass(g_config)
+    self.receiver    = rx_klass(g_config)
+    self.transmitter = tx_klass(g_config)
 
   # --- hardware-setup   -----------------------------------------------------
 
@@ -95,19 +95,19 @@ class Gateway:
 
     # hw_helper won't throw an exception, if hardware is not in config
     g_logger.print(f"gateway: initializing")
-    self._i2c  = hw_helper.init_i2c(pins,g_config,g_logger)
-    self._oled = hw_helper.init_oled(self._i2c,g_config,g_logger)
-    self._spi  = hw_helper.init_sd(pins,g_config,g_logger)
-    self._rtc  = hw_helper.init_rtc(pins,g_config,self._i2c)
+    self.i2c  = hw_helper.init_i2c(pins,g_config,g_logger)
+    self.oled = hw_helper.init_oled(self.i2c,g_config,g_logger)
+    self.spi  = hw_helper.init_sd(pins,g_config,g_logger)
+    self.rtc  = hw_helper.init_rtc(pins,g_config,self.i2c)
 
-    self._receiver.setup(self._i2c,self._spi)
-    self._transmitter.setup(self._i2c,self._spi)
+    self.receiver.setup(self.i2c,self.spi)
+    self.transmitter.setup(self.i2c,self.spi)
     self._update_time()
 
     # configure active window
     self._active_until = time.time() + 60*g_config.ON_DURATION
     g_logger.print(
-      f"gateway: active until: {self._rtc.print_ts(None,self._active_until)}")
+      f"gateway: active until: {self.rtc.print_ts(None,self._active_until)}")
 
     # query SD-card filename
     if g_config.HAVE_SD:
@@ -124,14 +124,14 @@ class Gateway:
   def _update_time(self):
     """ query time: try internal RTC, then upstream """
 
-    if self._rtc.update():     # (time-server->)ext-rtc->int-rtc
+    if self.rtc.update():     # (time-server->)ext-rtc->int-rtc
       return
 
     # try to fetch time from upstream
-    ts = self._transmitter.get_time()
+    ts = self.transmitter.get_time()
     if ts:
       g_logger.print("gateway: updated time from upstream")
-      self._rtc.rtc_ext.datetime = ts
+      self.rtc.rtc_ext.datetime = ts
     else:
       g_logger.print("gateway: could not set time")
 
@@ -142,10 +142,10 @@ class Gateway:
 
     g_logger.print("gateway: processing broadcast-data...")
     start = time.monotonic()
-    rc = self._receiver.handle_broadcast(values)
+    rc = self.receiver.handle_broadcast(values)
     duration = time.monotonic()-start
 
-    if self._oled:
+    if self.oled:
       # values is: TS,ID,pnr,node -> fit to max three lines
       self._update_oled([values[0],
                          f"ID/N:{values[1]}/{values[3]}: {values[2]}",
@@ -162,7 +162,7 @@ class Gateway:
 
     g_logger.print("gateway: processing time-request...")
     start = time.monotonic()
-    rc = self._receiver.handle_time_request(values)
+    rc = self.receiver.handle_time_request(values)
     duration = time.monotonic()-start
     if rc:
       g_logger.print(f"gateway: transmit successful. Duration: {duration}s")
@@ -180,11 +180,11 @@ class Gateway:
     if getattr(g_config,"HAVE_SD",False):
       self._save_data(values)
     # ...show on display
-    if getattr(g_config,"HAVE_OLED",False) and self._oled:
+    if getattr(g_config,"HAVE_OLED",False) and self.oled:
       self._update_oled(values)
 
     # remote processing
-    self._transmitter.process_data(values)
+    self.transmitter.process_data(values)
 
   # --- save data to SD-card   -----------------------------------------------
 
@@ -200,8 +200,8 @@ class Gateway:
   def _update_oled(self,values):
     """ update OLED """
 
-    display = self._oled.get_display()
-    label   = self._oled.get_textlabel()
+    display = self.oled.get_display()
+    label   = self.oled.get_textlabel()
     lines = 5 if display.height > 32 else 3
 
     text = "\n".join(values[:min(lines,len(values))])
@@ -228,21 +228,21 @@ class Gateway:
     """
 
     # get start of next active window
-    wakeup = self._rtc.get_table_alarm(g_config.TIME_TABLE)
+    wakeup = self.rtc.get_table_alarm(g_config.TIME_TABLE)
     g_logger.print(
-      f"gateway: shutdown until {self._rtc.print_ts(None,wakeup)}")
+      f"gateway: shutdown until {self.rtc.print_ts(None,wakeup)}")
 
     # notify sender/receiver to disable power until sleep-time expires
     # Note: calls to shutdown should not return if successful
     try:
-      self._transmitter.shutdown(wakeup)
+      self.transmitter.shutdown(wakeup)
     except Exception as ex:
       g_logger.print(f"gateway: sender.shutdown() failed: {ex}")
     try:
-      self._receiver.shutdown(wakeup)
+      self.receiver.shutdown(wakeup)
     except Exception as ex2:
       g_logger.print(f"gateway: receiver.shutdown() failed: {ex2}")
-    self._rtc.set_alarm(wakeup)
+    self.rtc.set_alarm(wakeup)
     return self._power_off()
 
   # --- power off   ----------------------------------------------------------
@@ -284,8 +284,8 @@ class Gateway:
     # initialize hardware
     self._setup()
 
-    if self._oled:
-      self._update_oled([f"{self._rtc.print_ts(None,time.localtime())}",
+    if self.oled:
+      self._update_oled([f"{self.rtc.print_ts(None,time.localtime())}",
                          "Waiting for data..."])
     g_logger.print(f"gateway: waiting for incoming data ...")
 
@@ -293,7 +293,7 @@ class Gateway:
       data = None
 
       # check for packet
-      data = self._receiver.receive_data()
+      data = self.receiver.receive_data()
       if data is None:
         # check active time period
         if time.time() > self._active_until:
@@ -305,7 +305,7 @@ class Gateway:
             # try again after another cylce (should actually not happen)
             self._active_until = time.time() + 60*g_config.ON_DURATION
             g_logger.print("gateway: Active until: " +
-                           f"{self._rtc.print_ts(None,self._active_until)}")
+                           f"{self.rtc.print_ts(None,self._active_until)}")
         continue
 
       # Decode packet: expect csv data
