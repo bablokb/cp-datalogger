@@ -93,11 +93,13 @@ default: makevars.tmp ${DEPLOY_TO} ${DEPLOY_TO}/sd ${DEPLOY_TO}/sensors \
 	${DEPLOY_TO}/commit.py
 
 gateway: makevars.tmp ${DEPLOY_TO} ${DEPLOY_TO}/sd lib \
+	${DEPLOY_TO}/tasks \
 	${DEPLOY_TO}/pins.mpy \
 	${DEPLOY_TO}/secrets.mpy \
 	$(SOURCES:${SRC}/%.py=${DEPLOY_TO}/%.mpy) \
 	$(SOURCES2:src/%.py=${DEPLOY_TO}/%.mpy) \
 	$(SPECIAL:${SRC}/%.py=${DEPLOY_TO}/%.py) \
+	$(TASKS:${SRC}/tasks/%.py=${DEPLOY_TO}/tasks/%.mpy) \
 	${DEPLOY_TO}/config.py \
 	${DEPLOY_TO}/log_config.py
 
