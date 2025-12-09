@@ -6,6 +6,7 @@
 # Website: https://github.com/pcb-pico-datalogger
 #-----------------------------------------------------------------------------
 
+import atexit
 import time
 import busio
 
@@ -16,6 +17,17 @@ g_logger = Logger()
 
 from lora import LORA
 import pins
+
+# --- atexit processing   ----------------------------------------------------
+
+def at_exit(spi):
+  """ release spi """
+  try:
+    # may fail if we want to log to SD
+    g_logger.print(f"releasing {spi}")
+  except:
+    print(f"releasing {spi}")
+  spi.deinit()
 
 # --- LoraReceiver class   ------------------------------------------------
 
@@ -37,6 +49,7 @@ class LoraReceiver:
     if not spi:
       spi = busio.SPI(pins.PIN_LORA_SCK,pins.PIN_LORA_MOSI,
                       pins.PIN_LORA_MISO)
+    atexit.register(at_exit,spi)
     self._lora = LORA(self._config,spi)
 
   # --- receive data   -------------------------------------------------------
