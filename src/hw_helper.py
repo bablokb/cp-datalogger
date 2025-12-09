@@ -25,6 +25,19 @@ def at_exit(spi,logger):
     print(f"releasing {spi}")
   spi.deinit()
 
+def at_exit2(i2c,logger):
+  """ release i2c-busses """
+  try:
+    # may fail if we want to log to SD
+    logger.print(f"releasing {i2c}")
+  except:
+    print(f"releasing {i2c}")
+  for bus in i2c:
+    try:
+      bus.deinit()
+    except:
+      pass
+
 # --- initialize I2C-busses   ----------------------------------------------
 
 def init_i2c(pins,config,logger):
@@ -66,6 +79,7 @@ def init_i2c(pins,config,logger):
         i2c.append(i2cbus)
 
   # return result
+  atexit.register(at_exit2,i2c,logger)
   return i2c
 
 # --- initialize SD-card   ---------------------------------------------------
