@@ -32,7 +32,7 @@ def at_exit2(i2c,logger):
     logger.print(f"releasing {i2c}")
   except:
     print(f"releasing {i2c}")
-  for bus in i2c:
+  for bus in reversed(i2c):
     try:
       bus.deinit()
     except:
