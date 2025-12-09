@@ -93,12 +93,12 @@ There are two methods of synchronisation of the data to the cloud
   - buffering the data on the notecard and synchronisation at the
     end of the active window
 
-The modes are controlled by the variable `SYNC_BLUES_ACTION`:
+The modes are controlled by the variable `BLUES_SYNC_ACTION`:
 
-  - `SYNC_BLUES_ACTION = True` will sync immediately
-  - `SYNC_BLUES_ACTION = False` will sync after the end of the
+  - `BLUES_SYNC_ACTION = True` will sync immediately
+  - `BLUES_SYNC_ACTION = False` will sync after the end of the
     active window
-  - `SYNC_BLUES_ACTION = None` will print to the log and discard the
+  - `BLUES_SYNC_ACTION = None` will print to the log and discard the
     data (useful only during development)
 
 The second option is for now the recommended option. It is more efficient

@@ -38,15 +38,15 @@ For details about `TIME_TABLE` see [main configuration](./core_config_main.md).
 LoraReceiver
 ------------
 
-| Name                | Type | O/M | Description                           |
-|---------------------|------|-----|---------------------------------------|
-| RECEIVE_TIMEOUT     | float|  O  | LoRa receive timeout (1.0)            |
-| LORA_FREQ           | float|  M  | 433 / 868 / 915                       |
-| LORA_NODE_ADDR      | int  |  M  | node-address (usually 0)              |
-| LORA_ENABLE_TIME    | float|  O  | enable wait-time (0)                  |
-| LORA_ACK_WAIT       | float|  O  | wait for ACK time (0.25)              |
-| LORA_ACK_RETRIES    | int  |  O  | send retries (3)                      |
-| LORA_TX_POWER       | int  |  O  | transmit power (5-23)                 |
+| Name                 | Type | O/M | Description                           |
+|----------------------|------|-----|---------------------------------------|
+| LORA_RECEIVE_TIMEOUT | float|  O  | LoRa receive timeout (1.0)            |
+| LORA_FREQ            | float|  M  | 433 / 868 / 915                       |
+| LORA_NODE_ADDR       | int  |  M  | node-address (usually 0)              |
+| LORA_ENABLE_TIME     | float|  O  | enable wait-time (0)                  |
+| LORA_ACK_WAIT        | float|  O  | wait for ACK time (0.25)              |
+| LORA_ACK_RETRIES     | int  |  O  | send retries (3)                      |
+| LORA_TX_POWER        | int  |  O  | transmit power (5-23)                 |
 
 **Note**: from the gateway perspective, the gateway is the "node", so
 the `LORA_NODE_ADDR` has to be configured and not the `LORA_BASE_ADDR`!!
@@ -55,13 +55,13 @@ the `LORA_NODE_ADDR` has to be configured and not the `LORA_BASE_ADDR`!!
 BluesSender
 -----------
 
-| Name                | Type | O/M | Description                           |
-|---------------------|------|-----|---------------------------------------|
-| SYNC_BLUES_ACTION   | bool |  M  | see below                             |
-| MAX_SYNC_TIME       | int  |  O  | wait for time-sync on cold-boot (300) |
+| Name                   | Type | O/M | Description                           |
+|------------------------|------|-----|---------------------------------------|
+| BLUES_SYNC_ACTION      | bool |  M  | see below                             |
+| BLUES_MAX_SYNC_TIME    | int  |  O  | wait for time-sync on cold-boot (300) |
+| BLUES_GET_TIME_RETRIES | int  |  O  | get time retries (3)                  |
 
-
-`SYNC_BLUES_ACTION` configures the action to perform when receiving data:
+`BLUES_SYNC_ACTION` configures the action to perform when receiving data:
 
   - None:  no action, just print to log
   - False: buffer data to notecard, sync after active window
@@ -78,8 +78,8 @@ UDPSender
 
 | Name                | Type | O/M | Description                           |
 |---------------------|------|-----|---------------------------------------|
-| TX_UDP_HOST         | str  |  M  | Host or IP-address of UDP-receiver    |
-| TX_UDP_PORT         | int  |  M  | Port of UDP-receiver                  |
+| UDP_HOST            | str  |  M  | Host or IP-address of UDP-receiver    |
+| UDP_PORT            | int  |  M  | Port of UDP-receiver                  |
 
 
 See [datalogger receiver service](../src.receiver_service/Readme.md) for

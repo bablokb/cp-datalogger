@@ -88,7 +88,7 @@ class BluesSender:
     resp = hub.sync(self._card)
     if not wait:
       return False
-    max_sync_time = getattr(self._config,'MAX_SYNC_TIME',300)
+    max_sync_time = getattr(self._config,'BLUES_MAX_SYNC_TIME',300)
     resp = hub.syncStatus(self._card)
     while "requested" in resp:
       requested = resp['requested']
@@ -106,7 +106,7 @@ class BluesSender:
     """ query time: return time-stamp or None """
 
     i = 0
-    while i < getattr(self._config,'GET_TIME_REPEATS',3):
+    while i < getattr(self._config,'BLUES_GET_TIME_RETRIES',3):
       i += 1
       g_logger.print("BluesSender: trying to get time from notecard...")
       resp = card.time(self._card)
@@ -125,15 +125,15 @@ class BluesSender:
 
     g_logger.print("processing sensor-data...")
     start = time.monotonic()
-    if self._config.SYNC_BLUES_ACTION is not None:
+    if self._config.BLUES_SYNC_ACTION is not None:
       resp = note.add(self._card,
                       file=f"dl_data.qo",
                       body={"data":','.join(values)},
-                      sync=self._config.SYNC_BLUES_ACTION)
+                      sync=self._config.BLUES_SYNC_ACTION)
     else:
       resp = "action: noop"
     duration = time.monotonic()-start
-    g_logger.print(f"BluesSender: action: {self._config.SYNC_BLUES_ACTION}, {resp=}")
+    g_logger.print(f"BluesSender: action: {self._config.BLUES_SYNC_ACTION}, {resp=}")
     g_logger.print(f"BluesSender: duration: {duration}s")
 
   # --- shutdown   -----------------------------------------------------------
@@ -142,7 +142,7 @@ class BluesSender:
     """ Shutdown system. In our case, send an attn-request to the notecard """
 
     # if necessary, sync notes before shutdown
-    if self._config.SYNC_BLUES_ACTION == False:
+    if self._config.BLUES_SYNC_ACTION == False:
       self._sync_notecard(wait=False)
 
     # turn off some settings

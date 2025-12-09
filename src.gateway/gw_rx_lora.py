@@ -57,7 +57,7 @@ class LoraReceiver:
   def receive_data(self):
     """ receive data """
     data, self._snr, self._rssi = self._lora.receive(
-      with_ack=True,timeout=getattr(self._config,"RECEIVE_TIMEOUT",1.0))
+      with_ack=True,timeout=getattr(self._config,"LORA_RECEIVE_TIMEOUT",1.0))
     return data
 
   # --- reply to broadcast-messages   ----------------------------------------

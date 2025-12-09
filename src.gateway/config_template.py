@@ -28,7 +28,7 @@ LORA_FREQ       = 433.0     # frequency 433, 868, 915
 LORA_NODE_ADDR  = 0         # gateway node-address
 LORA_ACK_DELAY  = 0.1       # delay time before sending ACK
 LORA_TX_POWER   = 23        # transmit power (max: 23)
-RECEIVE_TIMEOUT  = 1.0      # single receive wait-time
+LORA_RECEIVE_TIMEOUT  = 1.0      # single receive wait-time
 
 # ----------------------------------------------------------------------------
 # gw_tx_blues specific configuration
@@ -37,9 +37,15 @@ RECEIVE_TIMEOUT  = 1.0      # single receive wait-time
 #   None:  no action, just print to log
 #   False: buffer data to notecard, sync after active window
 #   True:  don't buffer data, sync to Notehub immediately
-SYNC_BLUES_ACTION = True
-GET_TIME_REPEATS = 3        # how many times card.time() is executed
-MAX_SYNC_TIME    = 300      # number of seconds to wait for a sync
+BLUES_SYNC_ACTION = True
+BLUES_GET_TIME_RETRIES = 3        # how many times card.time() is executed
+BLUES_MAX_SYNC_TIME    = 300      # number of seconds to wait for a sync
+
+# ----------------------------------------------------------------------------
+# gw_tx_udp specific configuration
+#
+#UDP_HOST =
+#UDP_PORT =
 
 # --- tasks to execute after receiving data  - -------------------------------
 # See the docs for a complete list of tasks and for special task configuration.

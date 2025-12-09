@@ -47,7 +47,7 @@ class UDPSender:
     start = time.monotonic()
     g_logger.print("UDPSender: sending data...")
     self._wifi.sendto(bytes(','.join(values)+'\n',"UTF-8"),
-                self._config.TX_UDP_HOST,self._config.TX_UDP_PORT)
+                self._config.UDP_HOST,self._config.UDP_PORT)
     duration = time.monotonic()-start
     g_logger.print(f"UDPSender: duration: {duration}s")
 
