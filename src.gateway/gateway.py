@@ -8,8 +8,10 @@
 
 import time
 import busio
+import builtins
 import board
 from digitalio import DigitalInOut, Direction, Pull
+import gc
 
 # --- early configuration of the log-destination   ---------------------------
 
@@ -109,14 +111,6 @@ class Gateway:
     g_logger.print(
       f"gateway: active until: {self.rtc.print_ts(None,self._active_until)}")
 
-    # query SD-card filename
-    if g_config.HAVE_SD:
-      ts = time.localtime()
-      ymd = f"{ts.tm_year}-{ts.tm_mon:02d}-{ts.tm_mday:02d}"
-      y,m,d = ymd.split("-")
-      self._csv_file = g_config.CSV_FILENAME.format(ID=g_config.LOGGER_ID,
-                                           YMD=ymd,Y=y,M=m,D=d)
-
     g_logger.print(f"gateway: initialized")
 
   # --- query time (internal or from upstream)   -----------------------------
@@ -147,7 +141,7 @@ class Gateway:
 
     if self.oled:
       # values is: TS,ID,pnr,node -> fit to max three lines
-      self._update_oled([values[0],
+      self.update_oled([values[0],
                          f"ID/N:{values[1]}/{values[3]}: {values[2]}",
                          "OK" if rc else "FAILED"])
     if rc:
@@ -174,31 +168,28 @@ class Gateway:
   def _process_data(self,values):
     """ process data """
 
-    # local processing
+    if not hasattr(g_config,"TASKS"):
+      return
 
-    # ...save to SD
-    if getattr(g_config,"HAVE_SD",False):
-      self._save_data(values)
-    # ...show on display
-    if getattr(g_config,"HAVE_OLED",False) and self.oled:
-      self._update_oled(values)
-
-    # remote processing
-    self.transmitter.process_data(values)
-
-  # --- save data to SD-card   -----------------------------------------------
-
-  def _save_data(self,values):
-    """ save data to a SD-card """
-
-    g_logger.print(f"gateway: saving data to {self._csv_file}...")
-    with open(self._csv_file, "a") as f:
-      f.write(f"{values}\n")
+    for task in g_config.TASKS.split(" "):
+      try:
+        g_logger.print(f"{task}: loading")
+        task_module = builtins.__import__("tasks."+task,None,None,["run"],0)
+        g_logger.print(f"{task} starting")
+        task_module.run(g_config,self,values)
+        g_logger.print(f"{task} ended")
+      except Exception as ex:
+        g_logger.print(f"{task} failed: exception: {ex}")
+      task_module = None
+      gc.collect()
 
   # --- update OLED   --------------------------------------------------------
 
-  def _update_oled(self,values):
+  def update_oled(self,values):
     """ update OLED """
+
+    if not (getattr(g_config,"HAVE_OLED",False) and self.oled):
+      return
 
     display = self.oled.get_display()
     label   = self.oled.get_textlabel()
@@ -285,7 +276,7 @@ class Gateway:
     self._setup()
 
     if self.oled:
-      self._update_oled([f"{self.rtc.print_ts(None,time.localtime())}",
+      self.update_oled([f"{self.rtc.print_ts(None,time.localtime())}",
                          "Waiting for data..."])
     g_logger.print(f"gateway: waiting for incoming data ...")
 

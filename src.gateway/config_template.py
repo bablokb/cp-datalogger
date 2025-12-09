@@ -20,7 +20,7 @@ GW_TITLE    = 'zzz'            # used for the display
 HAVE_RTC   = None
 HAVE_SD    = None
 GW_RX_TYPE = 'Lora'
-GW_TX_TYPE = 'Blues'        # 'Blues' | 'Noop'
+GW_TX_TYPE = 'Noop'        # 'Blues' | 'Noop' | 'UDP'
 
 # ----------------------------------------------------------------------------
 # LoRa configuration
@@ -45,6 +45,9 @@ MAX_SYNC_TIME    = 300      # number of seconds to wait for a sync
 # See the docs for a complete list of tasks and for special task configuration.
 
 TASKS = "save_data update_oled tx_send"
+
+#CSV_FILENAME = "/sd/data_{GW_ID}_{ID}.csv"    # GW_ID and LOGGER_ID in name
+#CSV_FIELDNR_ID = 1                            # 0-based fieldnr for LOGGER_ID
 
 # ----------------------------------------------------------------------------
 # uptime configuration. The template values configure a single active window
