@@ -106,7 +106,7 @@ class BluesSender:
     """ query time: return time-stamp or None """
 
     i = 0
-    while i < 2:
+    while i < getattr(self._config,'GET_TIME_REPEATS',3):
       i += 1
       g_logger.print("BluesSender: trying to get time from notecard...")
       resp = card.time(self._card)
