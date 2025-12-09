@@ -165,13 +165,13 @@ class Gateway:
 
   # --- process data   -------------------------------------------------------
 
-  def _process_data(self,values):
+  def _process_data(self, values, tasks="TASKS"):
     """ process data """
 
-    if not hasattr(g_config,"TASKS"):
+    if not hasattr(g_config,tasks):
       return
 
-    for task in g_config.TASKS.split(" "):
+    for task in getattr(g_config,tasks).split(" "):
       try:
         g_logger.print(f"{task}: loading")
         task_module = builtins.__import__("tasks."+task,None,None,["run"],0)
