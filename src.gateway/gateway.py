@@ -139,11 +139,10 @@ class Gateway:
     rc = self.receiver.handle_broadcast(values)
     duration = time.monotonic()-start
 
-    if self.oled:
-      # values is: TS,ID,pnr,node -> fit to max three lines
-      self.update_oled([values[0],
-                         f"ID/N:{values[1]}/{values[3]}: {values[2]}",
-                         "OK" if rc else "FAILED"])
+    # process broadcast-info
+    values.insert(0,rc)
+    self._process_data(values,tasks="B_TASKS")
+
     if rc:
       g_logger.print(f"gateway: retransmit successful. Duration: {duration}s")
     else:
@@ -223,6 +222,9 @@ class Gateway:
     g_logger.print(
       f"gateway: shutdown until {self.rtc.print_ts(None,wakeup)}")
 
+    # process pre-shutdown tasks
+    self._process_data([wakeup],tasks="S_TASKS")
+
     # notify sender/receiver to disable power until sleep-time expires
     # Note: calls to shutdown should not return if successful
     try:
@@ -293,7 +295,7 @@ class Gateway:
             break
           else:
             g_logger.print("gateway: shutdown failed")
-            # try again after another cylce (should actually not happen)
+            # try again after another cycle (should actually not happen)
             self._active_until = time.time() + 60*g_config.ON_DURATION
             g_logger.print("gateway: Active until: " +
                            f"{self.rtc.print_ts(None,self._active_until)}")
