@@ -43,8 +43,12 @@ def run(config,app):
   if height > 32:
     specs = getattr(config,"OLED_VALUES","aht20(T/AHT:) aht20(H/AHT:)").split()
     for spec in specs:
-      sensor,key = spec.rstrip(')').split('(')
-      text += f"\n{key} {app.data[sensor][key]}"
+      sensor,label = spec.rstrip(')').split('(')
+      if sensor in app.data:
+        if isinstance(app.data[sensor],dict):
+          text += f"\n{label} {app.data[sensor][label]}"   # the label is also the key
+        else:
+          text += f"\n{label} {app.data[sensor]}"
   textlabel.text = text
 
   if config.STROBE_MODE or config.INTERVAL > 60:
