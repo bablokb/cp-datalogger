@@ -29,7 +29,7 @@ class CPUTEMP:
   def read(self,data,values):
     """ read cputemp """
 
-    temp = microcontroller.cpu.temperature
+    temp = round(microcontroller.cpu.temperature,1)
     data["cputemp"] = temp
     if not self.ignore:
       values.extend([None,temp])
