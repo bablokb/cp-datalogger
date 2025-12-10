@@ -140,7 +140,7 @@ class Gateway:
     duration = time.monotonic()-start
 
     # process broadcast-info
-    values.insert(0,rc)
+    values.insert(0,str(rc))
     self._process_data(values,tasks="B_TASKS")
 
     if rc:
