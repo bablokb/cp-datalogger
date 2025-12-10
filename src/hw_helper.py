@@ -9,6 +9,7 @@
 
 import atexit
 import busio
+import displayio
 import sdcardio
 import storage
 
@@ -16,7 +17,7 @@ from rtc_ext.ext_base import ExtBase
 
 # --- atexit processing   ----------------------------------------------------
 
-def at_exit(spi,logger):
+def at_exit_spi(spi,logger):
   """ release spi """
   try:
     # may fail if we want to log to SD
@@ -25,7 +26,7 @@ def at_exit(spi,logger):
     print(f"releasing {spi}")
   spi.deinit()
 
-def at_exit2(i2c,logger):
+def at_exit_i2c(i2c,logger):
   """ release i2c-busses """
   try:
     # may fail if we want to log to SD
@@ -37,6 +38,15 @@ def at_exit2(i2c,logger):
       bus.deinit()
     except:
       pass
+
+def at_exit_oled(logger):
+  """ release OLED """
+  try:
+    # may fail if we want to log to SD
+    logger.print(f"releasing oled")
+  except:
+    print(f"releasing oled")
+  displayio.release_displays()   # cannot release a specific display
 
 # --- initialize I2C-busses   ----------------------------------------------
 
@@ -79,7 +89,7 @@ def init_i2c(pins,config,logger):
         i2c.append(i2cbus)
 
   # return result
-  atexit.register(at_exit2,i2c,logger)
+  atexit.register(at_exit_i2c,i2c,logger)
   return i2c
 
 # --- initialize SD-card   ---------------------------------------------------
@@ -95,7 +105,7 @@ def init_sd(pins,config,logger):
       vfs    = storage.VfsFat(sdcard)
       storage.mount(vfs, "/sd")
       logger.print("SD-card mounted on /sd")
-      atexit.register(at_exit,spi,logger)
+      atexit.register(at_exit_spi,spi,logger)
     except Exception as ex:
       if spi:
         spi.deinit()
@@ -138,6 +148,7 @@ def init_oled(i2c,config,logger):
       display = odisp.get_display()
       logger.print(
         f"OLED created with size {display.width}x{display.height}")
+      atexit.register(at_exit_oled,logger)
       return odisp
     except Exception as ex:
       logger.print(f"could not initialize OLED: {ex}")
