@@ -17,6 +17,21 @@ import time
 import adafruit_rfm9x
 import pins
 
+# --- quality of service settings   ------------------------------------------
+
+# tuple of spreading-factor, coding-rate, signal-bandwidth
+# Time per symbol is T(s) = 2**SF/BW
+_LORA_QOS = [
+  ( 7, 5, 125000),      # 0
+  ( 7, 7, 125000),      # 1
+  (10, 6, 125000),      # 2
+  (10, 8, 125000),      # 3, default
+  (12, 6, 125000),      # 4
+  (12, 8, 125000),      # 5
+  (12, 8,  62500),      # 6
+  ]
+_LORA_QOS_DEF = 3  # 0 is library default
+
 # --- helper class for LoRa   ------------------------------------------------
 
 @singleton
@@ -30,7 +45,14 @@ class LORA:
       raise ValueError("config is None")
 
     self._config = config
-    self._trace = getattr(self._config,'LORA_TRACE',False)
+    self._trace = getattr(config,'LORA_TRACE',False)
+
+    # technical settings (QOS-setting with possible overrides)
+    qos = getattr(config, 'LORA_QOS', _LORA_QOS_DEF)
+    sf  = getattr(config, 'LORA_SF', _LORA_QOS[qos][0])
+    cr  = getattr(config, 'LORA_CR', _LORA_QOS[qos][1])
+    bw  = getattr(config, 'LORA_BW', _LORA_QOS[qos][2])
+    g_logger.print(f"LoRa: QOS-parameter: {(sf,cr,bw)}")
 
     # don't catch exceptions, main.py will handle that
 
@@ -49,6 +71,10 @@ class LORA:
       spi, pin_cs,pin_reset,config.LORA_FREQ,baudrate=100000)
 
     g_logger.print("LoRa: configuring rfm9x")
+    self.rfm9x.spreading_factor = sf
+    self.rfm9x.coding_rate      = cr
+    self.rfm9x.signal_bandwidth = bw
+
     self.rfm9x.enable_crc = True
     self.rfm9x.tx_power = getattr(config,"LORA_TX_POWER",13)
     self.rfm9x.node = config.LORA_NODE_ADDR                      # this
