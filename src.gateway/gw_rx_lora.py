@@ -58,6 +58,9 @@ class LoraReceiver:
     """ receive data """
     data, self._snr, self._rssi = self._lora.receive(
       with_ack=True,timeout=getattr(self._config,"LORA_RECEIVE_TIMEOUT",1.0))
+    if self._snr:
+      self._snr = round(self._snr,1)
+      self._rssi = round(self._rssi,0)
     return data
 
   # --- reply to broadcast-messages   ----------------------------------------
@@ -65,10 +68,18 @@ class LoraReceiver:
   def handle_broadcast(self,values):
     """ echo data to sender """
 
+    # echo data to sender
     resp = f"{values[2]},{self._snr},{self._rssi}"        # 2: packet-nr
     self._lora.set_destination(int(values[3]))            # 3: LoRa-node
     g_logger.print(f"LoraReceiver: sending '{resp}' to {self._lora.rfm9x.destination}...")
     rc = self._lora.transmit(resp,ack=False,keep_listening=True)
+    g_logger.print(f"LoraReceiver: rc: {rc}")
+    # update values for further processing: add rc, snr, rssi and
+    # technical settings
+    values.extend([str(val) for val in [int(rc), self._snr, self._rssi,
+                                        self._lora.rfm9x.spreading_factor,
+                                        self._lora.rfm9x.coding_rate,
+                                        self._lora.rfm9x.signal_bandwidth]])
     return rc
 
   # --- reply to query-time-messages   ---------------------------------------

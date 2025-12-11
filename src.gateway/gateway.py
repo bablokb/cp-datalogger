@@ -136,11 +136,11 @@ class Gateway:
 
     g_logger.print("gateway: processing broadcast-data...")
     start = time.monotonic()
-    rc = self.receiver.handle_broadcast(values)
+    rc = self.receiver.handle_broadcast(values)   # this updates values!
     duration = time.monotonic()-start
+    values.append(f"{duration:0.3f}")
 
     # process broadcast-info
-    values.insert(0,str(rc))
     self._process_data(values,tasks="B_TASKS")
 
     if rc:
@@ -301,7 +301,7 @@ class Gateway:
                            f"{self.rtc.print_ts(None,self._active_until)}")
         continue
 
-      # Decode packet: expect csv data
+      # data is already decoded and should contain csv data
       try:
         g_logger.print(f"gateway: data received: {data}")
         values = data.split(',')

@@ -1,5 +1,5 @@
 #-----------------------------------------------------------------------------
-# Gateway-task: save broadcast-info to sd-card
+# Gateway-task: save broadcast data to sd-card
 #
 # Author: Bernhard Bablok
 #
@@ -23,15 +23,15 @@ def run(config, app, values):
   ymd = f"{ts.tm_year}-{ts.tm_mon:02d}-{ts.tm_mday:02d}"
   y,m,d = ymd.split("-")
 
-  # data: [rc,TS,ID,pnr,node]
+  # data: [TS,ID,pnr,node,rc,snr,rssi,sf,cr,bw,duration]
 
   # extract LOGGER_ID from data
-  logger_id = values[2]
+  logger_id = values[1]
 
   csv_file = filename.format(ID=logger_id,
                              GW_ID=config.GW_ID,
                              YMD=ymd,Y=y,M=m,D=d)
 
-  g_logger.print(f"gateway: saving bcast-info to {csv_file}...")
+  g_logger.print(f"gateway: saving broadcast data to {csv_file}...")
   with open(csv_file, "a") as f:
     f.write(f"{','.join(values)}\n")
