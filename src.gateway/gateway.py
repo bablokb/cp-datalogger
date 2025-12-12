@@ -131,12 +131,12 @@ class Gateway:
 
   # --- reply to broadcast-messages   ----------------------------------------
 
-  def _handle_broadcast(self,values):
+  def _handle_broadcast(self, values, node_sender):
     """ echo data to sender """
 
     g_logger.print("gateway: processing broadcast-data...")
     start = time.monotonic()
-    rc = self.receiver.handle_broadcast(values)   # this updates values!
+    rc = self.receiver.handle_broadcast(values, node_sender)   # this updates values!
     duration = time.monotonic()-start
     values.append(f"{duration:0.3f}")
 
@@ -150,17 +150,29 @@ class Gateway:
 
   # --- reply to query-time-messages   ---------------------------------------
 
-  def _handle_time_request(self,values):
+  def _handle_time_request(self,values, node_sender):
     """ echo data to sender """
 
     g_logger.print("gateway: processing time-request...")
     start = time.monotonic()
-    rc = self.receiver.handle_time_request(values)
+    rc = self.receiver.handle_time_request(values, node_sender)
     duration = time.monotonic()-start
     if rc:
       g_logger.print(f"gateway: transmit successful. Duration: {duration}s")
     else:
       g_logger.print(f"gateway: transmit failed. Duration: {duration}s")
+
+  # --- handle data-messages   -----------------------------------------------
+
+  def _handle_data(self, msg_type, values, node_sender):
+    """ process data messages """
+
+    g_logger.print("gateway: processing data...")
+    start = time.monotonic()
+    rc = self.receiver.handle_data(msg_type, values, node_sender)
+
+    # post process data
+    self._process_data(msg_type, values)
 
   # --- process data   -------------------------------------------------------
 
@@ -286,7 +298,7 @@ class Gateway:
       data = None
 
       # check for packet
-      data = self.receiver.receive_data()
+      data, node_sender = self.receiver.receive_data()
       if data is None:
         # check active time period
         if time.time() > self._active_until:
@@ -309,10 +321,10 @@ class Gateway:
         values.pop(0)
 
         if msg_type == 'B':
-          self._handle_broadcast(values)
+          self._handle_broadcast(values, node_sender)
         elif msg_type == 'T':
-          self._handle_time_request(values)
+          self._handle_time_request(values, node_sender)
         else:
-          self._process_data(msg_type, values)
+          self._handle_data(msg_type, values, node_sender)
       except Exception as ex:
         g_logger.print(f"gateway: could not process data: {ex}")

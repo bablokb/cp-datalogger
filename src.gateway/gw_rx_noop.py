@@ -36,14 +36,20 @@ class NoopReceiver:
 
   # --- reply to broadcast-messages   ----------------------------------------
 
-  def handle_broadcast(self,values):
-    """ echo data to sender """
+  def handle_broadcast(self,values, node_sender):
+    """ process broadcast requests """
     return False
 
   # --- reply to query-time-messages   ---------------------------------------
 
-  def handle_time_request(self,values):
-    """ echo data to sender """
+  def handle_time_request(self,values, node_sender):
+    """ process time requests """
+    return False
+
+  # --- reply to data messages   ---------------------------------------------
+
+  def handle_data(self, msg_type, values, node_sender):
+    """ process data messages """
     return False
 
   # --- cleanup   ------------------------------------------------------------

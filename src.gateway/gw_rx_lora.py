@@ -56,15 +56,15 @@ class LoraReceiver:
 
   def receive_data(self):
     """ receive data """
-    data, self._snr, self._rssi = self._lora.receive(with_ack=True)
+    data, node_sender, self._snr, self._rssi = self._lora.receive()
     if self._snr:
       self._snr = round(self._snr,1)
       self._rssi = round(self._rssi,0)
-    return data
+    return (data, node_sender)
 
   # --- reply to broadcast-messages   ----------------------------------------
 
-  def handle_broadcast(self,values):
+  def handle_broadcast(self,values, node_sender):
     """ echo data to sender """
 
     # echo data to sender
@@ -83,7 +83,7 @@ class LoraReceiver:
 
   # --- reply to query-time-messages   ---------------------------------------
 
-  def handle_time_request(self,values):
+  def handle_time_request(self,values, node_sender):
     """ echo data to sender """
 
     self._lora.set_destination(int(values[0]))
@@ -91,6 +91,12 @@ class LoraReceiver:
     g_logger.print(f"LoraReceiver: sending time ({resp}) to node {self._lora.rfm9x.destination}...")
     rc = self._lora.transmit(resp,keep_listening=True)
     return rc
+
+  # --- reply to data messages   ---------------------------------------------
+
+  def handle_data(self, msg_type, values, node_sender):
+    """ process data messages """
+    return False
 
   # --- cleanup   ------------------------------------------------------------
 
