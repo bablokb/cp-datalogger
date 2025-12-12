@@ -97,15 +97,16 @@ class LORA:
 
   # --- transmit command   ---------------------------------------------------
 
-  def transmit(self,string,ack=True,keep_listening=False):
+  def transmit(self,string,msg_type=None,keep_listening=False):
     """ send data """
-    if self._trace:
-      g_logger.print(f"LoRa: sending data: {string}")
-      start = time.monotonic()
-    if ack:
-      rc = self.rfm9x.send_with_ack(bytes(string, "UTF-8"))
+    if msg_type:
+      payload = f"{msg_type},{string}"
     else:
-      rc = self.rfm9x.send(bytes(string, "UTF-8"),keep_listening=keep_listening)
+      payload = string
+    if self._trace:
+      g_logger.print(f"LoRa: sending data: {payload}")
+      start = time.monotonic()
+    rc = self.rfm9x.send(bytes(payload, "UTF-8"),keep_listening=keep_listening)
     if self._trace:
       g_logger.print(f"LoRa:   elapsed: {time.monotonic()-start:0.3f}s")
     return rc
