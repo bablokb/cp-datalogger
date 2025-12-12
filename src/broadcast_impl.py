@@ -166,7 +166,7 @@ class Broadcast:
     """ update time """
 
     self.update_info(["Updating time..."])
-    new_time = self._lora.get_time(timeout=3)
+    new_time = self._lora.get_time()
     if new_time:
       g_logger.print(f"Broadcast: updating device-time from gateway-time")
       self._rtc.update(new_time)
@@ -188,7 +188,7 @@ class Broadcast:
 
     # send packet and receive response
     start = time.monotonic()
-    packet = self._lora.broadcast(self._pnr,timeout=self.interval)
+    packet = self._lora.broadcast(self._pnr)
     duration = time.monotonic()-start
     if not packet:
       self.update_info([f"packet {self._pnr} failed!",

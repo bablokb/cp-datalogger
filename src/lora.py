@@ -48,14 +48,18 @@ class LORA:
     self._trace = getattr(config,'LORA_TRACE',False)
 
     # technical settings (QOS-setting with possible overrides)
-    qos = getattr(config, 'LORA_QOS', _LORA_QOS_DEF)
-    sf  = getattr(config, 'LORA_SF', _LORA_QOS[qos][0])
-    cr  = getattr(config, 'LORA_CR', _LORA_QOS[qos][1])
-    bw  = getattr(config, 'LORA_BW', _LORA_QOS[qos][2])
-    g_logger.print(f"LoRa: QOS-parameter: {(sf,cr,bw)}")
+    qos  = getattr(config, 'LORA_QOS', _LORA_QOS_DEF)
+    sf   = getattr(config, 'LORA_SF', _LORA_QOS[qos][0])
+    cr   = getattr(config, 'LORA_CR', _LORA_QOS[qos][1])
+    bw   = getattr(config, 'LORA_BW', _LORA_QOS[qos][2])
+    tfac = (1<<(sf-7))*(125000/bw)
+    g_logger.print(f"LoRa: QOS-parameter: {(sf,cr,bw)}, t-factor: {tfac}")
 
-    # don't catch exceptions, main.py will handle that
-
+    # calculate wait-time/timeout according to tfac
+    ack_wait = tfac * getattr(config,'LORA_ACK_WAIT',0.25)
+    self._rtimeout = tfac * getattr(config,'LORA_RECEIVE_TIMEOUT',1.0)
+    g_logger.print(f"LoRa: ack-wait: {ack_wait:5.2f}s")
+    g_logger.print(f"LoRa: timeout:  {self._rtimeout:5.2f}s")
 
     if hasattr(pins,'PIN_LORA_EN'):
       g_logger.print("LoRa: enabling rfm9x")
@@ -79,7 +83,7 @@ class LORA:
     self.rfm9x.tx_power = getattr(config,"LORA_TX_POWER",13)
     self.rfm9x.node = config.LORA_NODE_ADDR                      # this
     self.rfm9x.destination = getattr(config,"LORA_BASE_ADDR",0)  # gateway
-    self.rfm9x.ack_wait = getattr(config,'LORA_ACK_WAIT',0.25)
+    self.rfm9x.ack_wait = ack_wait
     self.rfm9x.ACK_DELAY = getattr(config,"LORA_ACK_DELAY",0.1)
     self.rfm9x.ack_retries = getattr(config,"LORA_ACK_RETRIES",3)
     self.rfm9x.sleep()
@@ -108,12 +112,12 @@ class LORA:
 
   # --- receive command   ----------------------------------------------------
 
-  def receive(self,with_ack=True,timeout=0.5):
+  def receive(self,with_ack=True):
     """ receive and decode data """
     self.trace("LoRa: receiving data...")
-    packet = self.rfm9x.receive(with_ack=with_ack,timeout=timeout)
+    packet = self.rfm9x.receive(with_ack=with_ack,timeout=self._rtimeout)
     if packet is None:
-      self.trace(f"LoRa: no packet within {timeout}s")
+      self.trace(f"LoRa: no packet within {self._rtimeout:5.2}s")
       return (None,None,None)
     else:
       self.trace(f"LoRa: packet: {packet.decode()}")
@@ -127,7 +131,7 @@ class LORA:
 
   # --- broadcast a packet and wait for response   ---------------------------
 
-  def broadcast(self,nr,timeout=10):
+  def broadcast(self,nr):
     """ send a broadcast packet """
 
     ts = time.localtime()
@@ -146,12 +150,11 @@ class LORA:
       return None
 
     # wait for response
-    timeout  = max(1,timeout-duration)
-    return self.receive(with_ack=False,timeout=timeout)
+    return self.receive(with_ack=False)
 
   # --- query time   ---------------------------------------------------------
 
-  def get_time(self,retries=3,timeout=10):
+  def get_time(self,retries=3):
     """ send a time-query packet """
 
     for i in range(retries):
@@ -166,8 +169,7 @@ class LORA:
          continue
 
        # wait for response
-       timeout  = max(1,timeout-duration)
-       new_time = self.receive(with_ack=False,timeout=timeout)[0]
+       new_time = self.receive(with_ack=False)[0]
        if new_time:
          g_logger.print(f"LoRa: : time-query {i} returned {new_time}")
          return int(new_time)

@@ -56,8 +56,7 @@ class LoraReceiver:
 
   def receive_data(self):
     """ receive data """
-    data, self._snr, self._rssi = self._lora.receive(
-      with_ack=True,timeout=getattr(self._config,"LORA_RECEIVE_TIMEOUT",1.0))
+    data, self._snr, self._rssi = self._lora.receive(with_ack=True)
     if self._snr:
       self._snr = round(self._snr,1)
       self._rssi = round(self._rssi,0)
