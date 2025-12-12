@@ -11,7 +11,7 @@ import time
 from log_writer import Logger
 g_logger = Logger()
 
-def run(config, app, values):
+def run(config, app, msg_type, values):
   """ save data to sd-card """
 
   if not getattr(config,"HAVE_SD",False):

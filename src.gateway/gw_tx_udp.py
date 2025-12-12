@@ -40,7 +40,7 @@ class UDPSender:
 
   # --- process data   -------------------------------------------------------
 
-  def process_data(self,values):
+  def process_data(self, msg_type, values):
     """ process data  """
 
     g_logger.print("UDPSender: processing sensor-data...")

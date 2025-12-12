@@ -9,7 +9,7 @@
 from log_writer import Logger
 g_logger = Logger()
 
-def run(config, app, values):
+def run(config, app, msg_type, values):
   """ transmit data to upstream """
 
-  app.transmitter.process_data(values)
+  app.transmitter.process_data(msg_type, values)

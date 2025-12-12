@@ -141,7 +141,7 @@ class Gateway:
     values.append(f"{duration:0.3f}")
 
     # process broadcast-info
-    self._process_data(values,tasks="B_TASKS")
+    self._process_data("B",values,tasks="B_TASKS")
 
     if rc:
       g_logger.print(f"gateway: retransmit successful. Duration: {duration}s")
@@ -164,7 +164,7 @@ class Gateway:
 
   # --- process data   -------------------------------------------------------
 
-  def _process_data(self, values, tasks="TASKS"):
+  def _process_data(self, msg_type, values, tasks="TASKS"):
     """ process data """
 
     if not hasattr(g_config,tasks):
@@ -175,7 +175,7 @@ class Gateway:
         g_logger.print(f"{task}: loading")
         task_module = builtins.__import__("tasks."+task,None,None,["run"],0)
         g_logger.print(f"{task} starting")
-        task_module.run(g_config,self,values)
+        task_module.run(g_config, self, msg_type, values)
         g_logger.print(f"{task} ended")
       except Exception as ex:
         g_logger.print(f"{task} failed: exception: {ex}")
@@ -223,7 +223,7 @@ class Gateway:
       f"gateway: shutdown until {self.rtc.print_ts(None,wakeup)}")
 
     # process pre-shutdown tasks
-    self._process_data([wakeup],tasks="S_TASKS")
+    self._process_data(None,[wakeup],tasks="S_TASKS")
 
     # notify sender/receiver to disable power until sleep-time expires
     # Note: calls to shutdown should not return if successful
@@ -305,17 +305,14 @@ class Gateway:
       try:
         g_logger.print(f"gateway: data received: {data}")
         values = data.split(',')
-        if values[0] in ['B', 'T']:
-          mode = values[0]
-          values.pop(0)
-        else:
-          mode = 'N'
+        msg_type = values[0]
+        values.pop(0)
 
-        if mode == 'B':
+        if msg_type == 'B':
           self._handle_broadcast(values)
-        elif mode == 'T':
+        elif msg_type == 'T':
           self._handle_time_request(values)
         else:
-          self._process_data(values)
+          self._process_data(msg_type, values)
       except Exception as ex:
         g_logger.print(f"gateway: could not process data: {ex}")

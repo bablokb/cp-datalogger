@@ -11,11 +11,15 @@ import time
 from log_writer import Logger
 g_logger = Logger()
 
-def run(config, app, values):
+def run(config, app, msg_type, values):
   """ save broadcast-info to sd-card """
 
   if not getattr(config,"HAVE_SD",False):
     return
+  if msg_type != "B":
+    g_logger.print(f"gateway: bc_save_data: illegal msg_type: {msg_type}")
+    return
+
   filename = getattr(config,"BCAST_CSV_FILENAME","/sd/bcast_{GW_ID}_{ID}.csv")
 
   # CSV filename formatting
