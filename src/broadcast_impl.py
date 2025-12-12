@@ -190,7 +190,7 @@ class Broadcast:
     start = time.monotonic()
     packet = self._lora.broadcast(self._pnr)
     duration = time.monotonic()-start
-    if not packet:
+    if not packet[0]:
       self.update_info([f"packet {self._pnr} failed!",
                         f"count: {self._pok}/{self._pnr} ok",
                         f"RTT: {duration}s"],row=1)
@@ -198,12 +198,13 @@ class Broadcast:
 
     # try to decode packet
     try:
-      data,my_snr,my_rssi = packet
+      data,node_sender,my_snr,my_rssi = packet
       nr,gw_snr,gw_rssi = data.split(',')
       nr      = int(nr)
       gw_snr  = round(float(gw_snr),1)
       gw_rssi = int(gw_rssi)
     except Exception as ex:
+      g_logger.print(f"Broadcast: exception: {ex}")
       g_logger.print(
           f"Broadcast: packet {self._pnr}: wrong data-format: {data}")
       nr = 0    # will trigger failed-message
