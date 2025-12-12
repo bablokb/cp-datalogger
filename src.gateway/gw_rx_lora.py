@@ -96,7 +96,15 @@ class LoraReceiver:
 
   def handle_data(self, msg_type, values, node_sender):
     """ process data messages """
-    return False
+
+    if msg_type == "S":
+      self._lora.set_destination(node_sender)
+      resp = f"{len(','.join(values))}"
+      g_logger.print(f"LoraReceiver: S-msg: returning content length: {resp}")
+      rc = self._lora.transmit(resp,keep_listening=True)
+      return rc
+    else:
+      raise RuntimeError(f"unsupported msg-type {msg_type}")
 
   # --- cleanup   ------------------------------------------------------------
 
