@@ -315,7 +315,7 @@ class Gateway:
 
       # data is already decoded and should contain csv data
       try:
-        g_logger.print(f"gateway: data received: {data}")
+        g_logger.print(f"gateway: message received: {data}")
         values = data.split(',')
         msg_type = values[0]
         values.pop(0)
