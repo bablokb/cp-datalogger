@@ -113,13 +113,18 @@ class LORA:
 
   # --- receive command   ----------------------------------------------------
 
-  def receive(self):
+  def receive(self, keep_listening=True):
     """ receive and decode data """
-    self.trace("LoRa: receiving data...")
-    packet = self.rfm9x.receive(with_header=True, timeout=self._rtimeout)
+    if self._trace:
+      g_logger.print("LoRa: receiving data...")
+      start = time.monotonic()
+    packet = self.rfm9x.receive(with_header=True, timeout=self._rtimeout,
+                                keep_listening=keep_listening)
+    if self._trace:
+      g_logger.print(f"LoRa:   elapsed: {time.monotonic()-start:0.3f}s")
     if packet is None:
       self.trace(f"LoRa: no packet within {self._rtimeout:5.2}s")
-      return (None,None,None)
+      return (None,None,None,None)
     else:
       header  = packet[:4]
       payload = packet[4:].decode()
@@ -145,7 +150,8 @@ class LORA:
     g_logger.print(f"LoRa: broadcast packet {nr}: sending at {ts_str}")
     start = time.monotonic()
     if self.transmit(
-      f"{ts_str},{self._config.LOGGER_ID},{nr},{self.rfm9x.node}", msg_type="B"):
+      f"{ts_str},{self._config.LOGGER_ID},{nr},{self.rfm9x.node}", msg_type="B",
+      keep_listening=True):
       duration = time.monotonic()-start
       g_logger.print(f"LoRa: broadcast: packet {nr}: transfer-time: {duration}s")
     else:
@@ -153,7 +159,7 @@ class LORA:
       return None
 
     # wait for response
-    return self.receive()
+    return self.receive(keep_listening=False)
 
   # --- query time   ---------------------------------------------------------
 
@@ -164,7 +170,7 @@ class LORA:
        # send packet ("T",node)
        g_logger.print(f"LoRa: sending time-query packet, retry={i}")
        start = time.monotonic()
-       if self.transmit(f"{self.rfm9x.node}", msg_type="T"):
+       if self.transmit(f"{self.rfm9x.node}", msg_type="T", keep_listening=True):
          duration = time.monotonic()-start
          g_logger.print(f"LoRa: time-query {i} sent in {duration}s")
        else:
@@ -172,7 +178,7 @@ class LORA:
          continue
 
        # wait for response
-       new_time = self.receive()[0]
+       new_time = self.receive(keep_listening=False)[0]
        if new_time:
          g_logger.print(f"LoRa: : time-query {i} returned {new_time}")
          return int(new_time)
