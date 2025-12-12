@@ -142,8 +142,7 @@ class LORA:
     g_logger.print(f"LoRa: broadcast packet {nr}: sending at {ts_str}")
     start = time.monotonic()
     if self.transmit(
-      f"B,{ts_str},{self._config.LOGGER_ID},{nr},{self.rfm9x.node}",
-      ack=True):
+      f"{ts_str},{self._config.LOGGER_ID},{nr},{self.rfm9x.node}", msg_type="B"):
       duration = time.monotonic()-start
       g_logger.print(f"LoRa: broadcast: packet {nr}: transfer-time: {duration}s")
     else:
@@ -162,7 +161,7 @@ class LORA:
        # send packet ("T",node)
        g_logger.print(f"LoRa: sending time-query packet, retry={i}")
        start = time.monotonic()
-       if self.transmit(f"T,{self.rfm9x.node}",ack=True):
+       if self.transmit(f"{self.rfm9x.node}", msg_type="T"):
          duration = time.monotonic()-start
          g_logger.print(f"LoRa: time-query {i} sent in {duration}s")
        else:

@@ -32,7 +32,7 @@ def run(config,app):
     lora = LORA(config,spi1)
 
   g_logger.print("LoRa: sending...")
-  if lora.transmit(app.record):
+  if lora.transmit(app.record, msg_type="S"):
     g_logger.print("LoRa: ... successful")
     app.lora_status = 'T'
   else:

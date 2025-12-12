@@ -71,7 +71,7 @@ class LoraReceiver:
     resp = f"{values[2]},{self._snr},{self._rssi}"        # 2: packet-nr
     self._lora.set_destination(int(values[3]))            # 3: LoRa-node
     g_logger.print(f"LoraReceiver: sending '{resp}' to {self._lora.rfm9x.destination}...")
-    rc = self._lora.transmit(resp,ack=False,keep_listening=True)
+    rc = self._lora.transmit(resp,keep_listening=True)
     g_logger.print(f"LoraReceiver: rc: {rc}")
     # update values for further processing: add rc, snr, rssi and
     # technical settings
@@ -89,7 +89,7 @@ class LoraReceiver:
     self._lora.set_destination(int(values[0]))
     resp = f"{time.time()}"
     g_logger.print(f"LoraReceiver: sending time ({resp}) to node {self._lora.rfm9x.destination}...")
-    rc = self._lora.transmit(resp,ack=False,keep_listening=True)
+    rc = self._lora.transmit(resp,keep_listening=True)
     return rc
 
   # --- cleanup   ------------------------------------------------------------
