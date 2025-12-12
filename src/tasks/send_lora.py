@@ -1,7 +1,6 @@
 #-----------------------------------------------------------------------------
 # Task: send data using LoRa (adafruit_rfm9x.py)
 #
-# Authors: Syed Omer Ali, Björn Haßler
 # Author: Bernhard Bablok
 #
 # Website: https://github.com/pcb-pico-datalogger
@@ -31,10 +30,16 @@ def run(config,app):
     g_logger.print("LoRa: create singleton")
     lora = LORA(config,spi1)
 
-  g_logger.print("LoRa: sending...")
+  content_length = len(app.record)
+  g_logger.print(f"LoRa: sending S-msg, length: {content_length}")
   if lora.transmit(app.record, msg_type="S"):
-    g_logger.print("LoRa: ... successful")
-    app.lora_status = 'T'
+    resp = lora.receive()
+    if resp[0] and int(resp[0]) == content_length:
+      g_logger.print("LoRa: ... successful")
+      app.lora_status = 'T'
+    else:
+      g_logger.print(f"LoRa: ... receive failed: response: {resp}")
+      app.lora_status = 'F'
   else:
-    g_logger.print("LoRa: ... failed")
+    g_logger.print(f"LoRa: ... transmit failed")
     app.lora_status = 'F'
