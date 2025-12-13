@@ -24,11 +24,12 @@ import pins
 _LORA_QOS = [
   ( 7, 5, 125000),      # 0
   ( 7, 7, 125000),      # 1
-  (10, 6, 125000),      # 2
-  (10, 8, 125000),      # 3, default
-  (12, 6, 125000),      # 4
-  (12, 8, 125000),      # 5
-  (12, 8,  62500),      # 6
+  ( 8, 7, 125000),      # 2
+  ( 9, 7, 125000),      # 3, default
+  (10, 5, 125000),      # 4
+  (11, 5, 125000),      # 5
+  (11, 8, 125000),      # 6
+  (12, 6, 125000),      # 7
   ]
 _LORA_QOS_DEF = 3  # 0 is library default
 
@@ -76,6 +77,10 @@ class LORA:
     self.rfm9x.spreading_factor = sf
     self.rfm9x.coding_rate      = cr
     self.rfm9x.signal_bandwidth = bw
+    if (cr/4)* 1000 / (bw/(1 << sf)) > 16:
+      self.rfm9x.low_datarate_optimize = 1
+    else:
+      self.rfm9x.low_datarate_optimize = 0
 
     self.rfm9x.enable_crc = True
     self.rfm9x.receive_timeout = rtimeout
