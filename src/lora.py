@@ -56,10 +56,8 @@ class LORA:
     g_logger.print(f"LoRa: QOS-parameter: {(sf,cr,bw)}, t-factor: {tfac}")
 
     # calculate wait-time/timeout according to tfac
-    ack_wait = tfac * getattr(config,'LORA_ACK_WAIT',0.25)
-    self._rtimeout = tfac * getattr(config,'LORA_RECEIVE_TIMEOUT',1.0)
-    g_logger.print(f"LoRa: ack-wait: {ack_wait:5.2f}s")
-    g_logger.print(f"LoRa: timeout:  {self._rtimeout:5.2f}s")
+    rtimeout = tfac * getattr(config,'LORA_RECEIVE_TIMEOUT',1.0)
+    g_logger.print(f"LoRa: timeout:  {rtimeout:5.2f}s")
 
     if hasattr(pins,'PIN_LORA_EN'):
       g_logger.print("LoRa: enabling rfm9x")
@@ -80,12 +78,11 @@ class LORA:
     self.rfm9x.signal_bandwidth = bw
 
     self.rfm9x.enable_crc = True
+    self.rfm9x.receive_timeout = rtimeout
+    self.rfm9x.xmit_timeout = rtimeout
     self.rfm9x.tx_power = getattr(config,"LORA_TX_POWER",13)
     self.rfm9x.node = config.LORA_NODE_ADDR                      # this
     self.rfm9x.destination = getattr(config,"LORA_BASE_ADDR",0)  # gateway
-    self.rfm9x.ack_wait = ack_wait
-    self.rfm9x.ACK_DELAY = getattr(config,"LORA_ACK_DELAY",0.1)
-    self.rfm9x.ack_retries = getattr(config,"LORA_ACK_RETRIES",3)
     self.rfm9x.sleep()
 
   # --- trace LoRa-events   --------------------------------------------------
@@ -118,12 +115,11 @@ class LORA:
     if self._trace:
       g_logger.print("LoRa: receiving data...")
       start = time.monotonic()
-    packet = self.rfm9x.receive(with_header=True, timeout=self._rtimeout,
-                                keep_listening=keep_listening)
+    packet = self.rfm9x.receive(with_header=True, keep_listening=keep_listening)
     if self._trace:
       g_logger.print(f"LoRa:   elapsed: {time.monotonic()-start:0.3f}s")
     if packet is None:
-      self.trace(f"LoRa: no packet within {self._rtimeout:5.2}s")
+      self.trace(f"LoRa: no packet within {self.rfm9x.receive_timeout:5.2}s")
       return (None,None,None,None)
     else:
       header  = packet[:4]
