@@ -115,16 +115,19 @@ class LORA:
 
   # --- receive command   ----------------------------------------------------
 
-  def receive(self, keep_listening=True):
+  def receive(self, keep_listening=True, timeout=None):
     """ receive and decode data """
     if self._trace:
       g_logger.print("LoRa: receiving data...")
       start = time.monotonic()
-    packet = self.rfm9x.receive(with_header=True, keep_listening=keep_listening)
+    packet = self.rfm9x.receive(with_header=True,
+                                keep_listening=keep_listening,
+                                timeout=timeout)
     if self._trace:
       g_logger.print(f"LoRa:   elapsed: {time.monotonic()-start:0.3f}s")
     if packet is None:
-      self.trace(f"LoRa: no packet within {self.rfm9x.receive_timeout:5.2}s")
+      self.trace(
+        f"LoRa: no packet within {timeout if timeout else self.rfm9x.receive_timeout:5.2}s")
       return (None,None,None,None)
     else:
       header  = packet[:4]
@@ -160,7 +163,7 @@ class LORA:
       return None
 
     # wait for response
-    return self.receive(keep_listening=False)
+    return self.receive(keep_listening=False, timeout=5.0)
 
   # --- query time   ---------------------------------------------------------
 
@@ -179,7 +182,7 @@ class LORA:
          continue
 
        # wait for response
-       new_time = self.receive(keep_listening=False)[0]
+       new_time = self.receive(keep_listening=False, timeout=5.0)[0]
        if new_time:
          g_logger.print(f"LoRa: : time-query {i} returned {new_time}")
          return int(new_time)
