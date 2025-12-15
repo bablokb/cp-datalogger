@@ -53,12 +53,11 @@ class LORA:
     sf   = getattr(config, 'LORA_SF', _LORA_QOS[qos][0])
     cr   = getattr(config, 'LORA_CR', _LORA_QOS[qos][1])
     bw   = getattr(config, 'LORA_BW', _LORA_QOS[qos][2])
-    tfac = 7/sf * cr/5 * bw/125000 * (1<<(sf-7))
-    g_logger.print(f"LoRa: QOS-parameter: {(sf,cr,bw)}, t-factor: {tfac}")
+    g_logger.print(f"LoRa: QOS-parameter: {(sf,cr,bw)}")
 
-    # calculate wait-time/timeout according to tfac
-    rtimeout = tfac * getattr(config,'LORA_RECEIVE_TIMEOUT',1.0)
-    g_logger.print(f"LoRa: timeout:  {rtimeout:5.2f}s")
+    # calculate expected app-level byte-rate: R(B) = sf*(4/cr)*bw/2**sf/8
+    self._byte_rate = sf*4/cr*bw/(1<<(sf+3))
+    g_logger.print(f"LoRa: expected byte-rate: {self._byte_rate:0.1f}B/s")
 
     if hasattr(pins,'PIN_LORA_EN'):
       g_logger.print("LoRa: enabling rfm9x")
@@ -84,7 +83,6 @@ class LORA:
 
     self.rfm9x.enable_crc = True
     self.rfm9x.receive_timeout = getattr(config,'LORA_RECEIVE_TIMEOUT',5.0)
-    self.rfm9x.xmit_timeout = rtimeout
     self.rfm9x.tx_power = getattr(config,"LORA_TX_POWER",13)
     self.rfm9x.node = config.LORA_NODE_ADDR                      # this
     self.rfm9x.destination = getattr(config,"LORA_BASE_ADDR",0)  # gateway
@@ -105,8 +103,10 @@ class LORA:
       payload = f"{msg_type},{string}"
     else:
       payload = string
+    self.rfm9x.xmit_timeout = 2 + (len(payload)+4)/self._byte_rate
     if self._trace:
       g_logger.print(f"LoRa: sending data: {payload}")
+      g_logger.print(f"LoRa:   xmit_timeout: {self.rfm9x.xmit_timeout: 0.1f}")
       start = time.monotonic()
     rc = self.rfm9x.send(bytes(payload, "UTF-8"),keep_listening=keep_listening)
     if self._trace:
