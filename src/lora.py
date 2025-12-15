@@ -53,7 +53,7 @@ class LORA:
     sf   = getattr(config, 'LORA_SF', _LORA_QOS[qos][0])
     cr   = getattr(config, 'LORA_CR', _LORA_QOS[qos][1])
     bw   = getattr(config, 'LORA_BW', _LORA_QOS[qos][2])
-    tfac = (1<<(sf-7))*(125000/bw)
+    tfac = 7/sf * cr/5 * bw/125000 * (1<<(sf-7))
     g_logger.print(f"LoRa: QOS-parameter: {(sf,cr,bw)}, t-factor: {tfac}")
 
     # calculate wait-time/timeout according to tfac
