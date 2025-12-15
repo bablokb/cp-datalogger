@@ -67,13 +67,16 @@ send_lora
 | LORA_FREQ                   | float|  M  | 433 / 868 / 915            |
 | LORA_BASE_ADDR              | int  |  O  | gateway-address (def: 0)   |
 | LORA_NODE_ADDR              | int  |  M  | node-address               |
-| LORA_ENABLE_TIME            | float|  O  | enable wait-time (0)       |
-| LORA_ACK_WAIT               | float|  O  | wait for ACK time (0.25)   |
-| LORA_ACK_RETRIES            | int  |  O  | send retries (3)           |
+| LORA_QOS                    | int  |  O  | quality of service (0-7)   |
 | LORA_TX_POWER               | int  |  O  | transmit power (5-23)      |
+| LORA_ENABLE_TIME            | float|  O  | enable wait-time (0)       |
 | LORA_RECEIVE_TIMEOUT        | float|  O  | LoRa receive timeout (5.0) |
 
 Default transmit power is 13.
+
+Quality of service ranges from 0 (fastest) to 7 (most robust). Default
+value is 2. See [LoRa Setup](./lora.md) for details. **The QoS-parameter
+must be identical for dataloggers and the gateway!**
 
 
 update_oled
