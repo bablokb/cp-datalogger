@@ -33,7 +33,7 @@ def run(config,app):
   content_length = len(app.record)
   g_logger.print(f"LoRa: sending S-msg, length: {content_length}")
   if lora.transmit(app.record, msg_type="S"):
-    resp = lora.receive(timeout=2.0)
+    resp = lora.receive()
     if resp[0] and int(resp[0]) == content_length:
       g_logger.print("LoRa: ... successful")
       app.lora_status = 'T'

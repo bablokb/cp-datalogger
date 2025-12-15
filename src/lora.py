@@ -83,7 +83,7 @@ class LORA:
       self.rfm9x.low_datarate_optimize = 0
 
     self.rfm9x.enable_crc = True
-    self.rfm9x.receive_timeout = rtimeout
+    self.rfm9x.receive_timeout = getattr(config,'LORA_RECEIVE_TIMEOUT',5.0)
     self.rfm9x.xmit_timeout = rtimeout
     self.rfm9x.tx_power = getattr(config,"LORA_TX_POWER",13)
     self.rfm9x.node = config.LORA_NODE_ADDR                      # this
@@ -163,7 +163,7 @@ class LORA:
       return None
 
     # wait for response
-    return self.receive(keep_listening=False, timeout=5.0)
+    return self.receive(keep_listening=False)
 
   # --- query time   ---------------------------------------------------------
 
@@ -182,7 +182,7 @@ class LORA:
          continue
 
        # wait for response
-       new_time = self.receive(keep_listening=False, timeout=5.0)[0]
+       new_time = self.receive(keep_listening=False)[0]
        if new_time:
          g_logger.print(f"LoRa: : time-query {i} returned {new_time}")
          return int(new_time)
