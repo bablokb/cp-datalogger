@@ -24,11 +24,11 @@ GW_TX_TYPE = 'Noop'        # 'Blues' | 'Noop' | 'UDP'
 
 # ----------------------------------------------------------------------------
 # LoRa configuration
-LORA_FREQ       = 433.0     # frequency 433, 868, 915
-LORA_NODE_ADDR  = 0         # gateway node-address
-LORA_ACK_DELAY  = 0.1       # delay time before sending ACK
-LORA_TX_POWER   = 23        # transmit power (max: 23)
-LORA_RECEIVE_TIMEOUT  = 1.0      # single receive wait-time
+LORA_FREQ       = 433.0           # frequency 433, 868, 915
+LORA_NODE_ADDR  = 0               # gateway node-address
+LORA_ACK_DELAY  = 0.1             # delay time before sending ACK
+LORA_TX_POWER   = 23              # transmit power (max: 23)
+LORA_GW_RECEIVE_TIMEOUT  = 1.0    # single receive wait-time
 
 # ----------------------------------------------------------------------------
 # gw_tx_blues specific configuration

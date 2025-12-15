@@ -38,15 +38,15 @@ For details about `TIME_TABLE` see [main configuration](./core_config_main.md).
 LoraReceiver
 ------------
 
-| Name                 | Type | O/M | Description                           |
-|----------------------|------|-----|---------------------------------------|
-| LORA_RECEIVE_TIMEOUT | float|  O  | LoRa receive timeout (1.0)            |
-| LORA_FREQ            | float|  M  | 433 / 868 / 915                       |
-| LORA_NODE_ADDR       | int  |  M  | node-address (usually 0)              |
-| LORA_ENABLE_TIME     | float|  O  | enable wait-time (0)                  |
-| LORA_ACK_WAIT        | float|  O  | wait for ACK time (0.25)              |
-| LORA_ACK_RETRIES     | int  |  O  | send retries (3)                      |
-| LORA_TX_POWER        | int  |  O  | transmit power (5-23)                 |
+| Name                    | Type | O/M | Description                           |
+|-------------------------|------|-----|---------------------------------------|
+| LORA_GW_RECEIVE_TIMEOUT | float|  O  | LoRa receive timeout (1.0)            |
+| LORA_FREQ               | float|  M  | 433 / 868 / 915                       |
+| LORA_NODE_ADDR          | int  |  M  | node-address (usually 0)              |
+| LORA_ENABLE_TIME        | float|  O  | enable wait-time (0)                  |
+| LORA_ACK_WAIT           | float|  O  | wait for ACK time (0.25)              |
+| LORA_ACK_RETRIES        | int  |  O  | send retries (3)                      |
+| LORA_TX_POWER           | int  |  O  | transmit power (5-23)                 |
 
 **Note**: from the gateway perspective, the gateway is the "node", so
 the `LORA_NODE_ADDR` has to be configured and not the `LORA_BASE_ADDR`!!
