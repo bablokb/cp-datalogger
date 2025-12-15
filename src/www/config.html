@@ -302,25 +302,18 @@
     <fieldset>
        <legend>Technical Parameters:</legend>
          <div class="pure-control-group">
+            <label for="lora_qos">Quality of Service:</label>
+            <input type="number" min="0" max="7"
+                id="lora_qos" placeholder="QoS..."
+                oninput="this.classList.remove('invalid')"
+                name="LORA_QOS" value="2" />
+         </div>
+         <div class="pure-control-group">
             <label for="lora_enable_time">Enable Time:</label>
             <input type="number" min="0"
                 id="lora_enable_time" placeholder="Enable Time..."
                 oninput="this.classList.remove('invalid')"
                 name="LORA_ENABLE_TIME" value="3" />
-         </div>
-         <div class="pure-control-group">
-            <label for="lora_ack_time">Ack Time:</label>
-            <input  type="number" min="0"
-                id="lora_ack_time" placeholder="Ack Wait Time..."
-                oninput="this.classList.remove('invalid')"
-                name="LORA_ACK_WAIT" value="0.25" />
-         </div>
-         <div class="pure-control-group">
-            <label for="lora_ack_retries">Ack Retries:</label>
-            <input type="number" min="0" max="5" steps="1"
-                id="lora_ack_retries" placeholder="Ack Retries..."
-                oninput="this.classList.remove('invalid')"
-                name="LORA_ACK_RETRIES" value="3" />
          </div>
          <div class="pure-control-group">
             <label for="lora_freq">Frequency:</label>
