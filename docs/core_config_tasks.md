@@ -61,16 +61,17 @@ before the power-management cuts power in strobe-mode.
 send_lora
 ---------
 
-| Name                        | Type | O/M | Description               |
-|-----------------------------|------|-----|---------------------------|
-| HAVE_LORA                   | bool |  O  | support LoRa (RFM9x)      |
-| LORA_FREQ                   | float|  M  | 433 / 868 / 915           |
-| LORA_BASE_ADDR              | int  |  O  | gateway-address (def: 0)  |
-| LORA_NODE_ADDR              | int  |  M  | node-address              |
-| LORA_ENABLE_TIME            | float|  O  | enable wait-time (0)      |
-| LORA_ACK_WAIT               | float|  O  | wait for ACK time (0.25)  |
-| LORA_ACK_RETRIES            | int  |  O  | send retries (3)          |
-| LORA_TX_POWER               | int  |  O  | transmit power (5-23)     |
+| Name                        | Type | O/M | Description                |
+|-----------------------------|------|-----|----------------------------|
+| HAVE_LORA                   | bool |  O  | support LoRa (RFM9x)       |
+| LORA_FREQ                   | float|  M  | 433 / 868 / 915            |
+| LORA_BASE_ADDR              | int  |  O  | gateway-address (def: 0)   |
+| LORA_NODE_ADDR              | int  |  M  | node-address               |
+| LORA_ENABLE_TIME            | float|  O  | enable wait-time (0)       |
+| LORA_ACK_WAIT               | float|  O  | wait for ACK time (0.25)   |
+| LORA_ACK_RETRIES            | int  |  O  | send retries (3)           |
+| LORA_TX_POWER               | int  |  O  | transmit power (5-23)      |
+| LORA_RECEIVE_TIMEOUT        | float|  O  | LoRa receive timeout (5.0) |
 
 Default transmit power is 13.
 
