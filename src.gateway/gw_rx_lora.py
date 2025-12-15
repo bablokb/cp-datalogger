@@ -39,6 +39,7 @@ class LoraReceiver:
   def __init__(self,config):
     """ constructor """
     self._config = config
+    self._timeout = getattr(config,'LORA_GW_RECEIVE_TIMEOUT',1.0)
 
   # --- hardware-setup   -----------------------------------------------------
 
@@ -56,7 +57,7 @@ class LoraReceiver:
 
   def receive_data(self):
     """ receive data """
-    data, node_sender, self._snr, self._rssi = self._lora.receive(timeout=1.0)
+    data, node_sender, self._snr, self._rssi = self._lora.receive(self._timeout)
     if self._snr:
       self._snr = round(self._snr,1)
       self._rssi = round(self._rssi,0)
