@@ -7,17 +7,25 @@ the config-variables for your setup.
 
 Note that for the optional hardware-components RTC, SD and
 OLED-display you have to add the relevant configuration as described
-in [main configuration](./core_config_main.md). **The normal defaults
-are not valid for a gateway, so you must usually add these lines to
-your configuration**:
+in [main configuration](./core_config_main.md).
 
-    HAVE_RTC  = None
-    HAVE_SD   = None
-
-The configuration of the logger is identical to the way this is
-implemented for the data-loggers. I.e. you should copy the file
+The configuration of the log-writer is identical to the way this is
+implemented for the dataloggers. I.e. you should copy the file
 `src/log_config_template.py` and choose the logger you need. See [Log
 configuration](./log_config.md) for details.
+
+
+Gateway-Identification
+-----------------------
+
+| Name          | Type | O/M | Description                 |
+|---------------|------|-----|-----------------------------|
+| GW_NAME       | str  |  M  | Name of the gateway (unused)|
+| GW_ID         | str  |  M  | ID of the gateway           |
+| GW_LOCATION   | str  |  M  | Location (unused)           |
+| GW_TITLE      | str  |  O  | Title (unused)              |
+
+The `GW_ID` can be used as placeholder in the `CSV_FILENAME`.
 
 
 Application
@@ -29,10 +37,28 @@ Application
 | ON_DURATION         | int  |  M  | on-duration in minutes                   |
 | GW_RX_TYPE          | str  |  O  | 'Noop', 'Lora', 'UDP'¹, 'BLE'¹ ('Lora')  |
 | GW_TX_TYPE          | str  |  O  | 'Noop', 'Blues', 'UDP', 'BLE'¹ ('Blues') |
-
 ¹not implemented yet
 
 For details about `TIME_TABLE` see [main configuration](./core_config_main.md).
+
+
+Tasks
+-----
+
+| Name                | Type | O/M | Description                  |
+|---------------------|------|-----|------------------------------|
+| TASKS               | str  |  M  | List of post-data tasks      |
+| BTASKS              | str  |  M  | List of post-broadcast tasks |
+
+List of tasks to execute. This is a blank delimited list. See
+[tasks](./gateway_tasks.md) for a list of available tasks and also check
+[task-specific configuration](./gateway_config_tasks.md).
+
+Tasks can be used to send data from the gateway to upstream or to
+save data to a SD-card.
+
+Tasks listed in `BTASKS` are for development and troubleshooting only
+and should normally be not necessary.
 
 
 LoraReceiver
