@@ -18,28 +18,17 @@ def run(config,app):
 
   try:
     # this will return an existing singleton
-    g_logger.print("LoRa: fetch singleton...")
+    g_logger.print("send_lora: fetching LoRa-singleton...")
     lora = LORA(None,None)
   except:
-    g_logger.print("LoRa: ... failed.")
+    g_logger.print("send_lora: ... failed.")
+    g_logger.print("send_lora: creating LoRa-singleton")
     if app.spi and pins.PIN_SD_SCK == pins.PIN_LORA_SCK:
       spi1 = app.spi
     else:
       spi1 = busio.SPI(pins.PIN_LORA_SCK,pins.PIN_LORA_MOSI,
                        pins.PIN_LORA_MISO)
-    g_logger.print("LoRa: create singleton")
     lora = LORA(config,spi1)
 
-  content_length = len(app.record)
-  g_logger.print(f"LoRa: sending S-msg, length: {content_length}")
-  if lora.transmit(app.record, msg_type="S"):
-    resp = lora.receive()
-    if resp[0] and int(resp[0]) == content_length:
-      g_logger.print("LoRa: ... successful")
-      app.lora_status = 'T'
-    else:
-      g_logger.print(f"LoRa: ... receive failed: response: {resp}")
-      app.lora_status = 'F'
-  else:
-    g_logger.print(f"LoRa: ... transmit failed")
-    app.lora_status = 'F'
+  rc = lora.send_single(app.record)
+  app.lora_status = 'T' if rc else 'F'

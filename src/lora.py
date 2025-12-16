@@ -1,7 +1,7 @@
 #-----------------------------------------------------------------------------
-# Setup of LoRa (adafruit_rfm9x.py)
+# Setup of LoRa (adafruit_rfm9x.py). This class also encapsulates the
+# data-protocol used by the dataloggers and gateway.
 #
-# Authors: Syed Omer Ali, Björn Haßler
 # Author: Bernhard Bablok
 #
 # Website: https://github.com/pcb-pico-datalogger
@@ -57,7 +57,7 @@ class LORA:
 
     # calculate expected app-level byte-rate: R(B) = sf*(4/cr)*bw/2**sf/8
     self._byte_rate = sf*4/cr*bw/(1<<(sf+3))
-    g_logger.print(f"LoRa: expected byte-rate: {self._byte_rate:0.1f}B/s")
+    g_logger.print(f"LoRa: expected byte-rate: {self._byte_rate:0.1f} B/s")
 
     if hasattr(pins,'PIN_LORA_EN'):
       g_logger.print("LoRa: enabling rfm9x")
@@ -145,7 +145,7 @@ class LORA:
   # --- broadcast a packet and wait for response   ---------------------------
 
   def broadcast(self,nr):
-    """ send a broadcast packet """
+    """ send a broadcast packet to the gateway """
 
     ts = time.localtime()
     ts_str = f"{ts.tm_year}-{ts.tm_mon:02d}-{ts.tm_mday:02d}T{ts.tm_hour:02d}:{ts.tm_min:02d}:{ts.tm_sec:02d}"
@@ -168,7 +168,7 @@ class LORA:
   # --- query time   ---------------------------------------------------------
 
   def get_time(self,retries=3):
-    """ send a time-query packet """
+    """ send a time-query packet to the gateway """
 
     for i in range(retries):
        # send packet ("T",node)
@@ -189,3 +189,22 @@ class LORA:
     # query failed!
     g_logger.print(f"LoRa: time-query failed after {retries} retries")
     return None
+
+  # --- send S-message   -----------------------------------------------------
+
+  def send_single(self, data):
+    """ send a single-line packet to the gateway """
+
+    content_length = len(data)
+    g_logger.print(f"LoRa: sending S-msg, length: {content_length}")
+    if self.transmit(data, msg_type="S"):
+      resp = self.receive(keep_listening=False)
+      if resp[0] and int(resp[0]) == content_length:
+        g_logger.print("LoRa: ... successful")
+        return True
+      else:
+        g_logger.print(f"LoRa: ... receive failed: response: {resp}")
+        return False
+    else:
+      g_logger.print(f"LoRa: ... transmit failed")
+      return False
