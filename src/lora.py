@@ -64,7 +64,6 @@ class LORA:
       pin_enable = DigitalInOut(pins.PIN_LORA_EN)
       pin_enable.direction  = Direction.OUTPUT
       pin_enable.value = 1
-      time.sleep(getattr(config,'LORA_ENABLE_TIME',0))
 
     g_logger.print("LoRa: initializing rfm9x")
     pin_cs     = DigitalInOut(pins.PIN_LORA_CS)

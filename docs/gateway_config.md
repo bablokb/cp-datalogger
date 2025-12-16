@@ -44,7 +44,6 @@ LoraReceiver
 | LORA_NODE_ADDR          | int  |  M  | node-address (usually 0)              |
 | LORA_QOS                | int  |  O  | quality of service (0-7)              |
 | LORA_TX_POWER           | int  |  O  | transmit power (5-23)                 |
-| LORA_ENABLE_TIME        | float|  O  | enable wait-time (0)                  |
 | LORA_GW_RECEIVE_TIMEOUT | float|  O  | LoRa receive timeout (1.0)            |
 
 **Note**: from the gateway perspective, the gateway is the "node", so

@@ -92,5 +92,4 @@ LORA_BASE_ADDR        = 0
 LORA_NODE_ADDR        = 1
 #LORA_QOS             = 2      # default: 2, range: 0-7
 #LORA_TX_POWER        = 13     # default: 13, range: 5-23
-#LORA_ENABLE_TIME     = 0
 #LORA_RECEIVE_TIMEOUT = 5.0

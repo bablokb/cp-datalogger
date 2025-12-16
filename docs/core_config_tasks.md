@@ -69,7 +69,6 @@ send_lora
 | LORA_NODE_ADDR              | int  |  M  | node-address               |
 | LORA_QOS                    | int  |  O  | quality of service (0-7)   |
 | LORA_TX_POWER               | int  |  O  | transmit power (5-23)      |
-| LORA_ENABLE_TIME            | float|  O  | enable wait-time (0)       |
 | LORA_RECEIVE_TIMEOUT        | float|  O  | LoRa receive timeout (5.0) |
 
 Default transmit power is 13.
