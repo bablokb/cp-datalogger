@@ -70,12 +70,20 @@ send_lora
 | LORA_QOS                    | int  |  O  | quality of service (0-7)   |
 | LORA_TX_POWER               | int  |  O  | transmit power (5-23)      |
 | LORA_RECEIVE_TIMEOUT        | float|  O  | LoRa receive timeout (5.0) |
+| LORA_MAX_FAILED             | int  |  O  | resend limit (5)           |
 
 Default transmit power is 13.
 
 Quality of service ranges from 0 (fastest) to 7 (most robust). Default
 value is 2. See [LoRa Setup](./lora.md) for details. **The QoS-parameter
 must be identical for dataloggers and the gateway!**
+
+This task will buffer data that could not be sent (no reply from the
+gateway). The data will be sent the next time. To limit air-time,
+a maximum of `LORA_MAX_FAILED` records will be sent at a time.
+
+**Note**: data received at the gateway may be out of order because of
+this logic. Sort the data by timestamp if necessary.
 
 
 update_oled
