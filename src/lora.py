@@ -13,6 +13,7 @@ g_logger = Logger()
 from singleton import singleton
 
 from digitalio import DigitalInOut, Direction, Pull
+import struct
 import time
 import adafruit_rfm9x
 import pins
@@ -96,25 +97,32 @@ class LORA:
 
   # --- transmit command   ---------------------------------------------------
 
-  def transmit(self,string,msg_type=None,keep_listening=False):
+  def transmit(self,data,msg_type=None,keep_listening=False):
     """ send data """
-    if msg_type:
-      payload = f"{msg_type},{string}"
+    if data is None or isinstance(data,str):
+      if msg_type and data:
+        payload = f"{msg_type},{data}"
+      elif msg_type:
+        payload = msg_type
+      else:
+        payload = data
+      payload = bytes(payload, "UTF-8")
     else:
-      payload = string
+      # binary data has no message-type
+      payload = data
     self.rfm9x.xmit_timeout = 2 + (len(payload)+4)/self._byte_rate
     if self._trace:
       g_logger.print(f"LoRa: sending data: {payload}")
       g_logger.print(f"LoRa:   xmit_timeout: {self.rfm9x.xmit_timeout: 0.1f}")
       start = time.monotonic()
-    rc = self.rfm9x.send(bytes(payload, "UTF-8"),keep_listening=keep_listening)
+    rc = self.rfm9x.send(payload,keep_listening=keep_listening)
     if self._trace:
       g_logger.print(f"LoRa:   elapsed: {time.monotonic()-start:0.3f}s")
     return rc
 
   # --- receive command   ----------------------------------------------------
 
-  def receive(self, keep_listening=True, timeout=None):
+  def receive(self, decode=True, keep_listening=True, timeout=None):
     """ receive and decode data """
     if self._trace:
       g_logger.print("LoRa: receiving data...")
@@ -130,7 +138,10 @@ class LORA:
       return (None,None,None,None)
     else:
       header  = packet[:4]
-      payload = packet[4:].decode()
+      if decode:
+        payload = packet[4:].decode()
+      else:
+        payload = packet[4:]
       self.trace(f"LoRa: header: {header}")
       self.trace(f"LoRa: payload: {payload}")
       return (payload,int(header[1]),self.rfm9x.last_snr,self.rfm9x.last_rssi)
@@ -146,14 +157,15 @@ class LORA:
   def broadcast(self,nr):
     """ send a broadcast packet to the gateway """
 
-    ts = time.localtime()
-    ts_str = f"{ts.tm_year}-{ts.tm_mon:02d}-{ts.tm_mday:02d}T{ts.tm_hour:02d}:{ts.tm_min:02d}:{ts.tm_sec:02d}"
+    # convert time (int) to compact hex-repr
+    ts = time.time()
+    ts_str =''.join([hex(b)[-2:] for b in struct.pack("i",ts)])
 
-    # send packet ("B",TS,ID,nr,node)
-    g_logger.print(f"LoRa: broadcast packet {nr}: sending at {ts_str}")
+    # send packet ("B",TS,ID,nr)
+    g_logger.print(f"LoRa: broadcast packet {nr}: sending at {ts}")
     start = time.monotonic()
     if self.transmit(
-      f"{ts_str},{self._config.LOGGER_ID},{nr},{self.rfm9x.node}", msg_type="B",
+      f"{ts_str},{self._config.LOGGER_ID},{nr}", msg_type="B",
       keep_listening=True):
       duration = time.monotonic()-start
       g_logger.print(f"LoRa: broadcast: packet {nr}: transfer-time: {duration}s")
@@ -170,21 +182,22 @@ class LORA:
     """ send a time-query packet to the gateway """
 
     for i in range(retries):
-       # send packet ("T",node)
+       # send packet ("T")
        g_logger.print(f"LoRa: sending time-query packet, retry={i}")
        start = time.monotonic()
-       if self.transmit(f"{self.rfm9x.node}", msg_type="T", keep_listening=True):
+       if self.transmit(None, msg_type="T", keep_listening=True):
          duration = time.monotonic()-start
          g_logger.print(f"LoRa: time-query {i} sent in {duration}s")
        else:
          g_logger.print(f"LoRa: : time-query {i} failed")
          continue
 
-       # wait for response
-       new_time = self.receive(keep_listening=False)[0]
+       # wait for response (binary)
+       new_time = self.receive(decode=False, keep_listening=False)[0]
        if new_time:
+         new_time,*_ = struct.unpack("i", new_time)
          g_logger.print(f"LoRa: : time-query {i} returned {new_time}")
-         return int(new_time)
+         return new_time
     # query failed!
     g_logger.print(f"LoRa: time-query failed after {retries} retries")
     return None

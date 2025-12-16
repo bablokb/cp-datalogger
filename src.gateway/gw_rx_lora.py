@@ -7,6 +7,7 @@
 #-----------------------------------------------------------------------------
 
 import atexit
+import struct
 import time
 import busio
 
@@ -71,13 +72,21 @@ class LoraReceiver:
 
     # echo data to sender
     resp = f"{values[2]},{self._snr},{self._rssi}"        # 2: packet-nr
-    self._lora.set_destination(int(values[3]))            # 3: LoRa-node
-    g_logger.print(f"LoraReceiver: sending '{resp}' to {self._lora.rfm9x.destination}...")
+    self._lora.set_destination(node_sender)               # 3: LoRa-node
+    g_logger.print(f"LoraReceiver: sending '{resp}' to {node_sender}...")
     rc = self._lora.transmit(resp,keep_listening=True)
     g_logger.print(f"LoraReceiver: rc: {rc}")
-    # update values for further processing: add rc, snr, rssi and
-    # technical settings
-    values.extend([str(val) for val in [int(rc), self._snr, self._rssi,
+
+    # update values for further processing:
+    #   - decode timestamp
+    #   - add node_sender, rc, snr, rssi
+    #   - technical settings
+    ts = time.localtime(struct.unpack("i",bytes.fromhex(values[0]))[0])
+    values[0] = (
+      f"{ts.tm_year}-{ts.tm_mon:02d}-{ts.tm_mday:02d}T" +
+      f"{ts.tm_hour:02d}:{ts.tm_min:02d}:{ts.tm_sec:02d}"
+      )
+    values.extend([str(val) for val in [node_sender, int(rc), self._snr, self._rssi,
                                         self._lora.rfm9x.spreading_factor,
                                         self._lora.rfm9x.coding_rate,
                                         self._lora.rfm9x.signal_bandwidth]])
@@ -88,9 +97,9 @@ class LoraReceiver:
   def handle_time_request(self,values, node_sender):
     """ echo data to sender """
 
-    self._lora.set_destination(int(values[0]))
-    resp = f"{time.time()}"
-    g_logger.print(f"LoraReceiver: sending time ({resp}) to node {self._lora.rfm9x.destination}...")
+    self._lora.set_destination(node_sender)
+    resp = struct.pack("i", time.time())
+    g_logger.print(f"LoraReceiver: sending time ({resp}) to node {node_sender}...")
     rc = self._lora.transmit(resp,keep_listening=True)
     return rc
 
