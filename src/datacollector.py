@@ -269,12 +269,12 @@ class DataCollector():
       try:
         g_logger.print(f"{task}: loading")
         task_module = builtins.__import__("tasks."+task,None,None,["run"],0)
-        g_logger.print(f"{task} starting")
+        g_logger.print(f"{task}: starting")
         task_module.run(g_config,self)
         g_ts.append((time.monotonic(),f"{task}"))
-        g_logger.print(f"{task} ended")
+        g_logger.print(f"{task}: ended")
       except Exception as ex:
-        g_logger.print(f"{task} failed: exception: {ex}")
+        g_logger.print(f"{task}: failed: exception: {ex}")
       if g_config.TEST_MODE:
         g_logger.print(f"{task}: free memory after task: {gc.mem_free()}")
       task_module = None
