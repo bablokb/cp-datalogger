@@ -210,8 +210,8 @@ class LORA:
     content_length = len(data)
     g_logger.print(f"LoRa: sending S-msg, length: {content_length}")
     if self.transmit(data, msg_type="S"):
-      resp = self.receive(keep_listening=False)
-      if resp[0] and int(resp[0]) == content_length:
+      resp = self.receive(keep_listening=False, decode=False)
+      if resp[0] and int.from_bytes(resp[0]) == content_length:
         g_logger.print("LoRa: ... successful")
         return True
       else:

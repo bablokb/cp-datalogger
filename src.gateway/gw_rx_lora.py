@@ -110,8 +110,9 @@ class LoraReceiver:
 
     if msg_type == "S":
       self._lora.set_destination(node_sender)
-      resp = f"{len(','.join(values))}"
-      g_logger.print(f"LoraReceiver: S-msg: returning content length: {resp}")
+      resp = len(','.join(values)).to_bytes(1,'little')
+      g_logger.print(
+        f"LoraReceiver: S-msg: returning content length: {ord(resp)}")
       rc = self._lora.transmit(resp,keep_listening=True)
       return rc
     else:
