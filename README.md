@@ -74,6 +74,7 @@ Additional resources
   * [Power](docs/power.md)
   * [Pinout](docs/pins.md)
   * [Pinout V2](docs/pins-v2.md)
+  * [Pinout V3](docs/pins-v3.md)
   * Case for this PCB: https://github.com/OpenDevEd/case-for-pico-datalogger-rev1.00
   * [KiCAD design-files V1](./pico-datalogger.kicad/Readme.md)
   * [KiCAD design-files V2](./pico-datalogger-v2.kicad/Readme.md)
