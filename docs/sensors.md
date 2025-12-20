@@ -188,7 +188,22 @@ ID
 
   - Pseudo-sensor: returns the ID of the logger (`LOGGER_ID` from the configuration)
   - Status: implemented
-  - dcode: `0`
+  - dcode: `0` (zero)
+
+
+LM66200
+-------
+
+  - Power-source of LM66200 ideal diode (used in v3-datalogger hardware)
+  - Status: implemented
+  - dcode: `O` (oh)
+  - Guide: n.a.
+  - CircuitPython-driver: not required
+  - [datasheet](https://www.ti.com/lit/ds/symlink/lm66200.pdf)
+  - Note: values:
+      - "U" - undefined
+      - "E" - external (VIN1, JST-PH connector)
+      - "I" - internal (VIN2, 2xAA battery connector)
 
 
 LOCATION

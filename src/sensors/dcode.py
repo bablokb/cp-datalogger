@@ -51,6 +51,7 @@ SENSOR_MAP = {
   "mhz19":   "L",
   "hdc302x": "M",
   "sen6x":   "N",
+  "lm66200": "O",
   }
 
 class DCODE:
