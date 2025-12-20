@@ -44,7 +44,11 @@ class TimeSleep:
     """ implement sleep """
 
     if until:
-      time_alarm = alarm.time.TimeAlarm(epoch_time=until)
+      try:
+        time_alarm = alarm.time.TimeAlarm(epoch_time=until)
+      except:
+        # "until" might be in the past for short-term sleeps
+        return
     elif duration >= MIN_SLEEP_DURATION:
       time_alarm = alarm.time.TimeAlarm(
         monotonic_time=time.monotonic()+duration)
