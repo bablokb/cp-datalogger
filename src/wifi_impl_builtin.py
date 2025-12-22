@@ -100,7 +100,7 @@ class WifiImpl:
     self.logger.print(f"wifi: get({url})")
     return self._get_request().get(url)
 
-  # --- execute transmit-command   ------------------------------------------
+  # --- execute sendto-command   --------------------------------------------
 
   def sendto(self,data,udp_ip,udp_port):
     """ send to given destination """
@@ -109,6 +109,19 @@ class WifiImpl:
     with self._pool.socket(family=socketpool.SocketPool.AF_INET,
                            type=socketpool.SocketPool.SOCK_DGRAM) as socket:
       socket.sendto(data,(udp_ip,udp_port))
+
+  # --- execute send-command   ----------------------------------------------
+
+  def send(self, data, tcp_ip, tcp_port, socket=None):
+    """ send to given destination """
+    self.connect()
+    self.logger.print(f"wifi: send to {tcp_ip}:{tcp_port}")
+    if not socket:
+      socket = self._pool.socket(family=socketpool.SocketPool.AF_INET,
+                                 type=socketpool.SocketPool.SOCK_STREAM)
+      socket.connect((tcp_ip,tcp_port))
+    # return socket for later use
+    return (socket, socket.send(data))
 
   # --- no specific deep-sleep mode   ---------------------------------------
 
