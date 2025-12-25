@@ -36,8 +36,16 @@ Application
 | TIME_TABLE          |      |  M  | time-table                               |
 | ON_DURATION         | int  |  M  | on-duration in minutes                   |
 | GW_RX_TYPE          | str  |  O  | 'Noop', 'Lora', 'UDP'¹, 'BLE'¹ ('Lora')  |
-| GW_TX_TYPE          | str  |  O  | 'Noop', 'Blues', 'UDP', 'BLE'¹ ('Blues') |
+| GW_TX_TYPE          | str  |  O  | see below, default: 'Blues'              |
 ¹not implemented yet
+
+`GW_TX_TYPE` values:
+
+  - 'Noop': do nothing implementation (no upstream)
+  - 'Blues': send upstream using a Blues-Notecard
+  - 'UDP': send upstream using UDP
+  - 'TCP': send upstream using TCP
+  - 'BLE'¹: send upstream using BLE
 
 For details about `TIME_TABLE` see [main configuration](./core_config_main.md).
 
@@ -48,7 +56,8 @@ Tasks
 | Name                | Type | O/M | Description                  |
 |---------------------|------|-----|------------------------------|
 | TASKS               | str  |  M  | List of post-data tasks      |
-| BTASKS              | str  |  M  | List of post-broadcast tasks |
+| B_TASKS             | str  |  M  | List of post-broadcast tasks |
+| S_TASKS             | str  |  M  | List of pre-shutdown tasks   |
 
 List of tasks to execute. This is a blank delimited list. See
 [tasks](./gateway_tasks.md) for a list of available tasks and also check
@@ -57,8 +66,13 @@ List of tasks to execute. This is a blank delimited list. See
 Tasks can be used to send data from the gateway to upstream or to
 save data to a SD-card.
 
-Tasks listed in `BTASKS` are for development and troubleshooting only
+Tasks listed in `B_TASKS` are for development and troubleshooting only
 and should normally be not necessary.
+
+Tasks from `S_TASKS` are executed before shutdown of the gateway. Shutdown
+tasks are useful if the gateway does not operate continuously and
+certain activities like sending buffered data to upstream are deferred
+for performance or efficiency reasons.
 
 
 LoraReceiver
