@@ -60,8 +60,8 @@ Tasks
 | S_TASKS             | str  |  M  | List of pre-shutdown tasks   |
 
 List of tasks to execute. This is a blank delimited list. See
-[tasks](./gateway_tasks.md) for a list of available tasks and also check
-[task-specific configuration](./gateway_config_tasks.md).
+[tasks](./gateway_config_tasks.md) for a list of available tasks and
+special configurations.
 
 Tasks can be used to send data from the gateway to upstream or to
 save data to a SD-card.
