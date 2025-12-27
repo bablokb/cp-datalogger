@@ -248,11 +248,11 @@ class Gateway:
     except Exception as ex2:
       g_logger.print(f"gateway: receiver.shutdown() failed: {ex2}")
     self.rtc.set_alarm(wakeup)
-    return self._power_off()
+    return self._power_off(wakeup)
 
   # --- power off   ----------------------------------------------------------
 
-  def _power_off(self):
+  def _power_off(self, wakeup):
     """ tell the power-controller to cut power """
 
     if getattr(g_config,"HAVE_PM",False) and hasattr(pins,"PIN_DONE"):
@@ -276,7 +276,9 @@ class Gateway:
       return True
     else:
       g_logger.print(
-        "gateway: ignoring shutdown (don't have PM or PIN_DONE undefined)")
+        "gateway: PM or PIN_DONE undefined, falling back to deep-sleep")
+      from sleep import TimeSleep
+      TimeSleep.deep_sleep(until=wakeup)
       return False
 
   # --- main-loop   ----------------------------------------------------------
