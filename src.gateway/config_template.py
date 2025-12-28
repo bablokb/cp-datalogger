@@ -71,6 +71,7 @@ TIME_TABLE = [
   ((7,7,1),(0,0,1))
   ]
 ON_DURATION = 600   # 600 = 10*60
+#ON_DURATION = 0    # always on, ignoring time-table
 
 # ----------------------------------------------------------------------------
 # Development-mode (useful only for developers with a connected console)

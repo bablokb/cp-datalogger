@@ -39,6 +39,8 @@ Application
 | GW_TX_TYPE          | str  |  O  | see below, default: 'Blues'              |
 ¹not implemented yet
 
+Use `ON_DURATION=0` to run forever. In this case, `TIME_TABLE` is ignored.
+
 `GW_TX_TYPE` values:
 
   - 'Noop': do nothing implementation (no upstream)
