@@ -11,7 +11,7 @@ set of the software is not available with standard components.
 Besides logging data to a SD-card, the dataloggers can send data to a
 central system (called "gateway"). Normally the gateway acts as a
 relay to upstream systems, but it could do anything with the data. See
-[Gateway Application Firmware](docs/software_gateway.md) for details.
+[Gateway](docs/gateway.md) for details.
 
 
 Core software functions

@@ -66,6 +66,9 @@ Currently implemented senders:
   - `UDPSender` (in `src.gateway/gw_tx_udp.py`)  
     Sends data to a [central receiver](../src.receiver_service/Readme.md)
     using UDP
+  - `TCPSender` (in `src.gateway/gw_tx_tcp.py`)  
+    Sends data to a [central receiver](../src.receiver_service/Readme.md)
+    using TCP
 
 Planned senders:
 
