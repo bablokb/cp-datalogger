@@ -50,6 +50,11 @@ def get_tx_udp():
   from gw_tx_udp import UDPSender
   return UDPSender
 
+def get_tx_tcp():
+  """ import and return TCPSender class """
+  from gw_tx_tcp import TCPSender
+  return TCPSender
+
 def get_tx_noop():
   """ import and return NoopSender class """
   from gw_tx_noop import NoopSender
@@ -63,6 +68,7 @@ TX_MAP = {
   'Noop':  get_tx_noop,
   'Blues': get_tx_blues,
   'UDP': get_tx_udp,
+  'TCP': get_tx_tcp,
   }
 
 # --- Gateway application class   --------------------------------------------
@@ -107,9 +113,13 @@ class Gateway:
     self._update_time()
 
     # configure active window
-    self._active_until = time.time() + 60*g_config.ON_DURATION
-    g_logger.print(
-      f"gateway: active until: {self.rtc.print_ts(None,self._active_until)}")
+    if g_config.ON_DURATION:
+      self._active_until = time.time() + 60*g_config.ON_DURATION
+      g_logger.print(
+        f"gateway: active until: {self.rtc.print_ts(None,self._active_until)}")
+    else:
+      self._active_until = 0
+      g_logger.print(f"gateway: active forever")
 
     g_logger.print(f"gateway: initialized")
 
@@ -303,7 +313,7 @@ class Gateway:
       data, node_sender = self.receiver.receive_data()
       if data is None:
         # check active time period
-        if time.time() > self._active_until:
+        if g_config.ON_DURATION and time.time() > self._active_until:
           g_logger.print("gateway: active time ended: starting shutdown")
           if self._shutdown():
             break
