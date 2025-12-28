@@ -22,20 +22,18 @@ FONT=DejaVuSansMono-Bold-18-subset.bdf
 
 ifeq (gateway,$(findstring gateway,${MAKECMDGOALS}))
 SRC=src.gateway
-SOURCES=$(wildcard src.gateway/*.py)
-SOURCES2=src/settings.py src/log_writer.py src/singleton.py src/hw_helper.py \
-         src/wifi_impl_builtin.py src/oled.py src/lora.py
 SPECIAL=src.gateway/main.py
 CONFIG=src.gateway/config.py
 LOG_CONFIG=src.gateway/log_config.py
 COPY_PREREQ=gateway
 else
 SRC=src
-SOURCES=$(wildcard src/*.py)
 SPECIAL=src/boot.py src/main.py src/admin.py src/broadcast.py \
         src/bootloader.py src/scd4x_config.py
 COPY_PREREQ=default
 endif
+SOURCES=$(wildcard ${SRC}/*.py)
+SHARED=$(wildcard src.shared/*.py)
 
 # make variables from commandline (last invocation)
 include ${MAKEVARS}
@@ -82,6 +80,7 @@ default: makevars.tmp ${DEPLOY_TO} ${DEPLOY_TO}/sd ${DEPLOY_TO}/sensors \
         lib ${DEPLOY_TO}/fonts/${FONT} ${ap_config} \
 	${DEPLOY_TO}/pins.mpy \
 	$(SOURCES:${SRC}/%.py=${DEPLOY_TO}/%.mpy) \
+	$(SHARED:src.shared/%.py=${DEPLOY_TO}/%.mpy) \
 	$(SPECIAL:${SRC}/%.py=${DEPLOY_TO}/%.py) \
 	$(SENSORS:${SRC}/sensors/%.py=${DEPLOY_TO}/sensors/%.mpy) \
 	$(TOOLS:./tools/%=${DEPLOY_TO}/tools/%) \
@@ -97,7 +96,7 @@ gateway: makevars.tmp ${DEPLOY_TO} ${DEPLOY_TO}/sd lib \
 	${DEPLOY_TO}/pins.mpy \
 	${DEPLOY_TO}/secrets.mpy \
 	$(SOURCES:${SRC}/%.py=${DEPLOY_TO}/%.mpy) \
-	$(SOURCES2:src/%.py=${DEPLOY_TO}/%.mpy) \
+	$(SHARED:src.shared/%.py=${DEPLOY_TO}/%.mpy) \
 	$(SPECIAL:${SRC}/%.py=${DEPLOY_TO}/%.py) \
 	$(TASKS:${SRC}/tasks/%.py=${DEPLOY_TO}/tasks/%.mpy) \
 	${DEPLOY_TO}/config.py \
@@ -194,7 +193,7 @@ $(SPECIAL:${SRC}/%.py=${DEPLOY_TO}/%.py): ${DEPLOY_TO}/%.py: ${SRC}/%.py
 $(SOURCES:${SRC}/%.py=${DEPLOY_TO}/%.mpy): ${DEPLOY_TO}/%.mpy: ${SRC}/%.py
 	bin/mpy-cross${CP_VERSION} $< -o $@
 
-$(SOURCES2:src/%.py=${DEPLOY_TO}/%.mpy): ${DEPLOY_TO}/%.mpy: src/%.py
+$(SHARED:src.shared/%.py=${DEPLOY_TO}/%.mpy): ${DEPLOY_TO}/%.mpy: src.shared/%.py
 	bin/mpy-cross${CP_VERSION} $< -o $@
 
 $(SENSORS:${SRC}/sensors/%.py=${DEPLOY_TO}/sensors/%.mpy): \
