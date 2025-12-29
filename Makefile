@@ -22,16 +22,17 @@ FONT=DejaVuSansMono-Bold-18-subset.bdf
 
 ifeq (gateway,$(findstring gateway,${MAKECMDGOALS}))
 SRC=src.gateway
-SPECIAL=src.gateway/main.py
 CONFIG=src.gateway/config.py
 LOG_CONFIG=src.gateway/log_config.py
 COPY_PREREQ=gateway
 else
 SRC=src
-SPECIAL=src/boot.py src/main.py src/admin.py src/broadcast.py \
-        src/bootloader.py src/scd4x_config.py
+SPECIAL_SRC=src/broadcast.py src/scd4x_config.py
 COPY_PREREQ=default
 endif
+SPECIAL_SRC+=${SRC}/main.py ${SRC}/boot.py
+SPECIAL_SHARED+=src.shared/bootloader.py src.shared/admin.py
+
 SOURCES=$(wildcard ${SRC}/*.py)
 SHARED=$(wildcard src.shared/*.py)
 
@@ -42,13 +43,8 @@ include ${MAKEVARS}
 include dynvars.tmp
 
 # remove files that cannot be precompiled
-SOURCES:=$(subst ${SRC}/boot.py,,${SOURCES})
-SOURCES:=$(subst ${SRC}/main.py,,${SOURCES})
-SOURCES:=$(subst ${SRC}/admin.py,,${SOURCES})
-SOURCES:=$(subst ${SRC}/broadcast.py,,${SOURCES})
-SOURCES:=$(subst ${SRC}/bootloader.py,,${SOURCES})
-SOURCES:=$(subst ${SRC}/scd4x_config.py,,${SOURCES})
-SOURCES:=$(subst ${SRC}/secrets.py,,${SOURCES})
+SOURCES:=$(filter-out ${SRC}/secrets.py ${SPECIAL_SRC},${SOURCES})
+SHARED:=$(filter-out ${SPECIAL_SHARED},${SHARED})
 
 # remove template files
 SOURCES:=$(subst ${SRC}/sec_template.py,,${SOURCES})
@@ -79,15 +75,16 @@ default: makevars.tmp ${DEPLOY_TO} ${DEPLOY_TO}/sd ${DEPLOY_TO}/sensors \
 	${DEPLOY_TO}/tasks ${DEPLOY_TO}/tools ${DEPLOY_TO}/www \
         lib ${DEPLOY_TO}/fonts/${FONT} ${ap_config} \
 	${DEPLOY_TO}/pins.mpy \
+	${DEPLOY_TO}/secrets.mpy \
 	$(SOURCES:${SRC}/%.py=${DEPLOY_TO}/%.mpy) \
 	$(SHARED:src.shared/%.py=${DEPLOY_TO}/%.mpy) \
-	$(SPECIAL:${SRC}/%.py=${DEPLOY_TO}/%.py) \
+	$(SPECIAL_SRC:${SRC}/%.py=${DEPLOY_TO}/%.py) \
+	$(SPECIAL_SHARED:src.shared/%.py=${DEPLOY_TO}/%.py) \
 	$(SENSORS:${SRC}/sensors/%.py=${DEPLOY_TO}/sensors/%.mpy) \
 	$(TOOLS:./tools/%=${DEPLOY_TO}/tools/%) \
 	$(TASKS:${SRC}/tasks/%.py=${DEPLOY_TO}/tasks/%.mpy) \
 	${DEPLOY_TO}/config.py \
 	${DEPLOY_TO}/log_config.py \
-	${DEPLOY_TO}/secrets.mpy \
 	$(WWW:${SRC}/www/%=${DEPLOY_TO}/www/%.gz) \
 	${DEPLOY_TO}/commit.py
 
@@ -97,7 +94,8 @@ gateway: makevars.tmp ${DEPLOY_TO} ${DEPLOY_TO}/sd lib \
 	${DEPLOY_TO}/secrets.mpy \
 	$(SOURCES:${SRC}/%.py=${DEPLOY_TO}/%.mpy) \
 	$(SHARED:src.shared/%.py=${DEPLOY_TO}/%.mpy) \
-	$(SPECIAL:${SRC}/%.py=${DEPLOY_TO}/%.py) \
+	$(SPECIAL_SRC:${SRC}/%.py=${DEPLOY_TO}/%.py) \
+	$(SPECIAL_SHARED:src.shared/%.py=${DEPLOY_TO}/%.py) \
 	$(TASKS:${SRC}/tasks/%.py=${DEPLOY_TO}/tasks/%.mpy) \
 	${DEPLOY_TO}/config.py \
 	${DEPLOY_TO}/log_config.py
@@ -187,7 +185,10 @@ ${DEPLOY_TO}/commit.py: ${SRC}/../.commit.py.local
 ${SRC}/../.commit.py.local:
 	git log --format="commit='%H'" -n 1 > $@
 
-$(SPECIAL:${SRC}/%.py=${DEPLOY_TO}/%.py): ${DEPLOY_TO}/%.py: ${SRC}/%.py
+$(SPECIAL_SRC:${SRC}/%.py=${DEPLOY_TO}/%.py): ${DEPLOY_TO}/%.py: ${SRC}/%.py
+	cp -a $< $@
+
+$(SPECIAL_SHARED:src.shared/%.py=${DEPLOY_TO}/%.py): ${DEPLOY_TO}/%.py: src.shared/%.py
 	cp -a $< $@
 
 $(SOURCES:${SRC}/%.py=${DEPLOY_TO}/%.mpy): ${DEPLOY_TO}/%.mpy: ${SRC}/%.py
