@@ -89,19 +89,21 @@ default: makevars.tmp ${DEPLOY_TO} ${DEPLOY_TO}/sd ${DEPLOY_TO}/sensors \
 	${DEPLOY_TO}/www/config.html.gz \
 	${DEPLOY_TO}/commit.py
 
-gateway: makevars.tmp ${DEPLOY_TO} ${DEPLOY_TO}/sd lib \
-	${DEPLOY_TO}/tasks ${DEPLOY_TO}/www \
+gateway: makevars.tmp ${DEPLOY_TO} ${DEPLOY_TO}/sd ${DEPLOY_TO}/sensors lib \
+	${DEPLOY_TO}/tasks ${DEPLOY_TO}/www ${ap_config} \
 	${DEPLOY_TO}/pins.mpy \
 	${DEPLOY_TO}/secrets.mpy \
 	$(SOURCES:${SRC}/%.py=${DEPLOY_TO}/%.mpy) \
 	$(SHARED:src.shared/%.py=${DEPLOY_TO}/%.mpy) \
 	$(SPECIAL_SRC:${SRC}/%.py=${DEPLOY_TO}/%.py) \
 	$(SPECIAL_SHARED:src.shared/%.py=${DEPLOY_TO}/%.py) \
+	$(SENSORS:${SRC}/sensors/%.py=${DEPLOY_TO}/sensors/%.mpy) \
 	$(TASKS:${SRC}/tasks/%.py=${DEPLOY_TO}/tasks/%.mpy) \
 	$(WWW:src.shared/www/%=${DEPLOY_TO}/www/%.gz) \
 	${DEPLOY_TO}/www/config.html.gz \
 	${DEPLOY_TO}/config.py \
-	${DEPLOY_TO}/log_config.py
+	${DEPLOY_TO}/log_config.py \
+	${DEPLOY_TO}/commit.py
 
 # create target-directory
 ${DEPLOY_TO} ${DEPLOY_TO}/sensors ${DEPLOY_TO}/tasks ${DEPLOY_TO}/tools ${DEPLOY_TO}/www:
