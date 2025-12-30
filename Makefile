@@ -56,7 +56,7 @@ SENSORS=$(wildcard ${SRC}/sensors/*.py)
 TASKS=$(wildcard ${SRC}/tasks/*.py)
 
 # files served by the webserver in admin-mode
-WWW=$(wildcard ${SRC}/www/*)
+WWW=$(wildcard src.shared/www/*)
 
 # tools
 TOOLS=$(wildcard ./tools/*)
@@ -85,11 +85,12 @@ default: makevars.tmp ${DEPLOY_TO} ${DEPLOY_TO}/sd ${DEPLOY_TO}/sensors \
 	$(TASKS:${SRC}/tasks/%.py=${DEPLOY_TO}/tasks/%.mpy) \
 	${DEPLOY_TO}/config.py \
 	${DEPLOY_TO}/log_config.py \
-	$(WWW:${SRC}/www/%=${DEPLOY_TO}/www/%.gz) \
+	$(WWW:src.shared/www/%=${DEPLOY_TO}/www/%.gz) \
+	${DEPLOY_TO}/www/config.html.gz \
 	${DEPLOY_TO}/commit.py
 
 gateway: makevars.tmp ${DEPLOY_TO} ${DEPLOY_TO}/sd lib \
-	${DEPLOY_TO}/tasks \
+	${DEPLOY_TO}/tasks ${DEPLOY_TO}/www \
 	${DEPLOY_TO}/pins.mpy \
 	${DEPLOY_TO}/secrets.mpy \
 	$(SOURCES:${SRC}/%.py=${DEPLOY_TO}/%.mpy) \
@@ -97,6 +98,8 @@ gateway: makevars.tmp ${DEPLOY_TO} ${DEPLOY_TO}/sd lib \
 	$(SPECIAL_SRC:${SRC}/%.py=${DEPLOY_TO}/%.py) \
 	$(SPECIAL_SHARED:src.shared/%.py=${DEPLOY_TO}/%.py) \
 	$(TASKS:${SRC}/tasks/%.py=${DEPLOY_TO}/tasks/%.mpy) \
+	$(WWW:src.shared/www/%=${DEPLOY_TO}/www/%.gz) \
+	${DEPLOY_TO}/www/config.html.gz \
 	${DEPLOY_TO}/config.py \
 	${DEPLOY_TO}/log_config.py
 
@@ -205,7 +208,10 @@ $(TASKS:${SRC}/tasks/%.py=${DEPLOY_TO}/tasks/%.mpy): \
 	${DEPLOY_TO}/tasks/%.mpy: ${SRC}/tasks/%.py
 	bin/mpy-cross${CP_VERSION} $< -o $@
 
-$(WWW:${SRC}/www/%=${DEPLOY_TO}/www/%.gz): ${DEPLOY_TO}/www/%.gz: ${SRC}/www/%
+$(WWW:src.shared/www/%=${DEPLOY_TO}/www/%.gz): ${DEPLOY_TO}/www/%.gz: src.shared/www/%
+	gzip -9c $< > $@
+
+${DEPLOY_TO}/www/config.html.gz: ${SRC}/www/config.html
 	gzip -9c $< > $@
 
 $(TOOLS:./tools/%.py=${DEPLOY_TO}/tools/%.py): \
