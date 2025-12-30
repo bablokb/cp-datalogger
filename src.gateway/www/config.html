@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<!--
+#-----------------------------------------------------------------------------
+# Admin web-pages for the gateway: main configuration file.
+#
+# Author: Bernhard Bablok
+#
+# Website: https://github.com/pcb-pico-datalogger
+#-----------------------------------------------------------------------------
+-->
+
+<html>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <head>
+    <!-- layout and styling thanks to purecss.io -->
+    <link rel="stylesheet" href="dl_styles.css">
+    <link rel="stylesheet" href="pure-min.css">
+
+    <!-- special functions -->
+    <script src="utils.js"></script>
+    <!--- jquery -->
+    <script src="jquery-min.js"></script>
+
+     <script  type="text/javascript">
+       window.addEventListener("load", function(event) {
+         get_model();
+         showTab(currentTab);
+       });
+     </script>
+  </head>
+<body>
+
+<form class=" pure-form pure-form-aligned" id="configForm"
+        action="/save_config" method="post">
+  <h1>Configuration</h1>
+  <!-- One "tab" for each step in the form: -->
+
+  <div class="tab"><h2>Gateway</h2>
+    <fieldset>
+       <legend>Names and IDs:</legend>
+         <div class="pure-control-group">
+           <label for="gw_name">Name:</label>
+           <input  id="gw_name"
+                class="pure-input-1-4 mandatory"
+                placeholder="Name..."
+                oninput="this.classList.remove('invalid')"
+                name="GW_NAME" value="Gateway"/>
+         </div>
+         <div class="pure-control-group">
+           <label for="gw_id">ID:</label>
+           <input id="gw_id"
+                class="pure-input-1-4 mandatory"
+                placeholder="ID..."
+                oninput="this.classList.remove('invalid')"
+                name="GW_ID" value="001"/>
+         </div>
+         <div class="pure-control-group">
+           <label for="gw_loc">Location:</label>
+           <input id="gw_loc"
+                class="pure-input-1-4 mandatory"
+                placeholder="Location..."
+                oninput="this.classList.remove('invalid')"
+                name="GW_LOCATION" value="@Lab" />
+         </div>
+         <div class="pure-control-group">
+           <label for="gw_title">Title:</label>
+           <input id="gw_title"
+                class="pure-input-1-4 mandatory"
+                laceholder="Title..."
+                oninput="this.classList.remove('invalid')"
+                name="GW_TITLE" value="GW 001 @Lab" />
+         </div>
+    </fieldset>
+  </div>
+
+  <div class="tab"><h2>Active Time</h2>
+    <fieldset>
+       <legend>On-Duration and Time-Table</legend>
+          <div class="pure-control-group">
+            <label for="ON_DURATION">Active time in minutes:</label>
+            <input placeholder="Active time (minutes)..." id="ON_DURATION"
+                class="mandatory" type="number" min="0" value="15"
+                oninput="this.classList.remove('invalid')"
+                name="ON_DURATION" />
+          </div>
+          <table class="pure-table pure-table-bordered pure-table-striped">
+            <thead>
+              <tr>
+                <td>Day</td>
+                <td>Active</td>
+                <td>H-Start</td>
+                <td>H-End</td>
+                <td>H-Inc</td>
+                <td>M-Start</td>
+                <td>M-End</td>
+                <td>M-Inc</td>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Mo</td>
+                <td><input name="d_0"  type="checkbox"
+                      onclick="toggle_tt_mandatory(0)"/></td>
+                <td><input oninput="this.classList.remove('invalid')"
+                      value="6" name="hs_0" type="number" min="0" max="23"/> </td>
+                <td><input oninput="this.classList.remove('invalid')"
+                      value="18" name="he_0" type="number" min="0" max="23"/> </td>
+                <td><input oninput="this.classList.remove('invalid')"
+                      value="1" name="hi_0" type="number" min="0" max="23"/> </td>
+                <td><input oninput="this.classList.remove('invalid')"
+                      value="0" name="ms_0" type="number" min="0" max="59"/> </td>
+                <td><input oninput="this.classList.remove('invalid')"
+                      value="59" name="me_0" type="number" min="0" max="59"/> </td>
+                <td><input oninput="this.classList.remove('invalid')"
+                      value="15" name="mi_0" type="number" min="0" max="60"/> </td>
+              </tr>
+              <tr>
+                <td>Tu</td>
+                <td><input name="d_1"  type="checkbox"
+                      onclick="toggle_tt_mandatory(1)"/></td>
+                <td><input oninput="this.classList.remove('invalid')"
+                      value="6" name="hs_1" type="number" min="0" max="23"/> </td>
+                <td><input oninput="this.classList.remove('invalid')"
+                      value="18" name="he_1" type="number" min="0" max="23"/> </td>
+                <td><input oninput="this.classList.remove('invalid')"
+                      value="1" name="hi_1" type="number" min="0" max="23"/> </td>
+                <td><input oninput="this.classList.remove('invalid')"
+                      value="0" name="ms_1" type="number" min="0" max="59"/> </td>
+                <td><input oninput="this.classList.remove('invalid')"
+                      value="59" name="me_1" type="number" min="0" max="59"/> </td>
+                <td><input oninput="this.classList.remove('invalid')"
+                      value="15" name="mi_1" type="number" min="0" max="60"/> </td>
+              </tr>
+              <tr>
+                <td>We</td>
+                <td><input name="d_2"  type="checkbox"
+                      onclick="toggle_tt_mandatory(2)"/></td>
+                <td><input oninput="this.classList.remove('invalid')"
+                      value="6" name="hs_2" type="number" min="0" max="23"/> </td>
+                <td><input oninput="this.classList.remove('invalid')"
+                      value="18" name="he_2" type="number" min="0" max="23"/> </td>
+                <td><input oninput="this.classList.remove('invalid')"
+                      value="1" name="hi_2" type="number" min="0" max="23"/> </td>
+                <td><input oninput="this.classList.remove('invalid')"
+                      value="0" name="ms_2" type="number" min="0" max="59"/> </td>
+                <td><input oninput="this.classList.remove('invalid')"
+                      value="59" name="me_2" type="number" min="0" max="59"/> </td>
+                <td><input oninput="this.classList.remove('invalid')"
+                      value="15" name="mi_2" type="number" min="0" max="60"/> </td>
+              </tr>
+              <tr>
+                <td>Th</td>
+                <td><input name="d_3"  type="checkbox"
+                      onclick="toggle_tt_mandatory(3)"/></td>
+                <td><input oninput="this.classList.remove('invalid')"
+                      value="6" name="hs_3" type="number" min="0" max="23"/> </td>
+                <td><input oninput="this.classList.remove('invalid')"
+                      value="18" name="he_3" type="number" min="0" max="23"/> </td>
+                <td><input oninput="this.classList.remove('invalid')"
+                      value="1" name="hi_3" type="number" min="0" max="23"/> </td>
+                <td><input oninput="this.classList.remove('invalid')"
+                      value="0" name="ms_3" type="number" min="0" max="59"/> </td>
+                <td><input oninput="this.classList.remove('invalid')"
+                      value="59" name="me_3" type="number" min="0" max="59"/> </td>
+                <td><input oninput="this.classList.remove('invalid')"
+                      value="15" name="mi_3" type="number" min="0" max="60"/> </td>
+              </tr>
+              <tr>
+                <td>Fr</td>
+                <td><input name="d_4"  type="checkbox"
+                      onclick="toggle_tt_mandatory(4)"/></td>
+                <td><input oninput="this.classList.remove('invalid')"
+                      value="6" name="hs_4" type="number" min="0" max="23"/> </td>
+                <td><input oninput="this.classList.remove('invalid')"
+                      value="18" name="he_4" type="number" min="0" max="23"/> </td>
+                <td><input oninput="this.classList.remove('invalid')"
+                      value="1" name="hi_4" type="number" min="0" max="23"/> </td>
+                <td><input oninput="this.classList.remove('invalid')"
+                      value="0" name="ms_4" type="number" min="0" max="59"/> </td>
+                <td><input oninput="this.classList.remove('invalid')"
+                      value="59" name="me_4" type="number" min="0" max="59"/> </td>
+                <td><input oninput="this.classList.remove('invalid')"
+                      value="15" name="mi_4" type="number" min="0" max="60"/> </td>
+              </tr>
+              <tr>
+                <td>Sa</td>
+                <td><input name="d_5"  type="checkbox"
+                      onclick="toggle_tt_mandatory(5)"/></td>
+                <td><input oninput="this.classList.remove('invalid')"
+                      value="6" name="hs_5" type="number" min="0" max="23"/> </td>
+                <td><input oninput="this.classList.remove('invalid')"
+                      value="18" name="he_5" type="number" min="0" max="23"/> </td>
+                <td><input oninput="this.classList.remove('invalid')"
+                      value="1" name="hi_5" type="number" min="0" max="23"/> </td>
+                <td><input oninput="this.classList.remove('invalid')"
+                      value="0" name="ms_5" type="number" min="0" max="59"/> </td>
+                <td><input oninput="this.classList.remove('invalid')"
+                      value="59" name="me_5" type="number" min="0" max="59"/> </td>
+                <td><input oninput="this.classList.remove('invalid')"
+                      value="15" name="mi_5" type="number" min="0" max="60"/> </td>
+              </tr>
+              <tr>
+                <td>Su</td>
+                <td><input name="d_6"  type="checkbox"
+                      onclick="toggle_tt_mandatory(6)"/></td>
+                <td><input oninput="this.classList.remove('invalid')"
+                      value="6" name="hs_6" type="number" min="0" max="23"/> </td>
+                <td><input oninput="this.classList.remove('invalid')"
+                      value="18" name="he_6" type="number" min="0" max="23"/> </td>
+                <td><input oninput="this.classList.remove('invalid')"
+                      value="1" name="hi_6" type="number" min="0" max="23"/> </td>
+                <td><input oninput="this.classList.remove('invalid')"
+                      value="0" name="ms_6" type="number" min="0" max="59"/> </td>
+                <td><input oninput="this.classList.remove('invalid')"
+                      value="59" name="me_6" type="number" min="0" max="59"/> </td>
+                <td><input oninput="this.classList.remove('invalid')"
+                      value="15" name="mi_6" type="number" min="0" max="60"/> </td>
+              </tr>
+            </tbody>
+          </table>
+    </fieldset>
+  </div>
+
+  <div class="tab"><h2>Hardware</h2>
+    <fieldset>
+       <legend>LiPo, Display, UI, CSV-Filenames:</legend>
+         <div class="pure-control-group">
+           <label for="HAVE_LIPO">LiPo as power-source:</label>
+           <input class="mandatory" type="checkbox"
+                id="HAVE_LIPO" name="HAVE_LIPO"/>
+         </div>
+         <div class="pure-control-group">
+           <label for="HAVE_SD">SD installed:</label>
+           <input class="mandatory" type="checkbox" id="HAVE_SD" name="HAVE_SD"
+                checked="checked" />
+         </div>
+         <div class="pure-control-group">
+            <label for="pattern">CSV filename pattern:</label>
+            <input
+                placeholder="/sd/log_{ID}_{YMD}.csv" id="pattern"
+                oninput="this.classList.remove('invalid')"
+                name="CSV_FILENAME" value="/sd/log_{ID}_{YMD}.csv" />
+         </div>
+    </fieldset>
+  </div>
+
+  <div class="tab"><h2>LoRa</h2>
+    <div class="pure-control-group">
+      <label for="HAVE_LORA">LoRa installed:</label>
+      <input class="mandatory" type="checkbox" id="HAVE_LORA" name="HAVE_LORA"
+           checked="checked" />
+    </div>
+    <fieldset>
+       <legend>LoRa Address:</legend>
+         <div class="pure-control-group">
+            <label for="lora_node">This Node:</label>
+            <input type="number" min="1" max="254"
+                id="lora_node" placeholder="Node Address..."
+                oninput="this.classList.remove('invalid')"
+                name="LORA_NODE_ADDR" value="1" />
+          </div>
+    </fieldset>
+
+    <fieldset>
+       <legend>Technical Parameters:</legend>
+         <div class="pure-control-group">
+            <label for="lora_qos">Quality of Service:</label>
+            <input type="number" min="0" max="7"
+                id="lora_qos" placeholder="QoS..."
+                oninput="this.classList.remove('invalid')"
+                name="LORA_QOS" value="2" />
+         </div>
+         <div class="pure-control-group">
+            <label for="lora_freq">Frequency:</label>
+            <select id="lora_freq"
+                oninput="this.classList.remove('invalid')"
+                name="LORA_FREQ">
+                <option>433</option>
+                <option selected="selected">868</option>
+                <option>915</option>
+            </select>
+         </div>
+         <div class="pure-control-group">
+            <label for="lora_tx_power">TX Power</label>
+            <input type="number" min="5" max="23" step="1"
+                id="lora_tx_power" placeholder="Transmit Power..."
+            oninput="this.classList.remove('invalid')"
+            name="LORA_TX_POWER" value="23" />
+         </div>
+    </fieldset>
+  </div>
+
+  <div class="tab"><h2>Tasks</h2>
+    <fieldset>
+       <legend>List of Tasks:</legend>
+         <div style="width:100%; display:inline-flex;
+              justify-content:left">
+           <div style="display:inline-flex; flex-direction:column;
+                       width:100%">
+              <div style="display:inline-flex; flex-direction:row;">
+                <label for="TASKS" style="flex:none">Selected:</label>
+                <input type="text" id="TASKS"
+                    class="mandatory" style="flex-grow:1"
+                    oninput="this.classList.remove('invalid')"
+                    name="TASKS">
+              </div>
+              <div style="display:inline-flex;
+                  align-items: baseline; flex-direction:row;">
+                <label for="UL_TASKS" style="flex:none">All:</label>
+                <ul id="UL_TASKS" class="ul_select" name="TASKS_OPTS">
+                  <li id="TASKS_T" class="ul_sel_li"></li>
+                </ul>
+             </div>
+           </div>
+         </div>
+    </fieldset>
+    <div id="msgarea" class="msgarea"></div>
+  </div>
+
+  <div style="overflow:auto;">
+    <div style="float:right;">
+      <button type="button" id="prevBtn" class="pure-button menu-button"
+              onclick="nextPrev(-1)">Previous</button>
+      <button type="button" id="nextBtn" class="pure-button menu-button"
+              onclick="nextPrev(1)">Next</button>
+      <button type="button" id="homeBtn" class="pure-button del-button"
+              onclick="goto_main_menu()">Main-Menu</button>
+    </div>
+  </div>
+  <!-- Circles which indicates the steps of the form: -->
+  <div style="text-align:center;margin-top:40px;">
+    <span class="step"></span>
+    <span class="step"></span>
+    <span class="step"></span>
+    <span class="step"></span>
+    <span class="step"></span>
+  </div>
+</form>
+
+</body>
+
+</html>
