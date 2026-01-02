@@ -139,7 +139,11 @@ class LORA:
     else:
       header  = packet[:4]
       if decode:
-        payload = packet[4:].decode()
+        try:
+          payload = packet[4:].decode()
+        except Exception as ex:
+          g_logger.print(f"exception while decoding packet: {ex}")
+          return (None,None,None,None)
       else:
         payload = packet[4:]
       self.trace(f"LoRa: header: {header}")
