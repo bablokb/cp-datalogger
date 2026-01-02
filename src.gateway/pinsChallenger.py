@@ -28,3 +28,15 @@ PIN_LORA_RST  = board.RFM95W_RST
 
 PIN_RX = board.RX
 PIN_TX = board.TX
+
+# SD-card interface (SPI0)
+PIN_SD_CS   = board.A5      # GP21, F_A5
+PIN_SD_SCK  = board.SCK     # GP22, F_SCK
+PIN_SD_MOSI = board.MOSI    # GP23, F_MOSI
+PIN_SD_MISO = board.MISO    # GP20, F_MISO
+
+# alternative (SPI0)
+#PIN_SD_CS   = board.GP5    # F_D10
+#PIN_SD_SCK  = board.GP2    # F_D5
+#PIN_SD_MOSI = board.GP3    # F_D6
+#PIN_SD_MISO = board.GP4    # F_9
