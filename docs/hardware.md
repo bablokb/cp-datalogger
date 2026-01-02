@@ -53,7 +53,7 @@ The specialized datalogger PCBs support a number of important functions:
 
   * power management for extremly low standby current (about 1µA)
   * embedded XTSD-chip (emulates a micro-SD card)
-  * connectors (Pico, Stemma/Qt, UART)
+  * connectors (Pico, Stemma/Qt, UART, display)
   * JST-PH2 connector for LiPo or battery pack (two AA/AAA)
   * a sensor PCB with a number of standard sensors
     (temperature, humidity, light, noise)
@@ -61,18 +61,14 @@ The specialized datalogger PCBs support a number of important functions:
 The design has gone through multiple iterations, you can find images
 of these versions in the `docs` folder.
 
-Current base PCB:
+Current PCB:
 
-![](docs/pcb-datalogger-v2-2.jpg)
+![](./pcb-datalogger-v3-front.jpg)
+![](./pcb-datalogger-v3-back.jpg)
 
-
-Sensor PCB
-----------
-
-The sensor PCB provides a number of standard sensors (AHT20, BH1750
-and PDM-microphone), five buttons and one application LED.
-
-![](docs/pcb-sensor-2.jpg)
+The current datalogger-v3 is a highly integrated version with AA
+battery-holder, LoRa-transceiver, buttons and an AHT20 sensor. The
+size is optimized to fit into a standard 2-gang backing box.
 
 The buttons support the following functions:
 
@@ -81,6 +77,23 @@ The buttons support the following functions:
   - A: hold during boot to start in [Administration mode](./admin_mode.md)
   - B: hold during boot to start in [broadcast mode](./broadcast_mode.md)
   - C: hold during boot to start in firmware update mode
+
+The PCB has a number of connectors for external sensors: 2 Stemma/Qt
+for I2C0 and I2C1, and one JST-GH6 connector (for a SEN66). Additional
+throughholes allow the attachment of UART components.
+
+
+Sensor PCB
+----------
+
+The sensor PCB provides a number of standard sensors (AHT20, BH1750
+and PDM-microphone), five buttons and one application LED.
+
+![](./pcb-sensor-2.jpg)
+
+The sensor PCB was a compagnon PCB to the version 2 datalogger. The
+buttons on the sensor PCB have the same functions as on the newest
+datalogger-v3 version.
 
 
 Setup Datalogger-PCBs
