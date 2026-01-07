@@ -48,7 +48,7 @@ class LoraReceiver:
     """ initialize hardware """
 
     g_logger.print(f"LoraReceiver: initializing hardware")
-    if not spi:
+    if not spi or pins.PIN_SD_SCK != pins.PIN_LORA_SCK:
       spi = busio.SPI(pins.PIN_LORA_SCK,pins.PIN_LORA_MOSI,
                       pins.PIN_LORA_MISO)
     atexit.register(at_exit,spi)
