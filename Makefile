@@ -178,7 +178,7 @@ ${DEPLOY_TO}/secrets.mpy: ${SECRETS}
 	bin/mpy-cross${CP_VERSION} $< -o $@
 
 ifeq (,$(findstring /,${PCB}))
-${DEPLOY_TO}/pins.mpy: ${SRC}/pins${PCB}.py
+${DEPLOY_TO}/pins.mpy: src.shared/pins${PCB}.py
 else
 ${DEPLOY_TO}/pins.mpy: ${PCB}
 endif
