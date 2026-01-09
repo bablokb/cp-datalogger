@@ -112,7 +112,6 @@ The application bit-rate is calculated as:
 
     bit-rate = SF*(4/CR)*BW/2**SF
 
-
 The datalogger-software uses eight predefined combinations of SF/CR/BW
 (configuration variable `LORA_QOS`). The following table lists the
 settings, the bitrate, byte-rate and the theoretical transmission time
@@ -130,3 +129,15 @@ for 80 bytes:
 |   7| SF12,CR6,BW125k |  244 bps |    30 B/s | 2.67s |
 
 The default value for `LORA_QOS` is `2`.
+
+
+LoRaWAN Regional Parameters
+---------------------------
+
+Although the dataloggers don't use the LoRaWAN stack, the regional
+parameters (especially available ISM bands) are of interest.
+
+The most current version is available from
+<https://resources.lora-alliance.org/technical-specifications>. The
+current version as of this writing is
+[RP002-1.0.5](https://resources.lora-alliance.org/technical-specifications/rp002-1-0-5-lorawan-regional-parameters).
