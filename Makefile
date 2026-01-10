@@ -51,6 +51,10 @@ SOURCES:=$(subst ${SRC}/sec_template.py,,${SOURCES})
 SOURCES:=$(subst ${SRC}/config_template.py,,${SOURCES})
 SOURCES:=$(subst ${SRC}/log_config_template.py,,${SOURCES})
 
+# remove optional files
+SHARED:=$(filter-out $(wildcard src.shared/pins*.py),${SHARED})
+SOURCES:=$(filter-out $(wildcard ${SRC}/pins*.py),${SOURCES})
+
 # sensor-wrappers and task-plugins
 SENSORS=$(wildcard ${SRC}/sensors/*.py)
 TASKS=$(wildcard ${SRC}/tasks/*.py)
@@ -178,7 +182,7 @@ ${DEPLOY_TO}/secrets.mpy: ${SECRETS}
 	bin/mpy-cross${CP_VERSION} $< -o $@
 
 ifeq (,$(findstring /,${PCB}))
-${DEPLOY_TO}/pins.mpy: src.shared/pins${PCB}.py
+${DEPLOY_TO}/pins.mpy: src*/pins${PCB}.py
 else
 ${DEPLOY_TO}/pins.mpy: ${PCB}
 endif
