@@ -37,12 +37,15 @@ See [gateway configuration](./gateway_config.md).
 Deployment
 ----------
 
-The source of the software is in `src.gateway`. It is complete
-with the exception of two configuration files: `config.py` and
+The source of the software is in `src.gateway`. The `notecard`-API
+libraries from Blues are in `src.misc/notecard`.
+
+As usual, you have to provide two configuration files: `config.py` and
 `log_config.py`. The recommended way of building and installing the
 software is to use the Makefile in the toplevel directory:
 
-    make gateway CONFIG=xxx.py LOG_CONFIG=yyy.py DEPLOY_TO=gw_challenger
+    make gateway CONFIG=xxx.py LOG_CONFIG=yyy.py \
+                 USER_LIBS=src.misc/notecard DEPLOY_TO=gw_challenger
 
 This creates the directory `gw_challenger` with all the necessary
 files. See [Software deployment](./deployment.md) for details about
