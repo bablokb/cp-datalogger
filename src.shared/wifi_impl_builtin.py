@@ -94,11 +94,11 @@ class WifiImpl:
 
   # --- execute get-request   -----------------------------------------------
 
-  def get(self,url):
+  def get(self,url,**kwargs):
     """ process get-request """
     self.connect()
     self.logger.print(f"wifi: get({url})")
-    return self._get_request().get(url)
+    return self._get_request().get(url,**kwargs)
 
   # --- execute sendto-command   --------------------------------------------
 
