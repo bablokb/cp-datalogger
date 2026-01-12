@@ -6,6 +6,7 @@
 # Website: https://github.com/pcb-pico-datalogger
 #-----------------------------------------------------------------------------
 
+import atexit
 import busio
 import displayio
 from adafruit_displayio_ssd1306 import SSD1306
@@ -20,13 +21,22 @@ except:
 import pins
 from singleton import singleton
 
+def at_exit_oled(logger):
+  """ release OLED """
+  try:
+    # may fail if we want to log to SD
+    logger.print(f"releasing oled")
+  except:
+    print(f"releasing oled")
+  displayio.release_displays()   # cannot release a specific display
+
 @singleton
 class OLED:
   """ Wrapper for SSD1306 I2C-OLED-display """
 
   # --- constructor   --------------------------------------------------------
 
-  def __init__(self,config,i2c):
+  def __init__(self,config,i2c,logger):
     """ constructor """
 
     displayio.release_displays()
@@ -57,6 +67,7 @@ class OLED:
                                   )
     group.append(self._textlabel)
     self._display.root_group = group
+    atexit.register(at_exit_oled,logger)
 
   # --- return display   -----------------------------------------------------
 

@@ -39,15 +39,6 @@ def at_exit_i2c(i2c,logger):
     except:
       pass
 
-def at_exit_oled(logger):
-  """ release OLED """
-  try:
-    # may fail if we want to log to SD
-    logger.print(f"releasing oled")
-  except:
-    print(f"releasing oled")
-  displayio.release_displays()   # cannot release a specific display
-
 # --- initialize I2C-busses   ----------------------------------------------
 
 def init_i2c(pins,config,logger):
@@ -144,11 +135,10 @@ def init_oled(i2c,config,logger):
   if config.HAVE_OLED:
     try:
       from oled import OLED
-      odisp = OLED(config,i2c)
+      odisp = OLED(config,i2c,logger)
       display = odisp.get_display()
       logger.print(
         f"OLED created with size {display.width}x{display.height}")
-      atexit.register(at_exit_oled,logger)
       return odisp
     except Exception as ex:
       logger.print(f"could not initialize OLED: {ex}")
