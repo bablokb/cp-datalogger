@@ -19,9 +19,9 @@ Core software functions
 
   * implemented in CircuitPython
   * support for an external RTC for exact time keeping
-  * cyclical sensor readout for a wide range of environmental
-    [sensors](docs/sensors.md) (currently 18 directly support
-    including Open-Meteo weather data)
+  * cyclical sensor readout for a wide range of mostly environmental
+    [sensors](docs/sensors.md) (currently 25 directly support
+    including Open-Meteo weather data and Tasmota power monitoring)
   * supports I2C (two busses), UART-3V3 and UART-5V devices
   * support I2C-multiplexers (PCA954xA, TCA954xA)
   * readout in intervals or using a time-table
