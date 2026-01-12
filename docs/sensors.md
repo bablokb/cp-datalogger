@@ -354,5 +354,5 @@ TM_POWER
   - Status: implemented
   - dcode: `P`
   - Needs network-access
-  - Configuration: TM_POWER_HOSTS and TM_POWER_URL in `config.py`
   - [API-Documentation](https://tasmota.github.io/docs/Commands/#power-monitoring)
+  - Note: This sensor supports [sensor-specific configuration](./core_config_sensors.md)
