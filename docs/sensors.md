@@ -15,6 +15,10 @@ configured sensors. With this string the data in each CSV-line is
 self-documented and can be parsed later without knowledge of the
 original configuration.
 
+Please note that many of the Adafruit versions of the listed sensors
+are fitted with an LED. For some sensors, this can be disabled by
+cutting a track, but for others you just have to destroy them.
+
 
 AHT20
 -----
@@ -343,6 +347,12 @@ SHT45
   - [datasheet](https://cdn-learn.adafruit.com/assets/assets/000/117/503/original/Datasheet_SHT4x.pdf?1673387912)
 
 
-Please note that many of the Adafruit versions of the above sensors are
-fitted with an LED. For some sensors, this can be disabled by cutting
-a track, but for others you just have to destroy them.
+TM_POWER
+--------
+
+  - Queries power-data from (multiple) Tasmota smart-plugs
+  - Status: implemented
+  - dcode: `P`
+  - Needs network-access
+  - Configuration: TM_POWER_HOSTS and TM_POWER_URL in `config.py`
+  - [API-Documentation](https://tasmota.github.io/docs/Commands/#power-monitoring)

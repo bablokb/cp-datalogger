@@ -52,6 +52,7 @@ SENSOR_MAP = {
   "hdc302x": "M",
   "sen6x":   "N",
   "lm66200": "O",
+  "tm_power": "P",
   }
 
 class DCODE:
