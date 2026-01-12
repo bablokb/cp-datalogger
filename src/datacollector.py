@@ -406,6 +406,11 @@ class DataCollector():
       self.run_tasks()
       self.print_timings()
 
+      # special case continuous mode with INTERVAL==0
+      if not g_config.STROBE_MODE and g_config.INTERVAL == 0:
+        g_logger.print("no-delay continuous mode, starting next iteration")
+        continue
+
       # configure wakeup-time
       self.configure_wakeup()
 

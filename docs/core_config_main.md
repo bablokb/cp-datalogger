@@ -120,6 +120,9 @@ in strobe-mode.
 if you define a time-table**. The default value for `INTERVAL` is
 900 seconds (i.e. 15 minutes).
 
+Using `INTERVAL=0` will sample the sensors as fast as possible. Due
+to overhead, this is about every 7s for a RP2040.
+
 A time-table is a list with one entry per day, starting with Monday.
 For every day, two tuples define the hours and minutes when sampling
 takes place.
