@@ -45,6 +45,7 @@ class TM_POWER:
     self.TM_POWER_HOSTS = getattr(config,"TM_POWER_HOSTS")
     self.TM_POWER_URL   = getattr(config,"TM_POWER_URL",
                                  "http://{0}/cm?cmnd=status%2010")
+    self.TM_POWER_TIMEOUT = getattr(config,"TM_POWER_TIMEOUT",2)
     self.PROPERTIES     = getattr(config,
                                   "TM_POWER_PROPERTIES",PROPERTIES).split()
 
@@ -85,7 +86,10 @@ class TM_POWER:
     resp = []
     for ip in self.TM_POWER_HOSTS:
       try:
-        resp.append(self._wifi.get(self.TM_POWER_URL.format(ip)).json())
+        resp.append(
+          self._wifi.get(
+            self.TM_POWER_URL.format(ip),
+            timeout=self.TM_POWER_TIMEOUT).json())
       except Exception as ex:
         g_logger.print(f"failed to query data from {ip} with exception: {ex}")
         resp.append(None)
@@ -113,7 +117,7 @@ class TM_POWER:
         current = round(info["Current"],3)
 
       # add to csv
-      csv_results += f"{power:0.1f},{voltage:d},{current:0.3f}"
+      csv_results += f",{power:0.1f},{voltage:d},{current:0.3f}"
 
       # add to data-structure
       results.append({
@@ -135,4 +139,4 @@ class TM_POWER:
           values.extend([None,result[p]])
 
     # return all data for csv
-    return csv_results
+    return csv_results[1:]
