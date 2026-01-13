@@ -79,23 +79,24 @@ ENS160
 | ENS160_WARMUP     | int  |  O  | wait-time when status==1 (190)           |
 | ENS160_PROPERTIES | str  |  O  | properties for display ("AQI TVOC eCO2") |
 
-The ENS160 gives better results with multiple samples. Normally, only the
-last sample is saved to CSV, the others are discarded. For testing purposes,
-this behaviour can be change with `ENS160_DISCARD`.
+The ENS160 gives better results with multiple samples. Normally, only
+the last sample is saved to CSV, the others are discarded. For testing
+purposes, this behaviour can be change with `ENS160_DISCARD`.
 
 `ENS160_INTERVALS` will define the number of samples as well as the
-intervals between samples. The default samples once at readout time and
-then again five seconds later.
+intervals between samples. The default samples once at readout time
+and then again five seconds later.
 
-In case the sensor is in it's initial startup-phase (`status==2`), all values
-returned will be zero. When `status==1` (warmup), the system switches
-to deep-sleep for `ENS160_WARMUP` seconds.
+In case the sensor is in it's initial startup-phase (`status==2`), all
+values returned will be zero. When `status==1` (warmup), the system
+switches to deep-sleep for `ENS160_WARMUP` seconds.
 
 The sensor queries three properties: an "air quality index", the
-"total volatile organic compounds" and "equivalent CO2". Since the values
-of the AQI seem useless and the TVOC and eCO2 are highly correlated,
-only a subset of the properties can be displayed on the display. The
-CSV will always record all properties (including status).
+"total volatile organic compounds" and "equivalent CO2". Since the
+values of the AQI seem useless and the TVOC and eCO2 are highly
+correlated, only a subset of the properties can be displayed on the
+display using `ENS160_PROPERTIES`. The CSV will always record all
+properties (including status).
 
 
 HTU31D
@@ -110,23 +111,23 @@ HTU31D
 MHZ19
 -------
 
-| Name                        | Type | O/M | Description                    |
-|-----------------------------|------|-----|--------------------------------|
-| MHZ19_RETRIES               | int  |  O  | retry reads (3)                |
-| MHZ19_PROPERTIES            | str  |  O  | properties for display ("c t") |
-| MHZ19_INIT_TIME             | int  |  0  | initialization time (60)       |
-| MHZ19_AUTO_CALIB            | bool |  0  | set auto-calibration (False)   |
+| Name                   | Type | O/M | Description                    |
+|------------------------|------|-----|--------------------------------|
+| MHZ19_RETRIES          | int  |  O  | retry reads (3)                |
+| MHZ19_PROPERTIES       | str  |  O  | properties for display ("c t") |
+| MHZ19_INIT_TIME        | int  |  0  | initialization time (60)       |
+| MHZ19_AUTO_CALIB       | bool |  0  | set auto-calibration (False)   |
 
 
 Open-Meteo
 ----------
 
-| Name              | Type | O/M | Description                          |
-|-------------------|------|-----|--------------------------------------|
-| METEO_LATITUDE    |float |  O  | Default: 48.6967                     |
-| METEO_LONGITUDE   |float |  O  | Default: 13.4631                     |
-| METEO_PROPERTIES  | str  |  O  | properties for display               |
-|                   |      |     | ("t h ps code w_speed w_dir r")      |
+| Name              | Type | O/M | Description                         |
+|-------------------|------|-----|-------------------------------------|
+| METEO_LATITUDE    |float |  O  | Default: 48.6967                    |
+| METEO_LONGITUDE   |float |  O  | Default: 13.4631                    |
+| METEO_PROPERTIES  | str  |  O  | properties for display              |
+|                   |      |     | ("t h ps code w_speed w_dir r")     |
 
 
 Data provided by <https://open-meteo.com> ("current weather").
@@ -153,12 +154,13 @@ Available properties:
   - `pn<x>`: number concentration of particles measured in particles/cm³ 
      x = 03, 05, 10, 25, 50, 100
 
-The default value of `PMS5003_PN_FACTOR` converts the raw count per 0.1L
-to particles per cm³.
+The default value of `PMS5003_PN_FACTOR` converts the raw count per
+0.1L to particles per cm³.
 
-Note that particles larger than 2.5µm are *estimated* and not measured.
-The device will therefore not necessarely detect the correct concentrations
-of certain pollutants, e.g. pollen or heavy dust.
+Note that particles larger than 2.5µm are *estimated* and not
+measured.  The device will therefore not necessarely detect the
+correct concentrations of certain pollutants, e.g. pollen or heavy
+dust.
 
 
 SCD40, SCD41
@@ -189,16 +191,16 @@ be ordered correctly, i.e. first the BMx280, then the SCD4x.
 SEN6X
 -----
 
-| Name                 | Type | O/M | Description                        |
-|----------------------|------|-----|------------------------------------|
-| SEN6X_SAMPLES        | int  |  O  | number of samples (2)              |
-| SEN6X_INTERVAL       | int  |  O  | sampling-interval (5)              |
-| SEN6X_TIMEOUT        | int  |  O  | timeout waiting for data (5)       |
-| SEN6X_DISCARD        | bool |  O  | only keep last readout (True)      |
-| SEN6X_PROPERTIES     | str  |  O  | properties for display (c t h)     |
-| SEN6X_AUTO_CALIBRATE | bool |  O  | auto-calibrate CO2 (False)         |
-| SEN6X_TEMP_OFFSET    | [f,f]|  O  | offset and slope (see datasheet)   |
-| ALTITUDE_AT_LOCATION | int  |  O  | altitude in meters (540)           |
+| Name                 | Type | O/M | Description                      |
+|----------------------|------|-----|----------------------------------|
+| SEN6X_SAMPLES        | int  |  O  | number of samples (2)            |
+| SEN6X_INTERVAL       | int  |  O  | sampling-interval (5)            |
+| SEN6X_TIMEOUT        | int  |  O  | timeout waiting for data (5)     |
+| SEN6X_DISCARD        | bool |  O  | only keep last readout (True)    |
+| SEN6X_PROPERTIES     | str  |  O  | properties for display (c t h)   |
+| SEN6X_AUTO_CALIBRATE | bool |  O  | auto-calibrate CO2 (False)       |
+| SEN6X_TEMP_OFFSET    | [f,f]|  O  | offset and slope (see datasheet) |
+| ALTITUDE_AT_LOCATION | int  |  O  | altitude in meters (540)         |
 
 Sensirion's SEN6x sensors are a family of compound sensors for
 temperature, humidity, particle and various gases. Currently, the
@@ -237,3 +239,22 @@ SHT45
 |-----------------------------|------|-----|---------------------------|
 | SHT45_PROPERTIES            | str  |  O  | properties for display    |
 |                             |      |     | ("t h")                   |
+
+
+TM_POWER
+--------
+
+| Name                     | Type  | O/M | Description                 |
+|--------------------------|-------|-----|-----------------------------|
+| TM_POWER_PROPERTIES      | str   |  O  | properties for display      |
+|                          |       |     | ("P V C")                   |
+| TM_POWER_HOSTS           | list  |  O  | list of hosts or IPs        |
+| TM_POWER_URL             | str   |  O  | query URL (see below)       |
+| TM_POWER_TIMEOUT         | float |  O  | timeout for get-request (2) |
+
+This sensor reads the status of one or more Tasmota smart (power)
+plugs, returning power, voltage and current. Setting
+`TM_POWER_PROPERTIES="P"` is recommended, since voltage is more
+or less constant and current is `P/V`.
+
+The default query URL is `http://<host_or_ip>/cm?cmnd=status%2010`.
