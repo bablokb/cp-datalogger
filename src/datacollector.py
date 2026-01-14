@@ -319,7 +319,14 @@ class DataCollector():
     if g_config.TIME_TABLE:
       self.wakeup = ExtBase.get_table_alarm(g_config.TIME_TABLE)
     else:
-      self.wakeup = ExtBase.get_alarm_time(s=g_config.INTERVAL)
+      # next wakeup: in INTERVAL seconds minus elapsed time
+      sleep_time = max(0,
+                       g_config.INTERVAL -
+                       (time.time()-time.mktime(self.data["ts"])))
+      if not sleep_time:
+        self.wakeup = None
+        return
+      self.wakeup = ExtBase.get_alarm_time(s=sleep_time)
 
     if not g_config.STROBE_MODE:  # only calculate wakeup, don't set alarm
       return
@@ -418,6 +425,13 @@ class DataCollector():
       if self.with_lipo and self.data["battery"] < 3.1:
         # prevent continuous-mode
         break
+
+      # special case: elapsed time longer than INTERVAL
+      # (should not happen with time-table based scheduling)
+      if not self.wakeup:
+        g_logger.print(
+          f"elapsed time longer than INTERVAL ({g_config.INTERVAL})")
+        continue
 
       if not g_config.STROBE_MODE:
         g_logger.print(
