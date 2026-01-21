@@ -98,26 +98,27 @@ class TM_POWER:
     if self._config.STROBE_MODE or self._config.INTERVAL > 60:
       self._wifi.radio.enabled = False
 
-    # don't record anything without a response
-    if not any(resp):
-      return
-
     # parse data
     csv_results = ""
     results = []
     for response in resp:
       if not response:
+        missing = True
         power   = 0.0
         voltage = 0
         current = 0.0
       else:
+        missing = False
         info    = response["StatusSNS"]["ENERGY"]
         power   = round(info["Power"],1)
         voltage = int(info["Voltage"])
         current = round(info["Current"],3)
 
       # add to csv
-      csv_results += f",{power:0.1f},{voltage:d},{current:0.3f}"
+      if missing:
+        csv_results += f",,,"
+      else:
+        csv_results += f",{power:0.1f},{voltage:d},{current:0.3f}"
 
       # add to data-structure
       results.append({
