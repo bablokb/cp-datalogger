@@ -131,6 +131,47 @@ for 80 bytes:
 The default value for `LORA_QOS` is `2`.
 
 
+Measuring Signal Quality
+------------------------
+
+When in broadcast-mode, the system returns two values: "SNR" and
+"RSSI" that describe signal quality.
+
+"SNR" is the "Signal to Noise Ratio" and is the difference of the
+signal compared to the background noise on a logarithmic scale. A SNR
+above zero means that the signal is stronger than the noise. If the
+signal is weaker than the noise, the signal is below the "noise floor"
+and the SNR is below zero.
+
+LoRa can demodulate signals below the noise floor:
+
+| SNR    | Quality
+|--------|------------------
+| +10 dB | Excellent
+|   0 dB | Just OK
+| -10 dB | Weak and noisy
+| -20 dB | Likely corrupted
+
+
+"RSSI" in contrast is the "Receive Signal Strengh Indicator" and
+measures the strength of the incoming signal. The RSSI-values are
+always smaller than zero. Higher values (i.e. nearer to zero) are
+better:
+
+
+| RSSI    | Quality
+|---------|-----------------
+| -30 dBm | Extremely strong
+| -70 dBm | Good
+| -90 dBm | Fair
+|-120 dBm | Very weak
+|-127 dBm | Barely detectable
+
+In a lab-environment, a SNR of about 6.5dB and a RSSI of -65dBm is
+typical. For practical setups, SNR and RSSI depend on many factors,
+mainly on distance and a clear line-of-sight.
+
+
 LoRaWAN Regional Parameters
 ---------------------------
 
@@ -141,3 +182,4 @@ The most current version is available from
 <https://resources.lora-alliance.org/technical-specifications>. The
 current version as of this writing is
 [RP002-1.0.5](https://resources.lora-alliance.org/technical-specifications/rp002-1-0-5-lorawan-regional-parameters).
+
