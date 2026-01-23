@@ -229,11 +229,16 @@ class ExtBase:
       g_logger.print("rtc: net_update not set")
       return False
 
+    from secrets import secrets
+    time_url = getattr(secrets,"time_url",None)
+    if not time_url:
+      g_logger.print(f"rtc: time-server not configured, not updating")
+      return False
+
     try:
       if not self._wifi:
         self._init_wifi()
-      from secrets import secrets
-      response = self._wifi.get(secrets.time_url).json()
+      response = self._wifi.get(time_url).json()
       self._wifi.radio.enabled = False
     except Exception as ex:
       g_logger.print(f"rtc: update from time-server failed (no wifi?): {ex}")
