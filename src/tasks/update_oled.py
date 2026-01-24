@@ -18,7 +18,15 @@ import hw_helper
 def run(config,app):
   """ update oled display """
 
-  if config.HAVE_DISPLAY or not config.HAVE_OLED:
+  # Using an OLED with a configured display will release the latter.
+  # Only allow this in strobe-mode. Assume the task "update_display"
+  # is executed prior to "update_oled"
+  if config.HAVE_DISPLAY and not config.STROBE_MODE:
+    g_logger.print(
+      "update_oled not possible with primary display and continuous mode")
+    return
+  elif not config.HAVE_OLED:
+    g_logger.print("no OLED configured")
     return
 
   gc.collect()
