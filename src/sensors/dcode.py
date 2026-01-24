@@ -26,34 +26,7 @@
 # Website: https://github.com/pcb-pico-datalogger
 #-----------------------------------------------------------------------------
 
-SENSOR_MAP = {
-  "id":      "0",
-  "dcode":   "1",
-  "battery": "2",
-  "aht20":   "3",
-  "am2320":  "4",
-  "bh1750":  "5",
-  "bme280":  "6",
-  "bmp280":  "7",
-  "ds18b20": "8",
-  "ens160":  "9",
-  "htu31d":  "A",
-  "ltr559":  "B",
-  "mcp9808": "C",
-  "pdm":     "D",
-  "pms5003": "E",
-  "scd40":   "F",
-  "scd41":   "G",
-  "sht45":   "H",
-  "meteo":   "I",
-  "location": "J",
-  "cputemp": "K",
-  "mhz19":   "L",
-  "hdc302x": "M",
-  "sen6x":   "N",
-  "lm66200": "O",
-  "tm_power": "P",
-  }
+from sensor_meta import SENSOR_MAP
 
 class DCODE:
   formats = []             # empty: don't show on display
