@@ -94,6 +94,9 @@ Time Updates
 | NET_UPDATE          | bool |  O  | update time from time-server|
 | SAVE_WAKEUP         | bool |  O  | save/restore wakeup time    |
 
+`NET_UPDATE` defaults to `False` since there is no time-server
+available any more that can be used without an API-key.
+
 `SAVE_WAKEUP` is a workaround for buggy batteries. The system
 saves the wakeup time on SD-card and restores the time after the
 next boot in case the time is invalid and cannot be updated

@@ -30,7 +30,7 @@ class Settings:
     self.HAVE_OLED     = None
 
     # RTC related
-    self.NET_UPDATE  = True    # update RTC from time-server if time is invalid
+    self.NET_UPDATE  = False   # update RTC from time-server if time is invalid
     self.SAVE_WAKEUP = False   # save wakup-time on SD (workaround for buggy batteries)
 
     #sample-mode and interval/time-table
