@@ -40,7 +40,7 @@ class OLED:
     """ constructor """
 
     displayio.release_displays()
-    bus,address,width,height = config.HAVE_OLED.split(',')
+    bus,address,width,height,*rotation = config.HAVE_OLED.split(',')
     if bus != '*':
       display_bus = I2CDisplayBus(i2c[int(bus)],
                                        device_address=int(address,16))
@@ -57,7 +57,10 @@ class OLED:
       if not display_bus:
         raise Exception("no OLED found after probing all I2C-busses")
 
-    self._display = SSD1306(display_bus,width=int(width),height=int(height))
+    rotation = int(rotation[0]) if rotation else 0
+    self._display = SSD1306(display_bus,width=int(width),
+                            height=int(height),
+                            rotation=rotation)
 
     group = displayio.Group()
     self._textlabel = label.Label(FONT,
