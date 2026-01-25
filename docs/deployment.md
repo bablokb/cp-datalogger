@@ -25,8 +25,8 @@ for other versions.
 
 **Note: if the versions of mpy-cross provided in `bin/` are not
 correct for your OS-environment, download the correct versions and put
-them somewhere in your `PATH`. Be sure to name them `mpy-cross8` and
-`mpy-cross9`.**
+them somewhere in your `PATH`. Be sure to name them `mpy-cross9` and
+symlink `mpy-cross10` to `mpy-cross9`.**
 
 
 Simple Usage
@@ -39,8 +39,10 @@ Run
 in the root-directory of the project. This creates the subdirectory `deploy`.
 After that, you can manualy copy all files below `deploy` to your device.
 
-To select between CircuitPython 8.x and 9.x builds, pass `CP_VERSION=8|9`
+To select between CircuitPython 9.x and 10.x builds, pass `CP_VERSION=9|10`
 to `make`. The default is `CP_VERSION=9`.
+
+**`CP_VERSION=10` is currently not recommended!**.
 
 
 Select Datalogger-PCB version
@@ -127,3 +129,12 @@ run
 
 If you deployed directly to your device, this will erase your device, so
 take care.
+
+
+Build Template
+--------------
+
+A set of build template files for a datalogger and a gateway are
+availabe from the `build-template`-folder. See the
+[Readme](../build-template/Readme.md) for instructions on how to use
+them.
