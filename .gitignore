@@ -1,9 +1,3 @@
-# For PCBs designed using KiCad: http://www.kicad-pcb.org/
-# Format documentation: http://kicad-pcb.org/help/file-formats/
-
-# src/lib because it is a symlink and the buildsystem copies the correct libs
-src/lib
-
 # Temporary files
 *.000
 *.bak
@@ -24,6 +18,9 @@ work
 deploy
 TODO
 *.local
+
+# the following symlink is only there for testing
+src.receiver_service/files/usr/local/bin/sensor_meta.py
 
 boot_out.txt
 *.pyc
