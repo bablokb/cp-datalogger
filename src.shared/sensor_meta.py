@@ -96,7 +96,7 @@ def split_csv(record, dcode_index=2):
 
     # extract id, ignore id and dcode
     if item["sensor"] == 'id':
-      id = item["data"]
+      id = item["data"][0]
     elif item["sensor"] == 'dcode':
       pass
     else:
