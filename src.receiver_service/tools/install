@@ -24,6 +24,12 @@ install_files() {
     chown root:root "$target"
   done
 
+  # copy file(s) from shared source tree
+  cp "$(dirname "$0")/../../src.shared/sensor_meta.py" \
+                                            "/usr/local/bin/sensor_meta.py"
+  chown root:root "/usr/local/bin/sensor_meta.py"
+  chmod 644  "/usr/local/bin/sensor_meta.py"
+
   chmod 755 "/usr/local/bin/$PROJECT.py"
   chmod 644 "/etc/systemd/system/$PROJECT.service"
 }
