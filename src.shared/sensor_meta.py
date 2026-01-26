@@ -74,6 +74,22 @@ DCODE_MAP = {
   "P": ("tm_power",3),    # variable, 3-n*3
   }
 
+# --- convert string data to str/float/int   ---------------------------------
+
+def _convert_data(data):
+  """ convert data from str to /str/float/int """
+
+  for i in range(len(data)):
+    try:
+      data[i] = int(data[i])
+    except:
+      try:
+        data[i] = float(data[i])
+      except:
+        # leave as string
+        pass
+  return data
+
 # --- split csv record according to dcode   ----------------------------------
 
 def split_csv(record, dcode_index=2):
@@ -100,6 +116,7 @@ def split_csv(record, dcode_index=2):
     elif item["sensor"] == 'dcode':
       pass
     else:
+      item["data"] = _convert_data(item["data"])
       result.append(item)
     index += DCODE_MAP[dc][1]
 
