@@ -14,15 +14,51 @@
 
 import sys
 import argparse
+import configparser
 from socket import *
 from select import select
 
 class SocketReceiver:
-  def __init__(self,port=8888,backlog=5,filename="/dev/stdout",debug=False):
+  def __init__(self,args):
     """ constructor """
-    self._filename = filename
-    self._debug = debug
-    self._data = bytearray(1024)
+
+    self._config = configparser.RawConfigParser(inline_comment_prefixes=(';',))
+    self._config.optionxform = str
+    self._config.read('/etc/dl_receiver.conf')
+
+    # debug setting - override options from config-file
+    if args.debug is not None:
+      self._debug = args.debug
+    else:
+      self._debug  = self._get_value(self._config,
+                                     "GLOBAL", "debug","0") == "1"
+    # receiver settings
+    port = int(self._get_value(
+      self._config,
+      "RECEIVER",
+      "port",args.port if args.port else 8888))
+    backlog = int(self._get_value(
+      self._config,
+      "RECEIVER",
+      "backlog",5))
+    bufsize = int(self._get_value(
+      self._config,
+      "RECEIVER",
+      "bufsize",1024))
+    self.debug(f"receiver settings: {port=}, {backlog=}, {bufsize=}")
+    self._data = bytearray(bufsize)
+
+    # action settings
+    action =  self._get_value(
+      self._config,
+      "RECEIVER",
+      "action",args.action if args.action else "noop")
+    if not hasattr(self,action):
+      raise ValueError(f"error: action {action} not implemented!")
+    else:
+      self._action = getattr(self,action)
+      self._action(init=True)
+      self.debug(f"using action: '{action}' for data-processing")
 
     # create tcp socket
     self._tcp_socket = socket(AF_INET, SOCK_STREAM)
@@ -37,6 +73,52 @@ class SocketReceiver:
 
     self._input = [self._tcp_socket,self._udp_socket]
 
+  # --- read configuration value   --------------------------------------------
+
+  def _get_value(self,parser,section,option,default):
+    """ get value of config-variables and return given default if unset """
+
+    if parser.has_section(section):
+      try:
+        value = parser.get(section,option)
+      except:
+        value = default
+    else:
+      value = default
+    return value
+
+  # --- noop action   --------------------------------------------------------
+
+  def noop(self, init=False, record=None):
+    """ no operation action """
+    pass
+
+  # --- print action   -------------------------------------------------------
+
+  def print(self, init=False, record=None):
+    """ print record """
+    if init:
+      self._printfile = self._get_value(self._config, "PRINT",
+                                        "filename","/dev/stderr")
+    else:
+      print(record.decode(),file=self._printfile,flush=True)
+
+  # --- save action   --------------------------------------------------------
+
+  def save(self, init=False, record=None):
+    """ save record to file in binary mode """
+    if init:
+      self._outfile = self._get_value(self._config, "SAVE",
+                                      "filename","/dev/stderr")
+      self._endl = bytes(self._get_value(self._config, "SAVE",
+                                         "endl",'\n'),'utf-8')
+      return
+
+    with open(self._outfile, "ab") as file:
+      file.write(record)
+      if self._endl and record[-1] != ord(self._endl):
+        file.write(self._endl)
+
   # --- cleanup   ------------------------------------------------------------
 
   def cleanup(self):
@@ -48,38 +130,29 @@ class SocketReceiver:
     except:
       raise
 
-  # --- print error messages to stderr   -------------------------------------
+  # --- print debug messages to stderr   -------------------------------------
 
-  def print_err(self,*args):
-    """ print to stderr """
+  def debug(self,*args):
+    """ print debug-messages to stderr """
     if self._debug:
       print(*args,file=sys.stderr,flush=True)
-
-  # --- save data to output file   -------------------------------------------
-
-  def save_data(self,values):
-    """ save data to file """
-    if not values[-1] == '\n':
-      values.append('\n')
-    with open(self._filename, "a") as file:
-      file.write(f"{values}")
 
   # --- handle connect event   -----------------------------------------------
 
   def connect_tcp(self,sock):
     """ handle connect for server-socket """
     csock, addr = sock.accept()
-    self.print_err(f"connect_tcp: connect {csock} from {addr}")
+    self.debug(f"connect_tcp: connect {csock} from {addr}")
     return csock
 
   # --- read from TCP-socket   -----------------------------------------------
 
   def read_tcp(self,sock):
     """ read from TCP-socket """
-    self.print_err(f"read_tcp: reading from {sock}")
+    self.debug(f"read_tcp: reading from {sock}")
     n = sock.recv_into(self._data)
-    self.save_data(self._data[:n].decode())
-    self.print_err(
+    self._action(record=self._data[:n])
+    self.debug(
       f"read_tcp: {n} bytes from {sock.getpeername()}: {self._data[:n].decode()}")
     sock.close()
 
@@ -87,10 +160,10 @@ class SocketReceiver:
 
   def read_udp(self,sock):
     """ read from UDP-socket """
-    self.print_err(f"read_udp: reading from {sock}")
+    self.debug(f"read_udp: reading from {sock}")
     n,*addr = sock.recvfrom_into(self._data)
-    self.save_data(self._data[:n].decode())
-    self.print_err(f"read_udp: {n} bytes from {addr}: {self._data[:n].decode()}")
+    self._action(record=self._data[:n].decode())
+    self.debug(f"read_udp: {n} bytes from {addr}: {self._data[:n].decode()}")
 
   # --- main processing loop   -----------------------------------------------
 
@@ -114,22 +187,19 @@ class SocketReceiver:
 
 if __name__ == '__main__':
   parser = argparse.ArgumentParser(description="UDP/TCP Receiver")
-  parser.add_argument("-p", "--port", type=int, default=5005,
-                      help="UDP/TCP receiver port (default: 5005)")
-  parser.add_argument("-b", "--backlog", type=int, default=5,
-                      help="TCP listen-backlog (default: 5)")
-  parser.add_argument("-o", "--outfile", type=str, default="/dev/stdout",
+  parser.add_argument("-p", "--port", type=int, default=None,
+                      help="UDP/TCP receiver port (default: 8888)")
+  parser.add_argument("-a", "--action", type=str, default=None,
+                      help="action for received data")
+  parser.add_argument("-o", "--outfile", type=str, default=None,
                       help="output filename (written in append-mode)")
   parser.add_argument('-d', '--debug', action='store_true',
-                      dest='debug', default=False,
+                      dest='debug', default=None,
                       help="debug-mode (writes to stderr)")
 
   args = parser.parse_args()    
+  receiver = SocketReceiver(args)
   try:
-    receiver = SocketReceiver(port=args.port,
-                              backlog=args.backlog,
-                              filename=args.outfile,
-                              debug=args.debug)
     receiver.run()
   except BaseException as ex:
     receiver.print_err(f"exception: {ex}")
