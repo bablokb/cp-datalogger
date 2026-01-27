@@ -85,14 +85,18 @@ class TM_POWER:
 
     resp = []
     for ip in self.TM_POWER_HOSTS:
+      response = None
       try:
-        resp.append(
-          self._wifi.get(
-            self.TM_POWER_URL.format(ip),
-            timeout=self.TM_POWER_TIMEOUT).json())
+        response = self._wifi.get(self.TM_POWER_URL.format(ip),
+                                  timeout=self.TM_POWER_TIMEOUT)
+        resp.append(response.json())
+        response.socket.close()
+        response.close()
       except Exception as ex:
         g_logger.print(f"failed to query data from {ip} with exception: {ex}")
-        resp.append(None)
+        response.append(None)
+        response.socket.close()
+        response.close()
 
     # shutdown wifi if in strobe mode
     if self._config.STROBE_MODE or self._config.INTERVAL > 60:
@@ -104,9 +108,6 @@ class TM_POWER:
     for response in resp:
       if not response:
         missing = True
-        power   = 0.0
-        voltage = 0
-        current = 0.0
       else:
         missing = False
         info    = response["StatusSNS"]["ENERGY"]
@@ -121,14 +122,24 @@ class TM_POWER:
         csv_results += f",{power:0.1f},{voltage:d},{current:0.3f}"
 
       # add to data-structure
-      results.append({
-        "P": power,
-        "V": voltage,
-        "C": current,
-        FORMATS['P'][0]: FORMATS['P'][1].format(power),
-        FORMATS['V'][0]: FORMATS['V'][1].format(voltage),
-        FORMATS['C'][0]: FORMATS['C'][1].format(current),
-        })
+      if missing:
+        results.append({
+          "P": None,
+          "V": None,
+          "C": None,
+          FORMATS['P'][0]: '',
+          FORMATS['V'][0]: '',
+          FORMATS['C'][0]: '',
+          })
+      else:
+        results.append({
+          "P": power,
+          "V": voltage,
+          "C": current,
+          FORMATS['P'][0]: FORMATS['P'][1].format(power),
+          FORMATS['V'][0]: FORMATS['V'][1].format(voltage),
+          FORMATS['C'][0]: FORMATS['C'][1].format(current),
+          })
 
     # final data-structure
     data["tm_power"] = results
