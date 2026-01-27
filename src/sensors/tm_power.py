@@ -94,7 +94,7 @@ class TM_POWER:
         response.close()
       except Exception as ex:
         g_logger.print(f"failed to query data from {ip} with exception: {ex}")
-        response.append(None)
+        resp.append(None)
         response.socket.close()
         response.close()
 
