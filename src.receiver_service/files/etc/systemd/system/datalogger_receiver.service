@@ -20,7 +20,7 @@ Description=UDP/TCP-Receiver for Datalogger
 [Service]
 Type=simple
 User=datalogger
-ExecStart=/usr/local/bin/datalogger_receiver.py --outfile /var/lib/datalogger/datalogger.csv
+ExecStart=/usr/local/bin/datalogger_receiver.py
 
 [Install]
 WantedBy=network.target

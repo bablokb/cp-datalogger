@@ -191,8 +191,6 @@ if __name__ == '__main__':
                       help="UDP/TCP receiver port (default: 8888)")
   parser.add_argument("-a", "--action", type=str, default=None,
                       help="action for received data")
-  parser.add_argument("-o", "--outfile", type=str, default=None,
-                      help="output filename (written in append-mode)")
   parser.add_argument('-d', '--debug', action='store_true',
                       dest='debug', default=None,
                       help="debug-mode (writes to stderr)")
