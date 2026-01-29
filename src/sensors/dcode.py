@@ -23,7 +23,7 @@
 #
 # Author: Bernhard Bablok
 #
-# Website: https://github.com/pcb-pico-datalogger
+# Website: https://github.com/bablokb/cp-datalogger
 #-----------------------------------------------------------------------------
 
 from sensor_meta import SENSOR_MAP

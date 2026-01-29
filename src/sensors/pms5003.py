@@ -12,7 +12,7 @@
 #
 # Author: Bernhard Bablok
 #
-# Website: https://github.com/pcb-pico-datalogger
+# Website: https://github.com/bablokb/cp-datalogger
 #-----------------------------------------------------------------------------
 
 PROPERTIES = "pn03 pn10 pn25"       # properties for the display

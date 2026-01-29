@@ -28,7 +28,7 @@
 #
 # Author: Bernhard Bablok
 #
-# Website: https://github.com/pcb-pico-datalogger
+# Website: https://github.com/bablokb/cp-datalogger
 #-----------------------------------------------------------------------------
 
 DCODE_COLUMN = 2  # ts,id,dcode,...

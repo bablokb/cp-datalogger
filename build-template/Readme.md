@@ -16,8 +16,8 @@ After checkout, create a directory `configs.local` and copy the
 **contents** of `build-template` to `configs.local`. *Never edit any
 files from `build-template` directly*.
 
-    git clone https://github.com/bablokb/pcb-pico-datalogger.git
-    cd pcb-pico-datalogger
+    git clone https://github.com/bablokb/cp-datalogger.git
+    cd cp-datalogger
     mkdir configs.local
     cp -a build-template/* configs.local/
 

@@ -3,7 +3,7 @@
 //
 // Author: Bernhard Bablok
 //
-// Website: https://github.com/pcb-pico-datalogger
+// Website: https://github.com/bablokb/cp-datalogger
 //-----------------------------------------------------------------------------
 
 var currentTab = 0; // Current tab is set to be the first tab (0)

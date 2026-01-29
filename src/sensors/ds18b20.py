@@ -11,7 +11,7 @@
 #
 # Author: Bernhard Bablok
 #
-# Website: https://github.com/pcb-pico-datalogger
+# Website: https://github.com/bablokb/cp-datalogger
 #-----------------------------------------------------------------------------
 
 # This sensor is not an I2C-sensor, but uses the 1-wire protocol.

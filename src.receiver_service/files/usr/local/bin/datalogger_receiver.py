@@ -9,7 +9,7 @@
 #
 # Author: Bernhard Bablok
 #
-# Website: https://github.com/pcb-pico-datalogger
+# Website: https://github.com/bablokb/cp-datalogger
 #-----------------------------------------------------------------------------
 
 import sys

@@ -17,7 +17,7 @@
 #
 # Author: Bernhard Bablok
 #
-# Website: https://github.com/pcb-pico-datalogger
+# Website: https://github.com/bablokb/cp-datalogger
 #-----------------------------------------------------------------------------
 
 PROPERTIES = "t h ps code w_speed w_dir r"     # properties for the display
