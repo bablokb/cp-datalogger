@@ -2,11 +2,11 @@ Build Template
 ==============
 
 This directory contains build template files for a datalogger (`DL1`)
-and for a gateway (`GW`).
+and for a gateway (`GW`). Both devices should run CircuitPython 9.2.9.
 
-For building you need a unix-like environment with at least GNU-make.
-Besides Linux, MacOS works. WSL ("Windows Subsystem for Linux")
-probably also works, but hasn't been tested.
+The build needs a unix-like environment with at least GNU-make.
+Besides Linux, MacOS is knowned to work. WSL ("Windows Subsystem for
+Linux") probably also works, but hasn't been tested.
 
 
 Preparation
@@ -88,3 +88,38 @@ folder to the Pico of the gateway.
 To cleanup the build-environment, run
 
     make clean
+
+
+Setting Time
+------------
+
+To set the time of the datalogger and gateway, press the reset button
+while holding the "A" button pressed. This will start [administration
+mode](../docs/admin_mode.md). Both devices will provide a
+WLAN. Connect to the devices, open a browser and set the time from the
+main menu. This will sync the time of your PC, laptop or smartphone to
+the device.
+
+Afterwards, restart both devices.
+
+
+Testing LoRa
+------------
+
+Make sure the antennas of both devices are vertically orientated. There
+is nothing special to do with the gateway, but for testing LoRa, the
+datalogger should switch to [broadcast-mode](../docs/broadcast_mode.md).
+
+Press the reset button of the datalogger while holding the "B" button
+pressed. Wait until the system comes up, then release the "B" button.
+
+Once in broadast-mode, the datalogger will send a short message to
+the gateway every minute. For LoRa, faster rates would be possible
+but the e-ink display would suffer with faster updates.
+
+The datalogger can move around while keeping the gateway fixed to test
+different locations with different distances. The gateway logs all
+received packages including technical data like signal-to-noise ratio
+or signal-strength.
+
+Repeat the test with different settings of `LORA_QOS` if necessary.
