@@ -52,8 +52,11 @@ class WifiImpl:
       self._pool = None
       self._requests = None
 
-    if self._pool:
+    if self._radio.connected and self._pool:
       return
+    else:
+      self._pool = None
+      self._requests = None
 
     self.logger.print("connecting to %s" % secrets.ssid)
     retries = secrets.retry
