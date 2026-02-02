@@ -150,11 +150,22 @@ class SocketReceiver:
   def read_tcp(self,sock):
     """ read from TCP-socket """
     self.debug(f"read_tcp: reading from {sock}")
-    n = sock.recv_into(self._data)
+    try:
+      n = sock.recv_into(self._data)
+      self.debug(
+        f"read_tcp: {n} bytes from {sock.getpeername()}: {self._data[:n].decode()}")
+      if n == 0:
+        self.debug(f"read_tcp: socket closed")
+        return True
+      elif n < 0:
+        self.debug(f"read_tcp: socket failure")
+        return True
+    except:
+      self.debug(
+        f"read_tcp: failed to read from {sock.getpeername()}")
+      return True
     self._action(record=self._data[:n])
-    self.debug(
-      f"read_tcp: {n} bytes from {sock.getpeername()}: {self._data[:n].decode()}")
-    sock.close()
+    return False
 
   # --- read from TCP-socket   -----------------------------------------------
 
@@ -180,8 +191,8 @@ class SocketReceiver:
         elif sock == self._udp_socket:
           self.read_udp(sock)
         else:
-          self.read_tcp(sock)
-          self._input.remove(sock)
+          if self.read_tcp(sock):
+            self._input.remove(sock)
 
 # --- main program   ---------------------------------------------------------
 
@@ -200,7 +211,7 @@ if __name__ == '__main__':
   try:
     receiver.run()
   except BaseException as ex:
-    receiver.print_err(f"exception: {ex}")
+    receiver.debug(f"exception: {ex}")
     receiver.cleanup()
     if not isinstance(ex,KeyboardInterrupt):
       raise
