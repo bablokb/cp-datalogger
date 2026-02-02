@@ -117,12 +117,26 @@ class WifiImpl:
 
   def send(self, data, tcp_ip, tcp_port, socket=None):
     """ send to given destination """
+    if not len(data):
+      self.logger.print(f"wifi: ignoring send request with length 0")
+      return
     self.connect()
     self.logger.print(f"wifi: send to {tcp_ip}:{tcp_port}")
-    if not socket:
-      socket = self._pool.socket(family=socketpool.SocketPool.AF_INET,
+    if socket:
+      # try to use the socket, but it might already be closed
+      try:
+        n = socket.send(data)
+      except:
+        n = -1
+      if n <= 0:
+        socket = None
+      else:
+        return (socket,n)
+
+    # (re-) create socket
+    socket = self._pool.socket(family=socketpool.SocketPool.AF_INET,
                                  type=socketpool.SocketPool.SOCK_STREAM)
-      socket.connect((tcp_ip,tcp_port))
+    socket.connect((tcp_ip,tcp_port))
     # return socket for later use
     return (socket, socket.send(data))
 
