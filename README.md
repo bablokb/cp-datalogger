@@ -4,14 +4,16 @@ Pico Datalogger with Integrated Power-Management
 This is a hardware and software solution for low-frequency
 data-logging with a Raspberry Pi Pico (W). The project started as a
 hardware project, but the software runs independently of the special
-hardware (PCBs) provided in this repository (see some example setups
-as provided in the `examples` folder). Nevertheless, the full function
+hardware (PCBs) created. Nevertheless, the full function
 set of the software is not available with standard components.
 
 Besides logging data to a SD-card, the dataloggers can send data to a
 central system (called "gateway"). Normally the gateway acts as a
 relay to upstream systems, but it could do anything with the data. See
 [Gateway](docs/gateway.md) for details.
+
+This repository only contains the software for the datalogger/gateway.
+For links to custom made PCBs, see below.
 
 
 Core software functions
@@ -57,13 +59,6 @@ Quick Links
   * [Setup of Blues-Gateway](docs/blues-gateway.md)
 
 
-Background
-----------
-
-For background on and motivation for this project, please see
-<https://opendeved.net/programmes/ilce-in-tanzania/>.
-
-
 Additional resources
 --------------------
 
@@ -75,29 +70,52 @@ Additional resources
   * [Pinout](docs/pins.md)
   * [Pinout V2](docs/pins-v2.md)
   * [Pinout V3](docs/pins-v3.md)
-  * Case for this PCB: https://github.com/OpenDevEd/case-for-pico-datalogger-rev1.00
-  * [KiCAD design-files V1](./pico-datalogger.kicad/Readme.md)
-  * [KiCAD design-files V2](./pico-datalogger-v2.kicad/Readme.md)
-  * [KiCAD design-files sensor-PCB](./pico-sensor-pcb.kicad/Readme.md)
-  * [KiCAD design-files display-adapter](./display-adapter.kicad/Readme.md)
-  * [KiCAD design-files LoRa-adapter](./lora-adapter.kicad/Readme.md)
-  * [References](docs/references.md)
+
+
+PCBs
+----
+
+  * <https://github.com/bablokb//pcb-datalogger-v3>:
+    Pico board for data-logging with power-management and XTSD storage
+  * <https://github.com/bablokb//pcb-datalogger-v2>:
+    Pico board for data-logging with power-management and XTSD storage
+  * <https://github.com/bablokb//pcb-datalogger-sensor-pcb>:
+    Sensor PCB for the Pico Datalogger-v2
+  * <https://github.com/bablokb//pcb-datalogger-display-adapter>:
+    Display-Adapter PCB
+  * <https://github.com/bablokb//pcb-datalogger-lora-adapter>:
+    LoRa-Adapter PCB (adds SUR-Connector to Adafruit-Breakout)
+  * <https://github.com/bablokb//pcb-datalogger-lora-pcb>:
+    A PCB with a LoRa tranceiver and a SUR Connector
+  * <https://github.com/bablokb//pcb-datalogger-v1>:
+    Pico board for data-logging with power-management and XTSD storage
+  * <https://github.com/bablokb//pcb-surs-cable-tester>:
+    A small PCB to test the type of a 8-pin SUR cable
+
+
+3D-Files
+--------
+
+  * <https://github.com/bablokb//3D-datalogger-v3-case>:
+    Design Files for a Case for the Pico-Datalogger-v3
+  * <https://github.com/bablokb//3D-datalogger-v2-case>:
+    Design Files for a Case for the Pico-Datalogger-v2
+  * <https://github.com/bablokb//3D-datalogger-stevenson>:
+    Ddesign Ffiles (supports, OpenSCAD) for a Stevenson Screen Enclosure
+  * <https://github.com/bablokb//3D-datalogger-v1-case>:
+    Design Files for a Case for the Pico-Datalogger-v1
+  * <https://github.com/OpenDevEd/case-for-pico-datalogger-rev1.00>:
+    Design Files for an alternative case for the Pico-Datalogger-v1
+
+
+Background
+----------
+
+For background on and motivation for this project, please see
+<https://opendeved.net/programmes/ilce-in-tanzania/>.
 
 
 License
 -------
 
-Software in `src` is licensed under the GPL3. Hardware is licensed by:
-
-[![CC BY-SA 4.0][cc-by-sa-shield]][cc-by-sa]
-
-This work is licensed under a
-[Creative Commons Attribution-ShareAlike 4.0 International
-License][cc-by-sa].
-
-[![CC BY-SA 4.0][cc-by-sa-image]][cc-by-sa]
-
-[cc-by-sa]: http://creativecommons.org/licenses/by-sa/4.0/
-[cc-by-sa-image]: https://licensebuttons.net/l/by-sa/4.0/88x31.png
-[cc-by-sa-shield]:
-https://img.shields.io/badge/License-CC%20BY--SA%204.0-lightgrey.svg
+Software in `src` is licensed under the GPL3.

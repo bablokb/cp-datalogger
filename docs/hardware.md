@@ -4,17 +4,19 @@ Setup
 Overview
 --------
 
-In this repo you will find various KiCAD design files for the base
-and sensor PCB as well as various adapters. All of this is optional, the
-software will run on other hardware as well, but with limited
-functionality. In the directory `production_files` you will find ready
-to order production files for JCLPCB. You typically need the gerber
-zipfile, a BOM (bill of materials) and a CPL (pick and place) file.
+Since CircuitPython runs on many platforms, the requirements for the
+hardware are low. For offline, low-frequency datalogging there is not
+much more needed as a MCU and a SD-card. Newer MCUs often have large
+internal flash chips, so even this last requirement can be optional.
 
-A number of components are optional. E.g. the SURS-connectors are not
-strictly necessary, because you also have througholes as an alternative.
-In addition you can save money if you solder the JST-connectors
-yourself.
+From sensor side, the platform already supports many available sensors.
+Adding more is simple.
+
+For low-frequency datalogging, the power-draw in off-state should be
+as low as possible. Some MCU support very low power-states in deep-sleep.
+Since the Pico is not optimized for low-power operation, this project
+developed custom made PCBs with the necessary power-management
+electronics (see below).
 
 
 Generic Hardware
@@ -46,8 +48,19 @@ Additional steps:
   - Connect other hardware components as needed (power, sensors and so on).
 
 
-Datalogger-PCBs
----------------
+Custom Made Datalogger-PCBs
+---------------------------
+
+The top-level readme links to a number of repositories with different
+custom made PCBs.
+
+In this repo you will find various KiCAD design files for the base and
+sensor PCB as well as various adapters. All of this is optional, the
+software will run on other hardware as well, but with limited
+functionality. In the directory `production_files` of these repos you
+will find ready to order production files for JCLPCB. You typically
+need the gerber zipfile, a BOM (bill of materials) and a CPL (pick and
+place) file.
 
 The specialized datalogger PCBs support a number of important functions:
 
