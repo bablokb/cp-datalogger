@@ -20,6 +20,7 @@ secrets.debugflag = False
 #secrets.channel   = 6         # optional
 #secrets.timeout   = 10        # optional
 
+# this URL is no longer functional
 secrets.time_url = 'http://worldtimeapi.org/api/ip'
 
 # UDP-target configuration (task send_udp)

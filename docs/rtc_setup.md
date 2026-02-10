@@ -27,10 +27,17 @@ Net-Update
 ----------
 
 This needs access to a WLAN with correct [credentials](./secrets.md) and
-the configuration of `NET_UPDATE = TRUE`. With this setup, the program
-will update the external and internal RTCs automatically at startup. As
-long as the external RTC is powered, this will be a one time task. So this
-could be done before initial deployment in a suitable location with WLAN.
+the configuration of `NET_UPDATE = TRUE`. It also needs a valid time
+source. **Since worldtimeapi.org is down, there is currently no service
+that can be used without registration.** Therefore, net update is off
+by default.
+
+To enable net update, add a valid time source (url) to your
+`secrets.py` (variable `secrets.time_url`) and set `NET_UPDATE =
+TRUE`. This will update the external and internal RTCs automatically
+at startup. As long as the external RTC is powered, this will be a one
+time task. So this could be done before initial deployment in a
+suitable location with WLAN.
 
 
 Thonny
