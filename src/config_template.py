@@ -87,7 +87,7 @@ TASKS = "save_data update_display"
 
 # --- LoRa configuration (in case LoRa is available)   -----------------------
 
-LORA_FREQ             = 433.0
+LORA_FREQ             = 868
 LORA_BASE_ADDR        = 0
 LORA_NODE_ADDR        = 1
 #LORA_QOS             = 2      # default: 2, range: 0-7
