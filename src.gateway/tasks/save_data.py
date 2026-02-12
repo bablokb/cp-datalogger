@@ -14,7 +14,7 @@ g_logger = Logger()
 def run(config, app, msg_type, values):
   """ save data to sd-card """
 
-  if not getattr(config,"HAVE_SD",False):
+  if not getattr(config,"HAVE_SD",False) and config.CSV_FILENAME[:7] != '/saves/':
     return
 
   # CSV filename formatting

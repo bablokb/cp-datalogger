@@ -12,7 +12,7 @@ g_logger = Logger()
 def run(config,app):
   """ save data to sd-card """
 
-  if not config.HAVE_SD:
+  if not config.HAVE_SD and config.CSV_FILENAME[:7] != '/saves/':
     return
 
   ymd = app.data["ts_str"].split("T")[0]

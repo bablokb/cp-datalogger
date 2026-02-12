@@ -96,14 +96,16 @@ class DataCollector():
 
       # update RTC, fallback to wakeup time on SD if necessary
       rc = self.rtc.update()                 # (time-server->)ext-rtc->int-rtc
-      if not rc and g_config.HAVE_SD and getattr(g_config,'SAVE_WAKEUP',False):
-        try:
-          with open("/sd/next_wakeup", "rt") as f:
-            wakeup = f.readline()
-            self.rtc.update(int(wakeup))
-          g_logger.print("restored RTC from wakeup-time on SD")
-        except:
-          g_logger.print("could not restore RTC from SD")
+      if not rc and getattr(g_config,'SAVE_WAKEUP',False):
+        if g_config.HAVE_SD or config.CSV_FILENAME[:7] == '/saves/':
+          nw_file = "/sd/next_wakeup" if g_config.HAVE_SD else "/saves/next_wakeup"
+          try:
+            with open(nw_file, "rt") as f:
+              wakeup = f.readline()
+              self.rtc.update(int(wakeup))
+            g_logger.print("restored RTC from wakeup-time on SD")
+          except:
+            g_logger.print("could not restore RTC from SD")
 
       if g_config.TEST_MODE:
         g_logger.print(f"setup: free memory after rtc-update: {gc.mem_free()}")
@@ -334,13 +336,15 @@ class DataCollector():
     self.rtc.set_alarm(self.wakeup)   # might be a noop
 
     # save alarm time to SD
-    if g_config.HAVE_SD and getattr(g_config,'SAVE_WAKEUP',False):
-      try:
-        with open("/sd/next_wakeup", "wt") as f:
-          f.write(f"{time.mktime(self.wakeup)}\n")
-        g_logger.print("next wakeup-time saved to SD")
-      except:
-        g_logger.print("could not save next wakeup-time to SD")
+    if getattr(g_config,'SAVE_WAKEUP',False):
+      if g_config.HAVE_SD or config.CSV_FILENAME[:7] == '/saves/':
+        nw_file = "/sd/next_wakeup" if g_config.HAVE_SD else "/saves/next_wakeup"
+        try:
+          with open(nw_file, "wt") as f:
+            f.write(f"{time.mktime(self.wakeup)}\n")
+          g_logger.print("next wakeup-time saved to SD")
+        except:
+          g_logger.print("could not save next wakeup-time to SD")
 
   # --- shutdown   -----------------------------------------------------------
 

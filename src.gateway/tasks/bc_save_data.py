@@ -14,13 +14,13 @@ g_logger = Logger()
 def run(config, app, msg_type, values):
   """ save broadcast-info to sd-card """
 
-  if not getattr(config,"HAVE_SD",False):
+  fname = getattr(config,"BCAST_CSV_FILENAME","/sd/bcast_{GW_ID}_{ID}.csv")
+  if not getattr(config,"HAVE_SD",False) and fname[:7] != "/saves/":
     return
+
   if msg_type != "B":
     g_logger.print(f"gateway: bc_save_data: illegal msg_type: {msg_type}")
     return
-
-  filename = getattr(config,"BCAST_CSV_FILENAME","/sd/bcast_{GW_ID}_{ID}.csv")
 
   # CSV filename formatting
   ts = time.localtime()
@@ -32,7 +32,7 @@ def run(config, app, msg_type, values):
   # extract LOGGER_ID from data
   logger_id = values[1]
 
-  csv_file = filename.format(ID=logger_id,
+  csv_file = fname.format(ID=logger_id,
                              GW_ID=config.GW_ID,
                              YMD=ymd,Y=y,M=m,D=d)
 

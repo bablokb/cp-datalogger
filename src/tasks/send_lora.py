@@ -15,7 +15,17 @@ g_logger = Logger()
 from lora import LORA
 import pins
 
-def _send_pending(config, lora):
+def _get_buffer_file(config):
+  """ query name of buffer-file """
+  if config.HAVE_SD:
+    return "/sd/lora_tx_buffer.csv"
+  try:
+    os.listdir("/saves")
+    return "/saves/lora_tx_buffer.csv"
+  except:
+    return None
+
+def _send_pending(config, lora, buffer_file):
   """ send pending data (failed records from the past)"""
 
   max_failed = getattr(config,"LORA_MAX_FAILED",5)
@@ -23,14 +33,14 @@ def _send_pending(config, lora):
   pending_new = None
   rc_all = True
   i = 0
-  with open("/sd/lora_tx_pending.csv","rt") as file:
+  with open(buffer_file,"rt") as file:
     for record in file:
       if not rc_all or i >= max_failed:
         # we either already failed or processed enough lines,
         # so move records to pending_new
         lora.trace(f"send_lora: saving old record {i}")
         if not pending_new:
-          pending_new = open("/sd/lora_tx_pending_new.csv","at")
+          pending_new = open(buffer_file+".new","at")
         pending_new.write(record)
       else:
         lora.trace(f"send_lora: sending old record {i}")
@@ -41,17 +51,17 @@ def _send_pending(config, lora):
             # failed at the first record, bail out
             return False
           elif not pending_new:
-            pending_new = open("/sd/lora_tx_pending_new.csv","at")
+            pending_new = open(buffer_file+".new","at")
           # keep this record in pending_new
           pending_new.write(record)
       i += 1
 
   # at this stage, lora_tx_pending.csv is processed
-  os.remove("/sd/lora_tx_pending.csv")
+  os.remove(buffer_file)
   if pending_new:
     pending_new.flush()
     pending_new.close()
-    os.rename("/sd/lora_tx_pending_new.csv","/sd/lora_tx_pending.csv")
+    os.rename(buffer_file+".new",buffer_file)
   os.sync()
 
   # return send-status
@@ -74,13 +84,15 @@ def run(config,app):
                        pins.PIN_LORA_MISO)
     lora = LORA(config,spi1)
 
+
   # check for pending records
-  if config.HAVE_SD and app.file_exists("/sd/lora_tx_pending.csv"):
-    rc = _send_pending(config, lora)
+  buffer_file = _get_buffer_file(config)
+  if buffer_file and app.file_exists(buffer_file):
+    rc = _send_pending(config, lora, buffer_file)
     if not rc:
       # failed again, append current record without even trying
       g_logger.print("send_lora: appending current record to pending-buffer")
-      with open("/sd/lora_tx_pending.csv","at") as file:
+      with open(buffer_file,"at") as file:
         file.write(f"{app.record}\n")
       app.lora_status = 'F'
       return
@@ -92,5 +104,5 @@ def run(config,app):
   if not rc:
     # failed again, append current record
     g_logger.print("send_lora: appending failed record to pending-buffer")
-    with open("/sd/lora_tx_pending.csv","at") as file:
+    with open(buffer_file,"at") as file:
       file.write(f"{app.record}\n")

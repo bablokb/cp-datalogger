@@ -9,9 +9,6 @@
 import os
 import time
 
-BUFFER_FILE     = "/sd/tx_buffer.csv"
-BUFFER_FILE_NEW = "/sd/tx_buffer_new.csv"
-
 # --- early configuration of the log-destination   ---------------------------
 
 from log_writer import Logger
@@ -28,6 +25,15 @@ class TCPSender:
   def __init__(self,config):
     """ constructor """
     self._config = config
+    if self._config.HAVE_SD:
+      self._buffer_file = "/sd/tx_buffer.csv"
+    else:
+      try:
+        os.listdir("/saves")
+        self._buffer_file = "/saves/tx_buffer.csv"
+      except:
+        self._buffer_file = None
+    g_logger.print(f"TCPSender: using buffer file: {self._buffer_file}")
 
   # --- hardware-setup   -----------------------------------------------------
 
@@ -47,23 +53,24 @@ class TCPSender:
   def _send_buffered_data(self):
     """ send buffered data """
 
-    if not hasattr(self._config,"HAVE_SD"):  # no SD, no buffered daa
+    if not self._buffer_file:  # no SD/save-partition, no buffered data
+      g_logger.print("TCPSender: no buffer file")
       return
 
     # check if buffer file exists
     try:
-      status = os.stat(BUFFER_FILE)
+      status = os.stat(self._buffer_file)
       size = status[6]
       if size == 0:
-        g_logger.print(f"TCPSender: empty file {BUFFER_FILE}")
-        os.remove(buffer_file)
+        g_logger.print(f"TCPSender: empty file {self._buffer_file}")
+        os.remove(self._buffer_file)
         os.sync()
         return
       else:
         g_logger.print(f"TCPSender: size of buffered data: {size}")
     except:
       # file does not exist
-      g_logger.print(f"TCPSender: no data file {BUFFER_FILE}")
+      g_logger.print(f"TCPSender: no data file {self._buffer_file}")
       return
 
     # send buffer file in line mode
@@ -75,12 +82,12 @@ class TCPSender:
     rc_all = True
 
     i = 0
-    with open(BUFFER_FILE,"rt") as file:
+    with open(self._buffer_file,"rt") as file:
       for record in file:
         if not rc_all:
           # we failed already, # so move records to BUFFER_FILE_NEW
           if not buffer_file_new:
-            buffer_file_new = open(BUFFER_FILE_NEW,"at")
+            buffer_file_new = open(self._buffer_file+"new","at")
           buffer_file_new.write(record)
           continue
 
@@ -104,7 +111,7 @@ class TCPSender:
             # failed at the first record, bail out
             return False
           elif not buffer_file_new:
-            buffer_file_new = open(BUFFER_FILE_NEW,"at")
+            buffer_file_new = open(self._buffer_file+"new","at")
           # keep this record in buffer_file_new
           buffer_file_new.write(record)
         i += 1
@@ -112,12 +119,12 @@ class TCPSender:
     # at this stage, BUFFER_FILE is processed
     if socket:
       socket.close()
-    os.remove(BUFFER_FILE)
+    os.remove(self._buffer_file)
     if buffer_file_new:
       # move failed records to BUFFER_FILE, will be processed next time
       buffer_file_new.flush()
       buffer_file_new.close()
-      os.rename(BUFFER_FILE_NEW,BUFFER_FILE)
+      os.rename(self._buffer_file+"new",self._buffer_file)
       os.sync()
 
     # return send-status
