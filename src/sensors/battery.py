@@ -16,6 +16,7 @@
 
 import board
 from analogio import AnalogIn
+import time
 
 import pins
 
@@ -26,14 +27,19 @@ class BATTERY:
   def __init__(self,config,i2c,addr=None,spi=None):
     """ constructor """
     self.ignore = False
+    self._samples = getattr(config,"BATTERY_SAMPLES",1)
 
   def read(self,data,values):
     """ read voltage monitor """
 
     if hasattr(pins,"PIN_VOLTAGE_MONITOR"):
       adc = AnalogIn(pins.PIN_VOLTAGE_MONITOR)
-      level = round(adc.value *  3 * 3.3 / 65535,2)
+      level = adc.value
+      for _ in range(1,self._samples):
+        time.sleep(0.01)
+        level += adc.value
       adc.deinit()
+      level = round(level/self._samples*9.9/65535,2)  # 3*3.3 = 9.9
       if level < 1.8 or level > 5.5:
         # this happens only if the voltage-monitor is external and floating
         # in this case, fake the level to prevent triggering level-based logic
