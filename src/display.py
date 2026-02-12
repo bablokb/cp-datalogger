@@ -27,7 +27,6 @@ class Display:
   def __init__(self,config,spi):
     """ constructor """
 
-    self._config = config
     self._spi    = spi
     self._view   = None
     self.strobe_wait = getattr(config,"DISPLAY_STROBE_WAIT",3)
@@ -74,6 +73,7 @@ class Display:
     else:
       g_logger.print(f"unsupported display: {config.HAVE_DISPLAY}")
       config.HAVE_DISPLAY = None
+    self._config = config
 
   # --- return display-object   -----------------------------------------------
 
