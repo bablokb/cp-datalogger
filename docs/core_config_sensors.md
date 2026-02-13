@@ -30,6 +30,22 @@ AM2320
 |                             |      |     | ("t h")                   |
 
 
+Battery
+-------
+
+| Name                        | Type | O/M | Description               |
+|-----------------------------|------|-----|---------------------------|
+| BATTERY_FILTERING           | bool |  O  | filter values (False)     |
+| BATTERY_SAMPLES             | int  |  O  | sample size with filter(5)|
+
+Battery voltage readings are not exact due to noise. The settings above
+allow to sample multiple times and filter the results. The filter
+removes the largest and smallest reading and takes the mean of the rest
+of the samples.
+
+Filtering is off by default since readings are typically only off by 1%.
+
+
 BME280
 ------
 
