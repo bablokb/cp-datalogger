@@ -16,6 +16,8 @@ import storage
 import sdcardio
 import os
 
+import config
+
 # --- atexit processing   ----------------------------------------------------
 
 def at_exit(spi):
@@ -26,24 +28,41 @@ def at_exit(spi):
 # --- helper methods   -------------------------------------------------------
 
 def dump_file(name):
-  with open(f"/sd/{name}","rt") as file:
+  with open(f"{prefix}/{name}","rt") as file:
     print(file.read())
 
 def del_file(name):
-  os.remove(f"/sd/{name}")
+  os.remove(f"{prefix}/{name}")
 
 # --- main program   ---------------------------------------------------------
 
-spi = busio.SPI(pins.PIN_SD_SCK,pins.PIN_SD_MOSI,pins.PIN_SD_MISO)
-sdcard = sdcardio.SDCard(spi,pins.PIN_SD_CS)
-vfs    = storage.VfsFat(sdcard)
-storage.mount(vfs, "/sd")
-print("SD-card mounted on /sd")
-atexit.register(at_exit,spi)
+if getattr(config,"HAVE_SD",False):
+  try:
+    spi = busio.SPI(pins.PIN_SD_SCK,pins.PIN_SD_MOSI,pins.PIN_SD_MISO)
+    sdcard = sdcardio.SDCard(spi,pins.PIN_SD_CS)
+    vfs    = storage.VfsFat(sdcard)
+    storage.mount(vfs, "/sd")
+    print("SD-card mounted on /sd")
+    atexit.register(at_exit,spi)
+    prefix = "/sd"
+  except:
+    print("no SD-card present")
+    while True:
+      pass
 
-csv = os.listdir("/sd")
+else:
+  # give /saves a try
+  try:
+    os.listdir("/saves")
+    prefix = "/saves"
+  except:
+    print("no SD-card configured")
+    while True:
+      pass
 
-print("files on /sd:")
+csv = os.listdir(prefix)
+
+print(f"files on {prefix}:")
 for f in csv:
   print(f"   {f}")
 
