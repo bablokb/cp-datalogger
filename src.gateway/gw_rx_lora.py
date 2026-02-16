@@ -6,10 +6,8 @@
 # Website: https://github.com/bablokb/cp-datalogger
 #-----------------------------------------------------------------------------
 
-import atexit
 import struct
 import time
-import busio
 
 # --- early configuration of the log-destination   ---------------------------
 
@@ -17,18 +15,8 @@ from log_writer import Logger
 g_logger = Logger()
 
 from lora import LORA
+import hw_helper
 import pins
-
-# --- atexit processing   ----------------------------------------------------
-
-def at_exit(spi):
-  """ release spi """
-  try:
-    # may fail if we want to log to SD
-    g_logger.print(f"releasing {spi}")
-  except:
-    print(f"releasing {spi}")
-  spi.deinit()
 
 # --- LoraReceiver class   ------------------------------------------------
 
@@ -49,9 +37,8 @@ class LoraReceiver:
 
     g_logger.print(f"LoraReceiver: initializing hardware")
     if not spi or pins.PIN_SD_SCK != pins.PIN_LORA_SCK:
-      spi = busio.SPI(pins.PIN_LORA_SCK,pins.PIN_LORA_MOSI,
-                      pins.PIN_LORA_MISO)
-    atexit.register(at_exit,spi)
+      spi = hw_helper.get_spi(pins.PIN_LORA_SCK,pins.PIN_LORA_MOSI,
+                              pins.PIN_LORA_MISO,"LORA",g_logger)
     self._lora = LORA(self._config,spi)
 
   # --- receive data   -------------------------------------------------------

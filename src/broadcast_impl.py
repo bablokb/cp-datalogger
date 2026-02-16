@@ -7,7 +7,6 @@
 #-----------------------------------------------------------------------------
 
 import time
-import busio
 import displayio
 
 from adafruit_bitmap_font import bitmap_font
@@ -71,17 +70,17 @@ class Broadcast:
 
   def _init_spi(self):
     if hasattr(pins,"PIN_SD_SCK"):
-      self.spi = busio.SPI(pins.PIN_SD_SCK,pins.PIN_SD_MOSI,pins.PIN_SD_MISO)
+      self.spi = hw_helper.get_spi(pins.PIN_SD_SCK,pins.PIN_SD_MOSI,
+                                   pins.PIN_SD_MISO,"SD",g_logger)
     if pins.PIN_SD_SCK == pins.PIN_LORA_SCK:
       if hasattr(self,"spi"):
         self.spi1 = self.spi
       else:
-        self.spi1 = busio.SPI(pins.PIN_LORA_SCK,pins.PIN_LORA_MOSI,
-                              pins.PIN_LORA_MISO)
-
+        self.spi1 = hw_helper.get_spi(pins.PIN_LORA_SCK,pins.PIN_LORA_MOSI,
+                                   pins.PIN_LORA_MISO,"LORA",g_logger)
     else:
-      self.spi1 = busio.SPI(pins.PIN_LORA_SCK,pins.PIN_LORA_MOSI,
-                            pins.PIN_LORA_MISO)
+      self.spi1 = hw_helper.get_spi(pins.PIN_LORA_SCK,pins.PIN_LORA_MOSI,
+                                   pins.PIN_LORA_MISO,"LORA",g_logger)
 
   # --- standard display   -------------------------------------------------
 

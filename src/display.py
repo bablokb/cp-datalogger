@@ -6,9 +6,11 @@
 # Website: https://github.com/bablokb/cp-datalogger
 #-----------------------------------------------------------------------------
 
+import atexit
 import board
 import pins
 from log_writer import Logger
+import hw_helper
 
 import displayio
 from dataviews.DisplayFactory import DisplayFactory
@@ -18,6 +20,20 @@ g_logger = Logger()
 CHAR_BAT_FULL  = "\u25AE"    # black vertical rectangle
 CHAR_BAT_EMPTY = "\u25AF"    # white vertical rectangle
 CHAR_WARN      = "\u26A0"    # warning sign
+
+# --- atexit processing   ----------------------------------------------------
+
+def at_exit_display(logger):
+  """ release display """
+  try:
+    # may fail if we want to log to SD
+    logger.print("releasing display")
+  except:
+    print("releasing display")
+  try:
+    displayio.release_displays()
+  except:
+    pass
 
 class Display:
   """ prepare and update display for the datalogger """
@@ -43,9 +59,8 @@ class Display:
 
     # spi - if not already created
     if not self._spi:
-      import busio
-      self._spi = busio.SPI(pins.PIN_SD_SCK,pins.PIN_SD_MOSI)
-
+      self._spi = hw_helper.get_spi(pins.PIN_SD_SCK,pins.PIN_SD_MOSI,None,
+                                    "DISPLAY",g_logger)
     displayio.release_displays()
     if config.HAVE_DISPLAY == "Inky-Pack":
       self._display = DisplayFactory.inky_pack(self._spi)
@@ -71,9 +86,13 @@ class Display:
       self._display = DisplayFactory.display_pack(self._spi)
       self._display.auto_refresh = False
     else:
+      self._display = None
       g_logger.print(f"unsupported display: {config.HAVE_DISPLAY}")
       config.HAVE_DISPLAY = None
     self._config = config
+
+    if self._display:
+      atexit.register(at_exit_display,g_logger)
 
   # --- return display-object   -----------------------------------------------
 

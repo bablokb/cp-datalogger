@@ -17,14 +17,17 @@ from rtc_ext.ext_base import ExtBase
 
 # --- atexit processing   ----------------------------------------------------
 
-def at_exit_spi(spi,logger):
+def at_exit_spi(spi,label,logger):
   """ release spi """
   try:
     # may fail if we want to log to SD
-    logger.print(f"releasing {spi}")
+    logger.print(f"releasing SPI for {label}")
   except:
-    print(f"releasing {spi}")
-  spi.deinit()
+    print(f"releasing SPI for {label}")
+  try:
+    spi.deinit()
+  except:
+    pass
 
 def at_exit_i2c(i2c,logger):
   """ release i2c-busses """
@@ -83,6 +86,19 @@ def init_i2c(pins,config,logger):
   atexit.register(at_exit_i2c,i2c,logger)
   return i2c
 
+# --- create spi and register at-exit processing   ---------------------------
+
+def get_spi(sck,mosi,miso,label,logger):
+  """ create spi """
+  try:
+    logger.print(f"creating SPI for {label}")
+    spi = busio.SPI(sck,mosi,miso)
+    atexit.register(at_exit_spi,spi,label,logger)
+    return spi
+  except:
+    logger.print(f"SPI creation failed for pins {(sck,mosi,miso)}")
+    raise
+
 # --- initialize SD-card   ---------------------------------------------------
 
 def init_sd(pins,config,logger):
@@ -91,12 +107,12 @@ def init_sd(pins,config,logger):
   spi = None
   if config.HAVE_SD:
     try:
-      spi    = busio.SPI(pins.PIN_SD_SCK,pins.PIN_SD_MOSI,pins.PIN_SD_MISO)
+      spi    = get_spi(pins.PIN_SD_SCK,pins.PIN_SD_MOSI,pins.PIN_SD_MISO,
+                       "SD",logger)
       sdcard = sdcardio.SDCard(spi,pins.PIN_SD_CS,1_000_000)
       vfs    = storage.VfsFat(sdcard)
       storage.mount(vfs, "/sd")
       logger.print("SD-card mounted on /sd")
-      atexit.register(at_exit_spi,spi,logger)
     except Exception as ex:
       if spi:
         spi.deinit()

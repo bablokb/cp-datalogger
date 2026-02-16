@@ -8,12 +8,12 @@
 
 import wifi
 import time
-import busio
 import gc
 import board
 from digitalio import DigitalInOut, Pull, Direction
 
 import pins
+import hw_helper
 import webap
 
 try:
@@ -85,7 +85,8 @@ if g_config.HAVE_DISPLAY:
   if hasattr(pins,"PIN_INKY_CS"):
     cs_display.deinit()
   if not spi and hasattr(pins,"PIN_SD_SCK"):
-    spi = busio.SPI(pins.PIN_SD_SCK,pins.PIN_SD_MOSI,pins.PIN_SD_MISO)
+    spi = hw_helper.get_spi(pins.PIN_SD_SCK,pins.PIN_SD_MOSI,pins.PIN_SD_MISO,
+                            "DISPLAY",g_logger)
   display = Display(g_config,spi).get_display()
 
   font = bitmap_font.load_font(f"fonts/{g_config.FONT_DISPLAY}.bdf")

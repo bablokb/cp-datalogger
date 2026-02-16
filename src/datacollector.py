@@ -21,6 +21,7 @@ import time
 g_ts = []
 g_ts.append((time.monotonic(),None))
 
+import atexit
 import gc
 import board
 import os
@@ -59,6 +60,16 @@ g_config = Settings(g_logger)
 g_config.import_config()
 g_ts.append((time.monotonic(),"settings"))
 
+# --- atexit processing   ----------------------------------------------------
+
+def at_exit_dio(dio, logger):
+  """ release digitalio """
+  try:
+    logger.print("DIO deinit()")
+    dio.deinit()
+  except:
+    pass
+
 # --- main application class   -----------------------------------------------
 
 class DataCollector():
@@ -76,6 +87,7 @@ class DataCollector():
     if hasattr(pins,"PIN_INKY_CS"):
       self._cs_display = DigitalInOut(pins.PIN_INKY_CS)
       self._cs_display.switch_to_output(value=True)
+      atexit.register(at_exit_dio,self._cs_display, g_logger)
 
     # early setup of SD-card (in case we send debug-logs to sd-card)
     self.spi = None
@@ -118,6 +130,8 @@ class DataCollector():
     # display
     if hasattr(pins,"PIN_INKY_CS"):
       self._cs_display.deinit()
+      atexit.unregister(at_exit_dio)
+
     if g_config.HAVE_DISPLAY:
       from display import Display
       self.display = Display(g_config,self.spi)
