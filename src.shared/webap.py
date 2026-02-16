@@ -119,10 +119,16 @@ class WebAP(Server):
     """ handle requests for /get_xxx_list """
     g_logger.print(f"_handle_get_file_list...")
     ftype = f".{path.split('_')[1]}"
-    response = json.dumps({
-      "files":
-      sorted([fname for fname in os.listdir("/sd") if fname[-4:] == ftype],
-             reverse=True)
+    if not self._config["csv_root"]:
+      response = json.dumps({
+        "files": []
+        })
+    else:
+      response = json.dumps({
+        "files":
+        sorted([fname for fname in
+                os.listdir(self._config["csv_root"]) if fname[-4:] == ftype],
+               reverse=True)
         })
     self.debug(f"{response=}")
     return Response(response,content_type="application/json")
@@ -191,7 +197,7 @@ class WebAP(Server):
   def _handle_file_download(self,path,query_params, headers, body):
     """ handle request for file-download """
     g_logger.print(f"_handle_file_download for {path}")
-    return FileResponse(f"/sd/{path}",
+    return FileResponse(f"{self._config['csv_root']}/{path}",
                         content_type="application/octet-stream",
                         buffer_size=4096)
 
@@ -202,7 +208,7 @@ class WebAP(Server):
     """ handle request for file-delete """
     g_logger.print(f"_handle_file_delete for {path}")
     try:
-      os.remove(f"/sd/{path[0:-7]}")
+      os.remove(f"{self._config['csv_root']}/{path[0:-7]}")
     except:
       return Response(f"delete failed for {path[0:-7]}",status_code=400,
                       content_type="text/plain")

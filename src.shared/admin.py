@@ -69,8 +69,16 @@ if g_config.HAVE_RTC:
 
 if g_config.HAVE_SD:
   spi = hw_helper.init_sd(pins,g_config,g_logger)
+  if spi:
+    ap_config["csv_root"] = "/sd"
 else:
   spi = None
+  try:
+    import os
+    os.listdir("/saves")
+    ap_config["csv_root"] = "/saves"
+  except:
+    ap_config["csv_root"] = None
 
 # --- put info on display if available   -------------------------------------
 
