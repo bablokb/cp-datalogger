@@ -71,11 +71,12 @@ else
 ap_config=
 endif
 
-.PHONY: clean copy2pico copy2gateway ${DEPLOY_TO}/sd \
+.PHONY: clean copy2pico copy2gateway ${DEPLOY_TO}/sd ${DEPLOY_TO}/saves \
         ${DEPLOY_TO}/log_config.py ${DEPLOY_TO}/config.py
 
 # default target: pre-compile and compress files
-default: makevars.tmp ${DEPLOY_TO} ${DEPLOY_TO}/sd ${DEPLOY_TO}/sensors \
+default: makevars.tmp ${DEPLOY_TO} ${DEPLOY_TO}/sd ${DEPLOY_TO}/saves \
+	${DEPLOY_TO}/sensors \
 	${DEPLOY_TO}/tasks ${DEPLOY_TO}/tools ${DEPLOY_TO}/www \
         lib ${DEPLOY_TO}/fonts/${FONT} ${ap_config} \
 	${DEPLOY_TO}/pins.mpy \
@@ -93,7 +94,8 @@ default: makevars.tmp ${DEPLOY_TO} ${DEPLOY_TO}/sd ${DEPLOY_TO}/sensors \
 	${DEPLOY_TO}/www/config.html.gz \
 	${DEPLOY_TO}/commit.py
 
-gateway: makevars.tmp ${DEPLOY_TO} ${DEPLOY_TO}/sd ${DEPLOY_TO}/sensors lib \
+gateway: makevars.tmp ${DEPLOY_TO} ${DEPLOY_TO}/sd ${DEPLOY_TO}/saves \
+	${DEPLOY_TO}/sensors lib \
 	${DEPLOY_TO}/tasks ${DEPLOY_TO}/www ${ap_config} \
 	${DEPLOY_TO}/pins.mpy \
 	${DEPLOY_TO}/secrets.mpy \
@@ -116,6 +118,12 @@ ${DEPLOY_TO} ${DEPLOY_TO}/sensors ${DEPLOY_TO}/tasks ${DEPLOY_TO}/tools ${DEPLOY
 # create mountpoint for SD-card
 ${DEPLOY_TO}/sd:
 	mkdir -p  $@
+
+# create mountpoint for /saves/-directory
+${DEPLOY_TO}/saves:
+ifeq (${HAVE_SAVES},1)
+	mkdir -p  $@
+endif
 
 # copy libs and fonts
 lib:
@@ -153,6 +161,7 @@ makevars.tmp: $(filter-out makevars.tmp,${MAKEVARS})
 dynvars.tmp:
 	sed -ne "/^FONT_DISPLAY/s/^FONT_DISPLAY *= *[\"']\([^\"']*\).*$$/FONT=\1.bdf/p" \
         ${CONFIG} >> $@
+	echo "HAVE_SAVES=$$(grep -q 'CSV_FILENAME.*/saves/' ${CONFIG}; test $$? -eq 1; echo $$?)" >> $@
 
 # rsync content of target-directory to pico
 # note: this needs a LABEL=CIRCUITPY entry in /etc/fstab and it only works
