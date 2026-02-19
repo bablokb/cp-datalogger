@@ -285,11 +285,15 @@ class WebAP(Server):
         if var in ["SENSORS", "TASKS"]:
           self._model[var] = value.split(" ")
         elif var == 'TIME_TABLE':
-          self._model[var] = json.loads(
-            value.replace('(','[').
-            replace(')',']').
-            replace('None','null')
-          )
+          # ignore TIME_TABLE errors (can be caused by TT referencing variables)
+          try:
+            self._model[var] = json.loads(
+              value.replace('(','[').
+              replace(')',']').
+              replace('None','null')
+            )
+          except:
+            g_logger.print("ignoring TIME_TABLE")
         else:
           self._model[var] = value
     except Exception as ex:
