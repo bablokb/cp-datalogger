@@ -72,6 +72,6 @@ class Settings:
       self.HAVE_PM = self.HAVE_PCB
       if not self.HAVE_PCB and not hasattr(config,"HAVE_RTC"):
         # HAVE_PCB==False and HAVE_RTC not set
-        HAVE_RTC = None
+        self.HAVE_RTC = None
 
     gc.collect()
