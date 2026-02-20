@@ -9,7 +9,7 @@
 
 import atexit
 import busio
-import digitialio
+import digitalio
 import displayio
 import sdcardio
 import storage
@@ -104,6 +104,7 @@ def get_dio(gpio,label,logger):
   """ create digitialio """
   dio = digitalio.DigitalInOut(gpio)
   atexit.register(at_exit_dio,label,logger)
+  return dio
 
 # --- create spi and register at-exit processing   ---------------------------
 
@@ -179,3 +180,18 @@ def init_oled(i2c,config,logger):
       logger.print(f"could not initialize OLED: {ex}")
       raise
   return None
+
+# --- initialize ETH for Wiznet   --------------------------------------------
+
+def init_w5k(pins,logger):
+  """ initialze ETH-chip """
+
+  try:
+    from adafruit_wiznet5k.adafruit_wiznet5k import WIZNET5K
+    spi = get_spi(pins.PIN_ETH_SCK,pins.PIN_ETH_MOSI,
+                  pins.PIN_ETH_MISO,"ETH",logger)
+    cs = get_dio(pins.PIN_ETH_CS,"ETH",logger)
+    return WIZNET5K(spi,cs)
+  except Exception as ex:
+    logger.print(f"could not initialize ETH: {ex}")
+    raise

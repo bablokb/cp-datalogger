@@ -10,13 +10,24 @@
 
 import board
 import time
-import socketpool
 import ssl
 import adafruit_requests
 
 from log_writer import Logger
 from secrets import secrets
 from singleton import singleton
+
+class _Radio:
+  """ fake Radio implementation """
+  def __init__(self):
+    self._enabled = True
+  @property
+  def enabled(self):
+    return self._enabled
+  @enabled.setter
+  def enabled(self,value):
+    """ ignore value """
+    pass
 
 @singleton
 class WifiImpl:
@@ -29,24 +40,37 @@ class WifiImpl:
 
     self.logger = Logger()                 # reuse global settings
 
+    try:
+      import socketpool
+      self._radio = None
+    except:
+      try:
+        import adafruit_wiznet5k.adafruit_wiznet5k_socketpool as socketpool
+        self._radio = _Radio()
+        self._eth = None
+      except:
+        self.logger.print("neither socketpool nor wiznet5k_socketpool available")
+        raise
+    self._socketpool = socketpool
+
     if not hasattr(secrets,'channel'):
       secrets.channel = 0
     if not hasattr(secrets,'timeout'):
       secrets.timeout = None
 
-    self._radio    = None
     self._pool     = None
     self._requests = None
     self._socket   = None
 
-  # --- initialze and connect to AP and to remote-port   ---------------------
+  # --- connect to AP and to remote-port   -----------------------------------
 
-  def connect(self):
-    """ initialize connection """
+  def _connect_wlan():
+    """ connect to wlan using builtin radio """
 
     if not self._radio:
       import wifi
       self._radio = wifi.radio
+
     if not self._radio.enabled:
       self._radio.enabled = True
       self._pool = None
@@ -76,8 +100,35 @@ class WifiImpl:
         time.sleep(1)
         continue
     self.logger.print("connected to %s" % secrets.ssid)
-    self._pool = socketpool.SocketPool(self._radio)
+
+  # --- connect to ethernet   ------------------------------------------------
+
+  def _connect_eth(self):
+    """ initialize connection """
+
+    if self._eth:
+      return
+
+    import pins
+    import hw_helper
+    self._eth = hw_helper.init_w5k(pins,self.logger)
+    self._pool = None
     self._requests = None
+
+  # --- connect and initialize   ---------------------------------------------
+
+  def connect(self):
+    """ initialize connection """
+
+    if hasattr(self,"_eth"):  # using a wiznet-chip
+      self._connect_eth()
+    else:
+      self._connect_wlan()
+
+    if not self._pool:
+      phy = getattr(self,"_eth",self._radio)
+      self._pool = self._socketpool.SocketPool(phy)
+      self._requests = None
 
   # --- return requests-object   --------------------------------------------
 
