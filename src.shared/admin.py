@@ -6,7 +6,6 @@
 # Website: https://github.com/bablokb/cp-datalogger
 #-----------------------------------------------------------------------------
 
-import atexit
 import wifi
 import time
 import gc
@@ -41,16 +40,6 @@ except:
     'hostname': 'datalogger'                               # msdn hostname
   }
 
-# --- atexit processing   ----------------------------------------------------
-
-def at_exit_dio(dio, logger):
-  """ release digitalio """
-  try:
-    logger.print("DIO deinit()")
-    dio.deinit()
-  except:
-    pass
-
 # --- turn on LED on sensor-pcb   --------------------------------------------
 
 if hasattr(pins,"PIN_SWD"):
@@ -65,9 +54,8 @@ elif hasattr(pins,'PIN_LED'):
 # --- set CS of display to high   --------------------------------------------
 
 if g_config.HAVE_DISPLAY and hasattr(pins,"PIN_INKY_CS"):
-  cs_display = DigitalInOut(pins.PIN_INKY_CS)
+  cs_display = hw_helper.get_dio(pins.PIN_INKY_CS,"INKY_CS",g_logger)
   cs_display.switch_to_output(value=True)
-  atexit.register(at_exit_dio,cs_display, g_logger)
 
 # --- read rtc   -------------------------------------------------------------
 
@@ -103,7 +91,6 @@ if g_config.HAVE_DISPLAY:
   g_logger.print("starting display update")
   if hasattr(pins,"PIN_INKY_CS"):
     cs_display.deinit()
-    atexit.unregister(at_exit_dio)
   if not spi and hasattr(pins,"PIN_SD_SCK"):
     spi = hw_helper.get_spi(pins.PIN_SD_SCK,pins.PIN_SD_MOSI,pins.PIN_SD_MISO,
                             "DISPLAY",g_logger)
