@@ -52,7 +52,7 @@ between logger and gateway.
 Building the Datalogger
 -----------------------
 
-From the toplevel directory (`pcb-pico-datalogger`) run
+From the toplevel directory (`cp-datalogger`) run
 
     make default MAKEVARS=configs.local/DL1/makevars.mk
 
@@ -74,7 +74,7 @@ Building the Gateway
 Before building the gateway, make sure to clean the build environment
 as described above.
 
-From the toplevel directory (`pcb-pico-datalogger`) run
+From the toplevel directory (`cp-datalogger`) run
 
     make gateway MAKEVARS=configs.local/GW/makevars.mk
 
