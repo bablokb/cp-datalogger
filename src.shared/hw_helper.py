@@ -9,6 +9,7 @@
 
 import atexit
 import busio
+import digitialio
 import displayio
 import sdcardio
 import storage
@@ -16,6 +17,17 @@ import storage
 from rtc_ext.ext_base import ExtBase
 
 # --- atexit processing   ----------------------------------------------------
+
+def at_exit_dio(dio,label,logger):
+  """ release digitalio """
+  try:
+    logger.print(f"releasing DIO for {label}")
+  except:
+    print(f"releasing DIO for {label}")
+  try:
+    dio.deinit()
+  except:
+    pass
 
 def at_exit_spi(spi,label,logger):
   """ release spi """
@@ -85,6 +97,13 @@ def init_i2c(pins,config,logger):
   # return result
   atexit.register(at_exit_i2c,i2c,logger)
   return i2c
+
+# --- create dio and register at-exit processing   ---------------------------
+
+def get_dio(gpio,label,logger):
+  """ create digitialio """
+  dio = digitalio.DigitalInOut(gpio)
+  atexit.register(at_exit_dio,label,logger)
 
 # --- create spi and register at-exit processing   ---------------------------
 
