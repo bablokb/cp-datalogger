@@ -32,6 +32,10 @@ A simpler implementation just runs on the normal datalogger hardware. In
 this case, there is no upstreaming of data, but the data is collected
 and stored centrally on the XTSD-card of the datalogger.
 
+In an environment with an existing LAN, the gateway also has been
+successfully tested with a Wiznet-EVB-Pico providing upstream connectivity
+using ethernet.
+
 
 Software
 --------
