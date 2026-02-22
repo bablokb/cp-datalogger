@@ -95,8 +95,9 @@ class TM_POWER:
       except Exception as ex:
         g_logger.print(f"failed to query data from {ip} with exception: {ex}")
         resp.append(None)
-        response.socket.close()
-        response.close()
+        if response:
+          response.socket.close()
+          response.close()
 
     # shutdown wifi if in strobe mode
     if self._config.STROBE_MODE or self._config.INTERVAL > 60:
