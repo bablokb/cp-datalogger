@@ -74,18 +74,18 @@ class DataCollector():
 
     # pull CS of display high to prevent it from floating
     if hasattr(pins,"PIN_DISP_CS"):
-      self._cs_display = hw_helper.get_dio(pins.PIN_DISP_CS,"DISP_CS",g_logger)
+      self._cs_display = hw_helper.get_dio(pins.PIN_DISP_CS,"DISP_CS")
       self._cs_display.switch_to_output(value=True)
 
     # early setup of SD-card (in case we send debug-logs to sd-card)
     if g_config.HAVE_SD:
-      hw_helper.init_sd(pins,g_config,g_logger)
+      hw_helper.init_sd(pins,g_config)
       g_ts.append((time.monotonic(),"sd-mount"))
       if g_config.TEST_MODE:
         g_logger.print(f"setup: free memory after sd-mount: {gc.mem_free()}")
 
     # create self.i2c (list of I2C-busses)
-    self.i2c = hw_helper.init_i2c(pins,g_config,g_logger)
+    self.i2c = hw_helper.init_i2c(pins,g_config)
     if g_config.TEST_MODE:
       g_logger.print(f"setup: free memory after create i2c-busses: {gc.mem_free()}")
 

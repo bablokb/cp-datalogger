@@ -54,19 +54,19 @@ elif hasattr(pins,'PIN_LED'):
 # --- set CS of display to high   --------------------------------------------
 
 if g_config.HAVE_DISPLAY and hasattr(pins,"PIN_DISP_CS"):
-  cs_display = hw_helper.get_dio(pins.PIN_DISP_CS,"DISP_CS",g_logger)
+  cs_display = hw_helper.get_dio(pins.PIN_DISP_CS,"DISP_CS")
   cs_display.switch_to_output(value=True)
 
 # --- read rtc   -------------------------------------------------------------
 
 if g_config.HAVE_RTC:
-  i2c  = hw_helper.init_i2c(pins,g_config,g_logger)
+  i2c  = hw_helper.init_i2c(pins,g_config)
   rtc  = hw_helper.init_rtc(pins,g_config,i2c)
   ap_config["rtc"] = rtc  # pass to webap for later use
 
 # --- mount sd-card if available   -------------------------------------------
 
-if g_config.HAVE_SD and hw_helper.init_sd(pins,g_config,g_logger):
+if g_config.HAVE_SD and hw_helper.init_sd(pins,g_config):
     ap_config["csv_root"] = "/sd"
 else:
   try:

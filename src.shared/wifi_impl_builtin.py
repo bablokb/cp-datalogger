@@ -111,7 +111,7 @@ class WifiImpl:
 
     import pins
     import hw_helper
-    self._eth = hw_helper.init_w5k(pins,self.logger)
+    self._eth = hw_helper.init_w5k(pins)
     self._pool = None
     self._requests = None
 

@@ -31,7 +31,7 @@ def run(config,app):
 
   gc.collect()
   try:
-    oled = hw_helper.init_oled(app.i2c,config,g_logger)
+    oled = hw_helper.init_oled(app.i2c,config)
     if not oled:
       return
     textlabel = oled.get_textlabel()

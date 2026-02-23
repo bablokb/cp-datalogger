@@ -45,13 +45,13 @@ class Broadcast:
 
     self._lora = LORA(g_config)
 
-    self._i2c  = hw_helper.init_i2c(pins,g_config,g_logger)
+    self._i2c  = hw_helper.init_i2c(pins,g_config)
     self._rtc  = hw_helper.init_rtc(pins,g_config,self._i2c)
 
     # try the OLED first (if configured and attached). Then try the
     # standard display.
     try:
-      self._oled = hw_helper.init_oled(self._i2c,g_config,g_logger)
+      self._oled = hw_helper.init_oled(self._i2c,g_config)
       self._display   = self._oled.get_display()
       self._textlabel = self._oled.get_textlabel()
     except:

@@ -71,7 +71,7 @@ class LORA:
     pin_cs     = DigitalInOut(pins.PIN_LORA_CS)
     pin_reset  = DigitalInOut(pins.PIN_LORA_RST)
     spi = hw_helper.get_spi(pins.PIN_LORA_SCK,pins.PIN_LORA_MOSI,
-                            pins.PIN_LORA_MISO,"LORA",g_logger)
+                            pins.PIN_LORA_MISO,"LORA")
     self.rfm9x = adafruit_rfm9x.RFM9x(
       spi, pin_cs,pin_reset,config.LORA_FREQ,baudrate=100000)
 

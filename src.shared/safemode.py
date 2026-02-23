@@ -26,12 +26,12 @@ except:
 
 # --- configure hardware   ---------------------------------------------------
 
-if not hw_helper.init_sd(pins,config,g_logger):
+if not hw_helper.init_sd(pins,config):
   # no way to log anything, just reset
   microcontroller.reset()
 
 try:
-  i2c = hw_helper.init_i2c(pins,config,g_logger)
+  i2c = hw_helper.init_i2c(pins,config)
   the_rtc = hw_helper.init_rtc(pins,config,i2c)
   ts = the_rtc.print_ts(the_rtc.rtc_ext.datetime)
 except:

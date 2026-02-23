@@ -59,7 +59,7 @@ class Display:
       return
 
     spi = hw_helper.get_spi(pins.PIN_DISP_SCK,pins.PIN_DISP_MOSI,None,
-                            "DISPLAY",g_logger)
+                            "DISPLAY")
     displayio.release_displays()
     if config.HAVE_DISPLAY == "Inky-Pack":
       self._display = DisplayFactory.inky_pack(spi)

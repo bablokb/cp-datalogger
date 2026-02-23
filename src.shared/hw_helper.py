@@ -14,14 +14,20 @@ import displayio
 import sdcardio
 import storage
 
+try:
+  from log_config import g_logger
+except:
+  from log_writer import Logger
+  g_logger = Logger('console')
+
 from rtc_ext.ext_base import ExtBase
 
 # --- atexit processing   ----------------------------------------------------
 
-def at_exit_dio(dio,label,logger):
+def at_exit_dio(dio,label):
   """ release digitalio """
   try:
-    logger.print(f"releasing DIO for {label}")
+    g_logger.print(f"releasing DIO for {label}")
   except:
     print(f"releasing DIO for {label}")
   try:
@@ -29,11 +35,11 @@ def at_exit_dio(dio,label,logger):
   except:
     pass
 
-def at_exit_spi(spi,label,logger):
+def at_exit_spi(spi,label):
   """ release spi """
   try:
     # may fail if we want to log to SD
-    logger.print(f"releasing SPI for {label}")
+    g_logger.print(f"releasing SPI for {label}")
   except:
     print(f"releasing SPI for {label}")
   try:
@@ -41,11 +47,11 @@ def at_exit_spi(spi,label,logger):
   except:
     pass
 
-def at_exit_i2c(i2c,logger):
+def at_exit_i2c(i2c):
   """ release i2c-busses """
   try:
     # may fail if we want to log to SD
-    logger.print(f"releasing {i2c}")
+    g_logger.print(f"releasing {i2c}")
   except:
     print(f"releasing {i2c}")
   for bus in reversed(i2c):
@@ -56,23 +62,23 @@ def at_exit_i2c(i2c,logger):
 
 # --- initialize I2C-busses   ----------------------------------------------
 
-def init_i2c(pins,config,logger):
+def init_i2c(pins,config):
   """ create and return list of I2C-busses """
 
   # Standard busses 0 and 1. Bus 0 is shared with UART, so we check
   # the configuration before creating it.
   try:
     i2c = [None,busio.I2C(pins.PIN_SCL1,pins.PIN_SDA1)]
-    logger.print(f"created i2c1")
+    g_logger.print(f"created i2c1")
   except Exception as ex:
-    logger.print(f"could not create i2c1: {ex}")
+    g_logger.print(f"could not create i2c1: {ex}")
     i2c = [None,None]
   if config.HAVE_I2C0:
     try:
       i2c[0] = busio.I2C(pins.PIN_SCL0,pins.PIN_SDA0)
-      logger.print(f"created i2c0")
+      g_logger.print(f"created i2c0")
     except:
-      logger.print("could not create i2c0 although configured, check wiring!")
+      g_logger.print("could not create i2c0 although configured, check wiring!")
 
   # create busses behind a multiplexer
   if config.HAVE_I2C_MP:
@@ -90,55 +96,55 @@ def init_i2c(pins,config,logger):
         i2c_mp = adafruit_tca9548a.PCA9546A(bus,addr)
       else:
         i2c_mp = adafruit_tca9548a.TCA9548A(bus,addr)
-      logger.print(f"adding {len(i2c_mp)} I2C-busses from {name}")
+      g_logger.print(f"adding {len(i2c_mp)} I2C-busses from {name}")
       for i2cbus in i2c_mp:
         i2c.append(i2cbus)
 
   # return result
-  atexit.register(at_exit_i2c,i2c,logger)
+  atexit.register(at_exit_i2c,i2c)
   return i2c
 
 # --- create dio and register at-exit processing   ---------------------------
 
-def get_dio(gpio,label,logger):
+def get_dio(gpio,label):
   """ create digitialio """
   dio = digitalio.DigitalInOut(gpio)
-  atexit.register(at_exit_dio,label,logger)
+  atexit.register(at_exit_dio,label)
   return dio
 
 # --- create spi and register at-exit processing   ---------------------------
 
 _spi = {}
-def get_spi(sck,mosi,miso,label,logger):
+def get_spi(sck,mosi,miso,label):
   """ create spi """
   global _spi
   if sck in _spi:
-    logger.print(f"returning existing SPI, created for {_spi[sck][1]}"
+    g_logger.print(f"returning existing SPI, created for {_spi[sck][1]}"
     return _spi[sck][0]
   try:
-    logger.print(f"creating SPI for {label}")
+    g_logger.print(f"creating SPI for {label}")
     spi = busio.SPI(sck,mosi,miso)
-    atexit.register(at_exit_spi,spi,label,logger)
+    atexit.register(at_exit_spi,spi,label)
     _spi[sck] = (spi, label)
     return spi
   except:
-    logger.print(f"SPI creation failed for pins {(sck,mosi,miso)}")
+    g_logger.print(f"SPI creation failed for pins {(sck,mosi,miso)}")
     raise
 
 # --- initialize SD-card   ---------------------------------------------------
 
-def init_sd(pins,config,logger):
+def init_sd(pins,config):
   """ initialize SD-card and return SPI-object """
 
   spi = None
   if config.HAVE_SD:
     try:
       spi    = get_spi(pins.PIN_SD_SCK,pins.PIN_SD_MOSI,pins.PIN_SD_MISO,
-                       "SD",logger)
+                       "SD")
       sdcard = sdcardio.SDCard(spi,pins.PIN_SD_CS,1_000_000)
       vfs    = storage.VfsFat(sdcard)
       storage.mount(vfs, "/sd")
-      logger.print("SD-card mounted on /sd")
+      g_logger.print("SD-card mounted on /sd")
     except Exception as ex:
       if spi:
         spi.deinit()
@@ -171,33 +177,33 @@ def init_rtc(pins,config,i2c):
 
 # --- initialize OLED   ------------------------------------------------------
 
-def init_oled(i2c,config,logger):
+def init_oled(i2c,config):
   """ init OLED display """
 
   if config.HAVE_OLED:
     try:
       from oled import OLED
-      odisp = OLED(config,i2c,logger)
+      odisp = OLED(config,i2c)
       display = odisp.get_display()
-      logger.print(
+      g_logger.print(
         f"OLED created with size {display.width}x{display.height}")
       return odisp
     except Exception as ex:
-      logger.print(f"could not initialize OLED: {ex}")
+      g_logger.print(f"could not initialize OLED: {ex}")
       raise
   return None
 
 # --- initialize ETH for Wiznet   --------------------------------------------
 
-def init_w5k(pins,logger):
+def init_w5k(pins):
   """ initialze ETH-chip """
 
   try:
     from adafruit_wiznet5k.adafruit_wiznet5k import WIZNET5K
     spi = get_spi(pins.PIN_ETH_SCK,pins.PIN_ETH_MOSI,
-                  pins.PIN_ETH_MISO,"ETH",logger)
-    cs = get_dio(pins.PIN_ETH_CS,"ETH",logger)
+                  pins.PIN_ETH_MISO,"ETH")
+    cs = get_dio(pins.PIN_ETH_CS,"ETH")
     return WIZNET5K(spi,cs)
   except Exception as ex:
-    logger.print(f"could not initialize ETH: {ex}")
+    g_logger.print(f"could not initialize ETH: {ex}")
     raise
