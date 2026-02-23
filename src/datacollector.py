@@ -73,14 +73,13 @@ class DataCollector():
     self.with_lipo = g_config.HAVE_LIPO
 
     # pull CS of display high to prevent it from floating
-    if hasattr(pins,"PIN_INKY_CS"):
-      self._cs_display = hw_helper.get_dio(pins.PIN_INKY_CS,"INKY_CS",g_logger)
+    if hasattr(pins,"PIN_DISP_CS"):
+      self._cs_display = hw_helper.get_dio(pins.PIN_DISP_CS,"DISP_CS",g_logger)
       self._cs_display.switch_to_output(value=True)
 
     # early setup of SD-card (in case we send debug-logs to sd-card)
-    self.spi = None
     if g_config.HAVE_SD:
-      self.spi = hw_helper.init_sd(pins,g_config,g_logger)
+      hw_helper.init_sd(pins,g_config,g_logger)
       g_ts.append((time.monotonic(),"sd-mount"))
       if g_config.TEST_MODE:
         g_logger.print(f"setup: free memory after sd-mount: {gc.mem_free()}")
@@ -116,7 +115,7 @@ class DataCollector():
     g_ts.append((time.monotonic(),"rtc-update"))
 
     # display
-    if hasattr(pins,"PIN_INKY_CS"):
+    if hasattr(pins,"PIN_DISP_CS"):
       self._cs_display.deinit()
 
     if g_config.HAVE_DISPLAY:
@@ -371,14 +370,6 @@ class DataCollector():
       time.sleep(2)
     else:
       g_logger.print("ignoring shutdown (don't have PM or PIN_DONE undefined)")
-
-  # --- cleanup   ------------------------------------------------------------
-
-  def cleanup(self):
-    """ cleanup ressources """
-
-    self._cs_display.deinit()
-    self.spi.deinit()
 
   # --- run datacollector   ------------------------------------------------
 

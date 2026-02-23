@@ -34,10 +34,12 @@ PIN_SD_MOSI = board.GP19
 PIN_SD_MISO = board.GP16
 
 # display interface (SPI, Inky-Pack)
-PIN_INKY_CS   = board.GP17
-PIN_INKY_RST  = board.GP21
-PIN_INKY_DC   = board.GP20
-PIN_INKY_BUSY = board.GP26
+PIN_DISP_SCK  = board.GP18
+PIN_DISP_MOSI = board.GP19
+PIN_DISP_CS   = board.GP17
+PIN_DISP_RST  = board.GP21
+PIN_DISP_DC   = board.GP20
+PIN_DISP_BUSY = board.GP26
 
 PIN_LORA_CS   = board.GP9
 PIN_LORA_RST  = board.GP7

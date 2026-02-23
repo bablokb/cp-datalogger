@@ -12,7 +12,6 @@ import gc
 import board
 from digitalio import DigitalInOut, Pull, Direction
 
-import pins
 import webap
 
 try:
@@ -22,6 +21,7 @@ except:
   g_logger = Logger('console')
 
 import hw_helper
+import pins
 
 from settings import Settings
 g_config = Settings(g_logger)
@@ -53,8 +53,8 @@ elif hasattr(pins,'PIN_LED'):
 
 # --- set CS of display to high   --------------------------------------------
 
-if g_config.HAVE_DISPLAY and hasattr(pins,"PIN_INKY_CS"):
-  cs_display = hw_helper.get_dio(pins.PIN_INKY_CS,"INKY_CS",g_logger)
+if g_config.HAVE_DISPLAY and hasattr(pins,"PIN_DISP_CS"):
+  cs_display = hw_helper.get_dio(pins.PIN_DISP_CS,"DISP_CS",g_logger)
   cs_display.switch_to_output(value=True)
 
 # --- read rtc   -------------------------------------------------------------
@@ -86,7 +86,7 @@ if g_config.HAVE_DISPLAY:
   from display import Display
 
   g_logger.print("starting display update")
-  if hasattr(pins,"PIN_INKY_CS"):
+  if hasattr(pins,"PIN_DISP_CS"):
     cs_display.deinit()
   display = Display(g_config).get_display()
 

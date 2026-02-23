@@ -11,11 +11,12 @@ import board
 import storage
 import supervisor
 import microcontroller
-import pins
-import hw_helper
 
 from log_writer import Logger
 g_logger = Logger('/sd/safemode.log')
+
+import hw_helper
+import pins
 
 try:
   import config
