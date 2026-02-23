@@ -121,7 +121,7 @@ class DataCollector():
 
     if g_config.HAVE_DISPLAY:
       from display import Display
-      self.display = Display(g_config,self.spi)
+      self.display = Display(g_config)
       if g_config.TEST_MODE:
         g_logger.print(f"setup: free memory after create display: {gc.mem_free()}")
 

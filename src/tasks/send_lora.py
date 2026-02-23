@@ -73,17 +73,11 @@ def run(config,app):
   try:
     # this will return an existing singleton
     g_logger.print("send_lora: fetching LoRa-singleton...")
-    lora = LORA(None,None)
+    lora = LORA(None)
   except:
     g_logger.print("send_lora: ... failed.")
     g_logger.print("send_lora: creating LoRa-singleton")
-    if app.spi and pins.PIN_SD_SCK == pins.PIN_LORA_SCK:
-      spi1 = app.spi
-    else:
-      spi1 = hw_helper.get_spi(pins.PIN_LORA_SCK,pins.PIN_LORA_MOSI,
-                               pins.PIN_LORA_MISO,"LORA",g_logger)
-    lora = LORA(config,spi1)
-
+    lora = LORA(config)
 
   # check for pending records
   buffer_file = _get_buffer_file(config)

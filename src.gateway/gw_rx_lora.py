@@ -32,14 +32,11 @@ class LoraReceiver:
 
   # --- hardware-setup   -----------------------------------------------------
 
-  def setup(self,i2c,spi):
+  def setup(self,i2c):
     """ initialize hardware """
 
     g_logger.print(f"LoraReceiver: initializing hardware")
-    if not spi or pins.PIN_SD_SCK != pins.PIN_LORA_SCK:
-      spi = hw_helper.get_spi(pins.PIN_LORA_SCK,pins.PIN_LORA_MOSI,
-                              pins.PIN_LORA_MISO,"LORA",g_logger)
-    self._lora = LORA(self._config,spi)
+    self._lora = LORA(self._config)
 
   # --- receive data   -------------------------------------------------------
 

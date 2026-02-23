@@ -43,8 +43,7 @@ class Broadcast:
     self._pnr     = 0
     self._pok     = 0
 
-    self._init_spi()
-    self._lora = LORA(g_config,self.spi1)
+    self._lora = LORA(g_config)
 
     self._i2c  = hw_helper.init_i2c(pins,g_config,g_logger)
     self._rtc  = hw_helper.init_rtc(pins,g_config,self._i2c)
@@ -66,22 +65,6 @@ class Broadcast:
       self.interval = max(getattr(g_config,'BROADCAST_INT',10),60)
       self._last_ref = -self.interval
 
-  # --- create SPI   ---------------------------------------------------------
-
-  def _init_spi(self):
-    if hasattr(pins,"PIN_SD_SCK"):
-      self.spi = hw_helper.get_spi(pins.PIN_SD_SCK,pins.PIN_SD_MOSI,
-                                   pins.PIN_SD_MISO,"SD",g_logger)
-    if pins.PIN_SD_SCK == pins.PIN_LORA_SCK:
-      if hasattr(self,"spi"):
-        self.spi1 = self.spi
-      else:
-        self.spi1 = hw_helper.get_spi(pins.PIN_LORA_SCK,pins.PIN_LORA_MOSI,
-                                   pins.PIN_LORA_MISO,"LORA",g_logger)
-    else:
-      self.spi1 = hw_helper.get_spi(pins.PIN_LORA_SCK,pins.PIN_LORA_MOSI,
-                                   pins.PIN_LORA_MISO,"LORA",g_logger)
-
   # --- standard display   -------------------------------------------------
 
   def _init_display(self):
@@ -91,7 +74,7 @@ class Broadcast:
       from display import Display
 
       g_logger.print("initializing display...")
-      self._display = Display(g_config,self.spi).get_display()
+      self._display = Display(g_config).get_display()
 
       font = bitmap_font.load_font(f"fonts/{g_config.FONT_DISPLAY}.bdf")
       group = displayio.Group()

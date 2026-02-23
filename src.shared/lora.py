@@ -7,15 +7,16 @@
 # Website: https://github.com/bablokb/cp-datalogger
 #-----------------------------------------------------------------------------
 
-from log_writer import Logger
-g_logger = Logger()
-
-from singleton import singleton
-
 from digitalio import DigitalInOut, Direction, Pull
 import struct
 import time
+
 import adafruit_rfm9x
+
+from log_writer import Logger
+g_logger = Logger()
+from singleton import singleton
+import hw_helper
 import pins
 
 # --- quality of service settings   ------------------------------------------
@@ -38,7 +39,7 @@ _LORA_QOS_DEF = 2  # 0 is library default
 
 @singleton
 class LORA:
-  def __init__(self,config,spi):
+  def __init__(self,config):
     """ constructor """
 
     # Calling the constructor with None will return the singleton, if it
@@ -69,6 +70,8 @@ class LORA:
     g_logger.print("LoRa: initializing rfm9x")
     pin_cs     = DigitalInOut(pins.PIN_LORA_CS)
     pin_reset  = DigitalInOut(pins.PIN_LORA_RST)
+    spi = hw_helper.get_spi(pins.PIN_LORA_SCK,pins.PIN_LORA_MOSI,
+                            pins.PIN_LORA_MISO,"LORA",g_logger)
     self.rfm9x = adafruit_rfm9x.RFM9x(
       spi, pin_cs,pin_reset,config.LORA_FREQ,baudrate=100000)
 

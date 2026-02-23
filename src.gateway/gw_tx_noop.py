@@ -26,7 +26,7 @@ class NoopSender:
 
   # --- hardware-setup   -----------------------------------------------------
 
-  def setup(self,i2c,spi):
+  def setup(self,i2c):
     """ initialize hardware """
     g_logger.print(f"NoopSender: initializing")
 

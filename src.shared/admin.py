@@ -66,12 +66,9 @@ if g_config.HAVE_RTC:
 
 # --- mount sd-card if available   -------------------------------------------
 
-if g_config.HAVE_SD:
-  spi = hw_helper.init_sd(pins,g_config,g_logger)
-  if spi:
+if g_config.HAVE_SD and hw_helper.init_sd(pins,g_config,g_logger):
     ap_config["csv_root"] = "/sd"
 else:
-  spi = None
   try:
     import os
     os.listdir("/saves")
@@ -91,10 +88,7 @@ if g_config.HAVE_DISPLAY:
   g_logger.print("starting display update")
   if hasattr(pins,"PIN_INKY_CS"):
     cs_display.deinit()
-  if not spi and hasattr(pins,"PIN_SD_SCK"):
-    spi = hw_helper.get_spi(pins.PIN_SD_SCK,pins.PIN_SD_MOSI,pins.PIN_SD_MISO,
-                            "DISPLAY",g_logger)
-  display = Display(g_config,spi).get_display()
+  display = Display(g_config).get_display()
 
   font = bitmap_font.load_font(f"fonts/{g_config.FONT_DISPLAY}.bdf")
   group = displayio.Group()

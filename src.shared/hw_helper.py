@@ -108,12 +108,18 @@ def get_dio(gpio,label,logger):
 
 # --- create spi and register at-exit processing   ---------------------------
 
+_spi = {}
 def get_spi(sck,mosi,miso,label,logger):
   """ create spi """
+  global _spi
+  if sck in _spi:
+    logger.print(f"returning existing SPI, created for {_spi[sck][1]}"
+    return _spi[sck][0]
   try:
     logger.print(f"creating SPI for {label}")
     spi = busio.SPI(sck,mosi,miso)
     atexit.register(at_exit_spi,spi,label,logger)
+    _spi[sck] = (spi, label)
     return spi
   except:
     logger.print(f"SPI creation failed for pins {(sck,mosi,miso)}")

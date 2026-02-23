@@ -24,7 +24,7 @@ class NoopReceiver:
 
   # --- hardware-setup   -----------------------------------------------------
 
-  def setup(self,i2c,spi):
+  def setup(self,i2c):
     """ initialize hardware """
     g_logger.print(f"NoopReceiver: initializing no hardware")
 

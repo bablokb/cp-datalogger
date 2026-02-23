@@ -40,10 +40,9 @@ class Display:
 
   # --- constructor   --------------------------------------------------------
 
-  def __init__(self,config,spi):
+  def __init__(self,config):
     """ constructor """
 
-    self._spi    = spi
     self._view   = None
     self.strobe_wait = getattr(config,"DISPLAY_STROBE_WAIT",3)
 
@@ -57,33 +56,31 @@ class Display:
         self._display.auto_refresh = False
       return
 
-    # spi - if not already created
-    if not self._spi:
-      self._spi = hw_helper.get_spi(pins.PIN_SD_SCK,pins.PIN_SD_MOSI,None,
-                                    "DISPLAY",g_logger)
+    spi = hw_helper.get_spi(pins.PIN_SD_SCK,pins.PIN_SD_MOSI,None,
+                            "DISPLAY",g_logger)
     displayio.release_displays()
     if config.HAVE_DISPLAY == "Inky-Pack":
-      self._display = DisplayFactory.inky_pack(self._spi)
+      self._display = DisplayFactory.inky_pack(spi)
     elif config.HAVE_DISPLAY == "Inky-pHat":
       self._display = DisplayFactory.inky_phat(
         pin_dc=pins.PIN_INKY_DC,pin_cs=pins.PIN_INKY_CS,
-        pin_rst=pins.PIN_INKY_RST,pin_busy=pins.PIN_INKY_BUSY,spi=self._spi)
+        pin_rst=pins.PIN_INKY_RST,pin_busy=pins.PIN_INKY_BUSY,spi=spi)
       if not hasattr(config,"DISPLAY_STROBE_WAIT"):
         self.strobe_wait = 6
     elif config.HAVE_DISPLAY == "Ada-2.13-Mono":
       self._display = DisplayFactory.ada_2_13_mono(
         pin_dc=pins.PIN_INKY_DC,pin_cs=pins.PIN_INKY_CS,
-        pin_rst=pins.PIN_INKY_RST,pin_busy=pins.PIN_INKY_BUSY,spi=self._spi)
+        pin_rst=pins.PIN_INKY_RST,pin_busy=pins.PIN_INKY_BUSY,spi=spi)
     elif config.HAVE_DISPLAY == "Ada-1.54-Mono":
       self._display = DisplayFactory.ada_1_54_mono(
         pin_dc=pins.PIN_INKY_DC,pin_cs=pins.PIN_INKY_CS,
-        pin_rst=pins.PIN_INKY_RST,pin_busy=pins.PIN_INKY_BUSY,spi=self._spi)
+        pin_rst=pins.PIN_INKY_RST,pin_busy=pins.PIN_INKY_BUSY,spi=spi)
     elif config.HAVE_DISPLAY == "WeAct-2.9":
       self._display = DisplayFactory.weact_2_9(
         pin_dc=pins.PIN_INKY_DC,pin_cs=pins.PIN_INKY_CS,
-        pin_rst=pins.PIN_INKY_RST,pin_busy=pins.PIN_INKY_BUSY,spi=self._spi)
+        pin_rst=pins.PIN_INKY_RST,pin_busy=pins.PIN_INKY_BUSY,spi=spi)
     elif config.HAVE_DISPLAY == "Display-Pack":
-      self._display = DisplayFactory.display_pack(self._spi)
+      self._display = DisplayFactory.display_pack(spi)
       self._display.auto_refresh = False
     else:
       self._display = None
