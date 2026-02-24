@@ -109,7 +109,7 @@ def init_i2c(pins,config):
 def get_dio(gpio,label):
   """ create digitialio """
   dio = digitalio.DigitalInOut(gpio)
-  atexit.register(at_exit_dio,label)
+  atexit.register(at_exit_dio,dio,label)
   return dio
 
 # --- create spi and register at-exit processing   ---------------------------
@@ -119,7 +119,7 @@ def get_spi(sck,mosi,miso,label):
   """ create spi """
   global _spi
   if sck in _spi:
-    g_logger.print(f"returning existing SPI, created for {_spi[sck][1]}"
+    g_logger.print(f"returning existing SPI, created for {_spi[sck][1]}")
     return _spi[sck][0]
   try:
     g_logger.print(f"creating SPI for {label}")

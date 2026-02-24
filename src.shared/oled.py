@@ -18,14 +18,20 @@ try:
 except:
   I2CDisplayBus = displayio.I2CDisplay
 
+try:
+  from log_config import g_logger
+except:
+  from log_writer import Logger
+  g_logger = Logger('console')
+
 import pins
 from singleton import singleton
 
-def at_exit_oled(logger):
+def at_exit_oled():
   """ release OLED """
   try:
     # may fail if we want to log to SD
-    logger.print(f"releasing oled")
+    g_logger.print(f"releasing oled")
   except:
     print(f"releasing oled")
   displayio.release_displays()   # cannot release a specific display
@@ -36,7 +42,7 @@ class OLED:
 
   # --- constructor   --------------------------------------------------------
 
-  def __init__(self,config,i2c,logger):
+  def __init__(self,config,i2c):
     """ constructor """
 
     displayio.release_displays()
@@ -70,7 +76,7 @@ class OLED:
                                   )
     group.append(self._textlabel)
     self._display.root_group = group
-    atexit.register(at_exit_oled,logger)
+    atexit.register(at_exit_oled)
 
   # --- return display   -----------------------------------------------------
 

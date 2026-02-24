@@ -64,7 +64,7 @@ class WifiImpl:
 
   # --- connect to AP and to remote-port   -----------------------------------
 
-  def _connect_wlan():
+  def _connect_wlan(self):
     """ connect to wlan using builtin radio """
 
     if not self._radio:
@@ -160,8 +160,8 @@ class WifiImpl:
     """ send to given destination """
     self.connect()
     self.logger.print(f"wifi: send to {udp_ip}:{udp_port}")
-    with self._pool.socket(family=socketpool.SocketPool.AF_INET,
-                           type=socketpool.SocketPool.SOCK_DGRAM) as socket:
+    with self._pool.socket(family=self._socketpool.SocketPool.AF_INET,
+                           type=self._socketpool.SocketPool.SOCK_DGRAM) as socket:
       socket.sendto(data,(udp_ip,udp_port))
 
   # --- execute send-command   ----------------------------------------------
@@ -185,8 +185,8 @@ class WifiImpl:
         return (socket,n)
 
     # (re-) create socket
-    socket = self._pool.socket(family=socketpool.SocketPool.AF_INET,
-                                 type=socketpool.SocketPool.SOCK_STREAM)
+    socket = self._pool.socket(family=self._socketpool.SocketPool.AF_INET,
+                                 type=self._socketpool.SocketPool.SOCK_STREAM)
     socket.connect((tcp_ip,tcp_port))
     # return socket for later use
     return (socket, socket.send(data))

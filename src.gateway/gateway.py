@@ -105,6 +105,7 @@ class Gateway:
     g_logger.print(f"gateway: initializing")
     self.i2c  = hw_helper.init_i2c(pins,g_config)
     self.oled = hw_helper.init_oled(self.i2c,g_config)
+    hw_helper.init_sd(pins,g_config)
     self.rtc  = hw_helper.init_rtc(pins,g_config,self.i2c)
 
     self.receiver.setup(self.i2c)
