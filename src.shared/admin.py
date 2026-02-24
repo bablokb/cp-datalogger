@@ -12,14 +12,13 @@ import gc
 import board
 from digitalio import DigitalInOut, Pull, Direction
 
-import webap
-
 try:
   from log_config import g_logger
 except:
   from log_writer import Logger
   g_logger = Logger('console')
 
+import webap
 import hw_helper
 import pins
 
@@ -59,10 +58,9 @@ if g_config.HAVE_DISPLAY and hasattr(pins,"PIN_DISP_CS"):
 
 # --- read rtc   -------------------------------------------------------------
 
-if g_config.HAVE_RTC:
-  i2c  = hw_helper.init_i2c(pins,g_config)
-  rtc  = hw_helper.init_rtc(pins,g_config,i2c)
-  ap_config["rtc"] = rtc  # pass to webap for later use
+i2c  = hw_helper.init_i2c(pins,g_config)
+rtc  = hw_helper.init_rtc(pins,g_config,i2c)
+ap_config["rtc"] = rtc  # pass to webap for later use
 
 # --- mount sd-card if available   -------------------------------------------
 
