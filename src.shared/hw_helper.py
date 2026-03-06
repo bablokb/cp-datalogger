@@ -199,11 +199,28 @@ def init_w5k(pins):
   """ initialze ETH-chip """
 
   try:
+    cs = None
+    import board
     from adafruit_wiznet5k.adafruit_wiznet5k import WIZNET5K
-    spi = get_spi(pins.PIN_ETH_SCK,pins.PIN_ETH_MOSI,
-                  pins.PIN_ETH_MISO,"ETH")
+    if board.board_id == "wiznet_w55rp20_evb_pico":
+      import wiznet
+      spi = wiznet.PIO_SPI(board.W5K_SCK,
+                           MOSI=board.W5K_MOSI, MISO=board.W5K_MISO)
+    elif board.board_id == "wiznet_w6300_evb_pico2":
+      import wiznet
+      spi = wiznet.PIO_SPI(board.W5K_SCK,
+                           quad_io0=board.W5K_MOSI,
+                           quad_io1=board.W5K_MISO,
+                           quad_io2=board.W5K_IO2, quad_io3=board.W5K_IO3)
+    else:
+      spi = get_spi(pins.PIN_ETH_SCK,pins.PIN_ETH_MOSI,
+                    pins.PIN_ETH_MISO,"ETH")
     cs = get_dio(pins.PIN_ETH_CS,"ETH")
     return WIZNET5K(spi,cs)
   except Exception as ex:
     g_logger.print(f"could not initialize ETH: {ex}")
+    if cs:
+      cs.deinit()
+    import traceback
+    traceback.print_exception(ex)
     raise
