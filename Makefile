@@ -35,6 +35,8 @@ SPECIAL_SHARED+=src.shared/bootloader.py src.shared/admin.py
 
 SOURCES=$(wildcard ${SRC}/*.py)
 SHARED=$(wildcard src.shared/*.py)
+SHARED_LIBS=src.shared/lib${CP_VERSION}
+APP_LIBS=${SRC}/lib${CP_VERSION}
 
 # make variables from commandline (last invocation)
 include ${MAKEVARS}
@@ -128,8 +130,9 @@ endif
 # copy libs and fonts
 lib:
 	mkdir -p ${DEPLOY_TO}/lib
-	rsync -av --delete -L -k ${SRC}/lib${CP_VERSION}/ \
-                        ${USER_LIBS} ${DEPLOY_TO}/lib/
+	rsync -av --exclude=.placeholder.txt --delete -L -k \
+                   ${APP_LIBS}/ ${SHARED_LIBS}/ \
+                   ${USER_LIBS} ${DEPLOY_TO}/lib/
 
 ${DEPLOY_TO}/fonts/${FONT}: ${SRC}/fonts/${FONT}
 	mkdir -p ${DEPLOY_TO}/fonts
