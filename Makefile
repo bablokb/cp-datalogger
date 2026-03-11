@@ -19,6 +19,7 @@ MAKEVARS=makevars.tmp
 CONFIG=src/config.py
 LOG_CONFIG=src/log_config.py
 FONT=DejaVuSansMono-Bold-18-subset.bdf
+ADMIN=1
 
 ifeq (gateway,$(findstring gateway,${MAKECMDGOALS}))
 SRC=src.gateway
@@ -62,7 +63,14 @@ SENSORS=$(wildcard ${SRC}/sensors/*.py)
 TASKS=$(wildcard ${SRC}/tasks/*.py)
 
 # files served by the webserver in admin-mode
+ifeq (${ADMIN},1)
 WWW=$(wildcard src.shared/www/*)
+EXCLUDE_LIBS=
+else
+WWW=
+SPECIAL_SHARED:=$(filter-out src.shared/admin.py,${SPECIAL_SHARED})
+EXCLUDE_LIBS=ehttpserver.mpy
+endif
 
 # tools
 TOOLS=$(wildcard ./tools/*)
@@ -131,6 +139,7 @@ endif
 lib:
 	mkdir -p ${DEPLOY_TO}/lib
 	rsync -av --exclude=.placeholder.txt --delete -L -k \
+                   $(foreach lib,$(EXCLUDE_LIBS),--exclude=$(lib)) \
                    ${APP_LIBS}/ ${SHARED_LIBS}/ \
                    ${USER_LIBS} ${DEPLOY_TO}/lib/
 
@@ -158,6 +167,7 @@ makevars.tmp: $(filter-out makevars.tmp,${MAKEVARS})
 	@echo -e "SECRETS=${SECRETS}" >> $@
 	@echo -e "CP_VERSION=${CP_VERSION}" >> $@
 	@echo -e "USER_LIBS=${USER_LIBS}" >> $@
+	@echo -e "ADMIN=${ADMIN}" >> $@
 
 dynvars.tmp:
 	sed -ne "/^FONT_DISPLAY/s/^FONT_DISPLAY *= *[\"']\([^\"']*\).*$$/FONT=\1.bdf/p" \
@@ -228,7 +238,9 @@ $(WWW:src.shared/www/%=${DEPLOY_TO}/www/%.gz): ${DEPLOY_TO}/www/%.gz: src.shared
 	gzip -9c $< > $@
 
 ${DEPLOY_TO}/www/config.html.gz: ${SRC}/www/config.html
+ifeq (${ADMIN},1)
 	gzip -9c $< > $@
+endif
 
 $(TOOLS:./tools/%.py=${DEPLOY_TO}/tools/%.py): \
          ${DEPLOY_TO}/tools/%.py: ./tools/%.py
