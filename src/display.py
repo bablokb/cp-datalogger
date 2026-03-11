@@ -56,6 +56,7 @@ class Display:
         self._display = board.DISPLAY     # no method
       if hasattr(self._display,"auto_refresh"):
         self._display.auto_refresh = False
+      self._config = config
       return
 
     spi = hw_helper.get_spi(pins.PIN_DISP_SCK,pins.PIN_DISP_MOSI,None,
