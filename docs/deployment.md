@@ -39,11 +39,6 @@ Run
 in the root-directory of the project. This creates the subdirectory `deploy`.
 After that, you can manualy copy all files below `deploy` to your device.
 
-To select between CircuitPython 9.x and 10.x builds, pass `CP_VERSION=9|10`
-to `make`. The default is `CP_VERSION=9`.
-
-**`CP_VERSION=10` is currently not recommended!**.
-
 
 Select Datalogger-PCB version
 -----------------------------
@@ -54,12 +49,29 @@ build a system for the v1 PCB, run
     > make PCB=v1
 
 This make-variable pulls in the correct pin-mapping
-(`src/pins${PCB}.py`).  For other mappings pass in a different value
-for `PCB` (e.g. when using a PicoBell Adalogger: `PCB=pbada`). Create
-an appropriate named pin-configuration file if necessary.
+(`src.shared/pins${PCB}.py`).  For other mappings set this variable to
+the path to the mapping file, in this case the mapping file can be out
+of tree (i.e. not within the `src/`-direcotory).
 
-You can also pass in a path to the mapping file, in this case the mapping
-file can be out of tree (i.e. not within the `src/`-direcotory).
+
+Special Tweaks
+--------------
+
+A number of makefile variables can be used to tweak the build process:
+
+  - `PCB=...`: select PCB-version or hardware definition-file (see above)
+  - `CP_VERSION=9|10`: build for the given version
+  - `SECRETS=...`: path to the `secrets.py` file
+  - `LOG_CONFIG=...`: path to the log-config file
+  - `AP_CONFIG=...`: path to the AP-config file
+  - `USER_LIBS=...`: add libraries that are not part of this project
+  - `ADMIN=0`: don't add the admin-interface
+
+Notes:
+
+  - The default is `CP_VERSION=9`. **`CP_VERSION=10` is currently not
+    recommended!**.
+  - Check the `examples` and `build-template`-directories for usage-blueprints
 
 
 Direct Deployment
@@ -79,7 +91,7 @@ Advanced Usage
 You can pass paths to your specific configurations and secrets-files on
 the commandline:
 
-    > make PCB=v1|v2|path-to-pins.py \
+    > make PCB=v1|v2|v3|path-to-pins.py \
          DEPLOY_TO=whatever \
          CONFIG=my_special_config.py \
          LOG_CONFIG=my_logconfiguration.py \
@@ -93,19 +105,22 @@ I.e. a subsequent call to make does not need the arguments anymore.
 
 You can even keep sets of make-variables, e.g.:
 
-    > cat my_vars.txt
-      PCB=v1|v2|path-to-pins.py
+Content of `~/makevars.mk` (the name is irrelevant):
+
+      PCB=v1|v2|v3|path-to-pins.py
       DEPLOY_TO=whatever
       CONFIG=my_special_config.py
       LOG_CONFIG=my_logconfiguration.py
       AP_CONFIG=my_apconfiguration.py
       SECRETS=my_credentials.py
-      CP_VERSION=8
+      CP_VERSION=9
 
-    > make MAKEVARS=my_vars.txt
+Run make with this set of variables:
+
+    > make MAKEVARS=~/makevars.mk
 
 Again, make remembers all relevant variables (in the file `makevars.tmp`)
-and does not need the argument on subsequent runs.
+and does not need the arguments on subsequent runs.
 
 
 Building the Gateway-Firmware
