@@ -23,6 +23,18 @@ CO2. This setup is ideal for a small, mobile air-quality measurement
 system.
 
 
+XIAO ESP32S3 plus XIAO-Base
+---------------------------
+
+The XIAO-Base adds a SD-slot, an OLED, connectors, battery power and a
+RTC to the mix. This example uses the XIAO ESP32S3, but since the pins
+are standardized, the setup will work with any XIAO/Qt-Py device.
+
+The ESP32S3 has the advantage of low power draw during deep-sleep, which
+is particularly useful since the XIAO-Base does not provide advanced
+power-management.
+
+
 PiCowbell-Adalogger
 -------------------
 
