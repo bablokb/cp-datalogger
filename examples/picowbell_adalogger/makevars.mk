@@ -1,23 +1,20 @@
 #-----------------------------------------------------------------------------
-# Makefile configuration for Datalogger XIAO ESP32S3 + XIAO-Base
+# Makefile configuration for Datalogger Adafruit PicowBell
 #
 # Website: https://github.com/cp-datalogger
 #-----------------------------------------------------------------------------
 
 # path to hardware configuration file
-PCB=examples/xiao-esp32s3+base/pins.py
+PCB=examples/picowbell_adalogger/pins.py
 
 # target deployment directory
-DEPLOY_TO=xiao-esp32s3+base.local
+DEPLOY_TO=picowbell_adalogger.local
 
 # application configuration
-CONFIG=examples/xiao-esp32s3+base/config.py
+CONFIG=examples/picowbell_adalogger/config.py
 
 # log configuration
 LOG_CONFIG=examples/log_config_console.py
 
-# AP configuration (ignored)
+# AP configuration
 AP_CONFIG=examples/ap_config_prod.py
-
-# don't build the admin-interface
-ADMIN=0
