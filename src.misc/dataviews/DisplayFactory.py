@@ -236,7 +236,8 @@ class DisplayFactory:
 
     return adafruit_ssd1680.SSD1680(display_bus,width=296,height=128,
                                     busy_pin=pin_busy,
-                                    rotation=rotation, **kwargs)
+                                    rotation=rotation, **kwargs,
+                                    seconds_per_frame=10)
 
   # --- create display for Pimoroni Inky-displays   --------------------------
 
