@@ -44,6 +44,11 @@ include ${MAKEVARS}
 
 # dynamically create make variables
 include dynvars.tmp
+ifeq (${HAVE_DISPLAY},1)
+DISPLAY_LIBS=src.shared/lib${CP_VERSION}.display/
+else
+DISPLAY_LIBS=
+endif
 
 # remove files that cannot be precompiled
 SOURCES:=$(filter-out ${SRC}/secrets.py ${SPECIAL_SRC},${SOURCES})
@@ -141,7 +146,7 @@ lib:
 	rsync -av --exclude=.placeholder.txt --delete -L -k \
                    $(foreach lib,$(EXCLUDE_LIBS),--exclude=$(lib)) \
                    ${APP_LIBS}/ ${SHARED_LIBS}/ \
-                   ${USER_LIBS} ${DEPLOY_TO}/lib/
+                   ${DISPLAY_LIBS} ${USER_LIBS} ${DEPLOY_TO}/lib/
 
 ${DEPLOY_TO}/fonts/${FONT}: ${SRC}/fonts/${FONT}
 	mkdir -p ${DEPLOY_TO}/fonts
@@ -173,6 +178,7 @@ dynvars.tmp:
 	sed -ne "/^FONT_DISPLAY/s/^FONT_DISPLAY *= *[\"']\([^\"']*\).*$$/FONT=\1.bdf/p" \
         ${CONFIG} >> $@
 	echo "HAVE_SAVES=$$(grep -q 'CSV_FILENAME.*/saves/' ${CONFIG}; test $$? -eq 1; echo $$?)" >> $@
+	echo "HAVE_DISPLAY=$$(grep -q '$$HAVE_DISPLAY.\?=.\?\(None\|False\)' ${CONFIG}; echo $$?)" >> $@
 
 # rsync content of target-directory to pico
 # note: this needs a LABEL=CIRCUITPY entry in /etc/fstab and it only works
