@@ -177,8 +177,8 @@ makevars.tmp: $(filter-out makevars.tmp,${MAKEVARS})
 dynvars.tmp:
 	sed -ne "/^FONT_DISPLAY/s/^FONT_DISPLAY *= *[\"']\([^\"']*\).*$$/FONT=\1.bdf/p" \
         ${CONFIG} >> $@
-	echo "HAVE_SAVES=$$(grep -q 'CSV_FILENAME.*/saves/' ${CONFIG}; test $$? -eq 1; echo $$?)" >> $@
-	echo "HAVE_DISPLAY=$$(grep -q '$$HAVE_DISPLAY.\?=.\?\(None\|False\)' ${CONFIG}; echo $$?)" >> $@
+	echo "HAVE_SAVES=$$(grep -q '^CSV_FILENAME.*/saves/' ${CONFIG}; test $$? -eq 1; echo $$?)" >> $@
+	echo "HAVE_DISPLAY=$$(grep -q '^HAVE_DISPLAY.\?=.\?\(None\|False\)' ${CONFIG}; echo $$?)" >> $@
 
 # rsync content of target-directory to pico
 # note: this needs a LABEL=CIRCUITPY entry in /etc/fstab and it only works
