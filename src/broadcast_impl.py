@@ -7,11 +7,7 @@
 #-----------------------------------------------------------------------------
 
 import time
-import displayio
-
-from adafruit_bitmap_font import bitmap_font
 from adafruit_display_text import label as label
-from vectorio import Rectangle
 
 try:
   from log_config import g_logger
@@ -71,6 +67,9 @@ class Broadcast:
     """ initialize standard display """
 
     if g_config.HAVE_DISPLAY:
+      import displayio
+      from adafruit_bitmap_font import bitmap_font
+      from vectorio import Rectangle
       from display import Display
 
       g_logger.print("initializing display...")
