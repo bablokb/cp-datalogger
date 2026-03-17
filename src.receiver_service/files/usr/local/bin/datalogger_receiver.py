@@ -24,7 +24,7 @@ class SocketReceiver:
 
     self._config = configparser.RawConfigParser(inline_comment_prefixes=(';',))
     self._config.optionxform = str
-    self._config.read('/etc/dl_receiver.conf')
+    self._config.read('/etc/datalogger_receiver.conf')
 
     # debug setting - override options from config-file
     if args.debug is not None:
