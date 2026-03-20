@@ -47,6 +47,8 @@ buffer_data
 This tasks writes data packets to a buffer file (`"/sd/tx_buffer.csv"`)
 for later processing, typically during shutdown from other components.
 
+This task should not be used together with the "tx_send"-task.
+
 
 save_data
 ---------
@@ -73,6 +75,8 @@ tx_send
 
 Pass data packets to the transmitter plugin for further processing.
 Used to send data to upstream destinations.
+
+This task should not be used together with the "buffer_data"-task.
 
 
 update_oled
