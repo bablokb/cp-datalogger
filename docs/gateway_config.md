@@ -117,6 +117,34 @@ parameters. The wait time has to be configured accordingly. Usually,
 something like 120s is normal, so the default will be fine.
 
 
+TCPSender
+---------
+
+| Name                | Type | O/M | Description                           |
+|---------------------|------|-----|---------------------------------------|
+| TCP_HOST            | str  |  M  | Host or IP-address of TCP-receiver    |
+| TCP_PORT            | int  |  M  | Port of TCP-receiver                  |
+
+
+See [datalogger receiver service](../src.receiver_service/Readme.md) for
+a simple implementation of a central receiver.
+
+There are two (exclusive) options for operation:
+
+  - add "tx_send" to TASKS
+  - add "buffer_data" to TASKS
+
+The first option will send data directly to upstream and only buffer data
+if upstream is not available. Just before shutdown, the gateway will try
+to send any pending data from the buffer again. Use this option if live
+data is required at the upstream site.
+
+The second option will buffer data and only send data to upstream just
+before shutdown. Use the second option if sending to upstream is slow, since
+this will block the gateway. This also requires that the gateway is regularly
+restarted.
+
+
 UDPSender
 ---------
 
