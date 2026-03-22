@@ -118,4 +118,4 @@ For background on and motivation for this project, please see
 License
 -------
 
-Software in `src` is licensed under the GPL3.
+Software in `src*` is licensed under the GPL3.
