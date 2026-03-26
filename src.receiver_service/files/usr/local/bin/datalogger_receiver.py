@@ -22,43 +22,49 @@ class SocketReceiver:
   def __init__(self,args):
     """ constructor """
 
-    self._config = configparser.RawConfigParser(inline_comment_prefixes=(';',))
-    self._config.optionxform = str
-    self._config.read('/etc/datalogger_receiver.conf')
+    self._cparser = configparser.RawConfigParser(inline_comment_prefixes=(';',))
+    self._cparser.optionxform = str
+    self._cparser.read('/etc/datalogger_receiver.conf')
 
     # debug setting - override options from config-file
     if args.debug is not None:
       self._debug = args.debug
     else:
-      self._debug  = self._get_value(self._config,
+      self._debug  = self._get_value(self._cparser,
                                      "GLOBAL", "debug","0") == "1"
     # receiver settings
-    port = int(self._get_value(
-      self._config,
-      "RECEIVER",
-      "port",args.port if args.port else 8888))
+    port = args.port if args.port else (
+      int(self._get_value(
+        self._cparser,
+        "RECEIVER",
+        "port",8888)))
     backlog = int(self._get_value(
-      self._config,
+      self._cparser,
       "RECEIVER",
       "backlog",5))
     bufsize = int(self._get_value(
-      self._config,
+      self._cparser,
       "RECEIVER",
       "bufsize",1024))
     self.debug(f"receiver settings: {port=}, {backlog=}, {bufsize=}")
     self._data = bytearray(bufsize)
 
-    # action settings
-    action =  self._get_value(
-      self._config,
-      "RECEIVER",
-      "action",args.action if args.action else "noop")
-    if not hasattr(self,action):
-      raise ValueError(f"error: action {action} not implemented!")
-    else:
-      self._action = getattr(self,action)
-      self._action(init=True)
-      self.debug(f"using action: '{action}' for data-processing")
+    # tasks settings
+    tasks =  args.tasks if args.tasks else (
+      self._get_value(
+        self._cparser,
+        "RECEIVER",
+        "tasks","noop"))
+    self._tasks = []
+    for task in tasks.split(" "):
+      try:
+        self.debug(f"{task}: loading")
+        task_module = __import__("tasks."+task,
+                                 globals(),locals(),[task.upper()],level=0)
+        task_class = getattr(task_module,task.upper())
+        self._tasks.append((task,task_class(self._cparser)))
+      except Exception as ex:
+        self.debug(f"{task}: loading failed: exception: {ex}")
 
     # create tcp socket
     self._tcp_socket = socket(AF_INET, SOCK_STREAM)
@@ -87,37 +93,19 @@ class SocketReceiver:
       value = default
     return value
 
-  # --- noop action   --------------------------------------------------------
+  # --- run configured tasks   -----------------------------------------------
 
-  def noop(self, init=False, record=None):
-    """ no operation action """
-    pass
+  def _run_tasks(self, init=False, record=None):
+    """ run tasks """
 
-  # --- print action   -------------------------------------------------------
-
-  def print(self, init=False, record=None):
-    """ print record """
-    if init:
-      self._printfile = self._get_value(self._config, "PRINT",
-                                        "filename","/dev/stderr")
-    else:
-      print(record.decode(),file=self._printfile,flush=True)
-
-  # --- save action   --------------------------------------------------------
-
-  def save(self, init=False, record=None):
-    """ save record to file in binary mode """
-    if init:
-      self._outfile = self._get_value(self._config, "SAVE",
-                                      "filename","/dev/stderr")
-      self._endl = bytes(self._get_value(self._config, "SAVE",
-                                         "endl",'\n'),'utf-8')
-      return
-
-    with open(self._outfile, "ab") as file:
-      file.write(record)
-      if self._endl and record[-1] != ord(self._endl):
-        file.write(self._endl)
+    for task_name,task in self._tasks:
+      try:
+        self.debug(f"{task_name}: starting")
+        task.run(record)
+        self.debug(f"{task_name}: ended")
+      except Exception as ex:
+        self.debug(f"{task_name}: failed: exception: {ex}")
+        raise
 
   # --- cleanup   ------------------------------------------------------------
 
@@ -164,7 +152,7 @@ class SocketReceiver:
       self.debug(
         f"read_tcp: failed to read from {sock.getpeername()}")
       return True
-    self._action(record=self._data[:n])
+    self._run_tasks(record=self._data[:n])
     return False
 
   # --- read from TCP-socket   -----------------------------------------------
@@ -173,7 +161,7 @@ class SocketReceiver:
     """ read from UDP-socket """
     self.debug(f"read_udp: reading from {sock}")
     n,*addr = sock.recvfrom_into(self._data)
-    self._action(record=self._data[:n].decode())
+    self._run_tasks(record=self._data[:n].decode())
     self.debug(f"read_udp: {n} bytes from {addr}: {self._data[:n].decode()}")
 
   # --- main processing loop   -----------------------------------------------
@@ -200,8 +188,8 @@ if __name__ == '__main__':
   parser = argparse.ArgumentParser(description="UDP/TCP Receiver")
   parser.add_argument("-p", "--port", type=int, default=None,
                       help="UDP/TCP receiver port (default: 8888)")
-  parser.add_argument("-a", "--action", type=str, default=None,
-                      help="action for received data")
+  parser.add_argument("-t", "--tasks", type=str, default=None,
+                      help="tasks for received data")
   parser.add_argument('-d', '--debug', action='store_true',
                       dest='debug', default=None,
                       help="debug-mode (writes to stderr)")
