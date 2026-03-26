@@ -180,16 +180,23 @@ class WifiImpl:
       except:
         n = -1
       if n <= 0:
+        socket.close()
         socket = None
       else:
         return (socket,n)
 
     # (re-) create socket
-    socket = self._pool.socket(family=self._socketpool.SocketPool.AF_INET,
+    try:
+      socket = self._pool.socket(family=self._socketpool.SocketPool.AF_INET,
                                  type=self._socketpool.SocketPool.SOCK_STREAM)
-    socket.connect((tcp_ip,tcp_port))
-    # return socket for later use
-    return (socket, socket.send(data))
+      socket.connect((tcp_ip,tcp_port))
+      # return socket for later use
+      return (socket,socket.send(data))
+    except:
+      if socket:
+        socket.close()
+        socket = None
+      raise
 
   # --- no specific deep-sleep mode   ---------------------------------------
 
