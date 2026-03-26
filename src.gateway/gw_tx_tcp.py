@@ -1,6 +1,20 @@
 #-----------------------------------------------------------------------------
 # TCP gateway sender class. This sender relays data to a central TCP-receiver.
 #
+# There are two (exclusive) options for operation:
+#   - add tx_send to TASKS
+#   - add buffer_data to TASKS
+#
+# The first option will send data directly to upstream and only buffer data
+# if upstream is not available. Just before shutdown, the gateway will try
+# to send any pending data from the buffer again. Use this option if live
+# data is required at the upstream site.
+#
+# The second option will buffer data and only send data to upstream just
+# before shutdown. Use the second option if sending to upstream is slow, since
+# this will block the gateway. This also requires that the gateway is regularly
+# restarted.
+#
 # Author: Bernhard Bablok
 #
 # Website: https://github.com/bablokb/cp-datalogger
@@ -55,7 +69,7 @@ class TCPSender:
 
     if not self._buffer_file:  # no SD/save-partition, no buffered data
       g_logger.print("TCPSender: no buffer file")
-      return
+      return True
 
     # check if buffer file exists
     try:
@@ -65,13 +79,13 @@ class TCPSender:
         g_logger.print(f"TCPSender: empty file {self._buffer_file}")
         os.remove(self._buffer_file)
         os.sync()
-        return
+        return True
       else:
         g_logger.print(f"TCPSender: size of buffered data: {size}")
     except:
       # file does not exist
       g_logger.print(f"TCPSender: no data file {self._buffer_file}")
-      return
+      return True
 
     # send buffer file in line mode
     host = self._config.TCP_HOST
@@ -109,6 +123,8 @@ class TCPSender:
         if not rc:
           if i == 0:
             # failed at the first record, bail out
+            if socket:
+              socket.close()
             return False
           elif not buffer_file_new:
             buffer_file_new = open(self._buffer_file+"new","at")
@@ -135,15 +151,40 @@ class TCPSender:
   def process_data(self, msg_type, values):
     """ process data, single record  """
 
-    g_logger.print("TCPSender: processing sensor-data...")
     start = time.monotonic()
-    g_logger.print("TCPSender: sending data...")
-    # convert values to bytes and send them
-    socket, n = self._wifi.send(bytes(','.join(values)+'\n',"UTF-8"),
-                                self._config.TCP_HOST,self._config.TCP_PORT)
-    # ignore n, since we can't do anything about an error anyway
-    socket.close()
+    record = ','.join(values)+'\n'
+    g_logger.print("TCPSender: processing sensor-data...")
+    g_logger.print(f"TCPSender: sending data: {record}")
+
+    # check for pending records
+    if self._buffer_file and not self._send_buffered_data():
+      # sending failed, so just append current record and stop processing
+      g_logger.print("TCPSender: appending data to buffer-file")
+      with open(self._buffer_file,"at") as file:
+        file.write(record)
+      duration = time.monotonic()-start
+      g_logger.print(f"TCPSender: duration: {duration}s")
+      return
+
+    # process current record: convert values to bytes and send them
+    socket = None
+    try:
+      socket, n = self._wifi.send(
+        bytes(record,"UTF-8"),
+        self._config.TCP_HOST,self._config.TCP_PORT,
+        socket=socket)
+      g_logger.print(f"TCPSender: ... sent {n} bytes")
+      rc = n == len(record)
+    except Exception as ex:
+      g_logger.print(f"TCPSender: ... failed with exception: {ex}")
+      rc = False
+    if socket:
+      socket.close()
     duration = time.monotonic()-start
+    if not rc and self._buffer_file:
+      g_logger.print("TCPSender: appending data to buffer-file")
+      with open(self._buffer_file,"at") as file:
+        file.write(record)
     g_logger.print(f"TCPSender: duration: {duration}s")
 
   # --- shutdown   -----------------------------------------------------------
