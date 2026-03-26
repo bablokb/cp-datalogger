@@ -281,6 +281,10 @@ class DataCollector():
         g_logger.print(f"{task}: free memory after task: {gc.mem_free()}")
       task_module = None
       gc.collect()
+      if not self.record:
+        # tasks can stop further processing by clearing self.record
+        g_logger.print(f"{task}: cleared record, no additional processing")
+        break
 
   # --- print timings   ------------------------------------------------------
 
