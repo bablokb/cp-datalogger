@@ -179,4 +179,4 @@ def split_csv(record, dcode_index=2):
       result.append(item)
     index += DCODE_MAP[dc][1]
 
-  return {"ts": ts,"id": id, "record:": result}
+  return {"ts": ts,"id": id, "record": result}
