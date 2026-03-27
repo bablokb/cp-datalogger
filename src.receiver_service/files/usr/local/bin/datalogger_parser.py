@@ -9,15 +9,19 @@
 #   "id": "v2100",
 #   "record:": [
 #     { "sensor": "battery",
+#       "fields": [["voltage","V"]],
 #       "data": [2.57]
 #     }, {
 #       "sensor": "aht20",
+#       "fields": [["temp","°C"],["hum","%rH"]],
 #       "data": [18.9,50]
 #     }, {
 #       "sensor": "bh1750",
+#       "fields": [["lum","lx"]],
 #       "data": [80]
 #     }, {
 #       "sensor": "pdm",
+#       "fields": [["noise",""]],
 #       "data": [79]
 #     }
 #   ]
