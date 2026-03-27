@@ -40,6 +40,64 @@ SENSOR_MAP = {
   "tm_power": "P",
   }
 
+# --- mapping of sensor to field metadata   ----------------------------------
+# field metadata is a list of tuples (fname,funit)
+
+SENSOR_FIELD_MAP = {
+  "id":      [("id",""),],
+  "dcode":   [("dcode",""),],
+  "battery": [("voltage","V"),],
+  "aht20":   [("temp","°C"),("hum","%rH"),],
+  "am2320":  [("temp","°C"),("hum","%rH"),],
+  "bh1750":  [("lum","lx"),],
+  "bme280":  [("temp","°C"),("hum","%rH"),("p_loc","hPa"),("p_sea","hPa"),],
+  "bmp280":  [("temp","°C"),("p_loc","hPa"),("p_sea","hPa"),],
+  "ds18b20": [("temp","°C"),],
+  "ens160":  [("AQI",""),("TVOC","ppb"),("eCO2","ppm"),],
+  "htu31d":  [("temp","°C"),("hum","%rH"),],
+  "ltr559":  [("lum","lx"),],
+  "mcp9808": [("temp","°C"),],
+  "pdm":     [("noise",""),],
+  "pms5003": [("pm10","µg/m³"),
+              ("pm25","µg/m³"),
+              ("pm100","µg/m³"),
+              ("pn03","p/100cm³"),
+              ("pn05","p/100cm³"),
+              ("pn10","p/100cm³"),
+              ("pn25","p/100cm³"),
+              ("pn50","p/100cm³"),
+              ("pn100","p/100cm³"),
+              ],
+  "scd40":   [("CO2","ppm"),("temp","°C"),("hum","%rH"),],
+  "scd41":   [("CO2","ppm"),("temp","°C"),("hum","%rH"),],
+  "sht45":   [("temp","°C"),("hum","%rH"),],
+  "meteo":   [("temp","°C"),
+              ("hum","%rH"),
+              ("p_sea","hPa"),
+              ("code",""),
+              ("w_speed","km/s"),
+              ("w_dir","°"),
+              ("precip","mm"),
+              ],
+  "location": [("loc",""),],
+  "cputemp": [("temp","°C"),],
+  "mhz19":   [("CO2","ppm"),("temp","°C"),],
+  "hdc302x": [("temp","°C"),("hum","%rH"),],
+  "sen6x":   [("CO2","ppm"),("temp","°C"),("hum","%rH"),
+              ("voc",""),("nox",""),
+              ("pm10","µg/m³"),
+              ("pm25","µg/m³"),
+              ("pm40","µg/m³"),
+              ("pm100","µg/m³"),
+              ("pn10","p/100cm³"),
+              ("pn25","p/100cm³"),
+              ("pn40","p/100cm³"),
+              ("pn100","p/100cm³"),
+              ],
+  "lm66200": [("p_src",""),],
+  "tm_power": [("power","W"),("voltage","V"),("current","A"),],
+  }
+
 # --- mapping of DCODE to sensor properties: dcode -> (sensor,fields)   ------
 
 # A (single) sensor with a variable field count must be last in the
@@ -116,6 +174,7 @@ def split_csv(record, dcode_index=2):
     elif item["sensor"] == 'dcode':
       pass
     else:
+      item["fields"] = SENSOR_FIELD_MAP[item["sensor"]]
       item["data"] = _convert_data(item["data"])
       result.append(item)
     index += DCODE_MAP[dc][1]
