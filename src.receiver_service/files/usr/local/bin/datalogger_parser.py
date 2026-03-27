@@ -7,7 +7,7 @@
 #{
 #   "ts": "2024-01-09T09:58:05",
 #   "id": "v2100",
-#   "record:": [
+#   "record": [
 #     { "sensor": "battery",
 #       "fields": [["voltage","V"]],
 #       "data": [2.57]
@@ -89,8 +89,9 @@ if __name__ == '__main__':
     dl_parser = DataParser(filename=args.infile,
                            debug=args.debug)
     dl_parser.run()
-  except BaseException as ex:
-    dl_parser.print_err(f"exception: {ex}")
     dl_parser.cleanup()
-    if not isinstance(ex,KeyboardInterrupt):
+  except BaseException as ex:
+    dl_parser.cleanup()
+    if not isinstance(ex,(BrokenPipeError,KeyboardInterrupt)):
+      dl_parser.print_err(f"exception: {ex}")
       raise
