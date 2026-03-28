@@ -9,7 +9,7 @@
 #
 # --------------------------------------------------------------------------
 
-PROJECT="datalogger_receiver"
+PROJECT="datalogger"
 
 # --- install specific files   ----------------------------------------------
 
@@ -30,8 +30,8 @@ install_files() {
   chown root:root "/usr/local/bin/sensor_meta.py"
   chmod 644  "/usr/local/bin/sensor_meta.py"
 
-  chmod 755 "/usr/local/bin/$PROJECT.py"
-  chmod 644 "/etc/systemd/system/$PROJECT.service"
+  chmod 755 /usr/local/bin/"$PROJECT"*.py
+  chmod 644 "/etc/systemd/system/${PROJECT}_receiver.service"
 }
 
 # --- configure system   ----------------------------------------------------
@@ -50,8 +50,8 @@ configure_system() {
 # --- activate service   ----------------------------------------------------
 
 enable_services() {
-  echo -e "[INFO] enabeling $PROJECT.service" 2>&1
-  systemctl enable "$PROJECT.service"
+  echo -e "[INFO] enabeling ${PROJECT}_receiver.service" 2>&1
+  systemctl enable "${PROJECT}_receiver.service"
 }
 
 # --- main program   --------------------------------------------------------
@@ -60,4 +60,4 @@ install_files
 configure_system
 enable_services
 
-echo "run 'sudo systemctl start $PROJECT.service' to start the receiver"
+echo "run 'sudo systemctl start ${PROJECT}_receiver.service' to start the receiver"
