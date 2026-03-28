@@ -41,13 +41,15 @@ import sys
 import argparse
 import json
 
+from datalogger_shared import Tools
+
 import sensor_meta
 
 class DataParser:
   def __init__(self, filename, debug=False):
     """ constructor """
+    self._tools = Tools(debug=debug)
     self._filename = filename
-    self._debug = debug
 
   # --- cleanup   ------------------------------------------------------------
 
@@ -59,8 +61,7 @@ class DataParser:
 
   def print_err(self,*args):
     """ print to stderr """
-    if self._debug:
-      print(*args,file=sys.stderr,flush=True)
+    self._tools.debug(*args)
 
   # --- main processing loop   -----------------------------------------------
 

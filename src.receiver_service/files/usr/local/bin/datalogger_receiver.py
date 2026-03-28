@@ -14,57 +14,45 @@
 
 import sys
 import argparse
-import configparser
 from socket import *
 from select import select
+
+from datalogger_shared import Tools
 
 class SocketReceiver:
   def __init__(self,args):
     """ constructor """
 
-    self._cparser = configparser.RawConfigParser(inline_comment_prefixes=(';',))
-    self._cparser.optionxform = str
-    self._cparser.read('/etc/datalogger_receiver.conf')
-
-    # debug setting - override options from config-file
-    if args.debug is not None:
-      self._debug = args.debug
-    else:
-      self._debug  = self._get_value(self._cparser,
-                                     "GLOBAL", "debug","0") == "1"
+    self._tools = Tools(debug=args.debug)
     # receiver settings
     port = args.port if args.port else (
-      int(self._get_value(
-        self._cparser,
+      int(self._tools.get_value(
         "RECEIVER",
         "port",8888)))
-    backlog = int(self._get_value(
-      self._cparser,
+    backlog = int(self._tools.get_value(
       "RECEIVER",
       "backlog",5))
-    bufsize = int(self._get_value(
-      self._cparser,
+    bufsize = int(self._tools.get_value(
       "RECEIVER",
       "bufsize",1024))
-    self.debug(f"receiver settings: {port=}, {backlog=}, {bufsize=}")
+    self._tools.debug(f"receiver settings: {port=}, {backlog=}, {bufsize=}")
     self._data = bytearray(bufsize)
 
     # tasks settings
     tasks =  args.tasks if args.tasks else (
-      self._get_value(
-        self._cparser,
+      self._tools.get_value(
         "RECEIVER",
         "tasks","noop"))
     self._tasks = []
     for task in tasks.split(" "):
       try:
-        self.debug(f"{task}: loading")
+        self._tools.debug(f"{task}: loading")
         task_module = __import__("tasks."+task,
                                  globals(),locals(),[task.upper()],level=0)
         task_class = getattr(task_module,task.upper())
-        self._tasks.append((task,task_class(self._cparser)))
+        self._tasks.append((task,task_class()))
       except Exception as ex:
-        self.debug(f"{task}: loading failed: exception: {ex}")
+        self._tools.debug(f"{task}: loading failed: exception: {ex}")
 
     # create tcp socket
     self._tcp_socket = socket(AF_INET, SOCK_STREAM)
@@ -100,11 +88,11 @@ class SocketReceiver:
 
     for task_name,task in self._tasks:
       try:
-        self.debug(f"{task_name}: starting")
+        self._tools.debug(f"{task_name}: starting")
         task.run(record)
-        self.debug(f"{task_name}: ended")
+        self._tools.debug(f"{task_name}: ended")
       except Exception as ex:
-        self.debug(f"{task_name}: failed: exception: {ex}")
+        self._tools.debug(f"{task_name}: failed: exception: {ex}")
         raise
 
   # --- cleanup   ------------------------------------------------------------
@@ -130,26 +118,26 @@ class SocketReceiver:
   def connect_tcp(self,sock):
     """ handle connect for server-socket """
     csock, addr = sock.accept()
-    self.debug(f"connect_tcp: connect {csock} from {addr}")
+    self._tools.debug(f"connect_tcp: connect {csock} from {addr}")
     return csock
 
   # --- read from TCP-socket   -----------------------------------------------
 
   def read_tcp(self,sock):
     """ read from TCP-socket """
-    self.debug(f"read_tcp: reading from {sock}")
+    self._tools.debug(f"read_tcp: reading from {sock}")
     try:
       n = sock.recv_into(self._data)
-      self.debug(
+      self._tools.debug(
         f"read_tcp: {n} bytes from {sock.getpeername()}: {self._data[:n].decode()}")
       if n == 0:
-        self.debug(f"read_tcp: socket closed")
+        self._tools.debug(f"read_tcp: socket closed")
         return True
       elif n < 0:
-        self.debug(f"read_tcp: socket failure")
+        self._tools.debug(f"read_tcp: socket failure")
         return True
     except:
-      self.debug(
+      self._tools.debug(
         f"read_tcp: failed to read from {sock.getpeername()}")
       return True
     self._run_tasks(record=self._data[:n])
@@ -159,10 +147,10 @@ class SocketReceiver:
 
   def read_udp(self,sock):
     """ read from UDP-socket """
-    self.debug(f"read_udp: reading from {sock}")
+    self._tools.debug(f"read_udp: reading from {sock}")
     n,*addr = sock.recvfrom_into(self._data)
     self._run_tasks(record=self._data[:n].decode())
-    self.debug(f"read_udp: {n} bytes from {addr}: {self._data[:n].decode()}")
+    self._tools.debug(f"read_udp: {n} bytes from {addr}: {self._data[:n].decode()}")
 
   # --- main processing loop   -----------------------------------------------
 
