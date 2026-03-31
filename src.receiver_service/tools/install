@@ -16,6 +16,12 @@ PROJECT="datalogger"
 install_files() {
   echo -e "[INFO] installing project files" 2>&1
 
+  rand="$RANDOM"
+  if [ -f /etc/${PROJECT}.conf ]; then
+    # save current configuration
+    mv /etc/${PROJECT}.conf /etc/${PROJECT}.conf.$rand
+  fi
+
   for f in `find $(dirname "$0")/../files/ -type f -not -name "*.pyc"`; do
     target="${f#*files}"
     target_dir="${target%/*}"
@@ -31,7 +37,15 @@ install_files() {
   chmod 644  "/usr/local/bin/sensor_meta.py"
 
   chmod 755 /usr/local/bin/"$PROJECT"*.py
+  chmod 644 /etc/${PROJECT}.conf
   chmod 644 "/etc/systemd/system/${PROJECT}_receiver.service"
+
+  # restore old configuration
+  if [ -f /etc/${PROJECT}.conf.$rand ]; then
+    mv -f /etc/${PROJECT}.conf /etc/${PROJECT}.conf.new
+    mv /etc/${PROJECT}.conf.$rand /etc/${PROJECT}.conf
+    echo -e "\nnew version of configuration file: /etc/${PROJECT}.conf.new"
+  fi
 }
 
 # --- configure system   ----------------------------------------------------
