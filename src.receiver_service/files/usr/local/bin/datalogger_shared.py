@@ -26,17 +26,17 @@ class Tools:
 
   # --- print debug messages to stderr   -------------------------------------
 
-  def debug(self,*args):
+  def debug(self, message, force=False):
     """ print debug-messages to stderr """
-    if self._debug:
-      print(*args,file=sys.stderr,flush=True)
+    if self._debug or force:
+      print(message,file=sys.stderr,flush=True)
 
   # --- read configuration value   --------------------------------------------
 
   def get_value(self,section,option,default):
     """ get value of config-variables and return given default if unset """
 
-    if parser.has_section(section):
+    if self._cparser.has_section(section):
       try:
         value = self._cparser.get(section,option)
       except:
