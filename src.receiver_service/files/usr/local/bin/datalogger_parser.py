@@ -49,6 +49,7 @@ class DataParser:
   def __init__(self, filename, debug=False):
     """ constructor """
     self._tools = Tools(debug=debug)
+    self.debug = self._tools.debug
     self._filename = filename
 
   # --- cleanup   ------------------------------------------------------------
@@ -57,24 +58,23 @@ class DataParser:
     """ cleanup ressources """
     pass
 
-  # --- print error messages to stderr   -------------------------------------
-
-  def print_err(self,*args):
-    """ print to stderr """
-    self._tools.debug(*args)
-
   # --- main processing loop   -----------------------------------------------
 
   def run(self):
     """ main processing loop """
 
     with open(self._filename,"rt") as file:
+      i = 0
       for record in file:
+        i += 1
         if not record or record[0] == "#":  # skip empty lines and comments
           continue
         # parse single record
-        data = sensor_meta.split_csv(record.strip("\n"))
-        print(json.dumps(data))
+        try:
+          data = sensor_meta.split_csv(record.strip("\n"))
+          print(json.dumps(data))
+        except Exception as ex:
+          self.debug(f"ignoring invalid record {i}: {record}", force=True)
 
 # --- main program   ---------------------------------------------------------
 
@@ -94,5 +94,5 @@ if __name__ == '__main__':
   except BaseException as ex:
     dl_parser.cleanup()
     if not isinstance(ex,(BrokenPipeError,KeyboardInterrupt)):
-      dl_parser.print_err(f"exception: {ex}")
+      dl_parser.debug(f"exception: {ex}")
       raise
