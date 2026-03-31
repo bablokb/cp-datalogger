@@ -24,6 +24,7 @@ class SocketReceiver:
     """ constructor """
 
     self._tools = Tools(debug=args.debug)
+    self.debug = self._tools.debug
     # receiver settings
     port = args.port if args.port else (
       int(self._tools.get_value(
@@ -105,13 +106,6 @@ class SocketReceiver:
       self._udp_socket.close()
     except:
       raise
-
-  # --- print debug messages to stderr   -------------------------------------
-
-  def debug(self,*args):
-    """ print debug-messages to stderr """
-    if self._debug:
-      print(*args,file=sys.stderr,flush=True)
 
   # --- handle connect event   -----------------------------------------------
 
