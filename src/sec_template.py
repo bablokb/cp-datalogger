@@ -22,7 +22,3 @@ secrets.debugflag = False
 
 # this URL is no longer functional
 secrets.time_url = 'http://worldtimeapi.org/api/ip'
-
-# UDP-target configuration (task send_udp)
-secrets.udp_ip   = '1.2.3.4'
-secrets.udp_port = 6600

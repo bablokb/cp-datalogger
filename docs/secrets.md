@@ -2,9 +2,9 @@ WLAN credentials
 ================
 
 The datalogger only connects to a WLAN to initially set the RTC or to
-send data using UDP. The former needs the configuration `NET_UPDATE =
-True`. UDP data transfer is used when you add the task `send_udp` to
-the list of configured tasks.
+send data using UDP/TCP. The former needs the configuration `NET_UPDATE =
+True`. UDP/TCP data transfer is used when you add the tasks `send_udp`
+or `send_tcp` to the list of configured tasks.
 
 The configuration file must create a `Settings`-object with a set of
 defined attributes:
@@ -20,11 +20,8 @@ defined attributes:
     secrets.debugflag = False
     #secrets.channel   = 6         # optional
     #secrets.timeout   = 10        # optional
-    
-    secrets.time_url = 'http://worldtimeapi.org/api/ip'
 
-    # UDP-target configuration (task send_udp)
-    secrets.udp_ip   = '1.2.3.4'
-    secrets.udp_port = 6600
+    # this URL is no longer functional
+    secrets.time_url = 'http://worldtimeapi.org/api/ip'
 
 You can find a template file for `secrets.py` in `src/sec_template.py`.
