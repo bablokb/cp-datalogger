@@ -11,9 +11,9 @@
 from .base_task import BaseTask
 
 class NOOP(BaseTask):
-  def __init__(self, cparser):
+  def __init__(self, tools):
     """ constructor """
-    self._cparser = cparser
+    super().__init__(tools)
 
   def run(self, record):
     """ execute task (no operation) """

@@ -12,12 +12,13 @@
 from .base_task import BaseTask
 
 class SAVE(BaseTask):
-  def __init__(self, cparser):
+  def __init__(self, tools):
     """ constructor """
-    self._outfile = self._get_value(cparser, "SAVE",
-                                    "filename","/dev/stderr")
-    self._endl = bytes(self._get_value(cparser, "SAVE",
-                                       "endl",'\n'),'utf-8')
+    super().__init__(tools)
+    self._outfile = self.tools.get_value("SAVE",
+                                         "filename","/dev/stderr")
+    self._endl = bytes(self.tools.get_value("SAVE",
+                                            "endl",'\n'),'utf-8')
   def run(self, record):
     """ save record """
     with open(self._outfile, "ab") as file:

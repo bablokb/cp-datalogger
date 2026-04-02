@@ -11,10 +11,11 @@
 from .base_task import BaseTask
 
 class PRINT(BaseTask):
-  def __init__(self, cparser):
+  def __init__(self, tools):
     """ constructor """
-    self._printfile = self._get_value(cparser, "PRINT",
-                                        "filename","/dev/stderr")
+    super().__init__(tools)
+    self._printfile = self.tools.get_value("PRINT",
+                                           "filename","/dev/stderr")
   def run(self, record):
     """ print record """
     with open(self._printfile,'w') as file:

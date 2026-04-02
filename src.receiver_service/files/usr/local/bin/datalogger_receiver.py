@@ -51,7 +51,7 @@ class SocketReceiver:
         task_module = __import__("tasks."+task,
                                  globals(),locals(),[task.upper()],level=0)
         task_class = getattr(task_module,task.upper())
-        self._tasks.append((task,task_class()))
+        self._tasks.append((task,task_class(self._tools)))
       except Exception as ex:
         self._tools.debug(f"{task}: loading failed: exception: {ex}")
 
