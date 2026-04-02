@@ -149,8 +149,10 @@ lib:
                    ${DISPLAY_LIBS} ${USER_LIBS} ${DEPLOY_TO}/lib/
 
 ${DEPLOY_TO}/fonts/${FONT}: ${SRC}/fonts/${FONT}
+ifeq (${HAVE_DISPLAY},1)
 	mkdir -p ${DEPLOY_TO}/fonts
 	rsync -av ${SRC}/fonts/${FONT} ${DEPLOY_TO}/fonts/${FONT}
+endif
 
 # clean target-directory (only delete auto-created makevars.tmp)
 clean:
