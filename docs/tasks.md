@@ -62,6 +62,10 @@ send_lora
 Send collected sensor-data to the LoRa-gateway. The data-format is
 the same as the data written to the CSV-file with task "save_data".
 
+This task buffers the data if the peer system is not available and
+tries to retransmit the data the next time. Buffering data requires
+either a SD-card, or a /saves-partition.
+
 
 send_udp
 --------
@@ -69,8 +73,19 @@ send_udp
 Same as "send_lora", but send data via UDP to a configured target
 host/port.
 
-A sample implementation of an UDP gateway is available in
-`tools/udp_gateway.py`.
+This task does not buffer the data, since transmission failures cannot
+be detected.
+
+
+send_tcp
+--------
+
+Same as "send_lora", but send data via TCP to a configured target
+host/port.
+
+This task buffers the data if the peer system is not available and
+tries to retransmit the data the next time. Buffering data requires
+either a SD-card, or a /saves-partition.
 
 
 send_ble_nus

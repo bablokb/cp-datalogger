@@ -130,5 +130,19 @@ send_udp
 | UDP_IP                      | IP   |  M  | IP address of destination |
 | UDP_PORT                    | int  |  M  | port of destination       |
 
-As network related configurations, these two values have to be
-configured in [`secrets.py`](./secrets.md).
+Since UDP is 'fire and forget', there is no information if the transfer
+was successful or not.
+
+
+send_tcp
+--------
+
+| Name                        | Type | O/M | Description               |
+|-----------------------------|------|-----|---------------------------|
+| TCP_IP                      | IP   |  M  | IP address of destination |
+| TCP_PORT                    | int  |  M  | port of destination       |
+
+
+This tasks tries to send data, and in case of a failure it will buffer
+the data locally if possible (SD-card or /saves-partition is available).
+Buffered data is trasmitted at the next run.
