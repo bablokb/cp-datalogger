@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 #-----------------------------------------------------------------------------
-# This program translates the output from datalogger_parser.py to Influxdb line
-# protocol.
+# This program reads raw csv-data or output from datalogger_parser.py, converts
+# it to the Influxdb line protocol and saves or posts it.
 #
 # Output format:
 #   <sensor>,id=<id> <fname>=<data>... timestamp
@@ -49,7 +49,6 @@ class DataLoader:
     """ constructor """
     self._tools = Tools(debug=args.debug)
     self._ifxdb = None
-    self._is_json = args.is_json
 
   # --- read input and convert to line protocol   ----------------------------
 
@@ -58,13 +57,17 @@ class DataLoader:
 
     for line in map(str.rstrip, infile):
       try:
-        if self._is_json:
-          measurement = json.loads(line)
-        else:
-          measurement = sensor_meta.split_csv(line)
+        # try csv first
+        measurement = sensor_meta.split_csv(line)
       except:
-        self._tools.debug(f"skipping corrupt record: {line}")
-        continue
+        # try json (output from datalogger_parser.py)
+        try:
+          measurement = json.loads(line)
+          if not isinstance(measurement,dict):
+            raise ValueError()
+        except:
+          self._tools.debug(f"skipping corrupt record: {line}")
+          continue
       # every measurement contains 1..n values (individual sensor-outputs)
       self._tools.debug(f"{measurement=}")
       for values in measurement["record"]:
@@ -123,9 +126,6 @@ if __name__ == '__main__':
   parser.add_argument('-d', '--debug', action='store_true',
                       dest='debug', default=False,
                       help="debug-mode (writes to stderr)")
-  parser.add_argument('-j', '--json', action='store_true',
-                      dest='is_json', default=False,
-                      help="data is already in json-format")
   parser.add_argument('infile', metavar='infile',
                       help='input-file (use - for stdin')
   parser.add_argument('outfile', metavar='outfile',
