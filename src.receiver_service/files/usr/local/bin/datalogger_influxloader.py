@@ -15,9 +15,12 @@ import argparse
 import json
 import sys
 import subprocess
+import time
 from datetime import datetime as dt
 
 from datalogger_shared import Tools
+
+import requests
 
 # --- helper class for InfluxDB parameters   ---------------------------------
 
@@ -46,7 +49,6 @@ class DataLoader:
     """ constructor """
     self._tools = Tools(debug=args.debug)
     self._ifxdb = None
-    self._curl  = None
 
   # --- read input and convert to line protocol   ----------------------------
 
@@ -67,58 +69,47 @@ class DataLoader:
           ifx_lp += f'{field[0]}={values["data"][i]},'
         ifx_lp = ifx_lp.rstrip(',')
         ifx_lp += f' {int(dt.fromisoformat(measurement["ts"]).timestamp())}\n'
-        yield ifx_lp
+        yield bytes(ifx_lp,"utf-8")
 
-  # --- post data to InfluxDB using curl   -----------------------------------
+  # --- post data to InfluxDB   ----------------------------------------------
 
-  def post_data(self, record, curl_output=sys.stdout):
-    """ post data to InfluxDB """
+  def post_data(self, infile):
+    """ post data to InfluxDB
 
-    # read InfluxDB configuration/credentials and create subprocess
-    if not self._ifxdb:
-      self._ifxdb = IfxDB(self._tools)
+    infile: a generator
+    outfile: an open file
+    """
 
-      curl_args = ['curl','-v',
-         '--header',
-         f'Authorization: Token {self._ifxdb.token}',
-         '--header',
-         'Content-Type: text/plain; charset=utf-8',
-         '--header',
-         'Accept: application/json',
-         '--data-binary', '@-',
-         self._ifxdb.endpoint
-         ]
-      self._tools.debug(f"{curl_args=}")
-      self._curl = subprocess.Popen(
-        curl_args,
-        stdin=subprocess.PIPE,
-        stdout=curl_output,
-        encoding='utf-8')
+    headers = {
+      'Authorization': f'Token {self._ifxdb.token}',
+      'Accept': 'application/json',
+      "Content-Type":"application/octet-stream",
+      }
 
-    self._curl.stdin.write(record)
-
-  # --- flush data and close process   ---------------------------------------
-
-  def flush(self):
-    """ flush pipes """
-    if self._curl:
-      self._curl.stdin.flush()
-      self._curl.stdin.close()
-      # Wait for process completion
-      self._curl.wait()
+    try:
+      start = time.monotonic()
+      response = requests.post(self._ifxdb.endpoint,
+                               headers=headers,
+                               data=infile
+                               )
+      duration = time.monotonic()-start
+      print(f"HTTP-Code: {response.status_code}\nText: {response.text}")
+      print(f"duration: {duration}s")
+    except Exception as ex:
+      print(f"HTTP-POST failed with exception: {ex}")
 
   # --- main loop   ----------------------------------------------------------
 
   def run(self, infile, outfile):
     """ process all data """
-    for data in self.convert_input(infile):
-      if outfile is None:
-        self.post_data(data)
-      else:
-        outfile.write(data)
     if outfile is None:
-      self.flush()
+      # read InfluxDB configuration/credentials
+      self._ifxdb = IfxDB(self._tools)
+      self.post_data(self.convert_input(infile))
     else:
+      for data in self.convert_input(infile):
+        outfile.write(data)
+    if outfile:
       outfile.flush()
 
 # --- main program   ---------------------------------------------------------
@@ -131,8 +122,8 @@ if __name__ == '__main__':
   parser.add_argument('infile', metavar='infile',
                       help='input-file (use - for stdin')
   parser.add_argument('outfile', metavar='outfile',
-                      default=None, nargs='?',
-                      help='output-file (default: curl, use - for stdout')
+                      default='HTTP-POST', nargs='?',
+                      help='output-file (default: HTTP-POST, use - for stdout')
 
   args = parser.parse_args()
   loader = None
@@ -144,20 +135,14 @@ if __name__ == '__main__':
 
     if args.outfile == '-':
       outfile = sys.stdout
-    elif not args.outfile is None:
-      outfile = open(args.outfile,"wt")
-    else:
+    elif args.outfile == 'HTTP-POST':
       outfile = None
+    else:
+      outfile = open(args.outfile,"wt")
 
     loader = DataLoader(args)
-    #loader.convert_input(infile, outfile)
     loader.run(infile, outfile)
 
   except BaseException as ex:
-    raise
     if not isinstance(ex,(BrokenPipeError,KeyboardInterrupt)):
       raise
-
-  finally:
-    if loader:
-      loader.flush()
