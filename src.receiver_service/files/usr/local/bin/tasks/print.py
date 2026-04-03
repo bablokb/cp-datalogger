@@ -18,5 +18,7 @@ class PRINT(BaseTask):
                                            "filename","/dev/stderr")
   def run(self, record):
     """ print record """
+    rec = record.decode()
+    end = '' if rec[-1] == '\n' else None
     with open(self._printfile,'w') as file:
-      print(record.decode(),file=file,flush=True,end=None)
+      print(rec,file=file,flush=True,end=end)
