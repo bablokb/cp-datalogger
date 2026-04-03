@@ -14,13 +14,13 @@
 import argparse
 import json
 import sys
-import subprocess
 import time
 from datetime import datetime as dt
 
-from datalogger_shared import Tools
-
 import requests
+
+from datalogger_shared import Tools
+import sensor_meta
 
 # --- helper class for InfluxDB parameters   ---------------------------------
 
@@ -49,20 +49,24 @@ class DataLoader:
     """ constructor """
     self._tools = Tools(debug=args.debug)
     self._ifxdb = None
+    self._is_json = args.is_json
 
   # --- read input and convert to line protocol   ----------------------------
 
   def convert_input(self, infile):
     """ process infile """
 
-    for line_json in map(str.rstrip, infile):
+    for line in map(str.rstrip, infile):
       try:
-        measurement = json.loads(line_json)
-        self._tools.debug(f"{measurement=}")
+        if self._is_json:
+          measurement = json.loads(line)
+        else:
+          measurement = sensor_meta.split_csv(line)
       except:
-        self._tools.debug(f"skipping corrupt record: {line_json}")
+        self._tools.debug(f"skipping corrupt record: {line}")
         continue
       # every measurement contains 1..n values (individual sensor-outputs)
+      self._tools.debug(f"{measurement=}")
       for values in measurement["record"]:
         ifx_lp = f'{values["sensor"]},id={measurement["id"]} '
         for i, field in enumerate(values["fields"]):
@@ -119,6 +123,9 @@ if __name__ == '__main__':
   parser.add_argument('-d', '--debug', action='store_true',
                       dest='debug', default=False,
                       help="debug-mode (writes to stderr)")
+  parser.add_argument('-j', '--json', action='store_true',
+                      dest='is_json', default=False,
+                      help="data is already in json-format")
   parser.add_argument('infile', metavar='infile',
                       help='input-file (use - for stdin')
   parser.add_argument('outfile', metavar='outfile',
