@@ -70,7 +70,7 @@ class TCP_If:
     # send buffer file in line mode
     host = self._config.TCP_HOST
     port = self._config.TCP_PORT
-    g_logger.print(f"TCP_If: sending buffered data to {host}:{port}...")
+    g_logger.print(f"TCP_If: re-sending buffered data to {host}:{port}...")
     socket = None
     buffer_file_new = None
     rc_all = True
@@ -86,7 +86,7 @@ class TCP_If:
           continue
 
         # convert values to bytes and send them
-        g_logger.print(f"TCP_If: sending: {record} ...")
+        g_logger.print(f"TCP_If: re-sending: {record} ...")
         try:
           socket, n = self._wifi.send(
             bytes(record,"UTF-8"),
@@ -132,12 +132,11 @@ class TCP_If:
     """ process data, single record  """
 
     start = time.monotonic()
-    g_logger.print(f"TCP_If: sending data: {record}")
 
     # check for pending records
     if self._buffer_file and not self.send_buffered_data():
       # sending failed, so just append current record and stop processing
-      g_logger.print("TCP_If: appending data to buffer-file")
+      g_logger.print("TCP_If: appending current data to buffer-file")
       with open(self._buffer_file,"at") as file:
         file.write(record)
       duration = time.monotonic()-start
@@ -145,6 +144,7 @@ class TCP_If:
       return
 
     # process current record: convert values to bytes and send them
+    g_logger.print(f"TCP_If: sending current data: {record}")
     socket = None
     try:
       socket, n = self._wifi.send(
@@ -160,7 +160,7 @@ class TCP_If:
       socket.close()
     duration = time.monotonic()-start
     if not rc and self._buffer_file:
-      g_logger.print("TCP_If: appending data to buffer-file")
+      g_logger.print("TCP_If: appending current data to buffer-file")
       with open(self._buffer_file,"at") as file:
         file.write(record)
     g_logger.print(f"TCP_If: duration: {duration}s")
