@@ -1,5 +1,6 @@
 #-----------------------------------------------------------------------------
-# Task: send data using LoRa (adafruit_rfm9x.py)
+# Task: send data using TCP. See src.receiver/ for an implementation of a
+#       suitable receiver.
 #
 # Author: Bernhard Bablok
 #
