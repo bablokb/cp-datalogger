@@ -154,6 +154,14 @@ class WifiImpl:
     self.logger.print(f"wifi: get({url})")
     return self._get_request().get(url,**kwargs)
 
+  # --- execute post-request   -----------------------------------------------
+
+  def post(self,url,**kwargs):
+    """ process get-request """
+    self.connect()
+    self.logger.print(f"wifi: post({url})")
+    return self._get_request().post(url,**kwargs)
+
   # --- execute sendto-command   --------------------------------------------
 
   def sendto(self,data,udp_ip,udp_port):
