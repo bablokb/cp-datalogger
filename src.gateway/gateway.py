@@ -55,6 +55,11 @@ def get_tx_tcp():
   from gw_tx_tcp import TCPSender
   return TCPSender
 
+def get_tx_ifx():
+  """ import and return IFXSender class """
+  from gw_tx_ifx import IFXSender
+  return IFXSender
+
 def get_tx_noop():
   """ import and return NoopSender class """
   from gw_tx_noop import NoopSender
@@ -69,6 +74,7 @@ TX_MAP = {
   'Blues': get_tx_blues,
   'UDP': get_tx_udp,
   'TCP': get_tx_tcp,
+  'IFX': get_tx_ifx,
   }
 
 # --- Gateway application class   --------------------------------------------
