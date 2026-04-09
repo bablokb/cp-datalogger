@@ -119,14 +119,6 @@ class IFX_If:
     status_code = response.status_code
     g_logger.print(f"IFX_If: HTTP-Code: {status_code}")
     g_logger.print(f"IFX_If: duration: {duration}s")
-    try:
-      response.socket.close()
-    except Exception as ex:
-      g_logger.print(f"could not close socket: {ex}")
-    try:
-      response.close()
-    except Exception as ex2:
-      g_logger.print(f"could not close response: {ex2}")
     return status_code
 
   # --- send pending data   --------------------------------------------------
