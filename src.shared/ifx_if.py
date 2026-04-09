@@ -71,58 +71,63 @@ class IFX_If:
     return time.mktime(
       (year, month, mday, hours, minutes, seconds, week_day, year_day, is_dst))
 
-  # --- read input and convert to line protocol   ----------------------------
+  # --- convert record to line-protocol   ------------------------------------
 
-  def convert_input(self, infile, encode=True):
-    """ process infile """
+  def _convert_record(self, record):
+    """ process record """
 
-    for line in map(str.rstrip, infile):
-      try:
-        measurement = sensor_meta.split_csv(line)
-      except Exception as ex:
-        g_logger.print(f"IFX_If: skipping corrupt record: {line}")
-        continue
-      # every measurement contains 1..n values (individual sensor-outputs)
-      #g_logger.print(f"IFX_If: {measurement=}")
-      for values in measurement["record"]:
-        ifx_lp = f'{values["sensor"]},id={measurement["id"]} '
-        for i, field in enumerate(values["fields"]):
-          ifx_lp += f'{field[0]}={values["data"][i]},'
-        ifx_lp = ifx_lp.rstrip(',')        
-        ifx_lp += f' {self._unix_from_ts(measurement["ts"])}\n'
-        g_logger.print(f"IFX_If: sending: {ifx_lp}")
-        yield bytes(ifx_lp,"utf-8") if encode else ifx_lp
+    try:
+      measurement = sensor_meta.split_csv(record)
+    except Exception as ex:
+      g_logger.print(f"IFX_If: skipping corrupt record: {record}")
+      return None
+
+    # every measurement contains 1..n values (individual sensor-outputs)
+    #g_logger.print(f"IFX_If: {measurement=}")
+    ifx_lp = ""
+    for values in measurement["record"]:
+      ifx_lp += f'{values["sensor"]},id={measurement["id"]} '
+      for i, field in enumerate(values["fields"]):
+        ifx_lp += f'{field[0]}={values["data"][i]},'
+      ifx_lp = ifx_lp.rstrip(',')
+      ifx_lp += f' {self._unix_from_ts(measurement["ts"])}\n'
+    return bytes(ifx_lp,"utf-8")
 
   # --- post data to InfluxDB   ----------------------------------------------
 
-  def _post_data(self, infile):
+  def _post_data(self, data):
     """ post data to InfluxDB
 
     infile: open file or list of strings
     """
 
+    if data is None:
+      return (204,"ignoring empty data")
+
     headers = {
       'Authorization': f'Token {self._token}',
       'Accept': 'application/json',
-      "Content-Type":"application/octet-stream",
+      "Content-Type":"text/plain; charset=utf-8",
       }
 
     start = time.monotonic()
     response = self._wifi.post(self._endpoint,
                              headers=headers,
-                             data=self.convert_input(infile)
+                             data=data
                              )
     duration = time.monotonic()-start
     status_code = response.status_code
-    text = response.text
-    g_logger.print(f"IFX_If: HTTP-Code: {status_code}\nText: {text}")
+    g_logger.print(f"IFX_If: HTTP-Code: {status_code}")
     g_logger.print(f"IFX_If: duration: {duration}s")
     try:
       response.socket.close()
+    except Exception as ex:
+      g_logger.print(f"could not close socket: {ex}")
+    try:
       response.close()
-    except:
-      pass
-    return (status_code,text,duration)
+    except Exception as ex2:
+      g_logger.print(f"could not close response: {ex2}")
+    return status_code
 
   # --- send pending data   --------------------------------------------------
 
@@ -147,17 +152,20 @@ class IFX_If:
 
     # send buffer file. Since InfluxDB can handle identical data,
     # we don't bother about partly successful transfers
+    rc = True
+    i = 1
     with open(self._buffer_file,"rt") as infile:
-      try:
-        code,text,duration = self._post_data(infile)
-        g_logger.print(f"IFX_If: HTTP-Code: {code}\nText: {text}")
-        g_logger.print(f"IFX_If: duration: {duration}s")
-        if code != 204:
-          raise RuntimeError(f"post to InfluxDB failed with {code}")
-        rc = True
-      except Exception as ex:
-        g_logger.print(f"IFX_If: failed with {ex}")
-        rc = False
+      for record in infile:
+        try:
+          code = self._post_data(self._convert_record(record))
+          if code != 204:
+            g_logger.print(f"record {i}: post to InfluxDB failed with {code}")
+          rc = rc and code == 204
+        except Exception as ex:
+          g_logger.print(f"IFX_If: failed with {ex}")
+          rc = False
+          break
+        i += 1
 
     # remove buffer file if transfer was successful
     if rc:
@@ -177,9 +185,7 @@ class IFX_If:
       return
 
     try:
-      code,text,duration = self._post_data([record])
-      g_logger.print(f"IFX_If: HTTP-Code: {code}\nText: {text}")
-      g_logger.print(f"IFX_If: duration: {duration}s")
+      code = self._post_data(self._convert_record(record))
       if code != 204:
         raise RuntimeError(f"IFX_If: post to InfluxDB failed with {code}")
     except Exception as ex:
