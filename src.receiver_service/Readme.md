@@ -5,11 +5,22 @@ This is a simple implementation of a central UDP/TCP receiver-service.
 It listens on a port and accepts csv-data as UDP-packets or TCP-packets.
 
 Senders can be dataloggers (using the
-[send_udp](../docs/core_config_tasks.md) task) or a datalogger (using
-the [GW_TX_TYPE `UDP`](../docs/gateway_config.md)).
+[send_udp or send_tcp](../docs/core_config_tasks.md) tasks) or a gateway (using
+one of the `GW_TX_TYPE`s [`UDP` or `TCP`](../docs/gateway_config.md)).
 
 The service is configurable and executes a list of tasks for every
 record it receives.
+
+
+Available Tasks
+---------------
+
+| Name                        | Description                               |
+|-----------------------------|-------------------------------------------|
+| noop                        | dummy task that does nothing              |
+| print                       | print record (with text conversion)       |
+| save                        | save record in binary format              |
+| ifx_load                    | load data to an InfluxDB                  |
 
 
 Installation
@@ -30,4 +41,4 @@ or just run
 Configuration
 -------------
 
-The central configuration file is `/etc/datalogger.conf`.
+The central configuration file is `/var/lib/datalogger/datalogger.conf`.
