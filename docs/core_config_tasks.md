@@ -145,4 +145,26 @@ send_tcp
 
 This tasks tries to send data, and in case of a failure it will buffer
 the data locally if possible (SD-card or /saves-partition is available).
-Buffered data is trasmitted at the next run.
+Buffered data is transmitted at the next run.
+
+
+send_ifx
+--------
+
+| Name                        | Type | O/M | Description               |
+|-----------------------------|------|-----|---------------------------|
+| INFLUXDB_URL                | str  |  M  | Host and Port             |
+| INFLUXDB_ORG                | int  |  M  | Organization as defined   |
+| INFLUXDB_BUCKET             | int  |  M  | Bucket as defined         |
+
+
+This tasks tries to write directly to an InfluxDB v2 database. The task
+also needs network credentials and `secrets.influxdb_token` to be set in
+[`secrets.py`](./secrets.md).
+
+For performance reasons, use an IP address in the url if possible
+(e.g. `INFLUXDB_URL=http://10.11.12.13:8086`).
+
+In case of failure, the task will buffer the data locally if possible
+(i.e. a SD-card or /saves-partition is available).  The task will retry
+to send Buffered data before the next run.

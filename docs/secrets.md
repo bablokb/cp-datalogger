@@ -24,4 +24,7 @@ defined attributes:
     # this URL is no longer functional
     secrets.time_url = 'http://worldtimeapi.org/api/ip'
 
+    # InfluxDB token
+    secrets.influxdb_token = 'my_special_token'
+
 You can find a template file for `secrets.py` in `src/sec_template.py`.

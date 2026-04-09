@@ -69,6 +69,8 @@ Currently implemented senders:
   - `TCPSender` (in `src.gateway/gw_tx_tcp.py`)  
     Sends data to a [central receiver](../src.receiver_service/Readme.md)
     using TCP
+  - `IFXSender` (in `src.gateway/gw_tx_ifx.py`)  
+    Sends data to an InfluxDB v2 database.
 
 Planned senders:
 

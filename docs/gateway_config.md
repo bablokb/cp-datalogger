@@ -47,6 +47,7 @@ Use `ON_DURATION=0` to run forever. In this case, `TIME_TABLE` is ignored.
   - 'Blues': send upstream using a Blues-Notecard
   - 'UDP': send upstream using UDP
   - 'TCP': send upstream using TCP
+  - 'IFX': send upstream using InfluxDB v2 API
   - 'BLE'¹: send upstream using BLE
 
 For details about `TIME_TABLE` see [main configuration](./core_config_main.md).
