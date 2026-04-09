@@ -111,7 +111,7 @@ default: makevars.tmp ${DEPLOY_TO} ${DEPLOY_TO}/sd ${DEPLOY_TO}/saves \
 
 gateway: makevars.tmp ${DEPLOY_TO} ${DEPLOY_TO}/sd ${DEPLOY_TO}/saves \
 	${DEPLOY_TO}/sensors lib \
-	${DEPLOY_TO}/tasks ${DEPLOY_TO}/www ${ap_config} \
+	${DEPLOY_TO}/tasks ${DEPLOY_TO}/tools ${DEPLOY_TO}/www ${ap_config} \
 	${DEPLOY_TO}/pins.mpy \
 	${DEPLOY_TO}/secrets.mpy \
 	$(SOURCES:${SRC}/%.py=${DEPLOY_TO}/%.mpy) \
@@ -119,6 +119,7 @@ gateway: makevars.tmp ${DEPLOY_TO} ${DEPLOY_TO}/sd ${DEPLOY_TO}/saves \
 	$(SPECIAL_SRC:${SRC}/%.py=${DEPLOY_TO}/%.py) \
 	$(SPECIAL_SHARED:src.shared/%.py=${DEPLOY_TO}/%.py) \
 	$(SENSORS:${SRC}/sensors/%.py=${DEPLOY_TO}/sensors/%.mpy) \
+	$(TOOLS:./tools/%=${DEPLOY_TO}/tools/%) \
 	$(TASKS:${SRC}/tasks/%.py=${DEPLOY_TO}/tasks/%.mpy) \
 	$(WWW:src.shared/www/%=${DEPLOY_TO}/www/%.gz) \
 	${DEPLOY_TO}/www/config.html.gz \
