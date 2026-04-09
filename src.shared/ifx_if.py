@@ -123,7 +123,7 @@ class IFX_If:
 
   # --- send pending data   --------------------------------------------------
 
-  def _send_pending(self):
+  def send_pending(self):
     """ send pending data """
 
     # check if buffer file exists
@@ -169,7 +169,7 @@ class IFX_If:
   def send_data(self, record):
     """ send single record (try pending first)  """
 
-    if not self._send_pending():
+    if not self.send_pending():
       # send of pending data failed, so just add current record
       g_logger.print(f"IFX_If: appending current data to buffer file")
       with open(self._buffer_file,"at") as file:
