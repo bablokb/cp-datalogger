@@ -48,6 +48,7 @@ class WifiImpl:
         import adafruit_wiznet5k.adafruit_wiznet5k_socketpool as socketpool
         self._radio = _Radio()
         self._eth = None
+        self._last_link_status = False
       except:
         self.logger.print("neither socketpool nor wiznet5k_socketpool available")
         raise
@@ -101,17 +102,36 @@ class WifiImpl:
         continue
     self.logger.print("connected to %s" % secrets.ssid)
 
+  # --- reset and wait for link up   -----------------------------------------
+
+  def _reset_eth(self, reset=True):
+    """ reset eth-chip and wait for link """
+
+    if reset:
+      self.logger.print("_reset_eth(): resetting eth-chip")
+      self._eth.sw_reset()
+    start = time.monotonic()
+    while not self._eth.link_status and time.monotonic()-start < 1:
+      time.sleep(0.1)
+    self._last_link_status = self._eth.link_status
+    if not self._eth.link_status:
+      raise ConnectionError("eth-link down")
+
   # --- connect to ethernet   ------------------------------------------------
 
   def _connect_eth(self):
     """ initialize connection """
 
     if self._eth:
+      if not self._eth.link_status or not self._last_link_status:
+        # force a reset after the link came up again
+        self._reset_eth()
       return
 
     import pins
     import hw_helper
     self._eth = hw_helper.init_w5k(pins)
+    self._reset_eth(reset=False)          # this checks the link status
     self._pool = None
     self._requests = None
 
