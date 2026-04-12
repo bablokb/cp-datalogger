@@ -20,6 +20,7 @@ except:
   from log_writer import Logger
   g_logger = Logger('console')
 
+import pins
 from rtc_ext.ext_base import ExtBase
 
 # --- atexit processing   ----------------------------------------------------
@@ -62,7 +63,7 @@ def at_exit_i2c(i2c):
 
 # --- initialize I2C-busses   ----------------------------------------------
 
-def init_i2c(pins,config):
+def init_i2c(config):
   """ create and return list of I2C-busses """
 
   # Standard busses 0 and 1. Bus 0 is shared with UART, so we check
@@ -133,7 +134,7 @@ def get_spi(sck,mosi,miso,label):
 
 # --- initialize SD-card   ---------------------------------------------------
 
-def init_sd(pins,config):
+def init_sd(config):
   """ initialize SD-card and return SPI-object """
 
   spi = None
@@ -153,7 +154,7 @@ def init_sd(pins,config):
 
 # --- initialize RTC   -------------------------------------------------------
 
-def init_rtc(pins,config,i2c):
+def init_rtc(config,i2c):
   """ initialize RTC and return RTC-object """
 
   if config.HAVE_RTC:
@@ -195,7 +196,7 @@ def init_oled(i2c,config):
 
 # --- initialize ETH for Wiznet   --------------------------------------------
 
-def init_w5k(pins):
+def init_w5k():
   """ initialze ETH-chip """
 
   try:

@@ -79,19 +79,19 @@ class DataCollector():
 
     # early setup of SD-card (in case we send debug-logs to sd-card)
     if g_config.HAVE_SD:
-      hw_helper.init_sd(pins,g_config)
+      hw_helper.init_sd(g_config)
       g_ts.append((time.monotonic(),"sd-mount"))
       if g_config.TEST_MODE:
         g_logger.print(f"setup: free memory after sd-mount: {gc.mem_free()}")
 
     # create self.i2c (list of I2C-busses)
-    self.i2c = hw_helper.init_i2c(pins,g_config)
+    self.i2c = hw_helper.init_i2c(g_config)
     if g_config.TEST_MODE:
       g_logger.print(f"setup: free memory after create i2c-busses: {gc.mem_free()}")
 
     # create and update rtc
     try:
-      self.rtc = hw_helper.init_rtc(pins,g_config,self.i2c)
+      self.rtc = hw_helper.init_rtc(g_config,self.i2c)
 
       # update RTC, fallback to wakeup time on SD if necessary
       rc = self.rtc.update()                 # (time-server->)ext-rtc->int-rtc

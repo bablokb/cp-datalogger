@@ -128,9 +128,8 @@ class WifiImpl:
         self._reset_eth()
       return
 
-    import pins
     import hw_helper
-    self._eth = hw_helper.init_w5k(pins)
+    self._eth = hw_helper.init_w5k()
     self._reset_eth(reset=False)          # this checks the link status
     self._pool = None
     self._requests = None

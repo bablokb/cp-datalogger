@@ -109,10 +109,10 @@ class Gateway:
 
     # hw_helper won't throw an exception, if hardware is not in config
     g_logger.print(f"gateway: initializing")
-    self.i2c  = hw_helper.init_i2c(pins,g_config)
+    self.i2c  = hw_helper.init_i2c(g_config)
     self.oled = hw_helper.init_oled(self.i2c,g_config)
-    hw_helper.init_sd(pins,g_config)
-    self.rtc  = hw_helper.init_rtc(pins,g_config,self.i2c)
+    hw_helper.init_sd(g_config)
+    self.rtc  = hw_helper.init_rtc(g_config,self.i2c)
 
     self.receiver.setup(self.i2c)
     self.transmitter.setup(self.i2c)

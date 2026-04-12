@@ -16,7 +16,6 @@ from log_writer import Logger
 g_logger = Logger('/sd/safemode.log')
 
 import hw_helper
-import pins
 
 try:
   import config
@@ -26,13 +25,13 @@ except:
 
 # --- configure hardware   ---------------------------------------------------
 
-if not hw_helper.init_sd(pins,config):
+if not hw_helper.init_sd(config):
   # no way to log anything, just reset
   microcontroller.reset()
 
 try:
-  i2c = hw_helper.init_i2c(pins,config)
-  the_rtc = hw_helper.init_rtc(pins,config,i2c)
+  i2c = hw_helper.init_i2c(config)
+  the_rtc = hw_helper.init_rtc(config,i2c)
   ts = the_rtc.print_ts(the_rtc.rtc_ext.datetime)
 except:
   ts = "???"

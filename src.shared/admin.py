@@ -58,13 +58,13 @@ if g_config.HAVE_DISPLAY and hasattr(pins,"PIN_DISP_CS"):
 
 # --- read rtc   -------------------------------------------------------------
 
-i2c  = hw_helper.init_i2c(pins,g_config)
-rtc  = hw_helper.init_rtc(pins,g_config,i2c)
+i2c  = hw_helper.init_i2c(g_config)
+rtc  = hw_helper.init_rtc(g_config,i2c)
 ap_config["rtc"] = rtc  # pass to webap for later use
 
 # --- mount sd-card if available   -------------------------------------------
 
-if g_config.HAVE_SD and hw_helper.init_sd(pins,g_config):
+if g_config.HAVE_SD and hw_helper.init_sd(g_config):
     ap_config["csv_root"] = "/sd"
 else:
   try:
