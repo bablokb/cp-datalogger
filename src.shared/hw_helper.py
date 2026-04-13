@@ -107,10 +107,21 @@ def init_i2c(config):
 
 # --- create dio and register at-exit processing   ---------------------------
 
+_dios = {}
 def get_dio(gpio,label):
   """ create digitialio """
+  global _dios
+
+  # DIOs are not shared like SPI-busses. But returning an existing DIOs
+  # simplifies recreating SPI devices with the same set of pins.
+  if gpio in _dios:
+    g_logger.print(f"returning existing DIO, created for {_dios[gpio][1]}")
+    return _dios[gpio][0]
+
+  g_logger.print(f"creating DIO for {label}")
   dio = digitalio.DigitalInOut(gpio)
   atexit.register(at_exit_dio,dio,label)
+  _dios[gpio] = (dio,label)
   return dio
 
 # --- create spi and register at-exit processing   ---------------------------
