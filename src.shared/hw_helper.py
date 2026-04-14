@@ -227,7 +227,7 @@ def init_w5k():
     else:
       spi = get_spi(pins.PIN_ETH_SCK,pins.PIN_ETH_MOSI,
                     pins.PIN_ETH_MISO,"ETH")
-    cs = get_dio(pins.PIN_ETH_CS,"ETH")
+    cs = get_dio(pins.PIN_ETH_CS,"ETH_CS")
     return WIZNET5K(spi,cs)
   except Exception as ex:
     g_logger.print(f"could not initialize ETH: {ex}")
@@ -236,3 +236,20 @@ def init_w5k():
     import traceback
     traceback.print_exception(ex)
     raise
+
+# --- reset ETH for Wiznet   -------------------------------------------------
+
+def reset_w5k(eth, hard=True):
+  """ reset ETH-chip """
+
+  if hard and hasattr(pins,"PIN_ETH_RST"):
+    import time
+    reset = get_dio(pins.PIN_ETH_RST,"ETH_RST")
+    reset.switch_to_output()
+    reset.value = False
+    time.sleep(0.2)
+    reset.value = True
+    time.sleep(1)
+
+  eth.sw_reset()
+  eth.set_dhcp()

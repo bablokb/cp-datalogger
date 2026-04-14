@@ -17,6 +17,8 @@ from log_writer import Logger
 from secrets import secrets
 from singleton import singleton
 
+import hw_helper
+
 class _Radio:
   """ fake Radio implementation """
   def __init__(self):
@@ -104,18 +106,11 @@ class WifiImpl:
 
   # --- reset and wait for link up   -----------------------------------------
 
-  def _reset_eth(self, reset=True):
-    """ reset eth-chip and wait for link """
+  def _reset_eth(self):
+    """ reset eth-chip """
 
-    if reset:
-      self.logger.print("_reset_eth(): resetting eth-chip")
-      self._eth.sw_reset()
-    start = time.monotonic()
-    while not self._eth.link_status and time.monotonic()-start < 1:
-      time.sleep(0.1)
-    self._last_link_status = self._eth.link_status
-    if not self._eth.link_status:
-      raise ConnectionError("eth-link down")
+    self.logger.print("_reset_eth(): resetting eth-chip")
+    hw_helper.reset_w5k(self._eth, hard=True)
 
   # --- connect to ethernet   ------------------------------------------------
 
@@ -125,12 +120,17 @@ class WifiImpl:
     if self._eth:
       if not self._eth.link_status or not self._last_link_status:
         # force a reset after the link came up again
-        self._reset_eth()
+        self._last_link_status = False
+        #self._reset_eth()
+      self._last_link_status = self._eth.link_status
+      if not self._last_link_status:
+        raise ConnectionError("eth-link down")
       return
 
-    import hw_helper
     self._eth = hw_helper.init_w5k()
-    self._reset_eth(reset=False)          # this checks the link status
+    self._last_link_status = self._eth.link_status
+    if not self._last_link_status:
+      raise ConnectionError("eth-link down")
     self._pool = None
     self._requests = None
 
