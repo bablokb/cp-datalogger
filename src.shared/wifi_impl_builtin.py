@@ -104,14 +104,6 @@ class WifiImpl:
         continue
     self.logger.print("connected to %s" % secrets.ssid)
 
-  # --- reset and wait for link up   -----------------------------------------
-
-  def _reset_eth(self):
-    """ reset eth-chip """
-
-    self.logger.print("_reset_eth(): resetting eth-chip")
-    hw_helper.reset_w5k(self._eth, hard=True)
-
   # --- connect to ethernet   ------------------------------------------------
 
   def _connect_eth(self):
@@ -119,9 +111,10 @@ class WifiImpl:
 
     if self._eth:
       if not self._eth.link_status or not self._last_link_status:
-        # force a reset after the link came up again
         self._last_link_status = False
-        #self._reset_eth()
+        # (don't!) force a reset after the link came up again
+        #self.logger.print("resetting eth-chip")
+        #hw_helper.reset_w5k(self._eth, hard=True)
       self._last_link_status = self._eth.link_status
       if not self._last_link_status:
         raise ConnectionError("eth-link down")
