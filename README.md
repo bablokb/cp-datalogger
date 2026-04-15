@@ -114,7 +114,7 @@ connectors for external components or additional support/adapter PCBs.
   * <https://github.com/bablokb//3D-datalogger-v2-case>:
     Design Files for a Case for the Pico-Datalogger-v2
   * <https://github.com/bablokb//3D-datalogger-stevenson>:
-    Ddesign Ffiles (supports, OpenSCAD) for a Stevenson Screen Enclosure
+    Design files for internal connectors within a Stevenson Screen Enclosure
   * <https://github.com/bablokb//3D-datalogger-v1-case>:
     Design Files for a Case for the Pico-Datalogger-v1
   * <https://github.com/OpenDevEd/case-for-pico-datalogger-rev1.00>:
