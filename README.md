@@ -1,6 +1,12 @@
 Pico Datalogger with Integrated Power-Management
 ================================================
 
+![](https://raw.githubusercontent.com/bablokb/3D-datalogger-v2-case/main/complete.jpg)
+
+
+Introduction
+------------
+
 This is a hardware and software solution for low-frequency
 data-logging with a Raspberry Pi Pico (W). The project started as a
 hardware project, but the software runs independently of the special
@@ -16,7 +22,7 @@ This repository only contains the software for the datalogger/gateway.
 For links to custom made PCBs, see below.
 
 
-Core software functions
+Core Software Functions
 -----------------------
 
   * implemented in CircuitPython
@@ -25,19 +31,19 @@ Core software functions
     [sensors](docs/sensors.md) (currently 25 directly support
     including Open-Meteo weather data and Tasmota power monitoring)
   * supports I2C (two busses), UART-3V3 and UART-5V devices
-  * support I2C-multiplexers (PCA954xA, TCA954xA)
-  * readout in intervals or using a time-table
-  * implementation of additional sensors only need a small wrapper class
+  * supports I2C-multiplexers (PCA954xA, TCA954xA)
+  * sensor readout in fixed intervals or using a time-table
+  * the implementation of a new sensor only needs a small wrapper class
     (given a driver-library is available)
   * logging of data to a micro-SD card or equivalent (e.g. XTSD-chip)
-  * configurable post-collection [tasks](docs/tasks.md)
-    (e.g. update of a display, sending data using WLAN or LoRa)
+  * configurable post-readout [tasks](docs/tasks.md)
+    (e.g. update of a display, send data using WLAN or LoRa)
   * send data to a gateway (see below)
   * power-optimized programs
-  * [web-interface](docs/admin_mode.md) for configuration and data download
-  * no programming required for standard setups
+  * optional [web-interface](docs/admin_mode.md) for configuration
+    and data download
+  * declarative configuration: no programming required for standard setups
   * supports (almost) zero current sleep with specialized hardware
-
 
 For installation and operation, read the documents linked in the next
 section.
@@ -72,23 +78,30 @@ Additional resources
   * [Pinout V3](docs/pins-v3.md)
 
 
-PCBs
-----
+Custom PCBs
+-----------
+
+The development of the custom PCBs went through a number of iterations.
+All datalogger-PCBs share a common design for power-management, which
+allows near zero current draw in off-state. Otherwise, the PCBs have
+connectors for external components or additional support/adapter PCBs.
 
   * <https://github.com/bablokb//pcb-datalogger-v3>:
     Pico board for data-logging with power-management and XTSD storage
   * <https://github.com/bablokb//pcb-datalogger-v2>:
     Pico board for data-logging with power-management and XTSD storage
   * <https://github.com/bablokb//pcb-datalogger-sensor-pcb>:
-    Sensor PCB for the Pico Datalogger-v2
+    Sensor PCB compagnon for the Pico Datalogger-v2
   * <https://github.com/bablokb//pcb-datalogger-display-adapter>:
-    Display-Adapter PCB
+    Display-adapter PCB for the Pico Datalogger-v2/v3
+  * <https://github.com/bablokb//pcb-datalogger-display-adapter-v2>:
+    Alternative display-adapter PCB for the Pico Datalogger-v3
   * <https://github.com/bablokb//pcb-datalogger-lora-adapter>:
     LoRa-Adapter PCB (adds SUR-Connector to Adafruit-Breakout)
   * <https://github.com/bablokb//pcb-datalogger-lora-pcb>:
     A PCB with a LoRa tranceiver and a SUR Connector
   * <https://github.com/bablokb//pcb-datalogger-v1>:
-    Pico board for data-logging with power-management and XTSD storage
+    Pico board for data-logging with power-management and SD storage
   * <https://github.com/bablokb//pcb-surs-cable-tester>:
     A small PCB to test the type of a 8-pin SUR cable
 
