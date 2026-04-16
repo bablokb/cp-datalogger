@@ -23,7 +23,7 @@ CO2. This setup is ideal for a small, mobile air-quality measurement
 system.
 
 
-XIAO ESP32S3 plus XIAO-Base
+XIAO ESP32S3 with XIAO-Base
 ---------------------------
 
 The XIAO-Base adds a SD-slot, an OLED, connectors, battery power and a
@@ -92,3 +92,17 @@ deep-sleep in between sampling.
 
 In a more realistic setup, the data would be at least written to a
 SD-card.
+
+
+Pico2 with Wiznet W5500
+-----------------------
+
+This setup implements a wired datalogger. It can be used to query data
+from other devices in the network. One use case is to query power, voltage
+and current from Tasmota smart-plugs.
+
+The example setup uses a `/saves`-partition. This is a part of the device
+flash that is writable by CircuitPython and readable by a connected
+PC. Such a partition is not created by default but needs a custom made
+CircuitPython firmware. The advantage is that a SD-card breakout
+is no longer necessary.
