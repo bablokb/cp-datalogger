@@ -6,7 +6,7 @@ It listens on a port and accepts csv-data as UDP-packets or TCP-packets.
 
 Senders can be dataloggers (using the
 [send_udp or send_tcp](../docs/core_config_tasks.md) tasks) or a gateway (using
-one of the `GW_TX_TYPE`s [`UDP` or `TCP`](../docs/gateway_config.md)).
+one of the `GW_TX_TYPE`s [`UDP`, `TCP` or `IFX`](../docs/gateway_config.md)).
 
 The service is configurable and executes a list of tasks for every
 record it receives.
