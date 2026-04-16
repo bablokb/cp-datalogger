@@ -13,13 +13,18 @@ hardware project, but the software runs independently of the special
 hardware (PCBs) created. Nevertheless, the full function
 set of the software is not available with standard components.
 
-Besides logging data to a SD-card, the dataloggers can send data to a
-central system (called "gateway"). Normally the gateway acts as a
-relay to upstream systems, but it could do anything with the data. See
-[Gateway](docs/gateway.md) for details.
+Besides logging data to a SD-card, the dataloggers can optionally send
+data to a central system (called "gateway"). Normally the gateway acts
+as a relay to upstream systems, but it could do anything with the
+data. See [Gateway](docs/gateway.md) for details.
 
-This repository only contains the software for the datalogger/gateway.
-For links to custom made PCBs, see below.
+Also in the repo is an implementation of a generic upstream TCP receiver
+system, that receives data from gateways and/or dataloggers. The
+receiver can do further processing of any kind, e.g. load the data
+into a database.
+
+This repository only contains the software for all components (datalogger,
+gateway and upstream). For links to custom made PCBs, see below.
 
 
 Core Software Functions
@@ -53,11 +58,12 @@ Quick Links
 -----------
 
   * [Hardware Setup](docs/hardware.md)
+  * [Hardware Examples](examples/README.md)
   * [Software (Datalogger)](docs/software_datalogger.md)
   * [Software (Gateway)](docs/software_gateway.md)
+  * [Software (Upstream)](src.receiver_service/Readme.md)
   * [Configuration](docs/configuration.md)
   * [Software deployment](docs/deployment.md)
-  * [Examples](examples/README.md)
   * [Initial setup of the RTC](docs/rtc_setup.md)
   * [Tools and Scripts](docs/tools.md)
   * [Administration mode](docs/admin_mode.md)
