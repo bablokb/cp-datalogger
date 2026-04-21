@@ -447,11 +447,13 @@ class DataCollector():
 
     self.shutdown()
 
-    # we are only here if
-    # - we use strobe-mode
-    # - we are running on USB-power
-    # - we are running on a v2-PCB or without PCB
-    # Switch to deep-sleep (better than nothing)
+    # we are only here because shutdown failed. This happens if
+    # we don't have power-management OR (
+    #   we use strobe-mode AND
+    #   we are running on USB-power AND
+    #   we are running on a post v1-PCB)
+    #
+    # In this case: switch to deep-sleep (better than nothing)
     g_logger.print(
       f"wakeup from deep-sleep at {ExtBase.print_ts(None,self.wakeup)}")
     TimeSleep.deep_sleep(until=self.wakeup)
