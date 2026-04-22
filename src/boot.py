@@ -81,7 +81,7 @@ if led_d and (TEST_MODE or a_pressed() or b_pressed() or c_pressed()):
 
 # --- check if switch A is pressed and if so, enter admin-mode   -------------
 
-if a_pressed() and btn_opts['BTN_A_CODEFILE']:
+if a_pressed() and btn_opts['BTN_A_CODEFILE'] and not b_pressed():
   if btn_opts['BTN_A_FLASH_RW']:       # make flash writable
     storage.remount("/",False)
   supervisor.set_next_code_file(btn_opts['BTN_A_CODEFILE'],sticky_on_reload=True)
@@ -89,16 +89,36 @@ if a_pressed() and btn_opts['BTN_A_CODEFILE']:
 
 # --- check if switch B is pressed and if so, enter broadcast-mode   ---------
 
-if b_pressed() and btn_opts['BTN_B_CODEFILE']:
+if b_pressed() and btn_opts['BTN_B_CODEFILE'] and not a_pressed():
   if btn_opts['BTN_B_FLASH_RW']:       # make flash writable
     storage.remount("/",False)
   supervisor.set_next_code_file(btn_opts['BTN_B_CODEFILE'],sticky_on_reload=True)
   supervisor.reload()
 
-# --- check if switch C is pressed and if so, enter broadcast-mode   ---------
+# --- check if switch C is pressed and if so, enter firmware-mode   ---------
 
 if c_pressed() and btn_opts['BTN_C_CODEFILE']:
   if btn_opts['BTN_C_FLASH_RW']:       # make flash writable
     storage.remount("/",False)
   supervisor.set_next_code_file(btn_opts['BTN_C_CODEFILE'],sticky_on_reload=True)
   supervisor.reload()
+
+# --- check if A+B is pressed and reset RTC   --------------------------------
+# Resetting the RTC only makes sense if NET_UPDATE is True. The reset
+# will trigger an update at next boot. Use case: start/end of DST
+
+if a_pressed() and b_pressed():
+  import time
+  try:
+    from log_config import g_logger
+  except:
+    from log_writer import Logger
+    g_logger = Logger(None)
+  import hw_helper
+  from settings import Settings
+  g_config = Settings(g_logger)
+  g_config.import_config()
+
+  i2c  = hw_helper.init_i2c(g_config)
+  rtc  = hw_helper.init_rtc(g_config,i2c)
+  rtc.update(time.struct_time((2022,1,1,12,00,00,5,1,-1)))
