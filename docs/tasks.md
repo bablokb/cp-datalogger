@@ -103,3 +103,12 @@ send_mqtt
 **Not planned, but PR is welcome**
 
 Same as "send_lora", but send data via MQTT.
+
+
+sleep_lora
+----------
+
+This task ctivates sleep-mode for the RFM95W chip.
+
+After POR the RFM95W is not in sleep-mode. This tasks saves about 3mA@5V,
+which is especially useful if power-management is not available.
