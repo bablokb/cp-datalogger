@@ -91,6 +91,12 @@ class LORA:
     self.rfm9x.destination = getattr(config,"LORA_BASE_ADDR",0)  # gateway
     self.rfm9x.sleep()
 
+  # --- put into sleep-mode   ------------------------------------------------
+
+  def sleep(self):
+    """ activate sleep-mode """
+    self.rfm9x.sleep()
+
   # --- trace LoRa-events   --------------------------------------------------
 
   def trace(self,msg):
