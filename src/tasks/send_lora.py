@@ -85,6 +85,7 @@ def run(config,app):
     rc = _send_pending(config, lora, buffer_file)
     if not rc:
       # failed again, append current record without even trying
+      lora.sleep()
       g_logger.print("send_lora: appending current record to pending-buffer")
       with open(buffer_file,"at") as file:
         file.write(f"{app.record}\n")
@@ -94,6 +95,7 @@ def run(config,app):
   # try to send current record
   g_logger.print("send_lora: sending current record")
   rc = lora.send_single(app.record)
+  lora.sleep()
   app.lora_status = 'T' if rc else 'F'
   if not rc and buffer_file:
     # failed again, append current record
