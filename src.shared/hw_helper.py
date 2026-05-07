@@ -153,7 +153,7 @@ def init_sd(config):
     try:
       spi    = get_spi(pins.PIN_SD_SCK,pins.PIN_SD_MOSI,pins.PIN_SD_MISO,
                        "SD")
-      sdcard = sdcardio.SDCard(spi,pins.PIN_SD_CS,1_000_000)
+      sdcard = sdcardio.SDCard(spi,pins.PIN_SD_CS)
       vfs    = storage.VfsFat(sdcard)
       storage.mount(vfs, "/sd")
       g_logger.print("SD-card mounted on /sd")
