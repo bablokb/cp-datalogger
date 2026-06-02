@@ -34,6 +34,7 @@ def run(config,app):
     oled = hw_helper.init_oled(app.i2c,config)
     if not oled:
       return
+    oled.get_display().wake()
     textlabel = oled.get_textlabel()
     height   = oled.get_display().height
   except:
@@ -68,3 +69,4 @@ def run(config,app):
   if config.STROBE_MODE or config.INTERVAL > 60:
     display_time = getattr(config,"OLED_TIME",3)
     time.sleep(display_time)
+    oled.get_display().sleep()
