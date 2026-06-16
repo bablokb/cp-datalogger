@@ -275,6 +275,11 @@ class DataCollector():
         task_module.run(g_config,self)
         g_ts.append((time.monotonic(),f"{task}"))
         g_logger.print(f"{task}: ended")
+      except MemoryError as me:
+        # try to recover, but don't run additional tasks
+        gc.collect()
+        g_logger.print(f"{task}: failed: exception: {me}")
+        break
       except Exception as ex:
         g_logger.print(f"{task}: failed: exception: {ex}")
       if g_config.TEST_MODE:

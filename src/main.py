@@ -11,9 +11,22 @@
 
 import datacollector
 
+def reset():
+  """ reset device """
+  import microcontroller
+  if datacollector.g_config.TEST_MODE:
+    import time
+    print("===> Automatic reset in 5 seconds. Interrupt with CTRL-C")
+    time.sleep(5)
+  microcontroller.reset()
+
+# --- main program   ---------------------------------------------------------
+
 try:
   app = datacollector.DataCollector()
   app.run()
+except MemoryError as me:
+  reset()
 except Exception as ex:
   # log exception to /sd or /saves, if already mounted
   # memory could be scarce, so don't log too much
@@ -49,12 +62,6 @@ except Exception as ex:
   traceback.print_exception(ex)
   traceback = None
   gc.collect()
+  reset()
 
-  # reset device
-  import microcontroller
-  if datacollector.g_config.TEST_MODE:
-    import time
-    print("===> Automatic reset in 5 seconds. Interrupt with CTRL-C")
-    time.sleep(5)
-  microcontroller.reset()
 print("please press the reset-button!")
