@@ -15,6 +15,10 @@
 # this will block the gateway. This also requires that the gateway is regularly
 # restarted.
 #
+# Additionally, you can add tx_send to I_TASKS. These tasks are executed during
+# gateway idle time. This will only process buffered data and only send data
+# in small amounts to ensure that the gateway is not overloaded.
+#
 # Author: Bernhard Bablok
 #
 # Website: https://github.com/bablokb/cp-datalogger
@@ -66,8 +70,12 @@ class IFXSender:
     """ process data, single record  """
 
     start = time.monotonic()
-    g_logger.print("IFXSender: processing sensor-data...")
-    self._ifx_if.send_data(','.join(values)+'\n')
+    if msg_type is None:
+      g_logger.print("IFXSender: processing pending data...")
+      self._ifx_if.send_pending(count=1)
+    else:
+      g_logger.print("IFXSender: processing sensor-data...")
+      self._ifx_if.send_data(','.join(values)+'\n', pending=False)
 
   # --- shutdown   -----------------------------------------------------------
 
@@ -77,7 +85,7 @@ class IFXSender:
 
     g_logger.print(f"IFXSender: shutdown(): sending buffered data")
     try:
-      self._ifx_if.send_buffered_data()
+      self._ifx_if.send_pending()
     except Exception as ex:
       g_logger.print(f"IFXSender: exception while sending data: {ex}")
     return False

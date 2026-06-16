@@ -35,11 +35,11 @@ class IFX_If:
     self._wifi = WifiImpl()
 
     if self._config.HAVE_SD:
-      self._buffer_file = "/sd/ifx_buffer.csv"
+      self._buffer_file = "/sd/tx_buffer.csv"
     else:
       try:
         os.listdir("/saves")
-        self._buffer_file = "/saves/ifx_buffer.csv"
+        self._buffer_file = "/saves/tx_buffer.csv"
       except:
         self._buffer_file = None
     g_logger.print(f"IFX_If: using buffer file: {self._buffer_file}")
@@ -123,7 +123,7 @@ class IFX_If:
 
   # --- send pending data   --------------------------------------------------
 
-  def send_pending(self):
+  def send_pending(self, count=None):
     """ send pending data """
 
     # check if buffer file exists
@@ -142,34 +142,64 @@ class IFX_If:
       g_logger.print(f"IFX_If: no pending data file {self._buffer_file}")
       return True
 
-    # send buffer file. Since InfluxDB can handle identical data,
-    # we don't bother about partly successful transfers
-    rc = True
-    i = 1
+    # Send buffer file in line mode
+    buffer_file_new = None
+    rc_all = True
+
+    i = 0
     with open(self._buffer_file,"rt") as infile:
       for record in infile:
-        try:
-          code = self._post_data(self._convert_record(record))
-          if code != 204:
-            g_logger.print(f"record {i}: post to InfluxDB failed with {code}")
-          rc = rc and code == 204
-        except Exception as ex:
-          g_logger.print(f"IFX_If: failed with {ex}")
+        if not rc_all:
+          # we failed already, # so move records to BUFFER_FILE_NEW
+          buffer_file_new.write(record)
+          continue
+
+        # convert record and send it.  For idle processing count>0,
+        # so stop processing after count records were sent.
+        if not count is None and i>count-1:
           rc = False
-          break
+        else:
+          try:
+            code = self._post_data(self._convert_record(record))
+            if code != 204:
+              g_logger.print(f"record {i+1}: post to InfluxDB failed with {code}")
+            else:
+              g_logger.print(f"record {i+1}: successful post to InfluxDB")
+            rc = code == 204
+          except Exception as ex:
+            g_logger.print(f"IFX_If: record {i+1} failed with {ex}")
+            rc = False
+
+        # check result
+        rc_all = rc and rc_all
+        if not rc:
+          if i == 0:
+            # failed at the first record, bail out
+            return False
+          elif not buffer_file_new:
+            buffer_file_new = open(self._buffer_file+"new","at")
+          # keep this record in buffer_file_new
+          buffer_file_new.write(record)
         i += 1
 
-    # remove buffer file if transfer was successful
-    if rc:
-      os.remove(self._buffer_file)
-    return rc
+    # at this stage, BUFFER_FILE is processed
+    os.remove(self._buffer_file)
+    if buffer_file_new:
+      # move failed records to BUFFER_FILE, will be processed next time
+      buffer_file_new.flush()
+      buffer_file_new.close()
+      os.rename(self._buffer_file+"new",self._buffer_file)
+      os.sync()
+
+    # return send-status
+    return rc_all
 
   # --- send single data record   --------------------------------------------
 
-  def send_data(self, record):
+  def send_data(self, record, pending=True):
     """ send single record (try pending first)  """
 
-    if not self.send_pending():
+    if pending and not self.send_pending():
       # send of pending data failed, so just add current record
       g_logger.print(f"IFX_If: appending current data to buffer file")
       with open(self._buffer_file,"at") as file:

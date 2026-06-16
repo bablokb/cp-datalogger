@@ -44,14 +44,9 @@ class TCP_If:
 
   # --- send buffered data   -------------------------------------------------
 
-  def send_buffered_data(self):
+  def send_pending(self, count=None):
     """ send buffered data """
 
-    if not self._buffer_file:  # no SD/save-partition, no buffered data
-      g_logger.print("TCP_If: no buffer file")
-      return True
-
-    # check if buffer file exists
     try:
       status = os.stat(self._buffer_file)
       size = status[6]
@@ -85,18 +80,22 @@ class TCP_If:
           buffer_file_new.write(record)
           continue
 
-        # convert values to bytes and send them
-        g_logger.print(f"TCP_If: re-sending: {record} ...")
-        try:
-          socket, n = self._wifi.send(
-            bytes(record,"UTF-8"),
-            self._config.TCP_HOST,self._config.TCP_PORT,
-            socket=socket)
-          g_logger.print(f"TCP_If: ... sent {n} bytes")
-          rc = n == len(record)
-        except Exception as ex:
-          g_logger.print(f"TCP_If: ... failed with exception: {ex}")
+        # convert record and send it.  For idle processing count>0,
+        # so stop processing after count records were sent.
+        if not count is None and i>count-1:
           rc = False
+        else:
+          g_logger.print(f"TCP_If: re-sending: {record} ...")
+          try:
+            socket, n = self._wifi.send(
+              bytes(record,"UTF-8"),
+              self._config.TCP_HOST,self._config.TCP_PORT,
+              socket=socket)
+            g_logger.print(f"TCP_If: ... sent {n} bytes")
+            rc = n == len(record)
+          except Exception as ex:
+            g_logger.print(f"TCP_If: ... failed with exception: {ex}")
+            rc = False
 
         # check result
         rc_all = rc and rc_all
@@ -128,13 +127,13 @@ class TCP_If:
 
   # --- process data   -------------------------------------------------------
 
-  def send_data(self, record):
+  def send_data(self, record, pending=True):
     """ process data, single record  """
 
     start = time.monotonic()
 
     # check for pending records
-    if self._buffer_file and not self.send_buffered_data():
+    if pending and not self.send_pending():
       # sending failed, so just append current record and stop processing
       g_logger.print("TCP_If: appending current data to buffer-file")
       with open(self._buffer_file,"at") as file:

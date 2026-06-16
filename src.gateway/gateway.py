@@ -312,6 +312,7 @@ class Gateway:
                          "Waiting for data..."])
     g_logger.print(f"gateway: waiting for incoming data ...")
 
+    idle_time = time.monotonic()
     while True:
       data = None
 
@@ -329,6 +330,13 @@ class Gateway:
             self._active_until = time.time() + 60*g_config.ON_DURATION
             g_logger.print("gateway: Active until: " +
                            f"{self.rtc.print_ts(None,self._active_until)}")
+
+        # check elapsed idle time and process idle-tasks
+        if time.monotonic() - idle_time > getattr(g_config,"MIN_IDLE_TIME",10):
+          self._process_data(None,[],tasks="I_TASKS")
+          idle_time = time.monotonic()
+
+        # wait for next packet
         continue
 
       # data is already decoded and should contain csv data
@@ -346,3 +354,6 @@ class Gateway:
           self._handle_data(msg_type, values, node_sender)
       except Exception as ex:
         g_logger.print(f"gateway: could not process data: {ex}")
+
+      # reset idle time
+      idle_time = time.monotonic()
