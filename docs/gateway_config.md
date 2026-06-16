@@ -59,6 +59,7 @@ Tasks
 | Name                | Type | O/M | Description                  |
 |---------------------|------|-----|------------------------------|
 | TASKS               | str  |  M  | List of post-data tasks      |
+| I_TASKS             | str  |  M  | List of idle-time tasks      |
 | B_TASKS             | str  |  M  | List of post-broadcast tasks |
 | S_TASKS             | str  |  M  | List of pre-shutdown tasks   |
 
@@ -68,6 +69,12 @@ special configurations.
 
 Tasks can be used to send data from the gateway to upstream or to
 save data to a SD-card.
+
+Task listed in `I_TASKS` only execute if the gateway did not receive
+a packet during the last `MIN_IDLE_TIME` seconds. The rationale is that
+packets are received in clusters and time-intensive post processing
+(e.g. sending data to upstream) should be delayed for processing during
+an (expected) longer idle period.
 
 Tasks listed in `B_TASKS` are for development and troubleshooting only
 and should normally be not necessary.
