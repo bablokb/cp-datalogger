@@ -90,6 +90,7 @@ class SEN6X:
       g_logger.print(f"setting altitude to {altitude}m above sea-level")
       self.sen6x.sensor_altitude = altitude
 
+    self.FORMATS  = getattr(config,"SEN6X_FORMATS",FORMATS)
     self.SAMPLES  = getattr(config,"SEN6X_SAMPLES",SAMPLES)
     self.INTERVAL = getattr(config,"SEN6X_INTERVAL",INTERVAL)
     self.TIMEOUT  = getattr(config,"SEN6X_TIMEOUT",TIMEOUT)
@@ -101,7 +102,7 @@ class SEN6X:
     # dynamically create formats for display...
     self.formats = []
     for p in self.PROPERTIES:
-      self.formats.extend(FORMATS[p])
+      self.formats.extend(self.FORMATS[p])
 
     # ... and header for csv
     if self.DISCARD:
@@ -208,22 +209,22 @@ class SEN6X:
       "pn40": pn40,
       "pn100": pn100,
 
-      FORMATS['t'][0]: FORMATS['t'][1].format(temp),
-      FORMATS['h'][0]: FORMATS['h'][1].format(hum),
-      FORMATS['c'][0]: FORMATS['c'][1].format(co2),
+      self.FORMATS['t'][0]: self.FORMATS['t'][1].format(temp),
+      self.FORMATS['h'][0]: self.FORMATS['h'][1].format(hum),
+      self.FORMATS['c'][0]: self.FORMATS['c'][1].format(co2),
 
-      FORMATS['voc'][0]: FORMATS['voc'][1].format(voc),
-      FORMATS['nox'][0]: FORMATS['nox'][1].format(nox),
+      self.FORMATS['voc'][0]: self.FORMATS['voc'][1].format(voc),
+      self.FORMATS['nox'][0]: self.FORMATS['nox'][1].format(nox),
 
-      FORMATS['pm10'][0]: FORMATS['pm10'][1].format(pm10),
-      FORMATS['pm25'][0]: FORMATS['pm25'][1].format(pm25),
-      FORMATS['pm40'][0]: FORMATS['pm40'][1].format(pm40),
-      FORMATS['pm100'][0]: FORMATS['pm100'][1].format(pm100),
+      self.FORMATS['pm10'][0]: self.FORMATS['pm10'][1].format(pm10),
+      self.FORMATS['pm25'][0]: self.FORMATS['pm25'][1].format(pm25),
+      self.FORMATS['pm40'][0]: self.FORMATS['pm40'][1].format(pm40),
+      self.FORMATS['pm100'][0]: self.FORMATS['pm100'][1].format(pm100),
 
-      FORMATS['pn10'][0]: FORMATS['pn10'][1].format(pn10),
-      FORMATS['pn25'][0]: FORMATS['pn25'][1].format(pn25),
-      FORMATS['pn40'][0]: FORMATS['pn40'][1].format(pn40),
-      FORMATS['pn100'][0]: FORMATS['pn100'][1].format(pn100),
+      self.FORMATS['pn10'][0]: self.FORMATS['pn10'][1].format(pn10),
+      self.FORMATS['pn25'][0]: self.FORMATS['pn25'][1].format(pn25),
+      self.FORMATS['pn40'][0]: self.FORMATS['pn40'][1].format(pn40),
+      self.FORMATS['pn100'][0]: self.FORMATS['pn100'][1].format(pn100),
     }
     if not self.ignore:
       for p in self.PROPERTIES:

@@ -214,6 +214,7 @@ SEN6X
 | SEN6X_TIMEOUT        | int  |  O  | timeout waiting for data (5)     |
 | SEN6X_DISCARD        | bool |  O  | only keep last readout (True)    |
 | SEN6X_PROPERTIES     | str  |  O  | properties for display (c t h)   |
+| SEN6X_FORMATS        | str  |  O  | formats for display              |
 | SEN6X_AUTO_CALIBRATE | bool |  O  | auto-calibrate CO2 (False)       |
 | SEN6X_TEMP_OFFSET    | [f,f]|  O  | offset and slope (see datasheet) |
 | ALTITUDE_AT_LOCATION | int  |  O  | altitude in meters (540)         |
@@ -233,6 +234,11 @@ Available properties:
      x = 10, 25, 40, 100 (pm10: mass concentration PM1.0 etc.)
   - `pn<x>`: number concentration of particles measured in particles/cm³ 
      x = 10, 25, 40, 100
+
+To change the default display formats, override `SEN6X_FORMATS` and
+use the value of `FORMATS` from
+[`sensors/sen6x.py`](../src/sensors/sen6x.py) as the template. This
+could be necessary if the default labels are too long.
 
 The Sen6x-sensors give better results with multiple samples. Normally,
 only the last sample is saved to CSV, the others are discarded. For
