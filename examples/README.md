@@ -23,6 +23,26 @@ CO2. This setup is ideal for a small, mobile air-quality measurement
 system.
 
 
+Badger2350
+----------
+
+The Badger2350 is the successor of the Badger2040W. It is powered by a
+RP2350 with 8MB PSRAM and 16MB flash. The device provides a RTC
+(PCF85063A), but in contrast to the Badger2040W it does not have any
+circuitry for power management so it relies solely on deep-sleep. A
+Stemma/Qt connector allows the connection of standard sensor
+breakouts. There is no SD-card support, so data can be collected and
+shown on the display, but not saved (unless used with a custom build
+that adds a /saves-partition). Sending data to a gateway using wifi is
+possible.
+
+![](./badger2350+sen66.jpg)
+
+In the example setup, an SEN66 measures temperature, humidity, CO2,
+NOX, VOX and particles. This setup is ideal for a small, mobile
+air-quality measurement system.
+
+
 XIAO ESP32S3 with XIAO-Base
 ---------------------------
 
