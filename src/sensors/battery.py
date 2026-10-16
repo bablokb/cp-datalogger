@@ -58,7 +58,9 @@ class BATTERY:
   def read(self,data,values):
     """ read voltage monitor """
 
-    if hasattr(pins,"PIN_VOLTAGE_MONITOR"):
+    if hasattr(pins,"bat_level"):
+      level = pins.bat_level()
+    elif hasattr(pins,"PIN_VOLTAGE_MONITOR"):
       adc = AnalogIn(pins.PIN_VOLTAGE_MONITOR)
       if getattr(self._config,"BATTERY_FILTERING",False):
         level = self._trimmed_value(adc)
