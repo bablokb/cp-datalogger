@@ -16,12 +16,30 @@
 import board
 
 PCB_VERSION = 0          # PCB-version of datalogger (i.e. no datalogger-PCB)
+BAT_SAMPLES = 10         # from Pimoronis implementation
 
-# --- standard pins RP2040   -------------------------------------------------
+# --- standard pins RP2350   -------------------------------------------------
 
 PIN_LED             = board.LED
 PIN_VBUS_SENSE      = board.VBUS_SENSE
-PIN_VOLTAGE_MONITOR = board.VBAT_SENSE
+
+# --- special logic for battery level   --------------------------------------
+
+def bat_level():
+  """ return battery level """
+  from analogio import AnalogIn
+
+  sum_vbat = 0
+  sum_vref = 0
+  adc_vbat = AnalogIn(board.VBAT_SENSE)
+  adc_vref = AnalogIn(board.SENSE_1V1)
+
+  for _ in range(BAT_SAMPLES):
+    sum_vbat += adc_vbat.value
+    sum_vref += adc_vref.value
+  adc_vbat.deinit()
+  adc_vref.deinit()
+  return 2.2*sum_vbat/sum_vref
 
 # --- pin-constants (don't change unless you know what you are doing)   ------
 
